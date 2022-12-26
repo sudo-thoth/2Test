@@ -1,0 +1,66 @@
+require("dotenv").config();
+const fs = require("fs");
+
+const {
+  Client,
+  GatewayIntentBits,
+  EmbedBuilder,
+  PermissionsBitField,
+  Permissions,
+  MessageManager,
+  Embed,
+  Collection,
+} = require(`discord.js`);
+const client = new Client({
+  intents: [
+    GatewayIntentBits.Guilds | GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.MessageContent,
+  ],
+});
+
+const handleFunctions = require("./client/handlers/handleFunctions");
+const handleEvents = require("./client/handlers/handleEvents");
+const handleCommands = require("./client/handlers/handleCommands");
+
+const djsFunctionFolders = fs.readdirSync("./src/djs/functions");
+const djsCommandFolders = fs.readdirSync("./src/djs/commands");
+const djsEventFiles = fs
+  .readdirSync("./src/djs/client/events")
+  .filter((file) => file.endsWith(".js"));
+
+const { token } = process.env;
+
+client.commands = new Collection();
+
+client.on("ready", () => {
+  console.log("---------- >> Bot is Online << ----------");
+
+  const activities = [
+    "with my code",
+    "Juice WRLD - Road Rage",
+    "Juice WRLD - In My Head",
+    "Juice WRLD - Amazing",
+    "Juice WRLD - Ca$h Out",
+    "Juice WRLD - Nuts Itch",
+  ];
+
+  const types = ["PLAYING", "LISTENING", "WATCHING", "STREAMING", "COMPETING"];
+
+  const statuses = ["online", "idle", "dnd", "invisible"];
+
+  setInterval(() => {
+    const text = activities[Math.floor(Math.random() * activities.length)];
+    const type = types[Math.floor(Math.random() * types.length)];
+    const status = statuses[Math.floor(Math.random() * statuses.length)];
+
+    // client.user.setPresence({activities : [{name: text, type: type}], status: status});
+    client.user.setPresence({ activities: [{ name: text }], status: status });
+    client.user.setAct;
+  }, 5000);
+});
+
+handleFunctions(djsFunctionFolders, "./src/djs/functions");
+handleEvents(client, djsEventFiles);
+handleCommands(client, djsCommandFolders, "./src/djs/commands");
+
+client.login(token);

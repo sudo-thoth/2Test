@@ -1,86 +1,52 @@
-// Importing the required modules
-try {
-    const logError = require('./logError');
+// Import the execSync function from the child_process module
+const { execSync } = require("child_process");
 
-} catch (error) {
-    console.log(`❌ Failed to import logError.js due to incorrect directory path. \u2B05`);
-    console.log("-------------------------------");
-    console.log(`Message: ${error.message}`);
-      console.log("-------------------------------");
-      console.log(`File: ${error.fileName}`);
-      console.log(`Line: ${error.lineNumber}`);
-      return;
+/**
+ * Installs a list of npm packages.
+ *
+ * @param {string[]} packageNames - An array of package names to be installed.
+ *
+ * @returns {void}
+ *
+ * @throws {Error} If an error occurs while executing the installPackages function.
+ */
 
-}
-
-try {
-	const checkPackage = require('./checkPackage');
-} catch (error) {
-    let about = `This error occurred due to an incorrect directory path from the checkPackage.js file \u2B05 installPackage.js.`;
-    // print right-arrow symbol
-    console.log(`\u2B05`);
-    try {
-        logError(error, about);
-    } catch (error) {
-        console.log(`❌ Failed to import logError.js due to incorrect directory path. \u2B05`);
-        console.log("-------------------------------");
-        console.log(`Message: ${error.message}`);
-          console.log("-------------------------------");
-          console.log(`File: ${error.fileName}`);
-          console.log(`Line: ${error.lineNumber}`);
-          return;
-    }
-	
-}
-
-
-
-try {
-    const { execSync } = require('child_process');
-  } catch (error) {
-    let about = `This error occurred due to an incorrect directory path from the checkPackage.js file \u2B05 installPackage.js.\nMust install child_process || npm install child_process`;
-    try {
-	logError(error, about);
-} catch (error) {
-	console.log(`❌ Failed to import logError.js due to incorrect directory path. \u2B05`);
-    console.log("-------------------------------");
-    console.log(`Message: ${error.message}`);
-      console.log("-------------------------------");
-      console.log(`File: ${error.fileName}`);
-      console.log(`Line: ${error.lineNumber}`);
-      return;
-}
-  }
-
-
-
-
+// Define the installPackages function, which takes an array of package names as an argument
 module.exports = function installPackages(packageNames) {
+  // Initialize a variable to keep track of the number of installed packages
   let numOfInstalledPackages = 0;
+  // Use a try-catch block to handle any errors that may occur while executing the following code
+  try {
+    // Log a message to the console indicating that the installation process has started
+    console.log(`In Progress of installing Packages . . . . .`);
 
-    if (checkPackage('execSync')) {
-      console.log(`In Progress of installing Packages . . . . .`);
-	for (const packageName of packageNames) {
-	      try {
-	        execSync(`npm install ${packageName}`, { stdio: 'inherit' });
-          numOfInstalledPackages++;
-	      } catch (error) {
-	        let about = `Failed to install ${packageName}.`;
-	        try {
-            logError(error, about);
-          } catch (error) {
-            console.log(`❌ Failed Execute logError() \u2B05`);
-              console.log("-------------------------------");
-              console.log(`Message: ${error.message}`);
-                console.log("-------------------------------");
-                console.log(`File: ${error.fileName}`);
-                console.log(`Line: ${error.lineNumber}`);
-          }
-	      }
-	    }
-      console.log(`✅ Successfully Completed installPackages() installed ${numOfInstalledPackages} packages.`);
-} else {
-    console.log(`❌ Failed to install 'execSync' package. Therefore cannot install any packages automatically \u2B05\nMust install child_process || npm install child_process`);
-      return
-}
+    // Loop through the array of package names
+    for (const packageName of packageNames) {
+      // Use a try-catch block to handle any errors that may occur while installing a specific package
+      try {
+        // Use the execSync function to install the package using npm
+        execSync(`npm install ${packageName}`, { stdio: "inherit" });
+        // Increment the count of installed packages
+        numOfInstalledPackages++;
+      } catch (error) {
+        // If the error has a code of "MODULE_NOT_FOUND", it means that the child_process package is not installed
+        if (error.code === "MODULE_NOT_FOUND") {
+          // Log a message to the console indicating that the child_process package must be installed
+          console.log(
+            `The 'child_process' package is not installed. Please install it by running 'npm install child_process' and try again.`
+          );
+        } else {
+          // If the error is not a "MODULE_NOT_FOUND" error, it is assumed to be a different error, and the original error message is displayed
+          console.error(`Failed to install ${packageName}.`);
+        }
+      }
+    }
+    // Log a message to the console indicating that the installation process has completed successfully
+    console.log(
+      `✅ Successfully Completed installPackages() installed ${numOfInstalledPackages} packages.`
+    );
+  } catch (error) {
+    // If an error occurs outside of the inner try-catch block, it is assumed to be a different error, and the original error message is displayed
+    console.error(`Error executing installPackages(): ${error.message}`);
   }
+};

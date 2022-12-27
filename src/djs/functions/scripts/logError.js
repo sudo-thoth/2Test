@@ -1,28 +1,53 @@
-// Before anything must install chalk package @ npm i chalk
-const installPackage = require('./installPackage');
-installPackage('chalk', 'exists');
-const chalk = require('chalk');
+// Import the required modules
+const { chalk } = require("chalk");
+const { inBox } = require("./inBox.js");
 
-console.log(chalk.bold("Error Details:")); // Bold text
-console.log(chalk.underline(`Message: ${error.message}`)); // Underlined text
-console.log("-------------------------------");
-console.log(chalk.red(`File: ${error.fileName}`));
 
+
+/**
+ * This module logs errors to the console, with the option to log additional data if it is provided.
+ *
+ * @param {Error} error - The error object to be logged.
+ * @param {Object} [data] - Additional data to be logged with the error.
+ */
 module.exports = function logError(error, data) {
-  // Print the error message to the console
-  console.error(error.message);
 
-  if (exists(data)) {
+  // Define two log messages
+let logWithData = `
+${chalk.red.bold("Error Details:")}
+${"-------------------------------"}
+${chalk.bold("Message:")} ${error.message}
+${"-------------------------------"}
+${chalk.bold.blue("File:")} ${error.fileName}
+${"-------------------------------"}
+${chalk.bold.cyan("Line:")} ${error.lineNumber}
+${"-------------------------------"}
+${chalk.bold.yellow("Data:")} ${JSON.stringify(data)}
+`;
+
+let logWithoutData = `
+${chalk.underline.red("❌ Error Occurred ❌")}
+${"-------------------------------"}
+${chalk.bold("Message:")} ${error.message}
+${"-------------------------------"}
+${chalk.bold.blue("File:")} ${error.fileName}
+${"-------------------------------"}
+${chalk.bold.cyan("Line:")} ${error.lineNumber}
+`;
+
+  // Check if the 'data' argument is defined
+  if (data) {
     // Ask the user if they want to log the error
     process.stdout.write("Would you like to log this error? (Y/N) ");
 
     // Set a timeout to log the error after 15 seconds if no response is received
     let timeoutId = setTimeout(() => {
-      console.log("\n❌ Error Occurred ❌");
-      console.log(`Message: ${error.message}`);
-      console.log("-------------------------------");
-      console.log(`File: ${error.fileName}`);
-      console.log(`Line: ${error.lineNumber}`);
+      try {
+        console.log(inBox(logWithoutData));
+      } catch (err) {
+        console.error(err);
+      }
+      return;
     }, 15000);
 
     // Wait for the user's response
@@ -39,27 +64,28 @@ module.exports = function logError(error, data) {
         input.toLowerCase() === "yes" ||
         input === ""
       ) {
-        console.log("\nError Details:");
-        console.log(`Message: ${error.message}`);
-        console.log("-------------------------------");
-        console.log(`File: ${error.fileName}`);
-        console.log("-------------------------------");
-        console.log(`Line: ${error.lineNumber}`);
-        console.log("-------------------------------");
-        console.log(`Data: ${JSON.stringify(data)}`);
+        try {
+          console.log(inBox(logWithData));
+        } catch (err) {
+          console.error(err);
+        }
+        return;
       } else {
-        console.log("\n❌ Error Occurred ❌");
-        console.log(`Message: ${error.message}`);
-        console.log("-------------------------------");
-        console.log(`File: ${error.fileName}`);
-        console.log(`Line: ${error.lineNumber}`);
+        try {
+          console.log(inBox(logWithoutData));
+        } catch (err) {
+          console.error(err);
+        }
+        return;
       }
     });
   } else {
-    console.log("\n❌ Error Occurred ❌");
-    console.log(`Message: ${error.message}`);
-    console.log("-------------------------------");
-    console.log(`File: ${error.fileName}`);
-    console.log(`Line: ${error.lineNumber}`);
+    // If the 'data' argument is not defined, log the error message only
+    try {
+      console.log(inBox(logWithoutData));
+    } catch (err) {
+      console.error(err);
+    }
+    return;
   }
 };

@@ -28,8 +28,40 @@
  */
 
 const { EmbedBuilder } = require('discord.js');
-const { logError } = require('../scripts/logError.js');
+const scripts = require('../scripts/scripts.js');
 
+/* Example embed object that gets passed in below
+const embedObj = {
+    title: 'Title',
+    description: 'Description',
+    color: '#FF0000',
+    footer: {
+        text: 'Footer text',
+        iconURL: 'https://example.com/image.png'
+    },
+    thumbnail: 'https://example.com/image.png',
+    image: 'https://example.com/image.png',
+    author: {
+        name: 'Author name',
+        iconURL: 'https://example.com/image.png',
+        url: 'https://example.com'
+    },
+    fields: [
+        {
+            name: 'Field 1',
+            value: 'Field 1 value',
+            inline: true
+        },
+        {
+            name: 'Field 2',
+            value: 'Field 2 value',
+            inline: true
+        }
+    ]
+};
+*/
+
+// Create an embed to be returned if an error occurs
 const errEmbed = new EmbedBuilder()
 .setColor('#FF0000')
 .setTitle('❗️ Error')
@@ -41,7 +73,7 @@ module.exports = function createEmbed(obj) { // DJS v14
   if (!obj.title && !obj.description && !obj.image && !obj.fields.length) {
     // If not, log an error
     try {
-      logError(new Error('Invalid properties were given to create the embed'), 'Invalid properties were given to create the embed');
+      scripts.logError(new Error('Invalid properties were given to create the embed'), 'Invalid properties were given to create the embed');
     } catch (error) {
       console.error(error);
     }
@@ -54,7 +86,7 @@ module.exports = function createEmbed(obj) { // DJS v14
     embed = new EmbedBuilder();
   } catch (error) {
     try {
-      logError(error, 'Error creating EmbedBuilder instance');
+      scripts.logError(error, 'Error creating EmbedBuilder instance');
     } catch (error) {
       console.error(error);
     }
@@ -72,7 +104,7 @@ module.exports = function createEmbed(obj) { // DJS v14
     if (obj.author) embed.setAuthor(obj.author.name, obj.author.iconURL, obj.author.url);
   } catch (error) {
     try {
-      logError(error, 'Error setting properties of the embed');
+      scripts.logError(error, 'Error setting properties of the embed');
     } catch (error) {
       console.error(error);
     }
@@ -88,7 +120,7 @@ module.exports = function createEmbed(obj) { // DJS v14
     }
   } catch (error) {
     try {
-      logError(error, 'Error adding fields to the embed');
+      scripts.logError(error, 'Error adding fields to the embed');
     } catch (error) {
       console.error(error);
     }

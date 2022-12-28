@@ -1,0 +1,10 @@
+2Test Folder is the project Root
+ 
+ 
+Required Projects to Install Before use
+- chalk >> npm i chalk@4.1.2
+- boxen >> npm i boxen
+- discord.js v14 >> npm i discord.js
+- dotenv >> npm i dotenv
+
+

@@ -1,15 +1,17 @@
 {
-  "dependencies": {
-    "discord.js": "^14.7.1",
-    "dotenv": "^16.0.3"
-  },
   "name": "2test",
   "version": "1.0.0",
   "description": "test bot",
-  "main": "../2test/src/djs/index.js",
+  "main": "./src/djs/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "LT",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "chalk": "^4.1.2",
+    "cli-box": "^6.0.10",
+    "discord.js": "^14.7.1",
+    "dotenv": "^16.0.3"
+  }
 }

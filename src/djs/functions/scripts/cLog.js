@@ -1,8 +1,8 @@
 // Before anything must install chalk package @ npm i chalk
 
-const { chalk } = require('chalk');
-const { inBox } = require('./inBox');
-const { logError } = require('./logError');
+const chalk = require('chalk');
+const inBox = require('./inBox');
+const logError = require('./logError');
 
 
 
@@ -19,7 +19,7 @@ const { logError } = require('./logError');
  * consoleLog("Something went wrong");
  * // logs the data, the file and line number where the function was called, and surrounds the output with a box
  */
-module.exports = function cLog(data) {
+function cLog(data) {
   // Get the stack trace of the current error.
   // The stack trace is a string that contains information about the current call stack.
   // Each line of the stack trace represents a function call, with the most recent function call at the top.
@@ -49,27 +49,33 @@ module.exports = function cLog(data) {
   // The `slice()` method returns an array of the captured strings, with the first element being the file path and the second element being the line number.
   const [file, lineNumber] = fileAndLineNumberString.match(/(.+):(\d+)/).slice(1);
 
+  const lineLog = `${chalk.underline.italic.yellow.bgGray(" >>>>>> Log <<<<<< ")}`
+  const lineData = `${chalk.yellow.bold.bgGray("Data:")}
+  ${chalk.yellow.bgGray(data)}`
+  const lineDivider = `${'---------------'}`
+  const logInfo = `
+  ${chalk.underline.blue.bgGray("Location:")}
+  ${chalk.bold.blue.bgWhite(`File: ${file}`)}
+  ${chalk.bold.cyan.bgWhite(`Line: ${lineNumber}`)}`
+
+
+
   // Create the log string using template literals and the chalk library to add formatting.
   // The log string includes the data being logged, as well as the file and line number where the consoleLog() function was called.
   // The data is displayed in yellow bold text, and the file and line number are displayed in blue and cyan bold text, respectively.
   // A horizontal line is also added to visually separate the data from the file and line number.
   const logs = data ? `
-  ${chalk.underline.bold.italic.yellow.size(17)("Log:")}
-${chalk.yellow.bold("Data:")}
-${chalk.yellow(data)}
-${'-------------------------------'}
-
-${chalk.underline.bold.blue.size(17)("Location:")}
-${chalk.bold.blue(`File: ${file}`)}
-${chalk.bold.cyan(`Line: ${lineNumber}`)}
+  ${lineLog}
+  ${lineData}
+  ${lineDivider}
+  ${logInfo}
 ` : `
-${chalk.underline.bold.italic.yellow.size(17)("Log:")}
-${'-------------------------------'}
-
-${chalk.underline.bold.blue.size(17)("Location:")}
-${chalk.bold.blue(`File: ${file}`)}
-${chalk.bold.cyan(`Line: ${lineNumber}`)}
+${lineLog}
+${lineDivider}
+${logInfo}
 `;
+
+
 
 // Surround the log string with a box using the inBox() function and log the result to the console.
 try {
@@ -77,5 +83,7 @@ try {
   } catch (err) {
     logError(err, `Error in consoleLog() function. | Meaning an error when trying to do a regular logging.`);
   }
+  return 999;
 
 };
+module.exports = cLog;

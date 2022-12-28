@@ -1,6 +1,6 @@
 // Import the required modules
-const { chalk } = require("chalk");
-const { inBox } = require("./inBox.js");
+const chalk = require("chalk"); // npm i chalk@4.1.2
+const inBox = require("./inBox.js");
 
 
 
@@ -14,25 +14,23 @@ module.exports = function logError(error, data) {
 
   // Define two log messages
 let logWithData = `
-${chalk.red.bold("Error Details:")}
-${"-------------------------------"}
-${chalk.bold("Message:")} ${error.message}
-${"-------------------------------"}
-${chalk.bold.blue("File:")} ${error.fileName}
-${"-------------------------------"}
-${chalk.bold.cyan("Line:")} ${error.lineNumber}
-${"-------------------------------"}
-${chalk.bold.yellow("Data:")} ${JSON.stringify(data)}
+${chalk.red.bold.bgGray("Error Details:")}
+${'---------------'}
+${chalk.bold.bgGray("Message:")} ${error.message}
+${'---------------'}
+${chalk.bold.blue.bgWhite("File:")} ${error.fileName}
+${chalk.bold.cyan.bgWhite("Line:")} ${error.lineNumber}
+${'---------------'}
+${chalk.bold.yellow.bgGray("Data:")} ${JSON.stringify(data)}
 `;
 
 let logWithoutData = `
-${chalk.underline.red("❌ Error Occurred ❌")}
-${"-------------------------------"}
-${chalk.bold("Message:")} ${error.message}
-${"-------------------------------"}
-${chalk.bold.blue("File:")} ${error.fileName}
-${"-------------------------------"}
-${chalk.bold.cyan("Line:")} ${error.lineNumber}
+${chalk.underline.red.bgGray("❌ Error Occurred ❌")}
+${'---------------'}
+${chalk.bold.bgGray("Message:")} ${error.message}
+${'---------------'}
+${chalk.bold.blue.bgWhite("File:")} ${error.fileName}
+${chalk.bold.cyan.bgWhite("Line:")} ${error.lineNumber}
 `;
 
   // Check if the 'data' argument is defined

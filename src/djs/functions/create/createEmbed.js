@@ -30,6 +30,38 @@
 const { EmbedBuilder } = require('discord.js');
 const { logError } = require('../scripts/logError.js');
 
+/* Example embed object that gets passed in below
+const embedObj = {
+    title: 'Title',
+    description: 'Description',
+    color: '#FF0000',
+    footer: {
+        text: 'Footer text',
+        iconURL: 'https://example.com/image.png'
+    },
+    thumbnail: 'https://example.com/image.png',
+    image: 'https://example.com/image.png',
+    author: {
+        name: 'Author name',
+        iconURL: 'https://example.com/image.png',
+        url: 'https://example.com'
+    },
+    fields: [
+        {
+            name: 'Field 1',
+            value: 'Field 1 value',
+            inline: true
+        },
+        {
+            name: 'Field 2',
+            value: 'Field 2 value',
+            inline: true
+        }
+    ]
+};
+*/
+
+// Create an embed to be returned if an error occurs
 const errEmbed = new EmbedBuilder()
 .setColor('#FF0000')
 .setTitle('❗️ Error')

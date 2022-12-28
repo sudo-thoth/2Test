@@ -7,7 +7,7 @@ const commandDescription = "Test command";
 // Currently testing the cLog() function
 // Make Sure To change BOTH funcName AND the Import to the relevant function being tested
 let funcName = 'cLog()';
-const cLog = require('../../functions/scripts/cLog.js');
+const { cLog } = require('../../functions/scripts/scripts.js');
 
 // making the funcName bold in the success and fail messages
 funcName = `**${funcName}**`;

@@ -5,8 +5,7 @@ const {
   TextInputBuilder,
   TextInputStyle,
 } = require("discord.js");
-const { isDefined } = require("../scripts/isDefined.js");
-const { logError } = require("../scripts/logError.js");
+const scripts = require('../scripts/scripts.js');
 
 //   // Example Modal Object that gets passed in below
 //   let modalObj = {
@@ -42,8 +41,8 @@ async function createModal(modalObj) {
   // destructure the modalObj
   const { customID, title, rows } = modalObj;
   // make sure each property is defined with isDefined(), which returns true if the property is defined
-  if (!isDefined(customID) || !isDefined(title) || !isDefined(rows)) {
-    logError(
+  if (!scripts.isDefined(customID) || !scripts.isDefined(title) || !scripts.isDefined(rows)) {
+    scripts.logError(
       new Error("One or more modal properties are not defined"),
       `Error creating modal`
     );
@@ -54,7 +53,7 @@ async function createModal(modalObj) {
   try {
     newCustomModal = new ModalBuilder().setCustomId(customID).setTitle(title);
   } catch (error) {
-    logError(error, `Error creating modal`);
+    scripts.logError(error, `Error creating modal`);
   }
 
   rows.forEach((row) => {
@@ -62,7 +61,7 @@ async function createModal(modalObj) {
     try {
       newCustomModal.addComponents(createRow(row));
     } catch (error) {
-      logError(error, `Error adding row ${row.customID} to modal`);
+      scripts.logError(error, `Error adding row ${row.customID} to modal`);
     }
   });
 
@@ -91,11 +90,11 @@ const createRow = (textInputObj) => {
   let textInputField = new TextInputBuilder();
 
   // make sure each property is defined with isDefined(), which returns true if the property is defined
-  if (!isDefined(customID)) {
+  if (!scripts.isDefined(customID)) {
     try {
       throw new Error("customID is not defined");
     } catch (error) {
-      logError(error, "customID is not defined in createRow()");
+      scripts.logError(error, "customID is not defined in createRow()");
     }
   } else {
     // DO
@@ -106,32 +105,32 @@ const createRow = (textInputObj) => {
       try {
         throw new Error("customID is too long");
       } catch (error) {
-        logError(error, "customID is too long: MAX 100 characters");
+        scripts.logError(error, "customID is too long: MAX 100 characters");
       }
     }
     try {
       textInputField.setCustomId(customID);
     } catch (error) {
-      logError(error, "error w customID");
+      scripts.logError(error, "error w customID");
     }
   }
-  if (!isDefined(label)) {
+  if (!scripts.isDefined(label)) {
     try {
       throw new Error("label is not defined");
     } catch (error) {
-      logError(error, "label is not defined");
+      scripts.logError(error, "label is not defined");
     }
   } else {
     if (label.length > 45) {
       try {
         throw new Error("label is too long");
       } catch (error) {
-        logError(error, "label is too long: MAX 45 characters");
+        scripts.logError(error, "label is too long: MAX 45 characters");
       }
     }
     textInputField.setLabel(label);
   }
-  if (isDefined(style)) {
+  if (scripts.isDefined(style)) {
     // DO
     // check to make sure it is a string that is one of the TextInputStyle options
     if (
@@ -139,33 +138,32 @@ const createRow = (textInputObj) => {
       style !== "TextInputStyle.Paragraph"
     ) {
       try {
-        cLog(
+        scripts.cLog(
           "style is not a valid TextInputStyle\nAuto Assigning TextInputStyle.Short"
         );
         style = "TextInputStyle.Short";
       } catch (error) {
-        logError(error, "style is not a valid TextInputStyle");
+        scripts.logError(error, "style is not a valid TextInputStyle");
       }
     }
     textInputField.setStyle(style);
   }
-  if (isDefined(placeholder)) {
+  if (scripts.isDefined(placeholder)) {
     if (placeholder.length > 100) {
       try {
         throw new Error("placeholder is too long");
       } catch (error) {
-        logError(error, "placeholder is too long: MAX 100 characters");
+        scripts.logError(error, "placeholder is too long: MAX 100 characters");
       }
     }
     textInputField.setPlaceholder(placeholder);
   }
-  if (isDefined(required)) {
-    if (typeof required !== "boolean") {
-      try {
-        cLog("required is not a boolean\nAuto Assigning required to false");
+  if (scripts.isDefined(required)) {
+    if (typeof required !== "boolean") {      try {
+        scripts.cLog("required is not a boolean\nAuto Assigning required to false");
         required = false;
       } catch (error) {
-        logError(error, "required is not a boolean");
+        scripts.logError(error, "required is not a boolean");
       }
       textInputField.setRequired(required);
     }

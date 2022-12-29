@@ -41,6 +41,7 @@ function logError(error, data) {
   ${chalk.bold.cyan.bgWhite("Line:")} ${error.lineNumber}
   ${"---------------"}
   ${chalk.bold.yellow.bgGray("Data:")} ${JSON.stringify(data)}
+  ${chalk.red(`Error Summary`)} ${error}
   `;
 
   let logWithoutData = `
@@ -83,6 +84,7 @@ function logError(error, data) {
       ) {
         try {
           console.log(inBox(logWithData));
+          console.log(error);
         } catch (err) {
           console.error(err);
         }
@@ -122,32 +124,34 @@ function cLog(data) {
   // The stack trace is a string that contains information about the current call stack.
   // Each line of the stack trace represents a function call, with the most recent function call at the top.
   const stackTrace = new Error().stack;
+  cLog(`The StackTrace ${stackTrace}`);
 
   // Split the stack trace into an array of lines.
   const lines = stackTrace.split("\n");
+  cLog(`The StackTrace ${lines}`);
 
   // The second line of the stack trace (lines[1]) contains the file and line number where the consoleLog() function was called.
-  // The file and line number are in the format "file:lineNumber".
-  // For example, if the consoleLog() function was called from "main.js:15", the second line of the stack trace would be "    at consoleLog (main.js:15)".
+  // The file and line number are in the format "file:lineNumber:columnNumber".
+  // For example, if the consoleLog() function was called from "main.js:15:5", the second line of the stack trace would be "    at consoleLog (main.js:15:5)".
   const fileAndLineNumber = lines[1];
+  cLog(`The File and Line Number ${fileAndLineNumber}`);
 
   // Extract the file and line number from the second line of the stack trace.
   // The file and line number are between the parentheses "(" and ")".
-  // For example, if the second line of the stack trace is "    at consoleLog (main.js:15)",
-  // the file and line number are "main.js:15".
+  // For example, if the second line of the stack trace is "    at consoleLog (main.js:15:5)",
+  // the file and line number are "main.js:15:5".
   const fileAndLineNumberString = fileAndLineNumber.substring(
     fileAndLineNumber.indexOf("(") + 1,
     fileAndLineNumber.indexOf(")")
   );
 
-  // Split the file and line number string into the file and line number using a regular expression.
-  // The regular expression matches any character (`.+`) one or more times (`+`) followed by a `:` character and one or more digits (`\d+`).
-  // The parentheses (`()`) around `.+` and `\d+` capture the matched characters, so that they can be accessed later using the `slice()` method.
-
-  // The `slice()` method returns an array of the captured strings, with the first element being the file path and the second element being the line number.
-  const [file, lineNumber] = fileAndLineNumberString
-    .match(/(.+):(\d+)/)
-    .slice(1);
+  // Split the file and line number string into the file, line number, and column number using a regular expression.
+  // The regular expression matches any character (`.+`) one or more times (`+`) followed by a `:` character,
+  // one or more digits (`\d+`), and another `:` character and one or more digits (`:\d+`).
+  // The parentheses (`()`) around `.+` and `\d+` capture the matched characters, so that they can be accessed later using the array destructuring syntax.
+  const [file, lineNumber, columnNumber] = fileAndLineNumberString.match(
+    /(.+):(\d+):(\d+)/
+  );
 
   const lineLog = `${chalk.underline.italic.yellow.bgGray(
     " >>>>>> Log <<<<<< "
@@ -485,17 +489,10 @@ function inBox(text, color = "yellow") {
     }
 
     try {
-        return box(text, {
-            borderStyle: "round",
-            borderColor: `${color}`,
-            bgColor: "#555555", // gray
-            padding: [1, 2],
-            margin: [1, 2],
-            // float: 'right',
-        });
-    } catch (error) {
-        console.log("Error Attempting using the box package : in the process of creating a box around a string to be logged to the console\nusing chalk");
         return chalkBox(text);
+    } catch (error) {
+        console.log("Error Attempting to use the chalkBox function : in the process of creating a box around a string to be logged to the console");
+        return ;
     }
 }
 

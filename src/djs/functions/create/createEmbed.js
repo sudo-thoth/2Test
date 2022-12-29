@@ -14,6 +14,7 @@
  * @param {string} obj.author.name - The name of the author of the embed.
  * @param {string} obj.author.iconURL - The URL of the icon of the author of the embed.
  * @param {string} obj.author.url - The URL of the author of the embed.
+ * @param {Object} obj.author.role - The highest role of the author of the embed.
  * @param {Object[]} obj.fields - An array of objects containing the name, value, and inline status of the fields of the embed.
  * @param {string} obj.fields[].name - The name of the field.
  * @param {string} obj.fields[].value - The value of the field.
@@ -42,10 +43,14 @@ const embedObj = {
     thumbnail: 'https://example.com/image.png',
     image: 'https://example.com/image.png',
     author: {
-        name: 'Author name',
-        iconURL: 'https://example.com/image.png',
-        url: 'https://example.com'
-    },
+            // the username will be the discord username of the person who ran the command
+            username: `${interaction.user.username}`,
+            // the icon URL will be the discord avatar of the person who ran the command
+            iconURL: `${interaction.user.avatarURL()}`,
+            url: `https://discord.com/users/${interaction.user.id}`,
+            // role will be the highest role of the person who ran the command
+            role: `${interaction.member.roles.highest}`
+        },
     fields: [
         {
             name: 'Field 1',
@@ -70,7 +75,7 @@ const errEmbed = new EmbedBuilder()
 module.exports = function createEmbed(obj) { // DJS v14
   // Check if the obj has a valid value in the title, description, image, or fields array
   // At least one of these properties must be present in the obj in order for the embed to be valid
-  if (!obj.title && !obj.description && !obj.image && !obj.fields.length) {
+  if (!obj.title && !obj.description && !obj.image && !obj.fields) {
     // If not, log an error
     try {
       scripts.logError(new Error('Invalid properties were given to create the embed'), 'Invalid properties were given to create the embed');
@@ -101,7 +106,7 @@ module.exports = function createEmbed(obj) { // DJS v14
     if (obj.footer) embed.setFooter(obj.footer.text, obj.footer.iconURL);
     if (obj.thumbnail) embed.setThumbnail(obj.thumbnail);
     if (obj.image) embed.setImage(obj.image);
-    if (obj.author) embed.setAuthor(obj.author.name, obj.author.iconURL, obj.author.url);
+    // if (obj.author) embed.setAuthor(obj.author.username, obj.author.iconURL, obj.author.url, obj.author.role, );
   } catch (error) {
     try {
       scripts.logError(error, 'Error setting properties of the embed');
@@ -113,7 +118,7 @@ module.exports = function createEmbed(obj) { // DJS v14
 
   // Add fields to the embed if they are present in the obj
   try {
-    if (obj.fields.length) {
+    if (obj.fields) {
       obj.fields.forEach(field => {
         embed.addField(field.name, field.value, field.inline);
       });

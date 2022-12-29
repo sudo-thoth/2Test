@@ -1,3 +1,21 @@
+// All Functions Contained Within This File
+/*
+    logError,
+    cLog,
+    isDefined,
+    verifyImport,
+    installPackages,
+    getImportStatement,
+    generateColors,
+    getRand,
+    generateHexCode,
+    chalkBox,
+    inBox,
+    getColor
+*/
+
+
+
 const chalk = require('chalk'); // npm i chalk@4.1.2
 const execSync = require("child_process");
 const box = require('cli-box');

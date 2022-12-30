@@ -6,42 +6,91 @@ const commandDescription = "Test command";
 // FUNCTION TEST STATION Config.
 // Currently testing the cLog() function
 // Make Sure To change BOTH funcName AND the Import to the relevant function being tested
-let funcName = 'cLog()';
-const { cLog } = require('../../functions/scripts/scripts.js');
+
+const createEmbed = require('../../functions/create/createEmbed.js');
+const scripts = require('../../functions/scripts/scripts.js');
 
 // making the funcName bold in the success and fail messages
-funcName = `**${funcName}**`;
 module.exports = {
   data: new SlashCommandBuilder()
     .setName(`${commandName}`)
     .setDescription(`${commandDescription}}`),
   async execute(interaction) {
+    let testing = 'createEmbed()';
 
     // Success and Fail Messages
     // Change the content into embeds
-    const success = {
-      content: `✅ The Command Works! - Tested Function: ${funcName} ✅`,
-      ephemeral: true,
-    }
-    const fail = {
-      content: `❌ The Command Failed! - Tested Function: ${funcName} ❌`,
-      ephemeral: true,
-    }
+    const success = `✅ The Test was a Success!`;
+
+    const fail = `❌ The Test Failed!`;
+    const description = `\`Tested : ${testing}\``
+
+
     
 
     // Test Station
     // What are we testing?
     // cLog function
+    let result, testResultEmbed;
+
     try {
-      cLog("Testing!!!");
-      await interaction.reply(success);
-      console.log(`Test Command Successfully Executed: ✅\n- Tested Function: ${funcName}`);
+
+      // Test Code Here
+
+
+      // Test Result
+      result = true;
+      testResultEmbed = createEmbed({
+        title: `${result ? success : fail}`,
+        description: `${description}`,
+        color: `${result ? `#00FF00` : `#FF0000`}`,
+        footer: {
+          text: `Tested by: ${scripts.getInteractionObj(interaction).name}`,
+          iconURL: `${scripts.getInteractionObj(interaction).avatar}`
+        },
+        author: {
+          name: `${scripts.getInteractionObj(interaction).displayName}`,
+          id: `${scripts.getInteractionObj(interaction).userId}`,
+          iconURL: `${scripts.getInteractionObj(interaction).avatar}`,
+          url: `https://discord.com/users/${scripts.getInteractionObj(interaction).userId}`,
+        },
+      });
+      console.log(`Test Command Successfully Executed: ✅\n- Tested Function: ${testing}`);
     } catch (error) {
-      await interaction.reply(fail);
-      console.log(`Test Command Failed to Execute: ❌\n- Tested Function: ${funcName}\nERROR:`, error);
+      result = false;
+      testResultEmbed = createEmbed({
+        title: `${result ? success : fail}`,
+        description: `${description}`,
+        color: `${result ? `#00FF00` : `#FF0000`}`,
+        footer: {
+          text: `Tested by: ${scripts.getInteractionObj(interaction).name}`,
+          iconURL: `${scripts.getInteractionObj(interaction).avatar}`
+        },
+        author: {
+          name: `${scripts.getInteractionObj(interaction).displayName}`,
+          id: `${scripts.getInteractionObj(interaction).userId}`,
+          iconURL: `${scripts.getInteractionObj(interaction).avatar}`,
+          url: `https://discord.com/users/${scripts.getInteractionObj(interaction).userId}`,
+        },
+        fields: [
+          {
+            name: `Error Message`,
+            value: `${error.message}`,
+            inline: true,
+          }
+        ]
+      });
+      console.log(`Test Command Failed to Execute: ❌\n- Tested Function: ${testing}`);
+      scripts.logError(error);
+
     }  
-
-
+    
+    try {
+	await interaction.reply({embeds: [testResultEmbed]});
+} catch (error) {
+  scripts.logError(error, `Failed while replying to interaction: ${interaction.commandName}`);
+	
+}
     console.log(`Test Command Complete: ✅`);
   }
 };

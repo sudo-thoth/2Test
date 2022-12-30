@@ -43,8 +43,10 @@ const embedObj = {
     thumbnail: 'https://example.com/image.png',
     image: 'https://example.com/image.png',
     author: {
+            // The display name of the user
+            name: 'Logan'
             // the username will be the discord username of the person who ran the command
-            username: `${interaction.user.username}`,
+            id: `${interaction.user.id}`,
             // the icon URL will be the discord avatar of the person who ran the command
             iconURL: `${interaction.user.avatarURL()}`,
             url: `https://discord.com/users/${interaction.user.id}`,
@@ -75,6 +77,7 @@ const errEmbed = new EmbedBuilder()
 module.exports = function createEmbed(obj) { // DJS v14
   // Check if the obj has a valid value in the title, description, image, or fields array
   // At least one of these properties must be present in the obj in order for the embed to be valid
+
   if (!obj.title && !obj.description && !obj.image && !obj.fields) {
     // If not, log an error
     try {
@@ -103,11 +106,13 @@ module.exports = function createEmbed(obj) { // DJS v14
     if (obj.title) embed.setTitle(obj.title);
     if (obj.description) embed.setDescription(obj.description);
     if (obj.color) embed.setColor(obj.color);
-    if (obj.footer) embed.setFooter(obj.footer.text, obj.footer.iconURL);
+    if (obj.footer) embed.setFooter({text: obj.footer.text, iconURL: obj.footer.iconURL});
     if (obj.thumbnail) embed.setThumbnail(obj.thumbnail);
     if (obj.image) embed.setImage(obj.image);
-    // if (obj.author) embed.setAuthor(obj.author.username, obj.author.iconURL, obj.author.url, obj.author.role, );
+    if (obj.author) embed.setAuthor({name: obj.author.name, iconURL: obj.author.iconURL, url: obj.author.url});
+	
   } catch (error) {
+    console.log(`obj passed in:`, obj)
     try {
       scripts.logError(error, 'Error setting properties of the embed');
     } catch (error) {
@@ -120,7 +125,7 @@ module.exports = function createEmbed(obj) { // DJS v14
   try {
     if (obj.fields) {
       obj.fields.forEach(field => {
-        embed.addField(field.name, field.value, field.inline);
+        embed.addFields({name: field.name, value: field.value, inline: field.inline});
       });
     }
   } catch (error) {

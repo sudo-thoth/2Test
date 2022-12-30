@@ -31,14 +31,24 @@ const path = require("path");
  * @param {Object} [data] - Additional data to be logged with the error.
  */
 function logError(error, data) {
+  
+  const errorMessage = new Error().stack;
+  const errorLines = errorMessage.split('\n');
+  const funcCallerLine = errorLines[2]; // "at createEmbed (/Users/logantucker/Desktop/projects/bots/2test/src/djs/functions/create/createEmbed.js:79:11)"
+  
+  // Extract the file name, file path, line number, and column using the regular expression and array destructuring assignment as shown in the previous example
+  const extractInfoRegex = /at\s(.*)\s\((.*):(\d+):(\d+)\)/;
+  const [, fileName, filePath, lineNumber, column] = funcCallerLine.match(extractInfoRegex);
+  const fileNameWithExtension = path.basename(filePath);
+
   // Define two log messages
   let logWithData = `
   ${chalk.red.bold.bgGray("Error Details:")}
   ${"---------------"}
   ${chalk.bold.bgGray("Message:")} ${error.message}
   ${"---------------"}
-  ${chalk.bold.blue.bgWhite("File:")} ${error.fileName}
-  ${chalk.bold.cyan.bgWhite("Line:")} ${error.lineNumber}
+  ${chalk.bold.blue.bgWhite("File:")} ${fileNameWithExtension}
+  ${chalk.bold.cyan.bgWhite("Line:")} ${lineNumber}
   ${"---------------"}
   ${chalk.bold.yellow.bgGray("Data:")} ${JSON.stringify(data)}
   ${chalk.red(`Error Summary`)} ${error}
@@ -49,8 +59,8 @@ function logError(error, data) {
   ${"---------------"}
   ${chalk.bold.bgGray("Message:")} ${error.message}
   ${"---------------"}
-  ${chalk.bold.blue.bgWhite("File:")} ${error.fileName}
-  ${chalk.bold.cyan.bgWhite("Line:")} ${error.lineNumber}
+  ${chalk.bold.blue.bgWhite("File:")} ${fileNameWithExtension}
+  ${chalk.bold.cyan.bgWhite("Line:")} ${lineNumber}
   `;
 
   // Check if the 'data' argument is defined
@@ -61,7 +71,7 @@ function logError(error, data) {
     // Set a timeout to log the error after 15 seconds if no response is received
     let timeoutId = setTimeout(() => {
       try {
-        console.log(inBox(logWithoutData));
+        console.log(inBox(logWithoutData), error);
       } catch (err) {
         console.error(err);
       }
@@ -83,15 +93,14 @@ function logError(error, data) {
         input === ""
       ) {
         try {
-          console.log(inBox(logWithData));
-          console.log(error);
+          console.log(inBox(logWithData), error);
         } catch (err) {
           console.error(err);
         }
         return;
       } else {
         try {
-          console.log(inBox(logWithoutData));
+          console.log(inBox(logWithoutData), error);
         } catch (err) {
           console.error(err);
         }
@@ -101,13 +110,54 @@ function logError(error, data) {
   } else {
     // If the 'data' argument is not defined, log the error message only
     try {
-      console.log(inBox(logWithoutData));
+      console.log(inBox(logWithoutData), error);
     } catch (err) {
       console.error(err);
     }
     return;
   }
 }
+
+
+function logger(stacktrace, log){
+  console.log(`start`)
+  // console.log(stacktrace + log)
+  
+  // const stackTrace = new Error().stack;
+  // console.log(`${stackTrace}`)
+
+  const errorMessage = new Error().stack;
+  const errorLines = errorMessage.split('\n');
+  const funcCallerLine = errorLines[2]; // "at createEmbed (/Users/logantucker/Desktop/projects/bots/2test/src/djs/functions/create/createEmbed.js:79:11)"
+  
+  // Extract the file name, file path, line number, and column using the regular expression and array destructuring assignment as shown in the previous example
+  const extractInfoRegex = /at\s(.*)\s\((.*):(\d+):(\d+)\)/;
+  const [, fileName, filePath, lineNumber, column] = funcCallerLine.match(extractInfoRegex);
+  const fileNameWithExtension = path.basename(filePath);
+
+console.log(fileName);
+
+  console.log(`fileNameWithExtension:`,fileNameWithExtension); // "createEmbed.js"
+  console.log(`filename:`,fileName); // "createEmbed"
+  console.log(`filePath:`,filePath); // "/Users/logantucker/Desktop/projects/bots/2test/src/djs/functions/create/createEmbed.js"
+  console.log(`lineNumber`,lineNumber); // "79"
+  console.log(`column`,column); // "11"
+
+  const logData = `
+  ${chalk.bold.bgGray("Function/Error Called From:")} ${log}
+  ${"---------------"}
+  ${chalk.bold.blue.bgWhite("File:")} ${fileNameWithExtension}
+  ${chalk.bold.cyan.bgWhite("Line:")} ${lineNumber}
+  ${"---------------"}
+  ${chalk.bold.yellow.bgGray("Data:")} ${JSON.stringify(data)}
+  ${chalk.red(`Error Summary`)} ${error}
+  `;
+  console.log(logData)
+
+
+  
+  console.log(`end`)
+  }
 
 /**
  * Logs data to the console with the file and line number where the function was called.
@@ -123,45 +173,32 @@ function cLog(data) {
   // Get the stack trace of the current error.
   // The stack trace is a string that contains information about the current call stack.
   // Each line of the stack trace represents a function call, with the most recent function call at the top.
-  const stackTrace = new Error().stack;
-  cLog(`The StackTrace ${stackTrace}`);
 
-  // Split the stack trace into an array of lines.
-  const lines = stackTrace.split("\n");
-  cLog(`The StackTrace ${lines}`);
-
-  // The second line of the stack trace (lines[1]) contains the file and line number where the consoleLog() function was called.
-  // The file and line number are in the format "file:lineNumber:columnNumber".
-  // For example, if the consoleLog() function was called from "main.js:15:5", the second line of the stack trace would be "    at consoleLog (main.js:15:5)".
-  const fileAndLineNumber = lines[1];
-  cLog(`The File and Line Number ${fileAndLineNumber}`);
-
-  // Extract the file and line number from the second line of the stack trace.
-  // The file and line number are between the parentheses "(" and ")".
-  // For example, if the second line of the stack trace is "    at consoleLog (main.js:15:5)",
-  // the file and line number are "main.js:15:5".
-  const fileAndLineNumberString = fileAndLineNumber.substring(
-    fileAndLineNumber.indexOf("(") + 1,
-    fileAndLineNumber.indexOf(")")
-  );
-
-  // Split the file and line number string into the file, line number, and column number using a regular expression.
-  // The regular expression matches any character (`.+`) one or more times (`+`) followed by a `:` character,
-  // one or more digits (`\d+`), and another `:` character and one or more digits (`:\d+`).
-  // The parentheses (`()`) around `.+` and `\d+` capture the matched characters, so that they can be accessed later using the array destructuring syntax.
-  const [file, lineNumber, columnNumber] = fileAndLineNumberString.match(
-    /(.+):(\d+):(\d+)/
-  );
+  const errorMessage = new Error().stack;
+  const errorLines = errorMessage.split('\n');
+  const funcCallerLine = errorLines[2]; // "at createEmbed (/Users/logantucker/Desktop/projects/bots/2test/src/djs/functions/create/createEmbed.js:79:11)"
+  
+  // Extract the file name, file path, line number, and column using the regular expression and array destructuring assignment as shown in the previous example
+  const extractInfoRegex = /at\s(.*)\s\((.*):(\d+):(\d+)\)/;
+  const [, fileName, filePath, lineNumber, column] = funcCallerLine.match(extractInfoRegex);
+  const fileNameWithExtension = path.basename(filePath);
 
   const lineLog = `${chalk.underline.italic.yellow.bgGray(
     " >>>>>> Log <<<<<< "
   )}`;
-  const lineData = `${chalk.yellow.bold.bgGray("Data:")}
+
+  let lineData;
+  if (typeof data === "string"){
+    lineData = `${chalk.yellow.bold.bgGray("Message:")}
     ${chalk.yellow.bgGray(data)}`;
+  } else {
+  lineData = `${chalk.yellow.bold.bgGray("Data:")}
+    ${chalk.yellow.bgGray(data)}`;
+  }
   const lineDivider = `${"---------------"}`;
   const logInfo = `
     ${chalk.underline.blue.bgGray("Location:")}
-    ${chalk.bold.blue.bgWhite(`File: ${file}`)}
+    ${chalk.bold.blue.bgWhite(`File: ${fileNameWithExtension}`)}
     ${chalk.bold.cyan.bgWhite(`Line: ${lineNumber}`)}`;
 
   // Create the log string using template literals and the chalk library to add formatting.
@@ -172,18 +209,17 @@ function cLog(data) {
     ? `
     ${lineLog}
     ${lineData}
-    ${lineDivider}
     ${logInfo}
+    
   `
     : `
   ${lineLog}
-  ${lineDivider}
   ${logInfo}
   `;
 
   // Surround the log string with a box using the inBox() function and log the result to the console.
   try {
-    console.log(inBox(logs));
+    console.log(inBox(logs),inBox(data));
   } catch (err) {
     console.log(`About to log an error`);
     logError(
@@ -485,7 +521,7 @@ function inBox(text, color = "yellow") {
 
     // check text is a string and if not, return an error message
     if (typeof text !== "string") {
-        return "Error: Invalid input for inBox function. Input must be a string.";
+        return text;
     }
 
     try {
@@ -542,6 +578,74 @@ function getColor() {
   }
 }
 
+function getInteractionObj(interaction){
+// check to make sure the interaction is an object
+if (typeof interaction !== "object") {
+  try {
+    throw new Error("The interaction is not an object");
+  } catch (error) {
+    logError(error);
+  }
+} else {
+  try {
+  let obj = {
+    id: `${interaction.id}`,
+    channel: `${interaction.channel}`,
+    guild: `${interaction.guild}`,
+    userInfo: {
+      // get the user name of the user who triggered the interaction
+    name: `${interaction.member.user.username}`,
+      displayName: `${interaction.member.displayName}`,
+    // get the user id of the user who triggered the interaction
+    userId: `${interaction.member.user.id}`,
+    // get the user avatar of the user who triggered the interaction
+    avatar: `${interaction.member.user.avatarURL()}`,
+    // get the user role of the user who triggered the interaction
+    role: `${interaction.member.roles.highest.name}`,
+    // get the user role id of the user who triggered the interaction
+    roleID: `${interaction.member.roles.highest.id}`,
+    // get the user role name of the user who triggered the interaction
+    roleName: `${interaction.member.roles.highest.name}`
+    },
+    // getter functions for the interaction object using 'this.' syntax
+    get id() {
+      return this.id;
+    },
+    get channel() {
+      return this.channel;
+    },
+    get guild() {
+      return this.guild;
+    },
+    get name() {
+      return this.userInfo.name;
+    },
+    get displayName() {
+      return this.userInfo.displayName;
+    },
+    get userId() {
+      return this.userInfo.userId;
+    },
+    get avatar() {
+      return this.userInfo.avatar;
+    }, 
+    get role() {
+      return this.userInfo.role;
+    },
+    get roleID() {
+      return this.userInfo.roleID;
+    },
+    get roleName() {
+      return this.userInfo.roleName;
+    }
+  }
+  return obj;
+} catch (error) {
+  logError(error, "Error creating interaction object");
+}
+}
+}
+
 
 module.exports = {
     logError,
@@ -555,5 +659,7 @@ module.exports = {
     generateHexCode,
     chalkBox,
     inBox,
-    getColor
+    getColor,
+    logger,
+    getInteractionObj
 }

@@ -615,15 +615,40 @@ if (typeof interaction !== "object") {
 }
 }
 
-function getCommands(client) {
+/**
+ * Returns a string of a bulleted list of every command found.
+ *
+ * @param {Object} client - The client object from which to get the commands.
+ * @param {string[]} exclude - An array of command names to exclude from the list.
+ *
+ * @returns {string} A string of a bulleted list of commands.
+ *
+ * @throws {Error} If there is an error getting the commands.
+ *
+ * @example
+ * getCommands(client, ['command1', 'command2']); // returns a string of a bulleted list of commands except 'command1' and 'command2'
+ */
+function getCommands(client, exclude = []) {
   try {
+    // Get the commands array from the client object.
     const commands = client.commands;
-    console.log("Commands: ")
-    console.log(commands)
+    // Initialize a variable to store the string of the bulleted list.
+    let listString = '';
+    // Iterate through the commands array and for each command, append a string to listString that consists of a bullet point and the command name.
+    commands.forEach(command => {
+      if (!exclude.includes(command.data.name)) {
+      listString += '\n- \`/' + `${command.data.name}` + '\`';
+      }
+    });
+    // Return the listString variable.
+    return listString;
   } catch (error) {
+    // Log the error message and a descriptive message using the logError function.
     logError(error, "Error getting commands");
   }
 }
+
+
 
 
 module.exports = {
@@ -640,5 +665,6 @@ module.exports = {
     inBox,
     getColor,
     logger,
-    getInteractionObj
+    getInteractionObj,
+    getCommands
 }

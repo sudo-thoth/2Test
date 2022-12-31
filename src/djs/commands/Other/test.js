@@ -16,7 +16,7 @@ module.exports = {
     .setName(`${commandName}`)
     .setDescription(`${commandDescription}}`),
   async execute(interaction) {
-    let testing = 'createEmbed()';
+    let testing = 'getCommands()';
 
     // Success and Fail Messages
     // Change the content into embeds
@@ -33,9 +33,13 @@ module.exports = {
     // cLog function
     let result, testResultEmbed;
 
+    const interactionObj = scripts.getInteractionObj(interaction);
+
     try {
 
       // Test Code Here
+      scripts.getCommands(interaction.client);
+      
 
 
       // Test Result
@@ -45,14 +49,14 @@ module.exports = {
         description: `${description}`,
         color: `${result ? `#00FF00` : `#FF0000`}`,
         footer: {
-          text: `Tested by: ${scripts.getInteractionObj(interaction).name}`,
-          iconURL: `${scripts.getInteractionObj(interaction).avatar}`
+          text: `Tested by: ${interactionObj.userInfo.name}`,
+          iconURL: `${interactionObj.userInfo.avatar}`
         },
         author: {
-          name: `${scripts.getInteractionObj(interaction).displayName}`,
-          id: `${scripts.getInteractionObj(interaction).userId}`,
-          iconURL: `${scripts.getInteractionObj(interaction).avatar}`,
-          url: `https://discord.com/users/${scripts.getInteractionObj(interaction).userId}`,
+          name: `${interactionObj.userInfo.displayName}`,
+          id: `${interactionObj.userInfo.userId}`,
+          iconURL: `${interactionObj.userInfo.avatar}`,
+          url: `https://discord.com/users/${interactionObj.userInfo.userId}`,
         },
       });
       console.log(`Test Command Successfully Executed: ✅\n- Tested Function: ${testing}`);
@@ -63,14 +67,14 @@ module.exports = {
         description: `${description}`,
         color: `${result ? `#00FF00` : `#FF0000`}`,
         footer: {
-          text: `Tested by: ${scripts.getInteractionObj(interaction).name}`,
-          iconURL: `${scripts.getInteractionObj(interaction).avatar}`
+          text: `Tested by: ${interactionObj.userInfo.name}`,
+          iconURL: `${interactionObj.userInfo.avatar}`
         },
         author: {
-          name: `${scripts.getInteractionObj(interaction).displayName}`,
-          id: `${scripts.getInteractionObj(interaction).userId}`,
-          iconURL: `${scripts.getInteractionObj(interaction).avatar}`,
-          url: `https://discord.com/users/${scripts.getInteractionObj(interaction).userId}`,
+          name: `${interactionObj.userInfo.displayName}`,
+          id: `${interactionObj.userInfo.userId}`,
+          iconURL: `${interactionObj.userInfo.avatar}`,
+          url: `https://discord.com/users/${interactionObj.userInfo.userId}`,
         },
         fields: [
           {

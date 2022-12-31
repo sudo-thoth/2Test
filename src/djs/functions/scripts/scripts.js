@@ -337,6 +337,7 @@ function generateColors(num = 1) {
   const colors = [];
 
   // generate 'num' hex codes
+  let numOfColors;
   for (let colorsGenerated = 0; num > colorsGenerated; colorsGenerated++) {
     try {
       // generate a hex code
@@ -354,14 +355,15 @@ function generateColors(num = 1) {
       colorsGenerated--;
     }
 
-    // log the progress of the loop
-    cLog(`Generated ${colorsGenerated + 1} colors`);
-
+    
+numOfColors = colorsGenerated;
     // exit the loop when the required number of colors have been generated
     if (colors.length === num) {
       break;
     }
   }
+  // log the progress of the loop
+  // cLog(`Generated ${numOfColors + 1} colors`);
 
   // return the array of hex codes
   return colors;
@@ -550,9 +552,6 @@ const colorCache = new Set();
  * getColor(); // returns a random hex code
  */
 function getColor() {
-  if (colorCache.size === 0) {
-    throw new Error("There are no more unique hex codes in the cache.");
-  }
 
   try {
     // The generateColors() function generates an array of unique hex codes.
@@ -575,6 +574,7 @@ function getColor() {
     // The try block attempts to get a random color from the cache and remove it from the cache.
     // If an error occurs, it is caught in the catch block and a new error is thrown with a more descriptive message.
     logError(error, "Failed to get a random color");
+    return '#040303';
   }
 }
 
@@ -606,37 +606,6 @@ if (typeof interaction !== "object") {
     roleID: `${interaction.member.roles.highest.id}`,
     // get the user role name of the user who triggered the interaction
     roleName: `${interaction.member.roles.highest.name}`
-    },
-    // getter functions for the interaction object using 'this.' syntax
-    get id() {
-      return this.id;
-    },
-    get channel() {
-      return this.channel;
-    },
-    get guild() {
-      return this.guild;
-    },
-    get name() {
-      return this.userInfo.name;
-    },
-    get displayName() {
-      return this.userInfo.displayName;
-    },
-    get userId() {
-      return this.userInfo.userId;
-    },
-    get avatar() {
-      return this.userInfo.avatar;
-    }, 
-    get role() {
-      return this.userInfo.role;
-    },
-    get roleID() {
-      return this.userInfo.roleID;
-    },
-    get roleName() {
-      return this.userInfo.roleName;
     }
   }
   return obj;
@@ -644,6 +613,16 @@ if (typeof interaction !== "object") {
   logError(error, "Error creating interaction object");
 }
 }
+}
+
+function getCommands(client) {
+  try {
+    const commands = client.commands;
+    console.log("Commands: ")
+    console.log(commands)
+  } catch (error) {
+    logError(error, "Error getting commands");
+  }
 }
 
 

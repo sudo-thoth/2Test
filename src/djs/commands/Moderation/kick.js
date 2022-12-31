@@ -27,13 +27,7 @@ module.exports = {
     const reason = options.getString("reason")
       ? options.getString("reason")
       : "No reason provided.";
-
-    let member;
-    try {
-      member = await interaction.guild.members.fetch(user.id);
-    } catch (error) {
-      scripts.logError(error, `Failed Fetch Attempt`);
-    }
+    const member = options.getMember('target');
 
     const errEmbed = new EmbedBuilder()
       .setDescription(
@@ -42,8 +36,7 @@ module.exports = {
       .setColor(0xc72c3b);
 
     if (
-      member.roles.highest.position >= interaction.member.roles.highest.position || interaction.guild.me.roles.highest.position <
-      member.roles.highest.position || !interaction.guild.me.permissions.has(PermissionFlagsBits.KickMembers)
+      member.bannable === false
     ) {
       console.log(`Kick Request Denied: ❌`);
 

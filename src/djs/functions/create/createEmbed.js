@@ -77,7 +77,6 @@ const errEmbed = new EmbedBuilder()
 module.exports = function createEmbed(obj) { // DJS v14
   // Check if the obj has a valid value in the title, description, image, or fields array
   // At least one of these properties must be present in the obj in order for the embed to be valid
-
   if (!obj.title && !obj.description && !obj.image && !obj.fields) {
     // If not, log an error
     try {
@@ -109,10 +108,30 @@ module.exports = function createEmbed(obj) { // DJS v14
     if (obj.footer) embed.setFooter({text: obj.footer.text, iconURL: obj.footer.iconURL});
     if (obj.thumbnail) embed.setThumbnail(obj.thumbnail);
     if (obj.image) embed.setImage(obj.image);
-    if (obj.author) embed.setAuthor({name: obj.author.name, iconURL: obj.author.iconURL, url: obj.author.url});
+    if (obj.author) {
+      if (obj.author.name) {
+        embed.setAuthor({name: obj.author.name})
+        if (obj.author.iconURL && obj.author.url) {
+          embed.setAuthor({name: obj.author.name, iconURL: obj.author.iconURL, url: obj.author.url})
+        } else {
+          if (obj.author.iconURL) {
+            embed.setAuthor({name: obj.author.name, iconURL: obj.author.iconURL})
+          }
+          if (obj.author.url) {
+            embed.setAuthor({name: obj.author.name, url: obj.author.url})
+          }
+        }
+       
+        
+      }
+      
+      
+      
+      // embed.setAuthor({name: obj.author.name, iconURL: obj.author.iconURL, url: obj.author.url})
+  };
 	
   } catch (error) {
-    console.log(`obj passed in:`, obj)
+    
     try {
       scripts.logError(error, 'Error setting properties of the embed');
     } catch (error) {

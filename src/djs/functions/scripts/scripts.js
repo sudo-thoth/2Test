@@ -369,6 +369,14 @@ numOfColors = colorsGenerated;
   return colors;
 }
 
+function getSuccessColor() {
+  return `00ff00`;
+}
+
+function getErrorColor() {
+  return [255, 0, 0];
+}
+
 /**
  * Generates an import statement for fileA relative to fileB.
  *
@@ -615,6 +623,16 @@ if (typeof interaction !== "object") {
 }
 }
 
+
+function checkForCurseWords(input) {
+  // Regular expression pattern for matching curse words and variations
+  const curseWordPattern = /d(?:a|e)mn|retard|hell|d(?:a|e)rn|frick|freaking|tit|gosh|heck|asshole|nuts|dick|vagina|fu(?:k|x|ck|uk|uck|uc|c)|pussy|sh(?:oo|i)t|ni(?:ga|ger|gga|gger|g)|ass|boob/i;
+
+  // Check if the input string matches the curse word pattern
+  return curseWordPattern.test(input);
+}
+
+
 /**
  * Returns a string of a bulleted list of every command found.
  *
@@ -666,5 +684,8 @@ module.exports = {
     getColor,
     logger,
     getInteractionObj,
-    getCommands
+    getCommands,
+    getSuccessColor,
+    getErrorColor,
+    checkForCurseWords,
 }

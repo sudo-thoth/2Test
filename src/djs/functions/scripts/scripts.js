@@ -666,8 +666,46 @@ function getCommands(client, exclude = []) {
   }
 }
 
+function geMemberInfoObj(member){
+  let obj;
+  // check to make sure the member is an object
+  if (typeof member !== "object") {
+    try {
+      throw new Error("The member is not an object");
+    } catch (error) {
+      logError(error);
+    }
+  } else {
+    try {
+    obj = {
+      // get the user name of the user who triggered the interaction
+      name: `${member.user.username}`,
+      displayName: `${member.displayName}`,
+      // get the user id of the user who triggered the interaction
+      userId: `${member.user.id}`,
+      // get the user avatar of the user who triggered the interaction
+      avatar: `${member.user.avatarURL()}`,
+      // get the user role of the user who triggered the interaction
+      role: `${member.roles.highest.name}`,
+      // get the date the user joined the server
+      joined: `${member.joinedAt}`,
+      // get the date the user joined discord
+      created: `${member.user.createdAt}`,
+      // get the number of times the user has been kicked
+      kicks: `${member.user.kicks === undefined ? 0 : member.user.kicks}`,
+      // get the number of times the user has been banned
+      bans: `${member.user.bans === undefined ? 0 : member.user.bans}`,
+      // get the number of times the user has been warned
+      warns: `${member.user.warns === undefined ? 0 : member.user.warns}`,
 
-
+    }
+    return obj;
+  } catch (error) {
+    logError(error, "Error creating member object");
+  }
+    
+  }
+}
 
 module.exports = {
     logError,
@@ -688,4 +726,5 @@ module.exports = {
     getSuccessColor,
     getErrorColor,
     checkForCurseWords,
+    geMemberInfoObj
 }

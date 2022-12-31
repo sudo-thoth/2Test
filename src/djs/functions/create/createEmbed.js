@@ -86,6 +86,7 @@ module.exports = function createEmbed(obj) { // DJS v14
     }
     return errEmbed;
   }
+  // console.log('obj passed into create Embed', obj);
 
   // Create a new EmbedBuilder instance
   let embed;

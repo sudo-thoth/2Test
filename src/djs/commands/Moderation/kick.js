@@ -3,6 +3,7 @@ const {
   EmbedBuilder,
   PermissionFlagsBits,
 } = require("discord.js");
+const scripts = require("../../functions/scripts/scripts.js");
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -31,7 +32,7 @@ module.exports = {
     try {
       member = await interaction.guild.members.fetch(user.id);
     } catch (error) {
-      console.error(`Failed Fetch Attempt`, error);
+      scripts.logError(error, `Failed Fetch Attempt`);
     }
 
     const errEmbed = new EmbedBuilder()
@@ -41,20 +42,21 @@ module.exports = {
       .setColor(0xc72c3b);
 
     if (
-      member.roles.highest.position >= interaction.member.roles.highest.position
+      member.roles.highest.position >= interaction.member.roles.highest.position || interaction.guild.me.roles.highest.position <
+      member.roles.highest.position || !interaction.guild.me.permissions.has(PermissionFlagsBits.KickMembers)
     ) {
       console.log(`Kick Request Denied: ❌`);
 
       try {
-        return interaction.reply({ embeds: [errEmbed], ephemeral: true });
+        await interaction.reply({ embeds: [errEmbed], ephemeral: true });
       } catch (error) {
-        console.log(`Failed Negative Ban Message Attempt`, error);
+        scripts.logError(error, `Failed Negative Ban Message Attempt`);
       }
     } else {
       try {
         await member.kick(reason);
       } catch (error) {
-        console.error(`Failed Kick Attempt`, error);
+        scripts.logError(error, `Failed Kick Attempt`);
       }
 
       const embed = new EmbedBuilder()
@@ -68,7 +70,7 @@ module.exports = {
           embeds: [embed],
         });
       } catch (error) {
-        console.log(`Failed Positive Kick Message Attempt`, error);
+        scripts.logError(error, `Failed Positive Kick Message Attempt`);
       }
       console.log(`Kick Request Accepted: ✅`);
     }

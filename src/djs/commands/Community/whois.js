@@ -1,94 +1,146 @@
-
 const {
-    SlashCommandBuilder,
-    EmbedBuilder,
-    PermissionFlagsBits,
-  } = require("discord.js");
-  const scripts = require("../../functions/scripts/scripts.js");
-  const createEmbed = require("../../functions/create/createEmbed.js");
+  SlashCommandBuilder,
+  EmbedBuilder,
+  PermissionFlagsBits,
+} = require("discord.js");
+const scripts = require("../../functions/scripts/scripts.js");
+const createEmbed = require("../../functions/create/createEmbed.js");
 
 module.exports = {
-    data: new SlashCommandBuilder()
-      .setName("whois")
-      .setDescription("get info about a user.")
-      .setDefaultMemberPermissions(PermissionFlagsBits.KickMembers)
-      .addUserOption((option) =>
-        option
-          .setName("target")
-          .setDescription("User to get to know more about.")
-          .setRequired(true)
-      ),
-  
-    async execute(interaction) {
-      const { options } = interaction;
-  
-      const member = options.getMember("target");
-      const memberInfoObj = scripts.geMemberInfoObj(member);
-      const {name, displayName, userId, avatar, role, joined, created, messages, kicks, bans, warns } = memberInfoObj;
+  // object: a slash command that gets info about a user
+  data: new SlashCommandBuilder()
+    // string: the name of the command
+    .setName("whois")
+    // string: the description of the command
+    .setDescription("get info about a user.")
+    // object: an option that allows the user to specify the target user
+    .addUserOption((option) =>
+      option
+        // string: the name of the option
+        .setName("target")
+        // string: the description of the option
+        .setDescription("User to get to know more about.")
+        // boolean: whether the option is required to use the command
+        .setRequired(true)
+    ),
 
-      scripts.cLog(messages)
-      const embedObj = {
-        title: `${displayName} User Info`,
-        description: `**Name:** ${name}\n**Role:** ${role}`,
-        color: `${scripts.getColor()}`,
-        fields: [
-            {
-                name: `Date ${displayName} Joined the Server`,
-                value: joined,
-                inline: true
-            },
-            {
-                name: `Date ${displayName} Joined Discord`,
-                value: created,
-                inline: true
-            },
-            {
-                name: `Total Number of Messages ${displayName} has Sent in the Server`,
-                value: messages,
-                inline: true
-            },
-            {
-                name: `Total Number of Kicks ${displayName} has Received in the Server`,
-                value: kicks === undefined ? 0 : kicks,
-                inline: true
-            },
-            {
-                name: `Total Number of Warnings ${displayName} has Received in the Server`,
-                value: warns === undefined ? 0 : warns,
-                inline: true
-            }
-        ],
-        thumbnail: avatar,
-        footer: {
-            text: `User Info Request by: ${interaction.user.username}`,
-            icon_url: interaction.user.avatarURL()
-        }
-      }
-      const errEmbed = new EmbedBuilder()
+  // async function: the function to execute when the command is used
+  async execute(interaction) {
+    // destructured object: the options passed to the command
+    const { options } = interaction;
+
+    // object: the member object for the target user
+    const member = options.getMember("target");
+    // object: an object containing information about the member
+    const memberInfoObj = scripts.geMemberInfoObj(member);
+    // destructured object: variables representing various information about the member
+    const {
+      name,
+      displayName,
+      userId,
+      avatar,
+      role,
+      joined,
+      created,
+      messages,
+      kicks,
+      bans,
+      warns,
+    } = memberInfoObj;
+
+    // function call: logs the messages variable to the console
+    scripts.cLog(messages);
+    // object: the embed object to be sent as a message
+    const embedObj = {
+      // string: the title of the embed
+      title: `${displayName} User Info`,
+      // string: the description of the embed
+      description: `**Name:** ${name}\n**Role:** ${role}`,
+      // string: the color of the embed
+      color: `${scripts.getColor()}`,
+      // array: the field objects for the embed
+      fields: [
+        {
+          // string: the name of the field
+          name: `Date ${displayName} Joined the Server`,
+          // string: the value of the field
+          value: joined,
+          // boolean: whether the field should be displayed inline with other fields (true) or on a new line (false)
+          inline: true,
+        },
+        {
+          // string: the name of the field
+          name: `Date ${displayName} Joined Discord`,
+          // string: the value of the field
+          value: created,
+          // boolean: whether the field should be displayed inline with other fields (true) or on a new line (false)
+          inline: true,
+        },
+        {
+          // string: the name of the field
+          name: `Total Number of Bans ${displayName} has Received in the Server`,
+          // string: the value of the field
+          value: bans === undefined ? 0 : bans,
+          // boolean: whether the field should be displayed inline with other fields (true) or on a new line (false)
+          inline: true,
+        },
+        {
+          // string: the name of the field
+          name: `Total Number of Kicks ${displayName} has Received in the Server`,
+          // string: the value of the field
+          value: kicks === undefined ? 0 : kicks,
+          // boolean: whether the field should be displayed inline with other fields (true) or on a new line (false)
+          inline: true,
+        },
+        {
+          // string: the name of the field
+          name: `Total Number of Warnings ${displayName} has Received in the Server`,
+          // string: the value of the field
+          value: warns === undefined ? 0 : warns,
+          // boolean: whether the field should be displayed inline with other fields (true) or on a new line (false)
+          inline: true,
+        },
+      ],
+      // string: the URL of the thumbnail image to display in the embed
+      thumbnail: avatar,
+      // object: the footer object for the embed
+      footer: {
+        // string: the text for the footer
+        text: `User Info Request by: ${interaction.user.username}`,
+        // string: the URL for the icon to display in the footer
+        icon_url: interaction.user.avatarURL(),
+      },
+    };
+    // object: an embed object for an error message
+    const errEmbed = new EmbedBuilder()
+      // string: the description of the error message
       .setDescription(
         `An Error Occurred while retrieving information about : ${name}`
       )
+      // number: the color of the error message embed
       .setColor(0xc72c3b);
-      const memberInfoEmbed = createEmbed(embedObj);
+    // object: the embed object to be sent as a message, created using the `createEmbed` function and the `embedObj` object
+    const memberInfoEmbed = createEmbed(embedObj);
 
-        try {
-            await interaction.reply({ embeds: [memberInfoEmbed] });
-          } catch (error) {
-            console.log(`whois Request Denied: ❌`);
-            try {
-            await interaction.reply({ embeds: [errEmbed], ephemeral: true });
-            } catch (error) {
-                scripts.logError(error, `Failed sending error embed to the user`);
-            }
-            scripts.logError(error, `Failed Member Info Embed Attempt`);
-          }
-          console.log(`whois Request Accepted: ✅`);
-
-
-
-
-
-          console.log(`whois Command Complete: ✅`);
-
+    try {
+      // function call: sends the member info embed to the channel
+      await interaction.reply({ embeds: [memberInfoEmbed] });
+      // console log: indicates that the request was accepted
+      console.log(`whois Request Accepted: ✅`);
+    } catch (error) {
+      // console log: indicates that the request was denied
+      console.log(`whois Request Denied: ❌`);
+      try {
+        // function call: sends the error embed to the user (ephemeral message)
+        await interaction.reply({ embeds: [errEmbed], ephemeral: true });
+      } catch (error) {
+        // function call: logs the error message and a custom string
+        scripts.logError(error, `Failed sending error embed to the user`);
+      }
+      // function call: logs the error message and a custom string
+      scripts.logError(error, `Failed Member Info Embed Attempt`);
     }
-}
+    // console log: indicates that the command execution is complete
+    console.log(`whois Command Complete: ✅`);
+  },
+};

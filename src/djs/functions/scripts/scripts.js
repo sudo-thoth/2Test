@@ -691,8 +691,6 @@ function geMemberInfoObj(member){
       joined: `${member.joinedAt}`,
       // get the date the user joined discord
       created: `${member.user.createdAt}`,
-      // get the number of messages the user has sent
-      messages: `${member.user.messages === undefined ? 0 : member.user.messages}`,
       // get the number of times the user has been kicked
       kicks: `${member.user.kicks === undefined ? 0 : member.user.kicks}`,
       // get the number of times the user has been banned

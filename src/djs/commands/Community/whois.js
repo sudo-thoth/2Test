@@ -1,7 +1,6 @@
 const {
   SlashCommandBuilder,
   EmbedBuilder,
-  PermissionFlagsBits,
 } = require("discord.js");
 const scripts = require("../../functions/scripts/scripts.js");
 const createEmbed = require("../../functions/create/createEmbed.js");
@@ -124,7 +123,7 @@ module.exports = {
 
     try {
       // function call: sends the member info embed to the channel
-      await interaction.reply({ embeds: [memberInfoEmbed] });
+      await interaction.reply({ embeds: [memberInfoEmbed], ephemeral: true  });
       // console log: indicates that the request was accepted
       console.log(`whois Request Accepted: ✅`);
     } catch (error) {

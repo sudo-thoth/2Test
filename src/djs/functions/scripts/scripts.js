@@ -20,6 +20,7 @@ const chalk = require('chalk'); // npm i chalk@4.1.2
 const execSync = require("child_process");
 const box = require('cli-box');
 const path = require("path");
+const axios = require("axios-observable").Axios;
 
 
 // Script Functions to be exported
@@ -118,7 +119,13 @@ function logError(error, data) {
   }
 }
 
-
+/**
+ * Log the stacktrace and log data
+ *
+ * @param {string} stacktrace - The stacktrace data
+ * @param {string} log - The log data
+ *
+ */
 function logger(stacktrace, log){
   console.log(`start`)
   // console.log(stacktrace + log)
@@ -253,7 +260,13 @@ function isDefined(variable) {
   return typeof variable !== "undefined";
 }
 
-// Needs a Description
+/**
+ * Verify if the module is defined
+ *
+ * @param {Object} module - The module to verify if is defined
+ *
+ * @returns {boolean} A boolean indicating if the module is defined
+ */
 function verifyImport(module) {
   // check if the module is defined
   if (module !== undefined) {
@@ -501,7 +514,14 @@ function generateHexCode() {
   }
 }
 
-// Needs Description
+/**
+ * Create a text box with chalk
+ *
+ * @param {string} text - The text to put in the box
+ *
+ * @returns {string} A string of the text in a box, with horizontal lines made of the text length / 2
+ *
+ */
 function chalkBox(text) {
   const horizontalLine = "-".repeat(text.length / 2);
   let boxed = `
@@ -549,6 +569,7 @@ function inBox(text, color = "yellow") {
  * The colorCache object is a Set that stores a set of unique hex codes.
  */
 const colorCache = new Set();
+
 /**
  * Returns a random color from a set of unique hex codes.
  *
@@ -586,6 +607,15 @@ function getColor() {
   }
 }
 
+/**
+ * Returns an object with information about the interaction
+ *
+ * @param {Object} interaction - The interaction object from which to get the information
+ *
+ * @returns {Object} An object with information about the interaction
+ *
+ * @throws {Error} If there is an error getting the information or if the interaction is not an object
+ */
 function getInteractionObj(interaction){
 // check to make sure the interaction is an object
 if (typeof interaction !== "object") {
@@ -623,7 +653,14 @@ if (typeof interaction !== "object") {
 }
 }
 
-
+/**
+ * Check if the input string matches the curse word pattern
+ *
+ * @param {string} input - The input string to check for curse words
+ *
+ * @returns {boolean} A boolean value indicating whether the input string matches the curse word pattern.
+ *
+ */
 function checkForCurseWords(input) {
   // Regular expression pattern for matching curse words and variations
   const curseWordPattern = /d(?:a|e)mn|retard|hell|d(?:a|e)rn|frick|freaking|tit|gosh|heck|asshole|nuts|dick|vagina|fu(?:k|x|ck|uk|uck|uc|c)|pussy|sh(?:oo|i)t|ni(?:ga|ger|gga|gger|g)|ass|boob/i;
@@ -666,6 +703,15 @@ function getCommands(client, exclude = []) {
   }
 }
 
+/**
+ * Returns an object with information about the member.
+ *
+ * @param {Object} member - The member object from which to get the information
+ *
+ * @returns {Object} An object with information about the member.
+ *
+ * @throws {Error} If there is an error getting the information or if the member is not an object
+ */
 function geMemberInfoObj(member){
   let obj;
   // check to make sure the member is an object
@@ -705,6 +751,45 @@ function geMemberInfoObj(member){
   }
     
   }
+}
+
+function krakenWebScraper(url, type){
+  let link = '';
+  if (!url) {
+    return;
+  }
+  axios.get(url).subscribe(
+    (response) => {
+      const html = response.data; // html
+      switch (type) {
+        case 'audio':
+      link = html
+        .split("\n")
+        .filter((line) => line.includes("m4a:"))[0]
+        .trim()
+        .substring(6)
+        .replace("'", "");
+      link = "https:" + link;
+      break;
+      case 'video':
+      link = html
+        .split("\n")
+        .filter((line) => line.includes("m4a:"))[0]
+        .trim()
+        .substring(6)
+        .replace("'", "");
+      link = "https:" + link;
+      break;
+      default:
+        break;
+      }
+    },
+    (error) => {
+      console.log(error);
+    }
+  );
+  return link;
+
 }
 
 module.exports = {

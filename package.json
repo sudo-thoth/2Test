@@ -4,14 +4,18 @@
   "description": "test bot",
   "main": "./src/djs/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon index.js"
   },
   "author": "LT",
   "license": "ISC",
   "dependencies": {
+    "axios": "^1.2.3",
+    "axios-observable": "^2.0.0",
     "chalk": "^4.1.2",
     "cli-box": "^6.0.10",
     "discord.js": "^14.7.1",
-    "dotenv": "^16.0.3"
+    "dotenv": "^16.0.3",
+    "rxjs": "^7.8.0"
   }
 }

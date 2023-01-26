@@ -792,6 +792,50 @@ function krakenWebScraper(url, type){
 
 }
 
+function compareLists(listA, listB) {
+  let songsInA = listA.split('- ');
+  let songsInB = listB.split('- ');
+  let songsInAButNotB = [];
+  let songsInBButNotA = [];
+
+  songsInA.forEach(song => {
+    if (!songsInB.includes(song)) {
+      songsInAButNotB.push(song);
+    }
+  });
+
+  songsInB.forEach(song => {
+    if (!songsInA.includes(song)) {
+      songsInBButNotA.push(song);
+    }
+  });
+
+  console.log(`Songs in A but not B: ${songsInAButNotB.join(', ')}`);
+  console.log(`Songs in B but not A: ${songsInBButNotA.join(', ')}`);
+}
+
+/**
+ * A function that creates a folder for each song in the array and then sub folders for each song
+ * This function takes in an array of strings and a destination string as parameters and creates a new folder
+ * for each string in the array in the destination folder.
+ *
+ * @param {Array<string>} stringArr - An array of strings
+ * @param {string} destination - The destination string
+ *
+ * @returns {void}
+ */
+function createFolders(stringArr, destination) {
+  for (let i = 0; i < stringArr.length; i++) {
+    let folderName = stringArr[i];
+    let newFolderPath = destination + '/' + folderName;
+    fs.mkdirSync(newFolderPath);
+    let subFolders = ['Song', 'Art', 'Instrumental', 'Accapella', 'Studio Files', 'Og File', 'Session Mix', 'Snippet_Vid', 'Snippet_Mp3', 'Remaster'];
+    for (let j = 0; j < subFolders.length; j++) {
+      fs.mkdirSync(newFolderPath + '/' + subFolders[j]);
+    }
+  }
+}
+
 module.exports = {
     logError,
     cLog,
@@ -811,5 +855,8 @@ module.exports = {
     getSuccessColor,
     getErrorColor,
     checkForCurseWords,
-    geMemberInfoObj
+    geMemberInfoObj,
+    krakenWebScraper,
+    createFolders,
+
 }

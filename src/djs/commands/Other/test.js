@@ -3,6 +3,7 @@ const message = `The Command Works!`;
 const commandName = "test";
 const commandDescription = "Test command";
 
+
 // FUNCTION TEST STATION Config.
 // Currently testing the cLog() function
 // Make Sure To change BOTH funcName AND the Import to the relevant function being tested
@@ -16,7 +17,7 @@ module.exports = {
     .setName(`${commandName}`)
     .setDescription(`${commandDescription}}`),
   async execute(interaction) {
-    let testing = 'getCommands()';
+    let testing = 'createFolders()';
 
     // Success and Fail Messages
     // Change the content into embeds
@@ -38,7 +39,11 @@ module.exports = {
     try {
 
       // Test Code Here
-      scripts.getCommands(interaction.client);
+
+      // songs = [
+
+      // ];
+      scripts.createFolders(scripts.songs, `/Users/logantucker/Desktop/Juice Song Layout`);
       
 
 

@@ -74,7 +74,7 @@ const errEmbed = new EmbedBuilder()
 .setTitle('❗️ Error')
 .setDescription('Invalid properties were given to create the embed');
 
-module.exports = function createEmbed(obj) { // DJS v14
+function createEmbed(obj) { 
   // Check if the obj has a valid value in the title, description, image, or fields array
   // At least one of these properties must be present in the obj in order for the embed to be valid
   if (!obj.title && !obj.description && !obj.image && !obj.fields) {
@@ -104,11 +104,17 @@ module.exports = function createEmbed(obj) { // DJS v14
   // Set the properties of the embed if they are present in the obj
   try {
     if (obj.title) embed.setTitle(obj.title);
-    if (obj.description) embed.setDescription(obj.description);
+    if (obj.description) {
+      embed.setDescription(obj.description);
+    }
     if (obj.color) embed.setColor(obj.color);
-    if (obj.footer) embed.setFooter({text: obj.footer.text, iconURL: obj.footer.iconURL});
-    if (obj.thumbnail) embed.setThumbnail(obj.thumbnail);
-    if (obj.image) embed.setImage(obj.image);
+    if (obj.footer){ 
+      embed.setFooter({text: obj.footer.text, iconURL: obj.footer.iconURL});}
+    if (scripts.isDefined(obj.thumbnail)) {
+      console.log('thumbnail', obj.thumbnail)
+      embed.setThumbnail(obj.thumbnail);} // Error occuring
+    if (obj.image) {
+      embed.setImage(obj.image);}
     if (obj.author) {
       if (obj.author.name) {
         embed.setAuthor({name: obj.author.name})
@@ -160,3 +166,4 @@ module.exports = function createEmbed(obj) { // DJS v14
   // Return the completed embed
   return embed;
 }
+module.exports = { createEmbed }

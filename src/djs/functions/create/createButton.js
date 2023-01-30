@@ -1,6 +1,7 @@
 // IMPORTS ...
 const {
     ButtonBuilder,
+    ButtonStyle,
   } = require("discord.js");
   const scripts = require('../scripts/scripts.js');
   
@@ -35,7 +36,7 @@ const {
    * @param {string} buttonObj.emoji - The emoji of the button.
    * @param {string} buttonObj.link - The link of the button.
    */
-  const createButton = (buttonObj) => {
+  function createButton(buttonObj){
     // destructure the buttonObj
     const {
       customID,

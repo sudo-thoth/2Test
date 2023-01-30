@@ -11,7 +11,7 @@ const scripts = require('../scripts/scripts.js');
 //   let modalObj = {
 //     customID: "newCustomModal",
 //     title: "Create Your own CUSTOM Announcement",
-//     rows: [
+//     inputFields: [
 //     {
 //         customID: "title",
 //         label: "What is the title of the announcement?",
@@ -35,13 +35,13 @@ const scripts = require('../scripts/scripts.js');
  * @param {Object} modalObj - The modal object containing the modal properties.
  * @param {string} modalObj.customID - The custom ID of the modal.
  * @param {string} modalObj.title - The title of the modal.
- * @param {Array} modalObj.rows - An array of rows to be added to the modal.
+ * @param {Array} modalObj.inputFields - An array of inputField action rows to be added to the modal.
  */
 async function createModal(modalObj) {
   // destructure the modalObj
-  const { customID, title, rows } = modalObj;
+  const { customID, title, inputFields } = modalObj;
   // make sure each property is defined with isDefined(), which returns true if the property is defined
-  if (!scripts.isDefined(customID) || !scripts.isDefined(title) || !scripts.isDefined(rows)) {
+  if (!scripts.isDefined(customID) || !scripts.isDefined(title) || !scripts.isDefined(inputFields)) {
     scripts.logError(
       new Error("One or more modal properties are not defined"),
       `Error creating modal`
@@ -56,12 +56,12 @@ async function createModal(modalObj) {
     scripts.logError(error, `Error creating modal`);
   }
 
-  rows.forEach((row) => {
-    // put try catch blocks around newCustomModal.addComponents() and createRow() function calls, catch error and continue, but make the error message custom like "Error adding row "blank" to modal ${error.line}"
+  inputFields.forEach((field) => {
+    // put try catch blocks around newCustomModal.addComponents() and createTextInputField() function calls, catch error and continue, but make the error message custom like "Error adding row "blank" to modal ${error.line}"
     try {
-      newCustomModal.addComponents(createRow(row));
+      newCustomModal.addComponents(createTextInputField(field));
     } catch (error) {
-      scripts.logError(error, `Error adding row ${row.customID} to modal`);
+      scripts.logError(error, `Error adding field ${field.customID} to modal`);
     }
   });
 
@@ -77,7 +77,7 @@ async function createModal(modalObj) {
  * @param {string} textInputObj.placeholder - The placeholder text of the text input.
  * @param {boolean} textInputObj.required - Indicates whether the text input is required.
  */
-const createRow = (textInputObj) => {
+const createTextInputField = (textInputObj) => {
   // destructure the textInputObj
   const {
     customID,
@@ -94,7 +94,7 @@ const createRow = (textInputObj) => {
     try {
       throw new Error("customID is not defined");
     } catch (error) {
-      scripts.logError(error, "customID is not defined in createRow()");
+      scripts.logError(error, "customID is not defined in createTextInputField()");
     }
   } else {
     // DO
@@ -174,5 +174,5 @@ const createRow = (textInputObj) => {
   return new ActionRowBuilder().addComponents(textInputField);
 };
 
-module.exports = { createModal, createRow };
+module.exports = { createModal, createTextInputField };
 

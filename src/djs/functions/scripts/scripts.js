@@ -244,6 +244,7 @@ function cLog(data) {
  * @return {boolean} - True if the variable is defined, false otherwise
  */
 function isDefined(variable) {
+  let result = false;
   // add a check to make sure only one argument is passed in
   if (arguments.length !== 1) {
     try {
@@ -255,9 +256,8 @@ function isDefined(variable) {
       );
     }
   }
-
-  if (variable === null) return false;
-  return typeof variable !== "undefined";
+  if (variable !== null && variable !== 'null' && variable !== undefined && variable !== `undefined` && variable !== "" && variable !== 0 && variable !== '0' && variable !== false && variable !== NaN && variable !== Infinity && variable !== -Infinity && variable !== [] && variable !== {}) result = true;
+  return result;
 }
 
 /**
@@ -607,51 +607,6 @@ function getColor() {
   }
 }
 
-/**
- * Returns an object with information about the interaction
- *
- * @param {Object} interaction - The interaction object from which to get the information
- *
- * @returns {Object} An object with information about the interaction
- *
- * @throws {Error} If there is an error getting the information or if the interaction is not an object
- */
-function getInteractionObj(interaction){
-// check to make sure the interaction is an object
-if (typeof interaction !== "object") {
-  try {
-    throw new Error("The interaction is not an object");
-  } catch (error) {
-    logError(error);
-  }
-} else {
-  try {
-  let obj = {
-    id: `${interaction.id}`,
-    channel: `${interaction.channel}`,
-    guild: `${interaction.guild}`,
-    userInfo: {
-      // get the user name of the user who triggered the interaction
-    name: `${interaction.member.user.username}`,
-      displayName: `${interaction.member.displayName}`,
-    // get the user id of the user who triggered the interaction
-    userId: `${interaction.member.user.id}`,
-    // get the user avatar of the user who triggered the interaction
-    avatar: `${interaction.member.user.avatarURL()}`,
-    // get the user role of the user who triggered the interaction
-    role: `${interaction.member.roles.highest.name}`,
-    // get the user role id of the user who triggered the interaction
-    roleID: `${interaction.member.roles.highest.id}`,
-    // get the user role name of the user who triggered the interaction
-    roleName: `${interaction.member.roles.highest.name}`
-    }
-  }
-  return obj;
-} catch (error) {
-  logError(error, "Error creating interaction object");
-}
-}
-}
 
 /**
  * Check if the input string matches the curse word pattern
@@ -669,89 +624,6 @@ function checkForCurseWords(input) {
   return curseWordPattern.test(input);
 }
 
-
-/**
- * Returns a string of a bulleted list of every command found.
- *
- * @param {Object} client - The client object from which to get the commands.
- * @param {string[]} exclude - An array of command names to exclude from the list.
- *
- * @returns {string} A string of a bulleted list of commands.
- *
- * @throws {Error} If there is an error getting the commands.
- *
- * @example
- * getCommands(client, ['command1', 'command2']); // returns a string of a bulleted list of commands except 'command1' and 'command2'
- */
-function getCommands(client, exclude = []) {
-  try {
-    // Get the commands array from the client object.
-    const commands = client.commands;
-    // Initialize a variable to store the string of the bulleted list.
-    let listString = '';
-    // Iterate through the commands array and for each command, append a string to listString that consists of a bullet point and the command name.
-    commands.forEach(command => {
-      if (!exclude.includes(command.data.name)) {
-      listString += '\n- \`/' + `${command.data.name}` + '\`';
-      }
-    });
-    // Return the listString variable.
-    return listString;
-  } catch (error) {
-    // Log the error message and a descriptive message using the logError function.
-    logError(error, "Error getting commands");
-  }
-}
-
-/**
- * Returns an object with information about the member.
- *
- * @param {Object} member - The member object from which to get the information
- *
- * @returns {Object} An object with information about the member.
- *
- * @throws {Error} If there is an error getting the information or if the member is not an object
- */
-function geMemberInfoObj(member){
-  let obj;
-  // check to make sure the member is an object
-  if (typeof member !== "object") {
-    try {
-      throw new Error("The member is not an object");
-    } catch (error) {
-      logError(error);
-    }
-  } else {
-    try {
-    obj = {
-      // get the user name of the user who triggered the interaction
-      name: `${member.user.username}`,
-      displayName: `${member.displayName}`,
-      // get the user id of the user who triggered the interaction
-      userId: `${member.user.id}`,
-      // get the user avatar of the user who triggered the interaction
-      avatar: `${member.user.avatarURL()}`,
-      // get the user role of the user who triggered the interaction
-      role: `${member.roles.highest.name}`,
-      // get the date the user joined the server
-      joined: `${member.joinedAt}`,
-      // get the date the user joined discord
-      created: `${member.user.createdAt}`,
-      // get the number of times the user has been kicked
-      kicks: `${member.user.kicks === undefined ? 0 : member.user.kicks}`,
-      // get the number of times the user has been banned
-      bans: `${member.user.bans === undefined ? 0 : member.user.bans}`,
-      // get the number of times the user has been warned
-      warns: `${member.user.warns === undefined ? 0 : member.user.warns}`,
-
-    }
-    return obj;
-  } catch (error) {
-    logError(error, "Error creating member object");
-  }
-    
-  }
-}
 
 
 function compareLists(listA, listB) {
@@ -901,13 +773,9 @@ module.exports = {
     inBox,
     getColor,
     logger,
-    getInteractionObj,
-    getCommands,
     getSuccessColor,
     getErrorColor,
     checkForCurseWords,
-    geMemberInfoObj,
-    krakenWebScraper,
     createFolders,
     songs
 

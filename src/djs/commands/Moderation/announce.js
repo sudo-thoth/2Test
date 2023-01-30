@@ -8,8 +8,14 @@ const {
   Collection,
 } = require("discord.js");
 
+const scripts = require("../../functions/scripts/scripts.js");
+const scripts_djs = require("../../functions/scripts/scripts_djs.js");
+
+
+// Put this in scripts_djs.js instead of here
 // NEED TODO : Update all variables below
-const fileSizeTooBigEmbedV2 = require("../../functions/embeds/fileSizeTooBigEmbedV2.js");
+
+
 // Slash Command
 let attachmentCollection = new Collection();
 let interactionCollection = new Collection();
@@ -65,29 +71,20 @@ module.exports = {
   },
 
   async execute(interaction) {
-    console.log("🚀🚀🚀 ~ file: new.js ~ line 58 ~  interaction custom ID", interaction.customId)
+    if (!interaction) return;
     // The attachment if the user to includes an attachment
     let attachment;
     attachment = interaction.options.getAttachment("attachment");
-    console.log(`This is the Attachment -----> ${attachment}`);
     attachmentCollection.set("attachment", attachment);
     interactionCollection.set("i", interaction)
 
-    console.log(`🦾 ~ <<New>> Command Entered`);
-    // Defer the interaction
-    // const aButtonClick = await interaction.deferReply({ ephemeral: true });
-    // // Button Listeners
-    // const filter = (interaction) =>
-    //   interaction.customId === "privatefile" ||
-    //   interaction.customId === "displaylinks";
-
+    console.log(`🦾 ~ <<Announce>> Command Entered`);
     
 
 
     // take this attachment, check if its file size is less than 8 mb, then return true or false whether in order to determine to send as a file or prompt the user to get an external link for the file
-    // make a function to check if file is valid
-    // variable with a function inside | takes the attachment as the parameter
-    let validFile = async (attachment) => {
+
+    let validFile = (attachment) => {
       if (attachment) {
         const size = attachment.size;
         console.log(`Actual Size : ${size} Vs. Max Size : ${8 * 1024 * 1024}`);
@@ -107,7 +104,7 @@ module.exports = {
       }
     };
     // Variable containing whether the attachment is valid or not
-    let validStatus = await validFile(attachment);
+    let validStatus = validFile(attachment);
 
     
 
@@ -120,31 +117,10 @@ module.exports = {
           `Sending Q: \'What kind of Announcement would you like to make? \'`
         );
         interaction.reply({
-          content: "What kind of Announcement would you like to make?",
           ephemeral: true,
+          embeds: [scripts_djs.embed_Announcement_File(interaction)],
           components: [
-            new ActionRowBuilder().setComponents(
-              new ButtonBuilder()
-                .setCustomId(`leak${randID}`)
-                .setLabel("New Leak")
-                .setStyle(ButtonStyle.Danger),
-              new ButtonBuilder()
-                .setCustomId(`ogfile${randID}`)
-                .setLabel("New OG File Leak")
-                .setStyle(ButtonStyle.Danger),
-              new ButtonBuilder()
-                .setCustomId(`studiosession${randID}`)
-                .setLabel("New Studio Sessions")
-                .setStyle(ButtonStyle.Danger),
-                new ButtonBuilder()
-                .setCustomId(`snippet${randID}`)
-                .setLabel("New Snippet")
-                .setStyle(ButtonStyle.Danger),
-              new ButtonBuilder()
-                .setCustomId(`custom${randID}`)
-                .setLabel(`Custom Announcement`)
-                .setStyle(ButtonStyle.Danger)
-            ),
+            await scripts_djs.row_Announcement(randID),
           ],
         });
 
@@ -153,10 +129,16 @@ module.exports = {
       // : INVALID FILE PRESENT
       case -1:
         console.log(`Sending -1 interaction`);
-        fileSizeTooBigEmbedV2("n/a", interaction);
+        let embed = scripts_djs.embed_FileSizeTooBig(interaction)
+        let choiceRow = scripts_djs.row_FileSizeTooBig()
 
-        // this is the old file link embed sent
-        //enterFileLinkEmbed("n/a", interaction);
+        message_fileSizeTooBig = {
+          content: `Select One of the 2 Options`,
+          embeds: [embed],
+          ephemeral: true,
+          components: [choiceRow],
+        };
+        await interaction.editReply(message_fileSizeTooBig);
         break;
 
       // : NO FILE PRESENT
@@ -164,34 +146,17 @@ module.exports = {
         console.log(
           `Sending Q: \'What kind of Announcement would you like to make? \'`
         );
+        let row = await scripts_djs.row_Announcement(randID)
+        let row2 = await scripts_djs.row2_Announcement(randID)
+        try {
         interaction.reply({
-          content: "What kind of Announcement would you like to make?",
           ephemeral: true,
-          components: [
-            new ActionRowBuilder().setComponents(
-              new ButtonBuilder()
-                .setCustomId(`leak${randID}`)
-                .setLabel("New Leak")
-                .setStyle(ButtonStyle.Danger),
-              new ButtonBuilder()
-                .setCustomId(`ogfile${randID}`)
-                .setLabel("New OG File Leak")
-                .setStyle(ButtonStyle.Danger),
-              new ButtonBuilder()
-                .setCustomId(`studiosession${randID}`)
-                .setLabel("New Studio Sessions")
-                .setStyle(ButtonStyle.Danger),
-                new ButtonBuilder()
-                .setCustomId(`snippet${randID}`)
-                .setLabel("New Snippet")
-                .setStyle(ButtonStyle.Danger),
-              new ButtonBuilder()
-                .setCustomId(`custom${randID}`)
-                .setLabel(`Custom Announcement`)
-                .setStyle(ButtonStyle.Danger)
-            ),
-          ],
+          embeds: [scripts_djs.embed_Announcement_NoFile(interaction)],
+          components: [row, row2],
         });
+      } catch (error) {
+        scripts.logError(error, "unable to send reply message")
+      }
 
         break;
 

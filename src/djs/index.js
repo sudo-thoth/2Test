@@ -58,9 +58,12 @@ client.on("ready", () => {
     client.user.setAct;
   }, 5000);
 });
+module.exports = client;
 
 handleFunctions(djsFunctionFolders, "./src/djs/functions");
 handleEvents(client, djsEventFiles);
 handleCommands(client, djsCommandFolders, "./src/djs/commands");
 
 client.login(token);
+
+

@@ -148,6 +148,7 @@ function getInteractionObj(interaction){
     try {
     let obj = {
       id: `${interaction.id}`,
+      customID: `${interaction.customId}`,
       channel: `${interaction.channel}`,
       guild: `${interaction.guild}`,
       userInfo: {

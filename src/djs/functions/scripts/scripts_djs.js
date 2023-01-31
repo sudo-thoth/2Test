@@ -2,8 +2,10 @@ const createEmb = require("../create/createEmbed.js");
 const scripts = require("../scripts/scripts.js");
 const createBtn = require("../create/createButton.js");
 const createActRow = require("../create/createActionRow.js");
+const createMdl = require("../create/createModal.js");
 const createSelMenu = require("../create/createSelectMenu.js");
 const axios = require("axios").default;
+
 
 function krakenWebScraper(url, type){
   let link = '';
@@ -174,6 +176,21 @@ function getInteractionObj(interaction){
   }
   }
 
+  function extractID(str){
+    if (str === undefined) return;
+    console.log(`THE STRING:`,str);
+    if (str.includes('#')) {
+      let id = `#${str.split('#')[1]}`;
+      return id;
+    } else {
+      try {
+        throw new Error("The string does not contain a #");
+      } catch (error) {
+        scripts.logError(error, str);
+      }
+    }
+  }
+
 
 // File Size Too Big Elements
 const embed_FileSizeTooBig = (interaction) => {
@@ -216,8 +233,9 @@ const row_FileSizeTooBig = createActRow.createActionRow({
 });
 
 // Announcement Elements
-const embed_Announcement_NoFile = (interaction) => {
-return createEmb.createEmbed({
+// // Embeds
+const embed_Announcement_NoFile = (interaction, randID) => {
+ let embed = createEmb.createEmbed({
   title: `Send An Announcement`,
   description: `*You did not provide a file to send, __if you would like to send a file please redo__ the* \`/announce\` *slash command with the file attached*`,
   color: `${scripts.getColor()}`,
@@ -236,9 +254,10 @@ return createEmb.createEmbed({
   { name: "Custom Announcement", value: `basically means just any type of announcement that isn't a leak`, inline: false },
   ]
 });
+return embed;
 }
-const embed_Announcement_File = (interaction) => {
-  return createEmb.createEmbed({
+const embed_Announcement_File = (interaction, randID) => {
+  let embed = createEmb.createEmbed({
     title: `Send An Announcement`,
     description: `Choose a how you would like to proceed`,
     color: `${scripts.getColor()}`,
@@ -256,74 +275,576 @@ const embed_Announcement_File = (interaction) => {
     { name: "Custom Announcement", value: `basically means just any type of announcement that isn't a leak`, inline: false },
     ]
   });
+return embed;
 }
-
-const button_NewLeak = (id) => {
-  return createBtn.createButton({
-  customID: `newleak${id}`,
+// // Buttons
+const button_NewLeak = (randID) => {
+  let button =  createBtn.createButton({
+  customID: `newleak${randID}`,
   label: `New Leak`,
   style: `danger`,
 });
+return button;
 }
-const button_NewOGFile = (id) => {
-  return createBtn.createButton({
-  customID: `ogfile${id}`,
+const button_NewOGFile = (randID) => {
+  let button = createBtn.createButton({
+  customID: `ogfile${randID}`,
   label: `New OG File Leak`,
   style: `danger`,
 });
+return button;
 }
-const button_NewStudioSession = (id) => {
-  return createBtn.createButton({
-  customID: `studiosession${id}`,
+const button_NewStudioSession = (randID) => {
+  let button = createBtn.createButton({
+  customID: `studiosession${randID}`,
   label: `New Studio Sessions`,
   style: `danger`,
 });
+return button;
 }
-const button_NewSnippet = (id) => {
- return createBtn.createButton({
-  customID: `snippet${id}`,
+const button_NewSnippet = (randID) => {
+ let button = createBtn.createButton({
+  customID: `snippet${randID}`,
   label: `New Snippet`,
   style: `danger`,
 });
+return button;
 }
-const button_CustomAnnouncement = (id) => {
-  return createBtn.createButton({
-  customID: `custom${id}`,
+const button_CustomAnnouncement = (randID) => {
+  let button = createBtn.createButton({
+  customID: `custom${randID}`,
   label: `Custom Announcement`,
   style: `primary`,
 });
+return button;
 }
-const button_GroupBuy = (id) => {
-  return createBtn.createButton({
-  customID: `groupbuybtn${id}`,
+const button_GroupBuy = (randID) => {
+  let button = createBtn.createButton({
+  customID: `groupbuybtn${randID}`,
   label: `Group Buy`,
   style: `secondary`,
 });
-}
-
+return button;
+} // TODO: Make an embed w actionrows w buttons for the group buy button
+// // Action Rows
 // Returns a promise ; So must await when calling this function
-const row2_Announcement = (id) => {
+const row2_Announcement = async (randID) => {
   let row = createActRow.createActionRow({
   components: [
-    button_NewLeak(id),
-    button_NewOGFile(id),
-    button_NewStudioSession(id),
-    button_NewSnippet(id),
-    button_GroupBuy(id),
+    button_NewLeak(randID),
+    button_NewOGFile(randID),
+    button_NewStudioSession(randID),
+    button_NewSnippet(randID),
+    button_GroupBuy(randID),
   ],
 });
+let theRow = await row;
+console.log(theRow)
 return row; // a promise
 }
-const row_Announcement = (id) => {
+const row_Announcement = async (randID) => {
   let row = createActRow.createActionRow({
   components: [
-    button_CustomAnnouncement(id)
+    button_CustomAnnouncement(randID)
   ],
 });
+let theRow = await row;
+console.log(theRow)
 return row; // a promise
 }
+// // Modals
+const modal_NewLeak = (randID) => {
+  let modalObj = {
+  customID: `newleakmodal${randID}`,
+  title: `Create New Leak Announcement`,
+  inputFields: [
+  {
+      customID: "leakName",
+      label: "What's the new leak name?",
+      style: "short",
+      placeholder: "Adore You",
+      required: true
+  },
+  {
+      customID: "altLeakNames",
+      label: "If there are alternate titles, separate (,)",
+      style: "short",
+      placeholder: "Dark Knight,Seen A Soul Like Yours,Hold U",
+      required: false
+  },
+  {
+    customID: `dateOfLeak`,
+    label: `Input the date the leak occurred`, 
+    style: `short`,
+    placeholder: `October 25th 2021`,
+    required: true
+  },
+  {
+    customID: `price`,
+    label: `Enter the price if bought or skip`,
+    style: `short`,
+    placeholder: `$25,000`,
+    required: false
+  },
+  {
+    customID: `notes`,
+    label: `Any more info to send in announcement?`,
+    style: `long`,
+    placeholder: `Adore You was group bought in a bundle along with PITR and one other song`,
+    required: false
+  },
 
+]
+}
+let modal = createMdl.createModal(modalObj);
+return modal;
 
+}
+const modal_NewOGFile = (randID) => {
+  let modalObj = {
+  customID: `newogfilemodal${randID}`,
+  title: `Create OG File Leak Announcement`,
+  inputFields: [
+  {
+      customID: "leakName",
+      label: "What's the song name?",
+      style: "short",
+      placeholder: "Adore You",
+      required: true
+  },
+  {
+      customID: "altLeakNames",
+      label: "If there are alternate titles, separate (,)",
+      style: "short",
+      placeholder: "Dark Knight,Seen A Soul Like Yours,Hold U",
+      required: false
+  },
+  {
+    customID: `dateOfLeak`,
+    label: `Input the date the leak occurred`,
+    style: `short`,
+    placeholder: `October 25th 2021`,
+    required: true
+  },
+  {
+    customID: `price`,
+    label: `Enter the price if bought or skip`,
+    style: `short`,
+    placeholder: `$25,000`,
+    required: false
+  },
+  {
+    customID: `notes`,
+    label: `Any more info to send in announcement?`,
+    style: `long`,
+    placeholder: `Adore You was group bought in a bundle along with PITR and one other song`,
+    required: false
+  },
+]
+}
+let modal = createMdl.createModal(modalObj);
+return modal;
+}
+const modal_NewStudioSession = (randID) => {
+  let modalObj = {
+  customID: `newstudiosessionmodal${randID}`,
+  title: `Create Studio Session Announcement`,
+  inputFields: [
+  {
+      customID: "leakName",
+      label: "What's the session name?",
+      style: "short",
+      placeholder: "Adore You",
+      required: true
+  },
+  {
+      customID: "altLeakNames",
+      label: "If there are alternate titles, separate (,)",
+      style: "short",
+      placeholder: "Dark Knight,Seen A Soul Like Yours,Hold U",
+      required: false
+  },
+  {
+    customID: `dateOfLeak`,
+    label: `Input the date the leak occurred`,
+    style: `short`,
+    placeholder: `October 25th 2024`,
+    required: true
+  },
+  {
+    customID: `price`,
+    label: `Enter the price if bought or skip`,
+    style: `short`,
+    placeholder: `$25,000`,
+    required: false
+  },
+  {
+    customID: `notes`,
+    label: `Any more info to send in announcement?`,
+    style: `long`,
+    placeholder: `Adore You was group bought in a bundle along with PITR and one other song a few years ago before the sessions were leaked`,
+    required: false
+  },
+]
+}
+let modal = createMdl.createModal(modalObj);
+return modal;
+}
+const modal_NewSnippet = (randID) => {
+  let modalObj = {
+  customID: `newsnippetmodal${randID}`,
+  title: `Create New Snippet Announcement`,
+  inputFields: [
+  {
+      customID: "leakName",
+      label: "What's name of the song in the snippet?",
+      style: "short",
+      placeholder: "Adore You",
+      required: true
+  },
+  {
+      customID: "altLeakNames",
+      label: "If there are alternate titles, separate (,)",
+      style: "short",
+      placeholder: "Dark Knight,Seen A Soul Like Yours,Hold U",
+      required: false
+  },
+  {
+    customID: `era`,
+    label: `era of the leak`,
+    style: `short`,
+    placeholder: `DRFL`,
+    required: true
+  },
+  {
+    customID: `notes`,
+    label: `Any additional notes to send in announcement?`,
+    style: `long`,
+    placeholder: `Adore You was group bought in a bundle along with PITR and one other song`,
+    required: false
+  }
+]
+}
+let modal = createMdl.createModal(modalObj);
+return modal;
+}
+const modal_NewCustomAnnouncement = (randID) => {
+  let modalObj = {
+  customID: `newcustomannouncementmodal${randID}`,
+  title: `Create An Announcement`,
+  inputFields: [
+  {
+      customID: "title",
+      label: "What is the title of the announcement?",
+      style: "short",
+      placeholder: "New Nitro Giveaway!",
+      required: true
+  },
+  {
+      customID: "description",
+      label: "What is the announcement description?",
+      style: "short",
+      placeholder: "1 Year Free Nitro Giveaway",
+      required: false
+  },
+  {
+    customID: `content`,
+    label: `Add content for the announcement (if you have content, you must have a sub-header)`,
+    style: `long`,
+    placeholder: `It's Jarad's Birthday so we are giving away Free Nitro!`,
+    required: false
+  },
+  {
+    customID: `contentHeader`,
+    label: `Add a sub-header for the content (if you have a sub-header, you must enter content)`,
+    style: `short`,
+    placeholder: `Happy Birthday Jarad`,
+    required: false
+  },
+  {
+    customID: `additionalDetails`,
+    label: `Any additional details? (optional)`,
+    style: `long`,
+    placeholder: `Next Year on J's Birthday we will give away more Nitro!, 999`,
+    required: false
+  },
+]
+}
+let modal = createMdl.createModal(modalObj);
+return modal;
+}
+// Get Modal Input
+const getModalInput_A = (randID, interaction) => {
+  let leakName, altLeakNames, dateOfLeak, price, notes;
+  let modalObj = {};
+  if (interaction.fields.getTextInputValue("leakName")) {
+    leakName = interaction.fields.getTextInputValue("leakName");
+    if (scripts.isDefined(leakName)){
+      modalObj.leakName = leakName;
+    }
+}
+if (interaction.fields.getTextInputValue("altLeakNames")) {
+    altLeakNames = interaction.fields.getTextInputValue("altLeakNames");
+    if (scripts.isDefined(altLeakNames)){
+      modalObj.altLeakNames = altLeakNames;
+    }
+}
+if (interaction.fields.getTextInputValue("dateOfLeak")) {
+    dateOfLeak = interaction.fields.getTextInputValue("dateOfLeak");
+    if (scripts.isDefined(dateOfLeak)){
+      modalObj.dateOfLeak = dateOfLeak;
+    }
+}
+if (interaction.fields.getTextInputValue("price")) {
+    price = interaction.fields.getTextInputValue("price");
+    if (scripts.isDefined(price)){
+      modalObj.price = price;
+    }
+}
+if (interaction.fields.getTextInputValue("notes")) {
+    notes = interaction.fields.getTextInputValue("notes");
+    if (scripts.isDefined(notes)){
+      modalObj.notes = notes;
+    }
+  
+}
+
+return modalObj;
+}
+const getModalInput_B = (randID, interaction) => {
+  let leakName, altLeakNames, dateOfLeak, era, notes;
+  let modalObj = {};
+  if (interaction.fields.getTextInputValue("leakName")) {
+    leakName = interaction.fields.getTextInputValue("leakName");
+    if (scripts.isDefined(leakName)){
+      modalObj.leakName = leakName;
+    }
+}
+if (interaction.fields.getTextInputValue("altLeakNames")) {
+    altLeakNames = interaction.fields.getTextInputValue("altLeakNames");
+    if (scripts.isDefined(altLeakNames)){
+      modalObj.altLeakNames = altLeakNames;
+    }
+}
+if (interaction.fields.getTextInputValue("dateOfLeak")) {
+    dateOfLeak = interaction.fields.getTextInputValue("dateOfLeak");
+    if (scripts.isDefined(dateOfLeak)){
+      modalObj.dateOfLeak = dateOfLeak;
+    }
+}
+if (interaction.fields.getTextInputValue("era")) {
+    era = interaction.fields.getTextInputValue("era");
+    if (scripts.isDefined(era)){
+      modalObj.era = era;
+    }
+}
+if (interaction.fields.getTextInputValue("notes")) {
+    notes = interaction.fields.getTextInputValue("notes");
+    if (scripts.isDefined(notes)){
+      modalObj.notes = notes;
+    }
+  
+}
+
+return modalObj;
+}
+const getModalInput_C = (randID, interaction) => {
+  let title, description, content, contentHeader, additionalDetails;
+  let modalObj = {};
+  if (interaction.fields.getTextInputValue("title")) {
+    title = interaction.fields.getTextInputValue("title");
+    if (scripts.isDefined(title)){
+      modalObj.title = title;
+    }
+}
+if (interaction.fields.getTextInputValue("description")) {
+    description = interaction.fields.getTextInputValue("description");
+    if (scripts.isDefined(description)){
+      modalObj.description = description;
+    }
+}
+if (interaction.fields.getTextInputValue("content")) {
+    content = interaction.fields.getTextInputValue("content");
+    if (scripts.isDefined(content)){
+      modalObj.content = content;
+    }
+}
+if (interaction.fields.getTextInputValue("contentHeader")) {
+    contentHeader = interaction.fields.getTextInputValue("contentHeader");
+    if (scripts.isDefined(contentHeader)){
+      modalObj.contentHeader = contentHeader;
+    }
+}
+if (interaction.fields.getTextInputValue("additionalDetails")) {
+    additionalDetails = interaction.fields.getTextInputValue("additionalDetails");
+    if (scripts.isDefined(additionalDetails)){
+      modalObj.additionalDetails = additionalDetails;
+    }
+  
+}
+
+return modalObj;
+}
+
+function createAnnounceEmbed(randID, modalInput, num, interaction){
+  if(!num) return; // maybe throw error in the future TODO
+  let embed;
+  const intObj = getInteractionObj(interaction);
+  const {name, avatar, userId} = intObj;
+
+  let {
+    leakName, altLeakNames, dateOfLeak, price, notes, era, title, description, content, contentHeader, additionalDetails
+    } = modalInput;
+switch (num){
+  case 1:
+  
+  if (!scripts.isDefined(price)) {
+    price = "FREE";
+  }
+  if (!scripts.isDefined(notes)) {
+    notes = "";
+  }
+  if (!scripts.isDefined(altLeakNames)) {
+    altLeakNames = "";
+  }
+  embed = createEmbed.createEmbed({
+    title: `*${leakName}* | _New Leak_`,
+    description: `999 Till the WRLD Blows`,
+    color: `${scripts.getColor()}`,
+    author: {
+            name: `${name}`,
+            id: `${userId}`,
+            iconURL: `${avatar}`,
+            url: `https://discord.com/users/${userId}`
+        },
+    fields: [
+      {
+        name: "Date Leaked : ",
+        value: `${dateOfLeak}`,
+        inline: true,
+      },
+      {
+        name: "Price of Leak : ",
+        value: `${price}`,
+        inline: true,
+      },
+      {
+        name: "From ✍🏿",
+        value: `<@${userId}>`,
+      inline: true,
+      },
+      {
+        name: "Other Names : ",
+        value: `${altLeakNames}`,
+        inline: true,
+      },
+      {
+        name: "Additional Notes : ",
+        value: `${notes}`,
+        inline: true,
+      }
+    ]
+  });
+  break;
+
+  case 2:
+  if (!scripts.isDefined(era)) {
+    era = "";
+  }
+  if (!scripts.isDefined(notes)) {
+    notes = "";
+  }
+  if (!scripts.isDefined(altLeakNames)) {
+    altLeakNames = "";
+  }
+  embed = createEmbed.createEmbed({
+    title: `*${leakName}* | _New Leak_`,
+    description: `999 Till the WRLD Blows`,
+    color: `${scripts.getColor()}`,
+    author: {
+            name: `${name}`,
+            id: `${userId}`,
+            iconURL: `${avatar}`,
+            url: `https://discord.com/users/${userId}`
+        },
+    fields: [
+      {
+        name: "Date Leaked : ",
+        value: `${dateOfLeak}`,
+        inline: true,
+      },
+      {
+        name: "Era of Leak : ",
+        value: `${era}`,
+        inline: true,
+      },
+      {
+        name: "From ✍🏿",
+        value: `<@${userId}>`,
+      inline: true,
+      },
+      {
+        name: "Other Names : ",
+        value: `${altLeakNames}`,
+        inline: true,
+      },
+      {
+        name: "Additional Notes : ",
+        value: `${notes}`,
+        inline: true,
+      }
+    ]
+  });
+  break;
+
+  case 3:
+  if (!scripts.isDefined(content) || !scripts.isDefined(contentHeader)) {
+    content = "";
+  }
+  if (!scripts.isDefined(notes)) {
+    notes = "";
+  }
+  if (!scripts.isDefined(additionalDetails)) {
+    additionalDetails = "";
+  }
+  embed = createEmbed.createEmbed({
+    title: `*${title}*`,
+    description: `${description}`,
+    color: `${scripts.getColor()}`,
+    author: {
+            name: `${name}`,
+            id: `${userId}`,
+            iconURL: `${avatar}`,
+            url: `https://discord.com/users/${userId}`
+        },
+    fields: [
+      {
+        name: `${contentHeader}`,
+        value: `${content}`,
+        inline: true,
+      },
+      {
+        name: "Additional Details : ",
+        value: `${additionalDetails}`,
+        inline: true,
+      }
+    ]
+  });
+  break;
+
+  default:
+  // throw error 
+  break;
+}
+return embed;
+}
+
+function sendDraft(randID){
+
+  // Make a function that gets the data from the database by the ID
+    console.log("FINALLY DONE W BUG TESTING")
+
+}
 
 
 
@@ -343,4 +864,11 @@ module.exports = {
   button_NewStudioSession,
   button_NewSnippet,
   button_CustomAnnouncement,
+  modal_NewLeak,
+  modal_NewOGFile,
+  modal_NewStudioSession,
+  modal_NewSnippet,
+  modal_NewCustomAnnouncement,
+  extractID,
+  createAnnounceEmbed,
 }

@@ -59,9 +59,13 @@ async function createModal(modalObj) {
   inputFields.forEach((field) => {
     // put try catch blocks around newCustomModal.addComponents() and createTextInputField() function calls, catch error and continue, but make the error message custom like "Error adding row "blank" to modal ${error.line}"
     try {
-      newCustomModal.addComponents(createTextInputField(field));
+      
+      let row = createTextInputField(field)
+
+      newCustomModal.addComponents(row);
+
     } catch (error) {
-      scripts.logError(error, `Error adding field ${field.customID} to modal`);
+      scripts.logError(error, `Error adding field to modal`);
     }
   });
 
@@ -131,22 +135,26 @@ const createTextInputField = (textInputObj) => {
     textInputField.setLabel(label);
   }
   if (scripts.isDefined(style)) {
+    let s;
     // DO
     // check to make sure it is a string that is one of the TextInputStyle options
-    if (
-      style !== "TextInputStyle.Short" &&
-      style !== "TextInputStyle.Paragraph"
-    ) {
+    if (style === `long` || style === `Long` || style === `paragraph` || style === `Paragraph` || style === `TextInputStyle.Paragraph`) {
+      console.log("style is paragraph");
+      s = TextInputStyle.Paragraph;
+    } else if (style === `short` || style === `Short` || style === `TextInputStyle.Short`) {
+      console.log("style is short")
+      s = TextInputStyle.Short;
+    } else {
       try {
         scripts.cLog(
           "style is not a valid TextInputStyle\nAuto Assigning TextInputStyle.Short"
         );
-        style = "TextInputStyle.Short";
+        s = TextInputStyle.Short;
       } catch (error) {
         scripts.logError(error, "style is not a valid TextInputStyle");
       }
     }
-    textInputField.setStyle(style);
+    textInputField.setStyle(s);
   }
   if (scripts.isDefined(placeholder)) {
     if (placeholder.length > 100) {
@@ -159,17 +167,24 @@ const createTextInputField = (textInputObj) => {
     textInputField.setPlaceholder(placeholder);
   }
   if (scripts.isDefined(required)) {
+
     if (typeof required !== "boolean") {      try {
         scripts.cLog("required is not a boolean\nAuto Assigning required to false");
-        required = false;
       } catch (error) {
         scripts.logError(error, "required is not a boolean");
       }
+
+
+      textInputField.setRequired(false);
+    } else {
+      
       textInputField.setRequired(required);
     }
   } else {
+    
     textInputField.setRequired(false);
   }
+ 
 
   return new ActionRowBuilder().addComponents(textInputField);
 };

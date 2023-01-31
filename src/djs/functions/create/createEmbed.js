@@ -151,6 +151,7 @@ function createEmbed(obj) {
   try {
     if (obj.fields) {
       obj.fields.forEach(field => {
+        if (!scripts.isDefined(field.value)) return;
         embed.addFields({name: field.name, value: field.value, inline: field.inline});
       });
     }

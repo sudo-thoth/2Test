@@ -11,6 +11,7 @@ const {
   Embed,
   Collection,
 } = require(`discord.js`);
+const mongoose = require('mongoose');
 const client = new Client({
   intents: [
     GatewayIntentBits.Guilds | GatewayIntentBits.GuildMessages,
@@ -21,12 +22,14 @@ const client = new Client({
 const handleFunctions = require("./client/handlers/handleFunctions");
 const handleEvents = require("./client/handlers/handleEvents");
 const handleCommands = require("./client/handlers/handleCommands");
-
+let dbs = new Collection();
 const djsFunctionFolders = fs.readdirSync("./src/djs/functions");
 const djsCommandFolders = fs.readdirSync("./src/djs/commands");
 const djsEventFiles = fs
   .readdirSync("./src/djs/client/events")
   .filter((file) => file.endsWith(".js"));
+  const mongoConfig = fs.readdirSync("./src/MongoDB/db/config");
+
 
 const { token } = process.env;
 
@@ -59,10 +62,27 @@ client.on("ready", () => {
   }, 5000);
 });
 module.exports = client;
+handleEvents(client, mongoConfig, 2);
+const { MongoDB_Token_2Test } = process.env;
+
+
+(async () => {
+    if (mongoose === undefined) {
+      return;
+    } else {
+      await mongoose.connect(MongoDB_Token_2Test).catch(console.error);
+      console.log(`---------- >> MongoDB is Online << ----------`)
+    }
+  })();
+  const db = mongoose.connection;
+db.on("error", console.error.bind(console, "connection error:"));
+db.once("open", () => console.log("Connected to MongoDB"));
+
+
 
 handleFunctions(djsFunctionFolders, "./src/djs/functions");
-handleEvents(client, djsEventFiles);
-handleCommands(client, djsCommandFolders, "./src/djs/commands");
+handleEvents(client, djsEventFiles, 1);
+handleCommands(client, djsCommandFolders, "./src/djs/commands");  
 
 client.login(token);
 

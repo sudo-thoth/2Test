@@ -55,22 +55,36 @@ if (client) {
       await interaction.deferReply({
         ephemeral: true,
       });
-      
-      if (customID.includes(`newleakmodal`)) {
-        // use a getter function to retrieve the roles, target channel, 
-        let modalInput = scripts_djs.getModalInput_A(randID, interaction);
-      } else if (customID.includes(`newogfilemodal`)) {
-        let modalInput = scripts_djs.getModalInput_A(randID, interaction);
-        scripts_djs.createAnnounceEmbed(randID, modalInput, 1, interaction)
+      let modalInput = null;
+      let embed = null;
+      if (customID.includes(`newleakmodal`) || customID.includes(`newogfilemodal`) || customID.includes(`newstudiosessionmodal`)) {
+        modalInput = scripts_djs.getModalInput_A(randID, interaction);
+        embed = scripts_djs.createAnnounceEmbed(randID, modalInput, 1, interaction)
+scripts_MongoDB.addModal_Embed(randID, modalInput, embed)
         scripts_djs.sendDraft(randID)
 
-      } else if (customID.includes(`newstudiosessionmodal`)) {
-        let modalInput = scripts_djs.getModalInput_A(randID, interaction);
       } else if (customID.includes(`newsnippetmodal`)) {
-        let modalInput = scripts_djs.getModalInput_B(randID, interaction);
+        modalInput = scripts_djs.getModalInput_B(randID, interaction);
+        embed = scripts_djs.createAnnounceEmbed(randID, modalInput, 2, interaction)
+        scripts_MongoDB.addModalData(randID, modalInput)
+      scripts_MongoDB.addModal_Embed(randID, modalInput, embed)
+        scripts_djs.sendDraft(randID)
       } else if (customID.includes(`newcustomannouncementmodal`)) {
-        let modalInput = scripts_djs.getModalInput_C(randID, interaction);
+        modalInput = scripts_djs.getModalInput_C(randID, interaction);
+        embed = scripts_djs.createAnnounceEmbed(randID, modalInput, 3, interaction)
+        scripts_MongoDB.addModal_Embed(randID, modalInput, embed)
+        scripts_djs.sendDraft(randID)
       }
+      
+      scripts_MongoDB.addModalData(randID, modalInput)
+      // TODO: Add addEmbed() function
+      scripts_MongoDB.addEmbed(randID, embed)
     }
   });
 }
+
+
+
+let {
+    leakName, altLeakNames, dateOfLeak, price, notes, era, title, description, content, contentHeader, additionalDetails
+    } = modalInput;

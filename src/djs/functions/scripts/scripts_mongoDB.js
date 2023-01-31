@@ -29,7 +29,7 @@ async function saveSlashCommandData(commandData) {
 }
 
 
-async function addModalData(randID, modalData) {
+async function addModal_Embed(randID, modalData,embed) {
     // TODO :  go to where the funct. is called and construct the modalData object
     console.log(`SAVING MODAL DATA`)
     console.log(`randID: ${randID}`)
@@ -73,4 +73,4 @@ function getData(randID) {
 }
 
 
-module.exports = {saveSlashCommandData, addModalData, getData};
+module.exports = {saveSlashCommandData, addModal_Embed, getData};

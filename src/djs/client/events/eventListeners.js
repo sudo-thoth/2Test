@@ -14,19 +14,17 @@ if (client) {
     const { name, displayName, userId, avatar, role, roleID, roleName } =
       userInfo;
     const { guildId, guildName, guildIcon, guildOwner, guildOwnerID } = guild;
-     let randID = 0;
+    let randID = 0;
     if (!interaction.isCommand()) {
-	randID = scripts_djs.extractID(customID);
-}
+      randID = scripts_djs.extractID(customID);
+    }
 
     // BUTTONS
     if (interaction.isButton()) {
       if (customID.includes("newleak")) {
         // Launch New Leak Modal
-        let data = scripts_djs.getModalData_NewLeak(interaction);
-        const {title, description, color, footer, thumbnail, author, fields, image, timestamp, url, buttons, components, embeds, files, content, options, ephemeral } = data;
-        
         let modal = await scripts_djs.modal_NewLeak(randID);
+
         await interaction.showModal(modal);
       } else if (customID.includes("ogfile")) {
         // Launch OG File Modal
@@ -57,34 +55,42 @@ if (client) {
       });
       let modalInput = null;
       let embed = null;
-      if (customID.includes(`newleakmodal`) || customID.includes(`newogfilemodal`) || customID.includes(`newstudiosessionmodal`)) {
+      if (
+        customID.includes(`newleakmodal`) ||
+        customID.includes(`newogfilemodal`) ||
+        customID.includes(`newstudiosessionmodal`)
+      ) {
         modalInput = scripts_djs.getModalInput_A(randID, interaction);
-        embed = scripts_djs.createAnnounceEmbed(randID, modalInput, 1, interaction)
-scripts_MongoDB.addModal_Embed(randID, modalInput, embed)
-        scripts_djs.sendDraft(randID)
-
+        embed = scripts_djs.createAnnounceEmbed(
+          randID,
+          modalInput,
+          1,
+          interaction
+        );
+        console.log(`SPECIAL LOG::: `);
+        await scripts_mongoDB.addModal_Embed(randID, modalInput, embed);
+        scripts_djs.sendDraft(randID, interaction);
       } else if (customID.includes(`newsnippetmodal`)) {
         modalInput = scripts_djs.getModalInput_B(randID, interaction);
-        embed = scripts_djs.createAnnounceEmbed(randID, modalInput, 2, interaction)
-        scripts_MongoDB.addModalData(randID, modalInput)
-      scripts_MongoDB.addModal_Embed(randID, modalInput, embed)
-        scripts_djs.sendDraft(randID)
+        embed = scripts_djs.createAnnounceEmbed(
+          randID,
+          modalInput,
+          2,
+          interaction
+        );
+        await scripts_mongoDB.addModal_Embed(randID, modalInput, embed);
+        scripts_djs.sendDraft(randID, interaction);
       } else if (customID.includes(`newcustomannouncementmodal`)) {
         modalInput = scripts_djs.getModalInput_C(randID, interaction);
-        embed = scripts_djs.createAnnounceEmbed(randID, modalInput, 3, interaction)
-        scripts_MongoDB.addModal_Embed(randID, modalInput, embed)
-        scripts_djs.sendDraft(randID)
+        embed = scripts_djs.createAnnounceEmbed(
+          randID,
+          modalInput,
+          3,
+          interaction
+        );
+        await scripts_mongoDB.addModal_Embed(randID, modalInput, embed);
+        scripts_djs.sendDraft(randID, interaction);
       }
-      
-      scripts_MongoDB.addModalData(randID, modalInput)
-      // TODO: Add addEmbed() function
-      scripts_MongoDB.addEmbed(randID, embed)
     }
   });
 }
-
-
-
-let {
-    leakName, altLeakNames, dateOfLeak, price, notes, era, title, description, content, contentHeader, additionalDetails
-    } = modalInput;

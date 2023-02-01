@@ -5,6 +5,8 @@ const createActRow = require("../create/createActionRow.js");
 const createMdl = require("../create/createModal.js");
 const createSelMenu = require("../create/createSelectMenu.js");
 const axios = require("axios").default;
+const scripts_mongoDB = require("../scripts/scripts_mongoDB.js");
+const announcementData = require("../../../MongoDB/db/schemas/schema_announcement.js");
 
 
 function krakenWebScraper(url, type){
@@ -44,6 +46,12 @@ function krakenWebScraper(url, type){
   );
   return link;
 
+}
+
+let getAlertEmoji = () => {
+  let alertEmojis = [`🫵🏿`, `🛎️`, `📬`, `💌`, `🆕`, `🔔`, `📣`, `📢`, `📳`, `🪬`];
+  let random = Math.floor(Math.random() * alertEmojis.length);
+  return alertEmojis[random];
 }
 
 /**
@@ -326,6 +334,65 @@ const button_GroupBuy = (randID) => {
 });
 return button;
 } // TODO: Make an embed w actionrows w buttons for the group buy button
+
+// on button confirm interaction, call a function that sends the final message to the target channel and pings the roles
+// send attachment as buttons
+// let one button be a download button for the attachment and the other button cause the attachment to be sent into the channel as an ephemeral message replying to the user and a third button that sends the attachment as a file to the users direct messages
+const button_Confirm = (randID) => {
+  let button = createBtn.createButton({
+  customID: `confirm${randID}`,
+  label: `Confirm`,
+  style: `success`,
+});
+return button;
+}
+// on button cancel interaction, disable all buttons
+const button_Cancel = (randID) => {
+  let button = createBtn.createButton({
+  customID: `cancel${randID}`,
+  label: `Cancel`,
+  style: `danger`,
+});
+return button;
+}
+
+const button_Download = (randID, mute) => {
+  // throw error saying I need to retrieve the attachmentURL in button_download
+
+  throw new Error("I need to retrieve the attachmentURL in button_download");
+
+  // get attachmentURL
+  let attachment;
+  let button = createBtn.createButton({
+  link: attachment,
+  label: `Download`,
+  style: `link`,
+  disabled: mute,
+});
+return button;
+}
+const button_View = (randID, mute) => {
+  let button = createBtn.createButton({
+  customID: `view${randID}`,
+  label: `View`,
+  style: `primary`,
+  disabled: mute,
+});
+return button;
+}
+
+const button_DirectMessage = (randID, mute) => {
+  let button = createBtn.createButton({
+  customID: `directmessage${randID}`,
+  label: `Direct Message`,
+  style: `secondary`,
+  disabled: mute,
+});
+return button;
+}
+
+
+
 // // Action Rows
 // Returns a promise ; So must await when calling this function
 const row2_Announcement = async (randID) => {
@@ -352,6 +419,34 @@ let theRow = await row;
 console.log(theRow)
 return row; // a promise
 }
+
+const row_Attachment = async (randID, mute) => {
+  // check to make sure the attachment is a file if it is a file type then send download button, view button, and dm button. But if the attachment is a link then just send the download button and the dm button
+  let row = createActRow.createActionRow({
+  components: [
+    button_Download(randID, mute), // link button
+    button_View(randID, mute),
+    button_DirectMessage(randID, mute),
+  ],
+});
+let theRow = await row;
+console.log(theRow)
+return row; // a promise
+}
+
+
+const row_Draft = async (randID) => {
+  let row = createActRow.createActionRow({
+  components: [
+    button_Confirm(randID),
+    button_Cancel(randID),
+  ],
+});
+let theRow = await row;
+console.log(theRow)
+return row; // a promise
+}
+
 // // Modals
 const modal_NewLeak = (randID) => {
   let modalObj = {
@@ -609,6 +704,8 @@ if (interaction.fields.getTextInputValue("notes")) {
   
 }
 
+console.log(modalObj)
+
 return modalObj;
 }
 const getModalInput_B = (randID, interaction) => {
@@ -690,11 +787,12 @@ function createAnnounceEmbed(randID, modalInput, num, interaction){
   if(!num) return; // maybe throw error in the future TODO
   let embed;
   const intObj = getInteractionObj(interaction);
-  const {name, avatar, userId} = intObj;
-
+  const {userInfo} = intObj;
+  const {name, avatar, userId} = userInfo; 
   let {
     leakName, altLeakNames, dateOfLeak, price, notes, era, title, description, content, contentHeader, additionalDetails
     } = modalInput;
+    
 switch (num){
   case 1:
   
@@ -707,16 +805,18 @@ switch (num){
   if (!scripts.isDefined(altLeakNames)) {
     altLeakNames = "";
   }
-  embed = createEmbed.createEmbed({
-    title: `*${leakName}* | _New Leak_`,
-    description: `999 Till the WRLD Blows`,
+  embed = createEmb.createEmbed({
+    title: `${leakName}`,
+    description: `New Leak`,
     color: `${scripts.getColor()}`,
     author: {
-            name: `${name}`,
-            id: `${userId}`,
-            iconURL: `${avatar}`,
+            name: '',
+            id: userId,
+            iconURL: avatar,
             url: `https://discord.com/users/${userId}`
         },
+        footer: { text: null, iconURL: avatar },
+        thumbnail: `${interaction.guild.iconURL() ? interaction.guild.iconURL() : null}`,
     fields: [
       {
         name: "Date Leaked : ",
@@ -757,16 +857,18 @@ switch (num){
   if (!scripts.isDefined(altLeakNames)) {
     altLeakNames = "";
   }
-  embed = createEmbed.createEmbed({
-    title: `*${leakName}* | _New Leak_`,
-    description: `999 Till the WRLD Blows`,
+  embed = createEmb.createEmbed({
+    title: `${leakName}`,
+    description: `New Snippet`,
     color: `${scripts.getColor()}`,
     author: {
-            name: `${name}`,
-            id: `${userId}`,
-            iconURL: `${avatar}`,
-            url: `https://discord.com/users/${userId}`
-        },
+      name: name,
+      id: userId,
+      iconURL: avatar,
+      url: `https://discord.com/users/${userId}`
+  },
+  footer: { iconURL: avatar },
+  thumbnail: `${interaction.guild.iconURL() ? interaction.guild.iconURL() : null}`,
     fields: [
       {
         name: "Date Leaked : ",
@@ -807,16 +909,18 @@ switch (num){
   if (!scripts.isDefined(additionalDetails)) {
     additionalDetails = "";
   }
-  embed = createEmbed.createEmbed({
+  embed = createEmb.createEmbed({
     title: `*${title}*`,
     description: `${description}`,
     color: `${scripts.getColor()}`,
     author: {
-            name: `${name}`,
-            id: `${userId}`,
-            iconURL: `${avatar}`,
-            url: `https://discord.com/users/${userId}`
-        },
+      name: name,
+      id: userId,
+      iconURL: avatar,
+      url: `https://discord.com/users/${userId}`
+  },
+  footer: { iconURL: avatar },
+  thumbnail: `${interaction.guild.iconURL() ? interaction.guild.iconURL() : null}`,
     fields: [
       {
         name: `${contentHeader}`,
@@ -839,9 +943,116 @@ switch (num){
 return embed;
 }
 
-function sendDraft(randID){
+async function sendDraft(randID, interaction){
 
   // Make a function that gets the data from the database by the ID
+  // get data from db
+  // get targetChannel
+  // get roles
+  // get attachmentURL
+  // get embed
+  // get 
+
+  // STEPS
+  // 1. Get data from db
+  // 2. Get ActionRows created {row_Draft(randID), row_Attachment(randID)} : only if attachmentURL is defined : if not, then just row_Draft(randID)
+
+
+  let doc = await scripts_mongoDB.getData(randID) // get data from db
+  console.log(`The data`, doc)
+  let targetChannel = doc.targetChannel; // channel ID
+  let roles = doc.roles; // array of roles
+  let attachmentURL = doc.attachmentURL; // attachment URL
+  let {title, description, color, author, fields, thumbnail} = doc.embed; // embedBuilder
+  let {name,  icon_url, url} = author;
+  let avatar = icon_url;
+  let row_Top = null;
+  console.log(`attachmentURL :`, attachmentURL)
+  if (attachmentURL === null){
+    console.log(`PATH A`)
+    row_Top = null;
+  } else {
+    console.log(`PATH B`)
+    row_Top = await row_Attachment(randID, true); // row_Top
+  }
+  let row_Bottom = await row_Draft(randID); // row_Bottom
+
+  // create a function that takes in an array of strings and for every string it adds it to the same string but each on a new line
+  // example : ["@everyone", "@here", "@role"] => "@everyone\n@here\n@role"
+
+
+
+  let rolesString = (roles) => {
+    let str = `${getAlertEmoji()} :`;
+    roles.forEach(role => {
+      str += ` ${role} `
+    });
+    return str;
+  }
+
+
+console.log(`components :`,doc.components) // undefined
+// console.log(`component 2 : 1 : customID `, doc.components[1].components[0].custom_id)
+// console.log(`component 2 : 2 : customID `, doc.components[1].components[1].custom_id)
+
+let array = [];
+if (row_Top === null){
+  console.log(`PATH C`)
+  array = [
+    row_Bottom
+  ]
+} else {
+  console.log(`PATH D`)
+  array = [
+    row_Top,
+    row_Bottom
+  ]
+}
+
+let text = roles !== [] ? `Are you sure you want to send to channel: ${targetChannel} ?\n${rolesString(roles)}` : `Are you sure you want to send to channel: ${targetChannel} ?`
+  interaction.editReply({
+    content: text,
+    embeds: [createEmb.createEmbed({
+      title: title,
+      description: description,
+      color: color,
+      author: author,
+      fields: fields,
+      thumbnail: thumbnail ? thumbnail : null,
+      footer: { text: '999' ,iconURL: avatar }
+    })
+    ],
+    ephemeral: true,
+    components: array,
+    
+  });
+
+  
+  // const completeEmbed = {
+  //   content: roles.length ? `Are you sure you want to send to channel: ${targetChannel} ?\nAlerting : ${roles}` : `Are you sure you want to send to channel: ${targetChannel} ?`,
+  //   embeds: [sendEmbed],
+  //   ephemeral: true,
+  //   components: [
+  //     ActionRowBuilder.from({
+  //       components: [
+  //         ButtonBuilder.from({
+  //           customId: "sendAnnouncement",
+  //           label: "Send Announcement",
+  //           style: ButtonStyle.Danger,
+  //         }),
+  //       ],
+  //     }),
+  //   ],
+  //   files: [
+  //     ...(attachment.length
+  //       ? [
+  //           {
+  //             attachment,
+  //           },
+  //         ]
+  //       : []),
+  //   ],
+  // };
     console.log("FINALLY DONE W BUG TESTING")
 
 }
@@ -871,4 +1082,8 @@ module.exports = {
   modal_NewCustomAnnouncement,
   extractID,
   createAnnounceEmbed,
+  sendDraft,
+  getModalInput_A,
+  getModalInput_B,
+  getModalInput_C,
 }

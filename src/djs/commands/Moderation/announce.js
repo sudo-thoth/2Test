@@ -105,6 +105,7 @@ module.exports = {
       randID: randID,
       attachmentURL: attachmentURL,
       roles: roles,
+      targetChannel: targetChannel,
     }
 
     scripts_mongoDB.saveSlashCommandData(data);

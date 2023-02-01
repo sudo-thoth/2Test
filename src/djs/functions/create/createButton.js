@@ -7,7 +7,6 @@ const {
   
   //   // Example Modal Object that gets passed in below
         // let buttonObj = {
-        //     customID: "compress", { less than 100 characters }
         //     label: "🗜️ Compress File", { less than 45 characters }
         //     style: "link", { primary, secondary, success, danger, link}
         //     disabled: false, { true, false }

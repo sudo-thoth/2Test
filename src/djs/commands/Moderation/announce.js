@@ -10,6 +10,7 @@ const {
 
 const scripts = require("../../functions/scripts/scripts.js");
 const scripts_djs = require("../../functions/scripts/scripts_djs.js");
+const scripts_mongoDB = require("../../functions/scripts/scripts_mongoDB.js");
 
 
 // Put this in scripts_djs.js instead of here
@@ -19,8 +20,8 @@ const scripts_djs = require("../../functions/scripts/scripts_djs.js");
 // Slash Command
 let attachmentCollection = new Collection();
 let interactionCollection = new Collection();
-/////
-let randID = Math.floor(Math.random() * 90000) + 10000;
+
+
 
 
 const commandName = "announce";
@@ -48,7 +49,7 @@ module.exports = {
     // slot for user to select which roles they want to tag in the message, Up to 3, non required
     .addRoleOption((opt) =>
       opt
-        .setName("role")
+        .setName("role1")
         .setDescription("The Roles you would like to tag in your announcement")
     )
     .addRoleOption((opt) =>
@@ -57,28 +58,57 @@ module.exports = {
     .addRoleOption((opt) =>
       opt.setName("role3").setDescription("Optional Additional roles to tag")
     ),
-  getAttachment() { // TODO : add a parameter to this function to allow for the attachment to be returned for a specific interaction from database, this is where the database will be queried for the attachment
-    let attachment = attachmentCollection.get("attachment");
-    console.log("🚀 ~ file: new.js ~ line 48 ~ getAttachment ~ attachment", attachment)
-    
-    return attachment;
-  },
-  getInteraction() {
-    let interaction = interactionCollection.get("i");
-    console.log("🚀 ~ file: new.js ~ line 54 ~ getInteraction ~ interaction", interaction)
-    
-    return interaction;
-  },
-
   async execute(interaction) {
+    console.log(`🦾 ~ <<Announce>> Command Entered`);
+    let randID = `#${Math.floor(Math.random() * 90000) + 10000}`;
     if (!interaction) return;
+
+    let interactionObj = scripts_djs.getInteractionObj(interaction)
+
+    
+
     // The attachment if the user to includes an attachment
-    let attachment;
-    attachment = interaction.options.getAttachment("attachment");
-    attachmentCollection.set("attachment", attachment);
-    interactionCollection.set("i", interaction)
+    let attachment = null, role1 = null, role2 = null, role3 = null, targetChannel;
+    attachment = interaction.options.getAttachment("attachment") ? interaction.options.getAttachment("attachment") : null;
+    
+    role1 = interaction.options.getRole("role1") ? interaction.options.getRole("role1") : null;
+   
+    role2 = interaction.options.getRole("role2") ? interaction.options.getRole("role2") : null;
+    
+    role3 = interaction.options.getRole("role3") ? interaction.options.getRole("role3") : null;
+    
+    targetChannel = interaction.options.getChannel("sendto");
+    
+
+    let roles = [role1, role2, role3];
+    if (roles.length <= 0) {
+      roles = [];
+    } else {
+      roles = roles.filter((role) => role != null );
+    }
+    
+
+
+    let attachmentURL = attachment ? attachment.url : null;
+    let userId = interaction.user.id ? interaction.user.id : null;
+    let channelId = interaction.channel.id ? interaction.channel.id : null;
+
+    
+
 
     console.log(`🦾 ~ <<Announce>> Command Entered`);
+
+    // Save the data to the database
+    let data = {
+      userId: userId,
+      channelId: channelId,
+      randID: randID,
+      attachmentURL: attachmentURL,
+      roles: roles,
+      targetChannel: targetChannel,
+    }
+
+    scripts_mongoDB.saveSlashCommandData(data);
     
 
 
@@ -103,6 +133,8 @@ module.exports = {
         return 1;
       }
     };
+
+
     // Variable containing whether the attachment is valid or not
     let validStatus = validFile(attachment);
 
@@ -116,9 +148,10 @@ module.exports = {
         console.log(
           `Sending Q: \'What kind of Announcement would you like to make? \'`
         );
+
         interaction.reply({
           ephemeral: true,
-          embeds: [scripts_djs.embed_Announcement_File(interaction)],
+          embeds: [scripts_djs.embed_Announcement_File(interaction, randID)],
           components: [
             await scripts_djs.row_Announcement(randID),
           ],
@@ -129,8 +162,8 @@ module.exports = {
       // : INVALID FILE PRESENT
       case -1:
         console.log(`Sending -1 interaction`);
-        let embed = scripts_djs.embed_FileSizeTooBig(interaction)
-        let choiceRow = scripts_djs.row_FileSizeTooBig()
+        let embed = scripts_djs.embed_FileSizeTooBig(interaction, randID)
+        let choiceRow = scripts_djs.row_FileSizeTooBig(randID)
 
         message_fileSizeTooBig = {
           content: `Select One of the 2 Options`,
@@ -151,7 +184,7 @@ module.exports = {
         try {
         interaction.reply({
           ephemeral: true,
-          embeds: [scripts_djs.embed_Announcement_NoFile(interaction)],
+          embeds: [scripts_djs.embed_Announcement_NoFile(interaction, randID)],
           components: [row, row2],
         });
       } catch (error) {

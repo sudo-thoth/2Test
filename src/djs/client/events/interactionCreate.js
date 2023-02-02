@@ -1,4 +1,5 @@
 const { Interaction } = require("discord.js");
+const scripts_djs = require("../../functions/scripts/scripts_djs.js");
 
 module.exports = {
     name: 'interactionCreate',
@@ -6,20 +7,28 @@ module.exports = {
         if (!interaction.isCommand()) return;
 
         const command = client.commands.get(interaction.commandName);
+console.log(`the command`, command)
 
         if (!command) return
-        
-        try{
 
+        if (command.data.name !== 'announce') {
+	
+	        try{
+	
+	
+	            await command.execute(interaction, client);
+	        } catch (error) {
+	            console.log(error);
+	            await interaction.reply({
+	                content: 'There was an error while executing this command!', 
+	                ephemeral: true
+	            });
+	        } 
+} else {
 
-            await command.execute(interaction, client);
-        } catch (error) {
-            console.log(error);
-            await interaction.reply({
-                content: 'There was an error while executing this command!', 
-                ephemeral: true
-            });
-        } 
+   // scripts_djs.announce(interaction);
+
+}
 
     },
     

@@ -7,6 +7,7 @@ const createSelMenu = require("../create/createSelectMenu.js");
 const axios = require("axios").default;
 const scripts_mongoDB = require("../scripts/scripts_mongoDB.js");
 const announcementData = require("../../../MongoDB/db/schemas/schema_announcement.js");
+const { EmbedBuilder, PermissionsBitField } = require("discord.js");
 
 
 function krakenWebScraper(url, type){
@@ -161,6 +162,8 @@ function getInteractionObj(interaction){
       customID: `${interaction.customId}`,
       channel: `${interaction.channel}`,
       guild: `${interaction.guild}`,
+      member: `${interaction.member}`, // ex: <@975944168373370940> (user id) not an object
+      memberPerms: `${interaction.member.permissions}`, // ex: 
       userInfo: {
         // get the user name of the user who triggered the interaction
       name: `${interaction.member.user.username}`,
@@ -173,8 +176,8 @@ function getInteractionObj(interaction){
       role: `${interaction.member.roles.highest.name}`,
       // get the user role id of the user who triggered the interaction
       roleID: `${interaction.member.roles.highest.id}`,
-      // get the user role name of the user who triggered the interaction
-      roleName: `${interaction.member.roles.highest.name}`
+      // get the array of roles the user who triggered the interaction has
+      roles: interaction.member.roles
       }
     }
     return obj;
@@ -242,6 +245,31 @@ const row_FileSizeTooBig = createActRow.createActionRow({
 
 // Announcement Elements
 // // Embeds
+const embed_NoPermission = (interaction) => {
+ if (!interaction)return;
+  if (interaction.isCommand()) {
+    let commandName = interaction.commandName;
+    // let command = client.commands.get(commandName);
+    // if (command.permissions) {
+    //   let userPerms = interaction.member.permissions;
+    //   let commandPerms = command.permissions;
+    //   if (!userPerms.has(commandPerms)) {
+
+  return createEmb.createEmbed({
+    title: `You do not have permission to use the ${commandName} command`,
+    thumbnail: ``,
+    color: scripts.getColor(), // random color
+  });
+} else { 
+  return createEmb.createEmbed({
+    title: `You do not have permission to use this`,
+    thumbnail: ``,
+    color: scripts.getColor(), // random color
+  });
+}
+
+}
+
 const embed_Announcement_NoFile = (interaction, randID) => {
  let embed = createEmb.createEmbed({
   title: `Send An Announcement`,
@@ -356,21 +384,48 @@ const button_Cancel = (randID) => {
 return button;
 }
 
-const button_Download = (randID, mute) => {
-  // throw error saying I need to retrieve the attachmentURL in button_download
+async function fileCheck(link) {
+  console.log("🚀 ~ Initiating fileCheck.js ~ line 5");
 
-  throw new Error("I need to retrieve the attachmentURL in button_download");
-
-  // get attachmentURL
-  let attachment;
-  let button = createBtn.createButton({
-  link: attachment,
-  label: `Download`,
-  style: `link`,
-  disabled: mute,
-});
-return button;
+  if (typeof link !== "string") {
+    console.log("Link is not a string, returning empty handed, therefor undefined");
+    return null;
+  } else {
+    // need to check last four char to be either .jpg .png .mp3 .mp4 .m4a or .jpeg to be defined as a file, then check size of only the files
+    console.log(`Checking Link File Size  : ${link} . . . line 12 fileCheck.js`);
+    const response = await fetch(link, { method: "HEAD" });
+    const size = response.headers.get("content-length");
+    // console.log(`Size : ${size} Vs. ${8 * 1024 * 1024}`);
+    
+    if (link.includes(".mov") || size >= 8 * 1024 * 1024 || size === null || size === undefined) {
+      console.log("Invalid File Size, will send as message instead");
+      console.log(`The link used : ${link}\nThe Size of Link : ${size}`);
+      return false;
+    } else {
+      console.log("Valid File Size, sending as file");
+      console.log(`COMPLETE : fileCheck()`);
+      return true;
+    }
+  }
 }
+const button_Download = async (randID, mute) => {
+  let doc = await scripts_mongoDB.getData(randID);
+  let attachmentURL;
+  if (doc){
+    attachmentURL = doc.attachmentURL;
+  } else {
+    attachmentURL = "https://google.com/";
+  }
+  console.log(`attachmentURL : ${attachmentURL}`)
+    let button = createBtn.createButton({
+      link: attachmentURL,
+      label: `Download`,
+      style: `link`,
+      disabled: mute,
+    }, randID);
+    return button;
+}
+
 const button_View = (randID, mute) => {
   let button = createBtn.createButton({
   customID: `view${randID}`,
@@ -398,25 +453,25 @@ return button;
 const row2_Announcement = async (randID) => {
   let row = createActRow.createActionRow({
   components: [
-    button_NewLeak(randID),
-    button_NewOGFile(randID),
-    button_NewStudioSession(randID),
-    button_NewSnippet(randID),
-    button_GroupBuy(randID),
+    await button_NewLeak(randID),
+    await button_NewOGFile(randID),
+    await button_NewStudioSession(randID),
+    await button_NewSnippet(randID),
+    await button_GroupBuy(randID),
   ],
 });
-let theRow = await row;
-console.log(theRow)
+console.log(`row2_Announcement()`)
 return row; // a promise
 }
+
+
 const row_Announcement = async (randID) => {
   let row = createActRow.createActionRow({
   components: [
-    button_CustomAnnouncement(randID)
+    await button_CustomAnnouncement(randID)
   ],
 });
-let theRow = await row;
-console.log(theRow)
+console.log(`row_Announcement()`)
 return row; // a promise
 }
 
@@ -424,13 +479,12 @@ const row_Attachment = async (randID, mute) => {
   // check to make sure the attachment is a file if it is a file type then send download button, view button, and dm button. But if the attachment is a link then just send the download button and the dm button
   let row = createActRow.createActionRow({
   components: [
-    button_Download(randID, mute), // link button
-    button_View(randID, mute),
-    button_DirectMessage(randID, mute),
+    await button_Download(randID, mute), // link button
+    await button_View(randID, mute),
+    await button_DirectMessage(randID, mute),
   ],
 });
-let theRow = await row;
-console.log(theRow)
+console.log(`row_Attachment()`)
 return row; // a promise
 }
 
@@ -438,12 +492,10 @@ return row; // a promise
 const row_Draft = async (randID) => {
   let row = createActRow.createActionRow({
   components: [
-    button_Confirm(randID),
-    button_Cancel(randID),
+    await button_Confirm(randID),
+    await button_Cancel(randID),
   ],
 });
-let theRow = await row;
-console.log(theRow)
 return row; // a promise
 }
 
@@ -577,7 +629,7 @@ const modal_NewStudioSession = (randID) => {
     customID: `notes`,
     label: `Any more info to send in announcement?`,
     style: `long`,
-    placeholder: `Adore You was group bought in a bundle along with PITR and one other song a few years ago before the sessions were leaked`,
+    placeholder: `Before the Sessions, Adore You was group bought for $25,000 in a bundle along with PITR among others`,
     required: false
   },
 ]
@@ -723,12 +775,6 @@ if (interaction.fields.getTextInputValue("altLeakNames")) {
       modalObj.altLeakNames = altLeakNames;
     }
 }
-if (interaction.fields.getTextInputValue("dateOfLeak")) {
-    dateOfLeak = interaction.fields.getTextInputValue("dateOfLeak");
-    if (scripts.isDefined(dateOfLeak)){
-      modalObj.dateOfLeak = dateOfLeak;
-    }
-}
 if (interaction.fields.getTextInputValue("era")) {
     era = interaction.fields.getTextInputValue("era");
     if (scripts.isDefined(era)){
@@ -810,7 +856,7 @@ switch (num){
     description: `New Leak`,
     color: `${scripts.getColor()}`,
     author: {
-            name: '',
+            name: name ? name : '',
             id: userId,
             iconURL: avatar,
             url: `https://discord.com/users/${userId}`
@@ -862,7 +908,7 @@ switch (num){
     description: `New Snippet`,
     color: `${scripts.getColor()}`,
     author: {
-      name: name,
+      name: name ? name : '',
       id: userId,
       iconURL: avatar,
       url: `https://discord.com/users/${userId}`
@@ -914,7 +960,7 @@ switch (num){
     description: `${description}`,
     color: `${scripts.getColor()}`,
     author: {
-      name: name,
+      name: name ? name : '',
       id: userId,
       iconURL: avatar,
       url: `https://discord.com/users/${userId}`
@@ -936,11 +982,312 @@ switch (num){
   });
   break;
 
+  case 4:
+  
+  if (!scripts.isDefined(price)) {
+    price = "FREE";
+  }
+  if (!scripts.isDefined(notes)) {
+    notes = "";
+  }
+  if (!scripts.isDefined(altLeakNames)) {
+    altLeakNames = "";
+  }
+  embed = createEmb.createEmbed({
+    title: `${leakName}`,
+    description: `New OG File`,
+    color: `${scripts.getColor()}`,
+    author: {
+            name: name ? name : '',
+            id: userId,
+            iconURL: avatar,
+            url: `https://discord.com/users/${userId}`
+        },
+        footer: { text: null, iconURL: avatar },
+        thumbnail: `${interaction.guild.iconURL() ? interaction.guild.iconURL() : null}`,
+    fields: [
+      {
+        name: "Date Leaked : ",
+        value: `${dateOfLeak}`,
+        inline: true,
+      },
+      {
+        name: "Price of Leak : ",
+        value: `${price}`,
+        inline: true,
+      },
+      {
+        name: "From ✍🏿",
+        value: `<@${userId}>`,
+      inline: true,
+      },
+      {
+        name: "Other Names : ",
+        value: `${altLeakNames}`,
+        inline: true,
+      },
+      {
+        name: "Additional Notes : ",
+        value: `${notes}`,
+        inline: true,
+      }
+    ]
+  });
+  break;
+
+  case 5:
+  
+  if (!scripts.isDefined(price)) {
+    price = "FREE";
+  }
+  if (!scripts.isDefined(notes)) {
+    notes = "";
+  }
+  if (!scripts.isDefined(altLeakNames)) {
+    altLeakNames = "";
+  }
+  embed = createEmb.createEmbed({
+    title: `${leakName}`,
+    description: `New Session Leak`,
+    color: `${scripts.getColor()}`,
+    author: {
+            name: name ? name : '',
+            id: userId,
+            iconURL: avatar,
+            url: `https://discord.com/users/${userId}`
+        },
+        footer: { text: null, iconURL: avatar },
+        thumbnail: `${interaction.guild.iconURL() ? interaction.guild.iconURL() : null}`,
+    fields: [
+      {
+        name: "Date Leaked : ",
+        value: `${dateOfLeak}`,
+        inline: true,
+      },
+      {
+        name: "Price of Leak : ",
+        value: `${price}`,
+        inline: true,
+      },
+      {
+        name: "From ✍🏿",
+        value: `<@${userId}>`,
+      inline: true,
+      },
+      {
+        name: "Other Names : ",
+        value: `${altLeakNames}`,
+        inline: true,
+      },
+      {
+        name: "Additional Notes : ",
+        value: `${notes}`,
+        inline: true,
+      }
+    ]
+  });
+  break;
+
   default:
   // throw error 
   break;
 }
 return embed;
+}
+
+let rolesString = (roles) => {
+  let str = `${getAlertEmoji()} :`;
+  roles.forEach(role => {
+    str += ` ${role} `
+  });
+  return str;
+}
+async function announce(interaction) {
+  if (!interaction) return;
+  let interactionObj = getInteractionObj(interaction)
+  let {memberPerms,  userInfo } = interactionObj;
+  let { name, displayName, roles, role } = userInfo;
+  if (interaction.member.permissions.has(PermissionsBitField.Flags.Administrator)) {
+    console.log(`${displayName === name ? `${displayName}` : `${displayName} aka { ${name} }`} has permission to use this command`);
+     await interaction.deferReply({ ephemeral: true })
+  console.log(`🦾 ~ <<Announce>> Command Entered`);
+  let randID = `#${Math.floor(Math.random() * 90000) + 10000}`;
+  
+
+  
+
+  // The attachment if the user to includes an attachment
+  let attachment = null, role1 = null, role2 = null, role3 = null, targetChannel;
+  attachment = interaction.options.getAttachment("attachment") ? interaction.options.getAttachment("attachment") : null;
+  
+  role1 = interaction.options.getRole("role1") ? interaction.options.getRole("role1") : null;
+ 
+  role2 = interaction.options.getRole("role2") ? interaction.options.getRole("role2") : null;
+  
+  role3 = interaction.options.getRole("role3") ? interaction.options.getRole("role3") : null;
+  
+  targetChannel = interaction.options.getChannel("sendto");
+  
+
+  let roles = [role1, role2, role3];
+  if (roles.length <= 0) {
+    roles = [];
+  } else {
+    roles = roles.filter((role) => role != null );
+  }
+  
+
+
+  let attachmentURL = attachment ? attachment.url : null;
+  let userId = interaction.user.id ? interaction.user.id : null;
+  let channelId = interaction.channel.id ? interaction.channel.id : null;
+
+  
+
+
+  console.log(`🦾 ~ <<Announce>> Command Entered`);
+
+  // Save the data to the database
+  let data = {
+    userId: userId,
+    channelId: channelId,
+    randID: randID,
+    attachmentURL: attachmentURL,
+    roles: roles,
+    targetChannel: targetChannel,
+  }
+
+  scripts_mongoDB.saveSlashCommandData(data);
+  
+
+
+  // take this attachment, check if its file size is less than 8 mb, then return true or false whether in order to determine to send as a file or prompt the user to get an external link for the file
+
+  let validFile = (attachment) => {
+    if (attachment) {
+      const size = attachment.size;
+      console.log(`Actual Size : ${size} Vs. Max Size : ${8 * 1024 * 1024}`);
+      // Checking if file is larger than max file send size | 8mb
+      if (size >= 8 * 1024 * 1024) {
+        console.log("File Size TOO BIG per Discord Api Rules");
+
+        return -1;
+      } else {
+        console.log("Attachment Size Valid ~ Sending as file attachment");
+        return 0;
+      }
+    } else {
+      // No Attachment present
+      console.log(`User did not input an attachment`);
+      return 1;
+    }
+  };
+
+
+  // Variable containing whether the attachment is valid or not
+  let validStatus = validFile(attachment);
+  console.log(`Is attachment valid?`, validStatus)
+  
+
+  // SWITCH TO CHECK THE OUTCOME OF VALID SIZE AND GO FORWARD ACCORDINGLY
+  let message_ValidFile, message_fileSizeTooBig, message_NoAttachment;
+  let row,row2,rowAttachment;
+
+  switch (validStatus) {
+    // : VALID FILE PRESENT
+    case 0:
+      console.log(
+        `Sending Q: \'What kind of Announcement would you like to make? \'`
+      );
+       row = await row_Announcement(randID) // the row with the custom announcement option
+       row2 = await row2_Announcement(randID) // the row with leak type announcements and gb button
+       rowAttachment = await row_Attachment(randID, true) // the attachment buttons : disabled until final announcement is made
+
+      message_ValidFile = {
+        ephemeral: true,
+        embeds: [embed_Announcement_File(interaction, randID)],
+        components: [
+          rowAttachment, row, row2
+        ],
+      }
+
+     // interaction.reply();
+
+      break;
+
+    // : INVALID FILE PRESENT
+    case -1:
+      console.log(`Sending -1 interaction`);
+      let embed = embed_FileSizeTooBig(interaction, randID)
+      let choiceRow = row_FileSizeTooBig(randID)
+
+      message_fileSizeTooBig = {
+        content: `Select One of the 2 Options`,
+        embeds: [embed],
+        ephemeral: true,
+        components: [choiceRow],
+      };
+     // await interaction.editReply(message_fileSizeTooBig);
+      break;
+
+    // : NO FILE PRESENT
+    case 1:
+      console.log(
+        `Sending Q: \'What kind of Announcement would you like to make? \'`
+      );
+      row = await row_Announcement(randID) // the row with the custom announcement option
+      row2 = await row2_Announcement(randID) // the row with leak type announcements and gb button
+
+      message_NoAttachment = {
+        ephemeral: true,
+        embeds: [embed_Announcement_NoFile(interaction, randID)],
+        components: [row, row2],
+      }
+// edit reply
+      break;
+
+    default:
+    break;
+  }
+  // take in 3 variables and spit out the one thats not undefined
+  let getDefined = (x, y, z) => {
+    if (x) {
+      console.log(`x is defined`);
+      return x;
+    }
+    if (y) {
+      console.log(`y is defined`);
+      return y;
+    }
+    if (z) {
+      console.log(`z is defined`);
+      return z;
+    }
+  };
+  let message = getDefined(message_ValidFile, message_fileSizeTooBig, message_NoAttachment);
+  console.log(`Message is`, message)
+  try {
+     await interaction.editReply(message);
+   // interaction.reply(message);
+
+  }
+  catch(error) {
+
+    scripts.logError(error, "unable to send reply message")
+
+  }
+
+} else {
+  // don't run command
+  console.log(`${displayName === name ? `${displayName}` : `${displayName} aka { ${name} }`} does not have permission to use this command`);
+  console.log(`${displayName === name ? `${displayName}` : `${displayName} aka { ${name} }`}  highest role is ${role}`)
+  try {
+  await interaction.reply({ ephemeral: true, embeds: [embed_NoPermission(interaction)] })
+  } catch(error) {
+    scripts.logError(error, 'Was not able to complete the `NO PERMISSIONS` reply')
+  }
+
+}
 }
 
 async function sendDraft(randID, interaction){
@@ -959,7 +1306,7 @@ async function sendDraft(randID, interaction){
 
 
   let doc = await scripts_mongoDB.getData(randID) // get data from db
-  console.log(`The data`, doc)
+  // console.log(`The data`, doc)
   let targetChannel = doc.targetChannel; // channel ID
   let roles = doc.roles; // array of roles
   let attachmentURL = doc.attachmentURL; // attachment URL
@@ -969,40 +1316,22 @@ async function sendDraft(randID, interaction){
   let row_Top = null;
   console.log(`attachmentURL :`, attachmentURL)
   if (attachmentURL === null){
-    console.log(`PATH A`)
+  //  console.log(`PATH A`)
     row_Top = null;
   } else {
-    console.log(`PATH B`)
+  //  console.log(`PATH B`)
     row_Top = await row_Attachment(randID, true); // row_Top
   }
   let row_Bottom = await row_Draft(randID); // row_Bottom
 
-  // create a function that takes in an array of strings and for every string it adds it to the same string but each on a new line
-  // example : ["@everyone", "@here", "@role"] => "@everyone\n@here\n@role"
-
-
-
-  let rolesString = (roles) => {
-    let str = `${getAlertEmoji()} :`;
-    roles.forEach(role => {
-      str += ` ${role} `
-    });
-    return str;
-  }
-
-
-console.log(`components :`,doc.components) // undefined
-// console.log(`component 2 : 1 : customID `, doc.components[1].components[0].custom_id)
-// console.log(`component 2 : 2 : customID `, doc.components[1].components[1].custom_id)
-
 let array = [];
 if (row_Top === null){
-  console.log(`PATH C`)
+//  console.log(`PATH C`)
   array = [
     row_Bottom
   ]
 } else {
-  console.log(`PATH D`)
+//  console.log(`PATH D`)
   array = [
     row_Top,
     row_Bottom
@@ -1027,36 +1356,222 @@ let text = roles !== [] ? `Are you sure you want to send to channel: ${targetCha
     
   });
 
-  
-  // const completeEmbed = {
-  //   content: roles.length ? `Are you sure you want to send to channel: ${targetChannel} ?\nAlerting : ${roles}` : `Are you sure you want to send to channel: ${targetChannel} ?`,
-  //   embeds: [sendEmbed],
-  //   ephemeral: true,
-  //   components: [
-  //     ActionRowBuilder.from({
-  //       components: [
-  //         ButtonBuilder.from({
-  //           customId: "sendAnnouncement",
-  //           label: "Send Announcement",
-  //           style: ButtonStyle.Danger,
-  //         }),
-  //       ],
-  //     }),
-  //   ],
-  //   files: [
-  //     ...(attachment.length
-  //       ? [
-  //           {
-  //             attachment,
-  //           },
-  //         ]
-  //       : []),
-  //   ],
-  // };
-    console.log("FINALLY DONE W BUG TESTING")
+    console.log("DONE W sending DRAFT")
 
 }
 
+let errEmbed =  () => {
+  return new EmbedBuilder()
+.setColor("#FF0000")
+.setTitle("❗️ Error")
+.setDescription("Invalid properties were given to create the embed");
+}
+
+let errMessage = () => {
+  return {embeds: [errEmbed()]}
+}
+
+
+async function createFinalAnnouncement(doc, randID) {
+   // make it return a promise
+
+
+  try {
+	 let { embed, targetChannel, roles } = doc;
+	   let {
+	     title,
+	     description,
+	     color,
+	     thumbnail,
+	     image,
+	     footer,
+	     author,
+	     fields,
+	   } = embed;
+	
+	   let text = roles !== [] ? rolesString(roles) : null;
+	   let attachmentURL = doc.attachmentURL; // attachment URL
+	   let row_Top;
+	   if (attachmentURL === null) {
+	    // console.log(`PATH A`);
+	     row_Top = undefined;
+	   } else {
+	    // console.log(`PATH B`);
+	     row_Top = await row_Attachment(randID, false); // row_Top // PROMISE - may cause issues
+	   }
+	   let componentArray = [row_Top];
+     if (footer.text === null) {
+        footer.text = `\u0020`;
+     }
+     if (author.name === null) {
+        author.name = `\u0020`;
+      }
+	
+	   let finalEmbed = createEmb.createEmbed({
+	      title: title ? title : null,
+	      description: description ? description : null,
+	      color: color ? color : null,
+	      thumbnail: thumbnail ? thumbnail : null,
+	      image: image ? image : null,
+	      footer: footer ? footer : [],
+	      author: author ? author : [],
+	      fields: fields ? fields : [],
+	
+	   });
+	
+     
+     componentArray = [row_Top];
+
+	    let finalAnnouncementMessage = {
+	      content: text,
+	      embeds: [finalEmbed],
+	      components: componentArray === [undefined] || componentArray === [] ? [] : componentArray,
+	    };
+      let filter = (obj) => {
+        for (let key in obj) {
+          if (obj[key] === null) {
+            delete obj[key];
+          }
+        }
+        return obj;
+      };
+      finalAnnouncementMessage = filter(finalAnnouncementMessage);
+	    
+	    return finalAnnouncementMessage;
+} catch (error) {
+  scripts.logError(error)
+
+  return errMessage();
+	
+}
+}
+
+let getOnlineCount = ( interaction ) => {
+  let onlineCount = 0;
+  interaction. guild.members.fetch({ withPresences: true }).then(fetchedMembers => {
+    const totalOnline = fetchedMembers.filter(member => member.presence?.status === 'online');
+    onlineCount = totalOnline.size;
+    // Now you have a collection with all online member objects in the totalOnline variable
+  });
+  return onlineCount;
+};
+
+let getOfflineCount = ( interaction ) => {
+  let offlineCount = 0;
+  interaction. guild.members.fetch({ withPresences: true }).then(fetchedMembers => {
+    const totalOffline = fetchedMembers.filter(member => member.presence?.status === 'offline');
+    offlineCount = totalOffline.size;
+    // Now you have a collection with all online member objects in the totalOnline variable
+  });
+  return offlineCount;
+};
+
+let getIdleCount = ( interaction ) => {
+  let idleCount = 0;
+  interaction.guild.members.fetch({ withPresences: true }).then(fetchedMembers => {
+    const totalIdle = fetchedMembers.filter(member => member.presence?.status === 'idle');
+    idleCount = totalIdle.size;
+    // Now you have a collection with all online member objects in the totalOnline variable
+  });
+  return idleCount;
+};
+
+let getDndCount = ( interaction ) => { 
+  let dndCount = 0;
+  interaction.guild.members.fetch({ withPresences: true }).then(fetchedMembers => {
+    const totalDnd = fetchedMembers.filter(member => member.presence?.status === 'dnd');
+    dndCount = totalDnd.size;
+    // Now you have a collection with all online member objects in the totalOnline variable
+  });
+  return dndCount;
+};
+
+let getBotCount = ( interaction ) => {
+  let botCount = 0;
+  interaction.guild.members.fetch({ withPresences: true }).then(fetchedMembers => {
+    const totalBots = fetchedMembers.filter(member => member.user.bot);
+    botCount = totalBots.size;
+    // Now you have a collection with all online member objects in the totalOnline variable
+  });
+  return botCount;
+};
+
+let getHumanCount = ( interaction ) => {
+  let humanCount = 0;
+  interaction.guild.members.fetch({ withPresences: true }).then(fetchedMembers => {
+    const totalHumans = fetchedMembers.filter(member => !member.user.bot);
+    humanCount = totalHumans.size;
+    // Now you have a collection with all online member objects in the totalOnline variable
+  });
+  return humanCount;
+};
+
+let getOnlineHumans = ( interaction ) => {
+  let onlineHumans = 0;
+  interaction.guild.members.fetch({ withPresences: true }).then(fetchedMembers => {
+    const totalOnlineHumans = fetchedMembers.filter(member => member.presence?.status === 'online' && !member.user.bot);
+    onlineHumans = totalOnlineHumans.size;
+    // Now you have a collection with all online member objects in the totalOnline variable
+  });
+  return onlineHumans;
+};
+
+let getOnlineBots = ( interaction ) => {
+  let onlineBots = 0;
+  interaction.guild.members.fetch({ withPresences: true }).then(fetchedMembers => {
+    const totalOnlineBots = fetchedMembers.filter(member => member.presence?.status === 'online' && member.user.bot);
+    onlineBots = totalOnlineBots.size;
+    // Now you have a collection with all online member objects in the totalOnline variable
+  });
+  return onlineBots;
+};
+
+let getOfflineHumans = ( interaction ) => {
+  let offlineHumans = 0;
+  interaction.guild.members.fetch({ withPresences: true }).then(fetchedMembers => {
+    const totalOfflineHumans = fetchedMembers.filter(member => member.presence?.status === 'offline' && !member.user.bot);
+    offlineHumans = totalOfflineHumans.size;
+    // Now you have a collection with all online member objects in the totalOnline variable
+  });
+  return offlineHumans;
+};
+
+let getOfflineBots = ( interaction ) => {
+  let offlineBots = 0;
+  interaction.guild.members.fetch({ withPresences: true }).then(fetchedMembers => {
+    const totalOfflineBots = fetchedMembers.filter(member => member.presence?.status === 'offline' && member.user.bot);
+    offlineBots = totalOfflineBots.size;
+    // Now you have a collection with all online member objects in the totalOnline variable
+  });
+  return offlineBots;
+};
+
+let getMemberCount = ( interaction ) => {
+  let memberCount = 0;
+  interaction.guild.members.fetch({ withPresences: true }).then(fetchedMembers => {
+    const totalMembers = fetchedMembers.filter(member => !member.user.bot);
+    memberCount = totalMembers.size;
+    // Now you have a collection with all online member objects in the totalOnline variable
+  });
+  return memberCount;
+};
+
+let getServerInfoObj = ( interaction ) => {
+  let serverInfoObj = {
+    onlineCount: getOnlineCount(interaction),
+    offlineCount: getOfflineCount(interaction),
+    idleCount: getIdleCount(interaction),
+    dndCount: getDndCount(interaction),
+    botCount: getBotCount(interaction),
+    humanCount: getHumanCount(interaction),
+    onlineHumans: getOnlineHumans(interaction),
+    onlineBots: getOnlineBots(interaction),
+    offlineHumans: getOfflineHumans(interaction),
+    offlineBots: getOfflineBots(interaction),
+    memberCount: getMemberCount(interaction)
+  };
+  return serverInfoObj;
+};
 
 
 module.exports = {
@@ -1068,8 +1583,6 @@ module.exports = {
   row_FileSizeTooBig,
   embed_Announcement_NoFile,
   embed_Announcement_File,
-  row_Announcement,
-  row2_Announcement,
   button_NewLeak,
   button_NewOGFile,
   button_NewStudioSession,
@@ -1086,4 +1599,25 @@ module.exports = {
   getModalInput_A,
   getModalInput_B,
   getModalInput_C,
+  embed_NoPermission,
+  errEmbed,
+  createFinalAnnouncement,
+  row_Attachment,
+  row_Draft,
+  getOnlineCount,
+  getOfflineCount,
+  getIdleCount,
+  getDndCount,
+  getBotCount,
+  getHumanCount,
+  getOnlineHumans,
+  getOnlineBots,
+  getOfflineHumans,
+  getOfflineBots,
+  getMemberCount,
+  getServerInfoObj,
+  announce,
+  fileCheck,
+  
+
 }

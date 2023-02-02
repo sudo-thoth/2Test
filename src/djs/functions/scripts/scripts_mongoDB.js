@@ -34,6 +34,11 @@ async function addModal_Embed(randID, modalInput,embed) {
     let {
         leakName, altLeakNames, dateOfLeak, price, notes, era, title, description, content, contentHeader, additionalDetails
         } = modalInput
+        // check if any values within the embed.data object properties are null if so replace them with `\u0020`
+
+        console.log(`the embed data before: ----`, embed.data)
+
+
         let inputs = { leakName: leakName, altLeakNames: altLeakNames, dateOfLeak: dateOfLeak, price: price, notes: notes, era: era, title: title, description: description, content: content, contentHeader: contentHeader, additionalDetails: additionalDetails, embed: embed.data}
     console.log(`SAVING MODAL DATA`)
     console.log(`randID: ${randID}`)
@@ -56,7 +61,7 @@ async function addModal_Embed(randID, modalInput,embed) {
             console.log(`updating db`)
             console.log(`current update obj:`, update)
   await announcementData.findOneAndUpdate(query, update, { upsert: true },(err, data) => (err ? console.log(`Ran into some Errors while trying to find and update: `, err) : console.log(`found it and updated it successfully`))
-  )
+  ).clone()
   console.log(`updated db`)
     } else {
         console.log(`nothing to update`)
@@ -73,7 +78,7 @@ async function addModal_Embed(randID, modalInput,embed) {
 function getData(randID) {
     console.log(`GETTING DATA`)
     console.log(`randID: ${randID}`)
-    if (!randID) return;
+    if (!randID) return; 
     let data;
     try {
         // data = announcementData.collection.find({ randID: randID })

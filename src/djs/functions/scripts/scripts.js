@@ -38,9 +38,21 @@ function logError(error, data) {
   const funcCallerLine = errorLines[2]; // "at createEmbed (/Users/logantucker/Desktop/projects/bots/2test/src/djs/functions/create/createEmbed.js:79:11)"
   
   // Extract the file name, file path, line number, and column using the regular expression and array destructuring assignment as shown in the previous example
-  const extractInfoRegex = /at\s(.*)\s\((.*):(\d+):(\d+)\)/;
-  const [, fileName, filePath, lineNumber, column] = funcCallerLine.match(extractInfoRegex);
-  const fileNameWithExtension = path.basename(filePath);
+  
+  let extractInfoRegex;
+  let [ fileName, filePath, lineNumber, column] = [];
+  let fileNameWithExtension;
+  try {
+	extractInfoRegex = /at\s(.*)\s\((.*):(\d+):(\d+)\)/;
+	  [ fileName, filePath, lineNumber, column] = funcCallerLine.match(extractInfoRegex);
+	  fileNameWithExtension = path.basename(filePath);
+} catch (err) {
+  console.log(err);
+  console.log(`ORIGINAL ERROR:`, error)
+  console.log(`ORIGINAL DATA:`, data)
+  return;
+	
+}
 
   // Define two log messages
   let logWithData = `

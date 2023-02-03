@@ -14,8 +14,7 @@ console.log(`the command`, command)
         if (command.data.name !== 'announce') {
 	
 	        try{
-	
-	
+				console.log(`executing command`)
 	            await command.execute(interaction, client);
 	        } catch (error) {
 	            console.log(error);

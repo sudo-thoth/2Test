@@ -10,21 +10,31 @@ const {
   
 } = require("discord.js");
 
-const scripts = require("../../functions/scripts/scripts.js");
-const scripts_djs = require("../../functions/scripts/scripts_djs.js");
-const scripts_mongoDB = require("../../functions/scripts/scripts_mongoDB.js");
-
-
-// Put this in scripts_djs.js instead of here
-// NEED TODO : Update all variables below
-
-
-// Slash Command
-let attachmentCollection = new Collection();
-let interactionCollection = new Collection();
-
-
-
+try {
+  console.log('before scripts import')
+	const scripts = require("../../functions/scripts/scripts.js");
+  console.log('after scripts import')
+} catch (error) {
+  console.log('error importing scripts')
+  console.log(error)
+	
+}
+try {
+  console.log('before scripts_djs import')
+	const scripts_djs = require("../../functions/scripts/scripts_djs.js");
+  console.log('after scripts_djs import')
+} catch (error) {
+	console.log('error importing scripts_djs')
+  console.log(error)
+}
+try {
+  console.log('before scripts_mongoDB import')
+	const scripts_mongoDB = require("../../functions/scripts/scripts_mongoDB.js");
+  console.log('after scripts_mongoDB import')
+} catch (error) {
+	console.log('error importing scripts_mongoDB')
+  console.log(error)
+}
 
 const commandName = "announce";
 const commandDescription = "Send an announcement to a channel in the server";

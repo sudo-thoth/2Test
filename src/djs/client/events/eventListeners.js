@@ -36,32 +36,42 @@ if (client) {
       if (customID.includes("newleak")) {
         // Launch New Leak Modal
         let modal = await scripts_djs.modal_NewLeak(randID);
-
+        console.log(`interaction reply 10`)
         await interaction.showModal(modal);
       } else if (customID.includes("ogfile")) {
         // Launch OG File Modal
         let modal = await scripts_djs.modal_NewOGFile(randID);
+        console.log(`interaction reply 11`)
         await interaction.showModal(modal);
       } else if (customID.includes("studiosession")) {
         // Launch Studio Session Modal
         let modal = await scripts_djs.modal_NewStudioSession(randID);
+        console.log(`interaction reply 12`)
         await interaction.showModal(modal);
       } else if (customID.includes("snippet")) {
         // Launch Snippet Modal
         let modal = await scripts_djs.modal_NewSnippet(randID);
+        console.log(`interaction reply 13`)
         await interaction.showModal(modal);
       } else if (customID.includes("groupbuybtn")) {
         // Launch Group Buy Hub {Embed}
       } else if (customID.includes("custom")) {
         // Launch Custom Modal
         let modal = await scripts_djs.modal_NewCustomAnnouncement(randID);
-        await interaction.showModal(modal);
+        try {
+          console.log(`interaction reply 14`)
+          console.log(`the interaction`, interaction);
+
+          interaction.showModal(modal); 
+        } catch (error) {
+          console.log(error);
+        }
       } else if (customID.includes("confirm")) {
         // check if theres an attachment
         // if so turn the attachment into
 
         let finalAnnouncementMessage =
-          await scripts_djs.createFinalAnnouncement(doc, randID);
+          await scripts_djs.createFinalAnnouncement(doc, randID, interaction);
         let filter = (obj) => {
           for (i = 0; i < Object.keys(obj).length; i++) {
             if (
@@ -88,11 +98,30 @@ if (client) {
           .get(targetChannelID)
           .send(finalAnnouncementMessage);
 
-          await interaction.update({content: ``, components: [], embeds: [createEmb.createEmbed({title: `Announcement Sent 👍🏼`})], ephemeral: true });
+        // client.channels.cache
+        // .get(targetChannelID)
+        // .send({content: `<a:LFGGG:1029914284492333157> LFG emoji` });
+        console.log(`interaction reply 1`)
+        await interaction.update({
+          content: ``,
+          components: [],
+          embeds: [createEmb.createEmbed({ title: `Announcement Sent 👍🏼` })],
+          ephemeral: true,
+        });
       } else if (customID.includes("cancel")) {
         // delete the draft
-         await interaction.update({content: ``, components: [], embeds: [createEmb.createEmbed({title: `Announcement Cancelled 👍🏼`})], ephemeral: true });
+        console.log(`interaction reply 2`)
+        await interaction.update({
+          content: ``,
+          components: [],
+          embeds: [
+            createEmb.createEmbed({ title: `Announcement Cancelled 👍🏼` }),
+          ],
+          ephemeral: true,
+        });
       } else if (customID.includes("view")) {
+        console.log(`interaction reply 3`)
+        await interaction.deferReply({ ephemeral: true });
         // TODO:
 
         let attachmentURL = doc.attachmentURL;
@@ -100,11 +129,28 @@ if (client) {
         let isFile = await scripts_djs.fileCheck(attachmentURL);
 
         if (isFile === true) {
-          console.log(`should send reply with file`)
-          interaction.reply({ files: [attachmentURL], ephemeral: true });
+          console.log(`should send reply with file`);
+
+          try {
+            console.log(`interaction reply 4`)
+            await interaction.editReply({
+              files: [attachmentURL],
+              ephemeral: true,
+            });
+          } catch (error) {
+            console.log(error);
+          }
         } else if (isFile === false) {
-          console.log(`should send reply as link`)
-          interaction.reply({ content: attachmentURL, ephemeral: true });
+          console.log(`should send reply as link`);
+          try {
+            console.log(`interaction reply 5`)
+            await interaction.editReply({
+              content: attachmentURL,
+              ephemeral: true,
+            });
+          } catch (error) {
+            console.log(error);
+          }
         }
       } else if (customID.includes("directmessage")) {
         let attachmentURL = doc.attachmentURL;
@@ -114,8 +160,28 @@ if (client) {
 
         if (isFile === true) {
           user.send({ content: title, files: [attachmentURL] });
+          let obj = await scripts_djs.createFinalAnnouncement(doc, randID, interaction);
+          // need to take the message obj and go into the components and update the direct message button to be disabled
+          // let styles = ["PRIMARY", "SECONDARY", "SUCCESS", "DANGER"];
+          // // let labels be synonymous with the word "sent" and also have an emoji that represents something being sent in front of it  :calling: :arrow_upper_left:  :mailbox_with_m
+          // let sentEmojis = ["📨", "📩", "📤", "📥", ":wind_blowing_face:", ":satellite_orbital:", ":parachute:", ":boomerang:", ":calling:", ":arrow_upper_left:", ":mailbox_with_mail:", ":white_check_mark:", ":vibration_mode:", ":mailbox:", ":inbox_tray:"];
+          // let emoji = sentEmojis[Math.floor(Math.random() * sentEmojis.length)];
+          // let labelText = ['Sent!', 'Delivered!', 'In ur Mailbox!', 'In ur Inbox!', 'In ur DMs!', 'Transferred', 'Forwarded!', 'Mailed!']
+          // let labelT = `${sentEmojis[Math.floor(Math.random() * sentEmojis.length)]} ${labelText[Math.floor(Math.random() * labelText.length)]}`;
+          // let style = styles[Math.floor(Math.random() * styles.length)];
+          // let label = `${emoji} ${labelT}`
+          // console.log(`the obj`, obj.components[0].components[2])
+          // obj.components[0].components[2].style = style;
+          // obj.components[0].components[2].label = label;
+          // console.log(`the updated obj`, obj)
+          console.log(`interaction reply 66`)
+          await interaction.update(obj);
+
         } else if (isFile === false) {
           user.send({ content: attachmentURL });
+          let obj = await scripts_djs.createFinalAnnouncement(doc, randID, interaction);
+          console.log(`interaction reply 66`)
+          await interaction.update(obj);
         }
       }
     }
@@ -123,6 +189,7 @@ if (client) {
     if (interaction.isModalSubmit()) {
       console.log(`Modal Submitted`);
       // defer the interaction
+      console.log(`interaction reply 8`)
       await interaction.deferReply({
         ephemeral: true,
       });
@@ -130,6 +197,7 @@ if (client) {
       let embed = null;
       if (customID.includes(`newleakmodal`)) {
         modalInput = scripts_djs.getModalInput_A(randID, interaction);
+        console.log(`modalInput`, modalInput)
         embed = scripts_djs.createAnnounceEmbed(
           randID,
           modalInput,
@@ -138,7 +206,7 @@ if (client) {
         );
         await scripts_mongoDB.addModal_Embed(randID, modalInput, embed);
         scripts_djs.sendDraft(randID, interaction);
-      } else if (customID.includes(`newogfilemodal`)){
+      } else if (customID.includes(`newogfilemodal`)) {
         modalInput = scripts_djs.getModalInput_A(randID, interaction);
         embed = scripts_djs.createAnnounceEmbed(
           randID,
@@ -148,7 +216,7 @@ if (client) {
         );
         await scripts_mongoDB.addModal_Embed(randID, modalInput, embed);
         scripts_djs.sendDraft(randID, interaction);
-      } else if(customID.includes(`newstudiosessionmodal`)){
+      } else if (customID.includes(`newstudiosessionmodal`)) {
         modalInput = scripts_djs.getModalInput_A(randID, interaction);
         embed = scripts_djs.createAnnounceEmbed(
           randID,
@@ -170,24 +238,24 @@ if (client) {
         scripts_djs.sendDraft(randID, interaction);
       } else if (customID.includes(`newcustomannouncementmodal`)) {
         modalInput = scripts_djs.getModalInput_C(randID, interaction);
+
         embed = scripts_djs.createAnnounceEmbed(
           randID,
           modalInput,
           3,
           interaction
         );
+
         await scripts_mongoDB.addModal_Embed(randID, modalInput, embed);
         scripts_djs.sendDraft(randID, interaction);
       }
     }
-    if (interaction.isChatInputCommand()){
+    if (interaction.isChatInputCommand()) {
       console.log(`Command`);
-      if (interaction.commandName === `announce`){
+      if (interaction.commandName === `announce`) {
+        console.log(`interaction reply 9`)
         scripts_djs.announce(interaction);
-        
       }
-
     }
-
   });
 }

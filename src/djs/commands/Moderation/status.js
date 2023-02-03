@@ -4,6 +4,8 @@ const createEmbed = require('../../functions/create/createEmbed.js');
 
 const commandName = "status";
 const commandDescription = "Get the status of the server along with additional information";
+const scripts_djs = require('../../functions/scripts/scripts_djs.js');
+const createEmb = require('../../functions/create/createEmbed.js');
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -115,18 +117,18 @@ module.exports = {
         color: `${scripts.getColor()}`,
         author: {
             // the username will be the discord username of the person who ran the command
-            username: `${scripts.getInteractionObj(interaction).userInfo.name}`,
+            username: `${scripts_djs.getInteractionObj(interaction).userInfo.name}`,
             // the icon URL will be the discord avatar of the person who ran the command
-            iconURL: `${scripts.getInteractionObj(interaction).userInfo.avatar}`,
-            url: `https://discord.com/users/${scripts.getInteractionObj(interaction).id}`
+            iconURL: `${scripts_djs.getInteractionObj(interaction).userInfo.avatar}`,
+            url: `https://discord.com/users/${scripts_djs.getInteractionObj(interaction).id}`
         },
         fields: fieldGroupD,
     };
       let message;
       try {
-        message = createEmbed(statusEmbedObj);
+        message = createEmb.createEmbed(statusEmbedObj);
       } catch (error) {
-        logError(error, `Error creating ${commandName} embed`);
+        scripts.logError(error, `Error creating ${commandName} embed`);
       }
           try {
             // Send the embed to Discord channel not as a reply or ephemeral message
@@ -142,7 +144,7 @@ module.exports = {
           } catch (error) {
             console.error(error);
             console.log(`${commandName} Command Failed to Execute: ❌`);
-            logError(error, `Error sending ${commandName} to Discord`);
+            scripts.logError(error, `Error sending ${commandName} to Discord`);
           }
           console.log(`${commandName} Command Complete: ✅`);
     }

@@ -128,6 +128,7 @@ function createEmbed(obj) {
 	      }
 }
     if (scripts.isDefined(obj.thumbnail)) {
+      console.log("thumbnail", obj.thumbnail);
       try {
       //  console.log("thumbnail", obj.thumbnail);
         embed.setThumbnail(obj.thumbnail);

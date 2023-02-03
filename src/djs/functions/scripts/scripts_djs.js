@@ -527,10 +527,10 @@ const modal_NewLeak = (randID) => {
     required: true
   },
   {
-    customID: `price`,
-    label: `Enter the price if bought or skip`,
+    customID: `era`,
+    label: `Era`,
     style: `short`,
-    placeholder: `$25,000`,
+    placeholder: `DRFL`,
     required: false
   },
   {
@@ -696,16 +696,16 @@ const modal_NewCustomAnnouncement = (randID) => {
   },
   {
     customID: `content`,
-    label: `Add content for the announcement (if you have content, you must have a sub-header)`,
+    label: `Add content for the announcement`,
     style: `long`,
-    placeholder: `It's Jarad's Birthday so we are giving away Free Nitro!`,
+    placeholder: `(if you have content, you must have a sub-header)`,
     required: false
   },
   {
     customID: `contentHeader`,
-    label: `Add a sub-header for the content (if you have a sub-header, you must enter content)`,
+    label: `Add a sub-header for the content`,
     style: `short`,
-    placeholder: `Happy Birthday Jarad`,
+    placeholder: `(if you have a sub-header, you must enter content)`,
     required: false
   },
   {
@@ -722,7 +722,7 @@ return modal;
 }
 // Get Modal Input
 const getModalInput_A = (randID, interaction) => {
-  let leakName, altLeakNames, dateOfLeak, price, notes;
+  let leakName, altLeakNames, dateOfLeak, era, notes;
   let modalObj = {};
   if (interaction.fields.getTextInputValue("leakName")) {
     leakName = interaction.fields.getTextInputValue("leakName");
@@ -742,12 +742,14 @@ if (interaction.fields.getTextInputValue("dateOfLeak")) {
       modalObj.dateOfLeak = dateOfLeak;
     }
 }
-if (interaction.fields.getTextInputValue("price")) {
-    price = interaction.fields.getTextInputValue("price");
-    if (scripts.isDefined(price)){
-      modalObj.price = price;
+console.log(`modalObj 1`, modalObj)
+if (interaction.fields.getTextInputValue("era")) {
+    era = interaction.fields.getTextInputValue("era");
+    if (scripts.isDefined(era)){
+      modalObj.era = era;
     }
 }
+console.log(`modalObj 2`, modalObj)
 if (interaction.fields.getTextInputValue("notes")) {
     notes = interaction.fields.getTextInputValue("notes");
     if (scripts.isDefined(notes)){
@@ -791,6 +793,7 @@ if (interaction.fields.getTextInputValue("notes")) {
 
 return modalObj;
 }
+// HERES
 const getModalInput_C = (randID, interaction) => {
   let title, description, content, contentHeader, additionalDetails;
   let modalObj = {};
@@ -842,8 +845,8 @@ function createAnnounceEmbed(randID, modalInput, num, interaction){
 switch (num){
   case 1:
   
-  if (!scripts.isDefined(price)) {
-    price = "FREE";
+  if (!scripts.isDefined(era)) {
+    era = "";
   }
   if (!scripts.isDefined(notes)) {
     notes = "";
@@ -853,30 +856,25 @@ switch (num){
   }
   embed = createEmb.createEmbed({
     title: `${leakName}`,
-    description: `New Leak`,
+    description: `<a:LFGGG:1029914284492333157> & https://cdn.discordapp.com/emojis/867536090961281034.gif?size=44&quality=lossless`,
     color: `${scripts.getColor()}`,
-    author: {
-            name: name ? name : '',
-            id: userId,
-            iconURL: avatar,
-            url: `https://discord.com/users/${userId}`
-        },
-        footer: { text: null, iconURL: avatar },
-        thumbnail: `${interaction.guild.iconURL() ? interaction.guild.iconURL() : null}`,
+    thumbnail: interaction.guild.iconURL ? interaction.guild.iconURL({dynamic: true}) : 'https://media.discordapp.net/attachments/969397226373804082/1070659056286564403/Juice_2.jpeg',
+      footer: { text: interaction.member.user.displayName ,iconURL: avatar },
+      author: { name: `New Leak`, iconURL: `https://cdn.discordapp.com/emojis/867536090961281034.gif?size=44&quality=lossless` },
     fields: [
       {
         name: "Date Leaked : ",
         value: `${dateOfLeak}`,
         inline: true,
       },
+      // {
+      //   name: "Price of Leak : ",
+      //   value: `${price}`,
+      //   inline: true,
+      // },
       {
-        name: "Price of Leak : ",
-        value: `${price}`,
-        inline: true,
-      },
-      {
-        name: "From ✍🏿",
-        value: `<@${userId}>`,
+        name: "Era :",
+        value: `${era}`,
       inline: true,
       },
       {
@@ -907,14 +905,8 @@ switch (num){
     title: `${leakName}`,
     description: `New Snippet`,
     color: `${scripts.getColor()}`,
-    author: {
-      name: name ? name : '',
-      id: userId,
-      iconURL: avatar,
-      url: `https://discord.com/users/${userId}`
-  },
-  footer: { iconURL: avatar },
-  thumbnail: `${interaction.guild.iconURL() ? interaction.guild.iconURL() : null}`,
+    thumbnail: interaction.guild.iconURL() ? interaction.guild.iconURL({dynamic: true}) : 'https://media.discordapp.net/attachments/969397226373804082/1070659056286564403/Juice_2.jpeg',
+      footer: { text: interaction.member.user.displayName ,iconURL: avatar },
     fields: [
       {
         name: "Date Leaked : ",
@@ -926,11 +918,11 @@ switch (num){
         value: `${era}`,
         inline: true,
       },
-      {
-        name: "From ✍🏿",
-        value: `<@${userId}>`,
-      inline: true,
-      },
+      // {
+      //   name: "From ✍🏿",
+      //   value: `<@${userId}>`,
+      // inline: true,
+      // },
       {
         name: "Other Names : ",
         value: `${altLeakNames}`,
@@ -959,14 +951,8 @@ switch (num){
     title: `*${title}*`,
     description: `${description}`,
     color: `${scripts.getColor()}`,
-    author: {
-      name: name ? name : '',
-      id: userId,
-      iconURL: avatar,
-      url: `https://discord.com/users/${userId}`
-  },
-  footer: { iconURL: avatar },
-  thumbnail: `${interaction.guild.iconURL() ? interaction.guild.iconURL() : null}`,
+    thumbnail: interaction.guild.iconURL ? interaction.guild.iconURL({dynamic: true}) : 'https://media.discordapp.net/attachments/969397226373804082/1070659056286564403/Juice_2.jpeg',
+      footer: { text: interaction.member.user.displayName ,iconURL: avatar },
     fields: [
       {
         name: `${contentHeader}`,
@@ -985,7 +971,7 @@ switch (num){
   case 4:
   
   if (!scripts.isDefined(price)) {
-    price = "FREE";
+    price = "";
   }
   if (!scripts.isDefined(notes)) {
     notes = "";
@@ -997,14 +983,8 @@ switch (num){
     title: `${leakName}`,
     description: `New OG File`,
     color: `${scripts.getColor()}`,
-    author: {
-            name: name ? name : '',
-            id: userId,
-            iconURL: avatar,
-            url: `https://discord.com/users/${userId}`
-        },
-        footer: { text: null, iconURL: avatar },
-        thumbnail: `${interaction.guild.iconURL() ? interaction.guild.iconURL() : null}`,
+    thumbnail: interaction.guild.iconURL ? interaction.guild.iconURL({dynamic: true}) : 'https://media.discordapp.net/attachments/969397226373804082/1070659056286564403/Juice_2.jpeg',
+      footer: { text: interaction.member.user.displayName ,iconURL: avatar },
     fields: [
       {
         name: "Date Leaked : ",
@@ -1016,11 +996,11 @@ switch (num){
         value: `${price}`,
         inline: true,
       },
-      {
-        name: "From ✍🏿",
-        value: `<@${userId}>`,
-      inline: true,
-      },
+      // {
+      //   name: "From ✍🏿",
+      //   value: `<@${userId}>`,
+      // inline: true,
+      // },
       {
         name: "Other Names : ",
         value: `${altLeakNames}`,
@@ -1038,7 +1018,7 @@ switch (num){
   case 5:
   
   if (!scripts.isDefined(price)) {
-    price = "FREE";
+    price = "";
   }
   if (!scripts.isDefined(notes)) {
     notes = "";
@@ -1050,14 +1030,8 @@ switch (num){
     title: `${leakName}`,
     description: `New Session Leak`,
     color: `${scripts.getColor()}`,
-    author: {
-            name: name ? name : '',
-            id: userId,
-            iconURL: avatar,
-            url: `https://discord.com/users/${userId}`
-        },
-        footer: { text: null, iconURL: avatar },
-        thumbnail: `${interaction.guild.iconURL() ? interaction.guild.iconURL() : null}`,
+    thumbnail: interaction.guild.iconURL ? interaction.guild.iconURL({dynamic: true}) : 'https://media.discordapp.net/attachments/969397226373804082/1070659056286564403/Juice_2.jpeg',
+      footer: { text: interaction.member.user.displayName ,iconURL: avatar },
     fields: [
       {
         name: "Date Leaked : ",
@@ -1069,11 +1043,11 @@ switch (num){
         value: `${price}`,
         inline: true,
       },
-      {
-        name: "From ✍🏿",
-        value: `<@${userId}>`,
-      inline: true,
-      },
+      // {
+      //   name: "From ✍🏿",
+      //   value: `<@${userId}>`,
+      // inline: true,
+      // },
       {
         name: "Other Names : ",
         value: `${altLeakNames}`,
@@ -1267,6 +1241,7 @@ async function announce(interaction) {
   let message = getDefined(message_ValidFile, message_fileSizeTooBig, message_NoAttachment);
   console.log(`Message is`, message)
   try {
+    console.log(`interaction reply 15`)
      await interaction.editReply(message);
    // interaction.reply(message);
 
@@ -1282,6 +1257,7 @@ async function announce(interaction) {
   console.log(`${displayName === name ? `${displayName}` : `${displayName} aka { ${name} }`} does not have permission to use this command`);
   console.log(`${displayName === name ? `${displayName}` : `${displayName} aka { ${name} }`}  highest role is ${role}`)
   try {
+    console.log(`interaction reply 6`)
   await interaction.reply({ ephemeral: true, embeds: [embed_NoPermission(interaction)] })
   } catch(error) {
     scripts.logError(error, 'Was not able to complete the `NO PERMISSIONS` reply')
@@ -1311,8 +1287,14 @@ async function sendDraft(randID, interaction){
   let roles = doc.roles; // array of roles
   let attachmentURL = doc.attachmentURL; // attachment URL
   let {title, description, color, author, fields, thumbnail} = doc.embed; // embedBuilder
-  let {name,  icon_url, url} = author;
-  let avatar = icon_url;
+  let icon_url_;
+  if (author) {
+    let {name,  icon_url, url} = author;
+    icon_url_ = icon_url;
+  }
+  console.log(`the fields`, fields)
+  
+  let avatar = icon_url_;
   let row_Top = null;
   console.log(`attachmentURL :`, attachmentURL)
   if (attachmentURL === null){
@@ -1338,17 +1320,18 @@ if (row_Top === null){
   ]
 }
 
+
 let text = roles !== [] ? `Are you sure you want to send to channel: ${targetChannel} ?\n${rolesString(roles)}` : `Are you sure you want to send to channel: ${targetChannel} ?`
+console.log(`interaction reply 17`)
   interaction.editReply({
     content: text,
     embeds: [createEmb.createEmbed({
       title: title,
       description: description,
       color: color,
-      author: author,
       fields: fields,
-      thumbnail: thumbnail ? thumbnail : null,
-      footer: { text: '999' ,iconURL: avatar }
+      thumbnail: thumbnail ? thumbnail.url : (interaction.guild.icon ? interaction.guild.iconURL({dynamic: true}) : 'https://media.discordapp.net/attachments/969397226373804082/1070662471683149844/ezgif.com-gif-maker.jpg'),
+      footer:  (avatar ? {text: interaction.member.user.displayName ,iconURL: avatar} : { } )
     })
     ],
     ephemeral: true,
@@ -1372,7 +1355,7 @@ let errMessage = () => {
 }
 
 
-async function createFinalAnnouncement(doc, randID) {
+async function createFinalAnnouncement(doc, randID, interaction) {
    // make it return a promise
 
 
@@ -1388,6 +1371,18 @@ async function createFinalAnnouncement(doc, randID) {
 	     author,
 	     fields,
 	   } = embed;
+     console.log(`Final Embed Info:`, embed)
+     title = `${title}`
+     console.log(`The Title:`, title)
+     
+      console.log(`The Description:`, description)
+      console.log(`The Color:`, color)
+      console.log(`The Thumbnail:`, thumbnail)
+      console.log(`The Image:`, image)
+      console.log(`The Footer:`, footer)
+      console.log(`The Author:`, author)
+      console.log(`The Fields:`, fields)
+
 	
 	   let text = roles !== [] ? rolesString(roles) : null;
 	   let attachmentURL = doc.attachmentURL; // attachment URL
@@ -1403,15 +1398,12 @@ async function createFinalAnnouncement(doc, randID) {
      if (footer.text === null) {
         footer.text = `\u0020`;
      }
-     if (author.name === null) {
-        author.name = `\u0020`;
-      }
 	
 	   let finalEmbed = createEmb.createEmbed({
 	      title: title ? title : null,
 	      description: description ? description : null,
 	      color: color ? color : null,
-	      thumbnail: thumbnail ? thumbnail : null,
+	      thumbnail: thumbnail ? thumbnail.url : (interaction.guild.icon ? interaction.guild.iconURL({dynamic: true}) : 'https://media.discordapp.net/attachments/969397226373804082/1070662471683149844/ezgif.com-gif-maker.jpg'),
 	      image: image ? image : null,
 	      footer: footer ? footer : [],
 	      author: author ? author : [],
@@ -1446,13 +1438,12 @@ async function createFinalAnnouncement(doc, randID) {
 }
 }
 
-let getOnlineCount = ( interaction ) => {
+let getOnlineCount = async ( interaction ) => {
   let onlineCount = 0;
-  interaction. guild.members.fetch({ withPresences: true }).then(fetchedMembers => {
-    const totalOnline = fetchedMembers.filter(member => member.presence?.status === 'online');
-    onlineCount = totalOnline.size;
-    // Now you have a collection with all online member objects in the totalOnline variable
-  });
+
+  const cache = await interaction.guild.members.fetch();
+  let fetchedMembers = cache.filter(ctx.presence?.status === 'online');
+  onlineCount = fetchedMembers.size;
   return onlineCount;
 };
 
@@ -1570,6 +1561,7 @@ let getServerInfoObj = ( interaction ) => {
     offlineBots: getOfflineBots(interaction),
     memberCount: getMemberCount(interaction)
   };
+
   return serverInfoObj;
 };
 

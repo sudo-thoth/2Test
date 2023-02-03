@@ -93,6 +93,19 @@ const createTextInputField = (textInputObj) => {
 
   let textInputField = new TextInputBuilder();
 
+  let lessCharsThan = (str, num) => {
+    let arr = [];
+    for (let i = 0; i < str.length; i++) {
+      arr.push(str.charAt(i));
+    }
+    if (arr.length <= num) {
+      return true;
+    } else {
+      return false;
+    }
+  };
+
+
   // make sure each property is defined with isDefined(), which returns true if the property is defined
   if (!scripts.isDefined(customID)) {
     try {
@@ -105,7 +118,7 @@ const createTextInputField = (textInputObj) => {
     // check to make sure it is a string that is within the character limit for a customID
     // check to make sure custom id is less than or equal to 100 characters
     // if its not throw an error and log with logError()
-    if (customID.length > 100) {
+    if (!lessCharsThan(customID, 100)) {
       try {
         throw new Error("customID is too long");
       } catch (error) {
@@ -125,14 +138,17 @@ const createTextInputField = (textInputObj) => {
       scripts.logError(error, "label is not defined");
     }
   } else {
+    console.log("label is ", label);
+    console.log(`number of chars label has is`, label.length)
     if (label.length > 45) {
       try {
         throw new Error("label is too long");
       } catch (error) {
         scripts.logError(error, "label is too long: MAX 45 characters");
       }
-    }
+    } else {
     textInputField.setLabel(label);
+    }
   }
   if (scripts.isDefined(style)) {
     let s;

@@ -79,11 +79,15 @@ async function createButton(buttonObj, randID) {
               } catch (error) {
                 scripts.logError(error, "customID is not defined");
               }
+            } else {
+
+              button.setURL(link);
             }
           } else {
             button.setURL(`https://google.com/`);
           }
         } else {
+
           try {
             throw new Error("customID is not defined");
           } catch (error) {
@@ -110,7 +114,8 @@ async function createButton(buttonObj, randID) {
         scripts.logError(error, "error w customID");
       }
     } else {
-      button.setURL(link);
+
+      button.setURL(link); 
     }
   }
   if (!scripts.isDefined(label)) {
@@ -121,7 +126,7 @@ async function createButton(buttonObj, randID) {
       // button.setLabel(" ");
     }
   } else {
-    if (!lessCharsThan(label, 45)) {
+    if (!lessCharsThan(label, 80)) {
       try {
         throw new Error("label is too long");
       } catch (error) {
@@ -210,6 +215,7 @@ async function createButton(buttonObj, randID) {
     }
     button.setEmoji(emoji);
   }
+  console.log(`the button`, button);
 
   return button;
 }

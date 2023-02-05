@@ -108,8 +108,14 @@ function createEmbed(obj) {
 
   // Set the properties of the embed if they are present in the obj
   try {
-    if (obj.title) embed.setTitle(obj.title);
-    if (obj.description) {
+    if (scripts.isDefined(obj.title)){ 
+      // check to make sure the title is not longer than 256 characters
+      if (obj.title.length > 256) {
+        obj.title = obj.title.substring(0, 256);
+      }
+      embed.setTitle(obj.title);
+    }
+    if (scripts.isDefined(obj.description)) {
       try {
         embed.setDescription(obj.description);
       //  console.log(`description set to ${obj.description}`);
@@ -198,6 +204,7 @@ function createEmbed(obj) {
   }
 
   // Return the completed embed
+  console.log(`the embed`, embed)
   console.log(`sending embed`);
   return embed;
 }

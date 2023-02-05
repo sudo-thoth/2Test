@@ -253,8 +253,10 @@ if (client) {
     if (interaction.isChatInputCommand()) {
       console.log(`Command`);
       if (interaction.commandName === `announce`) {
-        console.log(`interaction reply 9`)
         scripts_djs.announce(interaction);
+      }
+      if(interaction.commandName === `sendselectroles`){
+        scripts_djs.selectRoleMenu(interaction);
       }
     }
   });

@@ -26,6 +26,8 @@ const {
    */
   async function createActionRow(actionRowObj) {
     // destructure the actionRowObj
+    console.log(actionRowObj)
+    
     const { components } = actionRowObj;
     // make sure each property is defined with isDefined(), which returns true if the property is defined
     if (!scripts.isDefined(components)) {
@@ -34,6 +36,9 @@ const {
         `Error Creating Action Row`
       );
     }
+    
+    console.log(components)
+
     // make sure there are not more than 5  components in the actionRowObj
     if (components.length > 5) {
         scripts.logError(

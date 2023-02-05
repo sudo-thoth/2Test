@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const announcementData = require("../../../MongoDB/db/schemas/schema_announcement.js");
 const scripts = require("../../../djs/functions/scripts/scripts.js");
 const index = require('../../index.js');
+const fetchedFiles = require("../../../MongoDB/db/schemas/schema_fetchedFiles.js");
 
 
 async function saveSlashCommandData(commandData) {
@@ -89,5 +90,67 @@ function getData(randID) {
     return data; // an array of docs found that matched the query : Promise
 }
 
+function getBatch(batch_id) {
+  console.log(`GETTING DATA`)
+  console.log(`batch_id: ${batch_id}`)
+  if (!batch_id) return; 
+  let data;
+  try {
+      // data = announcementData.collection.find({ batch_id: batch_id })
+      data = fetchedFiles.find({ batch_id: batch_id }).exec();
+  } catch (error) {
+      console.log(`not found`);
+  }
+  return data; // an array of docs found that matched the query : Promise
+}
 
-module.exports = {saveSlashCommandData, addModal_Embed, getData};
+async function saveFetchFile(obj){
+  console.log(`ATTEMPTING to save [ ${obj.metadata.file_name} ]`);
+  if(obj.attachments.length === 0) {
+    console.log(`The file [ ${obj.metadata.file_name} ] Has ZERO Attachments`);
+    console.log(`returning A`)
+    return;
+  }
+  // check to make sure the obj has not been saved to the database already, use the message_id as the unique identifier
+  obj._id = `${new mongoose.Types.ObjectId()}`;
+  let {metadata} = obj;
+  let {message_id, who_ran_command} = metadata;
+  let query = {message_id: message_id, who_ran_command: who_ran_command};
+  // console.log(`test log`);
+  console.log(`querying the file [ ${obj.metadata.file_name}] with the following filter: `, query);
+  let data = await fetchedFiles.findOne(query).exec();
+  console.log(`test log`);
+  // console.log(`data found from query: `, data);
+  if (data == null) {
+    console.log(data)
+    console.log(`[ ${obj.metadata.file_name} ] NOT found in query`)
+    
+  } else {
+    console.log(`[ ${data.metadata.file_name}] found in query: `)
+  }
+  //console.log(`test log`);
+  if(data){
+    console.log(`The File [ ${data.metadata.file_name} ] was already saved to the database`);
+    console.log(`returning B`)
+    return;
+  }
+  // save the obj to the database
+  try {
+    console.log(`The file to save [ ${obj.metadata.file_name} ]`)
+    await fetchedFiles.create(obj);
+    console.log(`The File [ ${obj.metadata.file_name} ] was JUST saved to the database`);
+    console.log(`returning C`)
+    return; 
+  } catch (error) {
+    console.log(`Error while trying to save [ ${obj.metadata.file_name} ] to the database: `, error);
+    console.log(`returning D`)
+    return;
+  }
+  // log the file name and size
+  
+}
+
+
+module.exports = {saveSlashCommandData, addModal_Embed, getData, saveFetchFile, getBatch};
+
+

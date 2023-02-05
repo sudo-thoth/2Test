@@ -2,6 +2,7 @@ const { SlashCommandBuilder } = require("@discordjs/builders");
 const message = `The Command Works!`;
 const commandName = "test";
 const commandDescription = "Test command";
+const createEmb = require('../../functions/create/createEmbed.js');
 
 
 // FUNCTION TEST STATION Config.
@@ -10,6 +11,7 @@ const commandDescription = "Test command";
 
 const createEmbed = require('../../functions/create/createEmbed.js');
 const scripts = require('../../functions/scripts/scripts.js');
+const scripts_djs = require('../../functions/scripts/scripts_djs.js');
 
 // making the funcName bold in the success and fail messages
 module.exports = {
@@ -17,7 +19,7 @@ module.exports = {
     .setName(`${commandName}`)
     .setDescription(`${commandDescription}}`),
   async execute(interaction) {
-    let testing = 'createFolders()';
+    let testing = 'nothing';
 
     // Success and Fail Messages
     // Change the content into embeds
@@ -34,8 +36,8 @@ module.exports = {
     // cLog function
     let result, testResultEmbed;
 
-    const interactionObj = scripts.getInteractionObj(interaction);
-
+    const interactionObj = scripts_djs.getInteractionObj(interaction);
+    await interaction.deferReply({ ephemeral: true })
     try {
 
       // Test Code Here
@@ -43,13 +45,19 @@ module.exports = {
       // songs = [
 
       // ];
-      scripts.createFolders(scripts.songs, `/Users/logantucker/Desktop/Juice Song Layout`);
+
+      // // Testing beginFileFetch()
+      //  scripts_djs.beginFileFetch(interaction);
+
+
+      // // Testing createFolders()
+      // scripts.createFolders(scripts.songs, `/Users/logantucker/Desktop/Juice Song Layout`);
       
 
 
       // Test Result
       result = true;
-      testResultEmbed = createEmbed({
+      testResultEmbed = createEmb.createEmbed({
         title: `${result ? success : fail}`,
         description: `${description}`,
         color: `${result ? `#00FF00` : `#FF0000`}`,
@@ -67,7 +75,7 @@ module.exports = {
       console.log(`Test Command Successfully Executed: ✅\n- Tested Function: ${testing}`);
     } catch (error) {
       result = false;
-      testResultEmbed = createEmbed({
+      testResultEmbed = createEmb.createEmbed({
         title: `${result ? success : fail}`,
         description: `${description}`,
         color: `${result ? `#00FF00` : `#FF0000`}`,
@@ -97,6 +105,12 @@ module.exports = {
     try {
 	await interaction.reply({embeds: [testResultEmbed]});
 } catch (error) {
+    try{
+      interaction.channel.send({embeds: [testResultEmbed]});
+    } catch (error) {
+      console.log(`Test Command Failed to Execute: ❌\n- Tested Function: ${testing}`);
+      scripts.logError(error);
+    }
   scripts.logError(error, `Failed while replying to interaction: ${interaction.commandName}`);
 	
 }

@@ -13,6 +13,13 @@ const fetchedFiles = new Schema(
     //   file_extension: String,
     //   file_id: String,
     //   file_batch_id: String,
+    //   message_content: {
+      //     content: String,
+      //     embeds: [Object],
+      //     attachments: [Object],
+      //     actionRow: boolean,
+      //     button: Object,
+    //   },
     // }
     metadata: { 
         from_user_name: String,

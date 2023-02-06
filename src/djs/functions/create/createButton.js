@@ -33,14 +33,12 @@ const scripts_mongoDB = require("../scripts/scripts_mongoDB.js");
  */
 async function createButton(buttonObj, randID) {
   // destructure the buttonObj
-  const {
-    customID,
-    label,
-    style = `primary`,
-    disabled = false,
-    emoji,
-    link,
-  } = buttonObj;
+  let style = buttonObj.style ? buttonObj.style : "primary";
+  let disabled = buttonObj.disabled ? buttonObj.disabled : false;
+  let customID = buttonObj.customID
+  let label = buttonObj.label
+  let emoji = buttonObj.emoji
+  let link = buttonObj.link
 
   let button = new ButtonBuilder();
   let lessCharsThan = (str, num) => {

@@ -15,7 +15,6 @@ let setFileNameArray = (array, interaction) => {
   fileNames.set(`${interaction.id}`, array);
 };
 
-
 const filesFound = new Collection();
 let filesFoundArray = (interaction) => {
   console.log(`files found: ${filesFound.get(interaction.id)}`);
@@ -266,7 +265,16 @@ let getBatchId = () => {
   return batch_id;
 };
 
-async function gatherChannelFiles(interaction) {
+const batch_Messages = new Collection();
+
+let getBatch_Messages = (batch_id) => {
+  return batch_Messages.get(batch_id);
+};
+let addBatch_Messages = (message, batch_id) => {
+  batch_Messages.set(batch_id, message);
+};
+
+async function uploadFileBatch(interaction) {
   let content;
   await interaction.deferReply({ ephemeral: true });
   await sendLoad1(interaction);
@@ -275,7 +283,6 @@ async function gatherChannelFiles(interaction) {
   let batch_id = getBatchId();
   const originChannelID = interaction.channel.id;
   const targetChannel = await interaction.guild.channels.fetch(originChannelID);
-  const targetChannelID = targetChannel.id;
   const lastMessages = await targetChannel.messages.fetch({ limit: 1 });
   let lastMessage = lastMessages.first();
   let lastMessageID;
@@ -312,9 +319,7 @@ async function gatherChannelFiles(interaction) {
         }),
       ],
     });
-    let docs = await scripts_mongoDB.getBatch(batch_id);
-    console.log(docs);
-    console.log(docs.length);
+    let docs = await scripts_mongoDB.getFileBatch(batch_id);
     let files = docs.map((doc) => {
       return doc.attachments;
     });
@@ -327,11 +332,13 @@ async function gatherChannelFiles(interaction) {
       description: description,
       color: scripts.getSuccessColor(),
     });
+
     await interaction.editReply({
       embeds: [embed],
       ephemeral: true,
     });
     let allFiles = [];
+    let batchMessages = [];
     for (let file of files) {
       // filter to only audio files
       let fileArray = file;
@@ -341,7 +348,6 @@ async function gatherChannelFiles(interaction) {
         if (
           ["mp3", "wav", "ogg", "m4a", "flac"].includes(file.file_extension)
         ) {
-          title = `✅ File Archive Complete!`;
           content = `So Far I've Saved \`${
             filesFoundArray(interaction).length
           }\` ${
@@ -359,8 +365,6 @@ async function gatherChannelFiles(interaction) {
           description = `**Files Saved:**\n${fileList(
             filesFoundArray(interaction)
           )}`;
-          console.log(`the content`, content);
-
           embed = createEmb.createEmbed({
             title: content,
             description: description,
@@ -386,57 +390,34 @@ async function gatherChannelFiles(interaction) {
             allFilesNames = allFiles.map((file) => {
               return file.file_name;
             });
-            console.log(`all files names`, allFilesNames);
           }
-          console.log(`current file name`, currentFileName);
-
           if (!allFilesNames.includes(currentFileName)) {
-            console.log(`all files`, allFiles);
-            console.log(`the file`, file);
             allFiles.push(file);
-
-            console.log(`the file`, file);
-
             let url = file.file_url;
             let name = file.file_name;
             let size = file.file_size;
-
-            // console.log(url, name, size)
-            console.log(`the file`, file);
             let fileToSend = new AttachmentBuilder(url, {
               name: name,
               description: size,
             });
-            // extract the number from the file size string
             let sizeNum = size.split(" ")[0];
-            console.log(`the size num`, sizeNum);
-            // if the file is under 8 Mb, send it as a file
-
-            // V2
-            //  Here all files are sent indiviually, later in the code they are sent in batches of 10 or less so I don't need this here any more
             if (sizeNum < 8) {
               console.log(`SENT INDIVIDUALLY`);
               title = `✅ File Archive Complete!`;
               content = `File: \`${name}\``;
               description = `Size: \`${size}\``;
               console.log(`the content`, content);
-
               embed = createEmb.createEmbed({
                 title: content,
                 description: description,
                 color: scripts.getColor(),
               });
-              try {
-                await interaction.user.send({content:`||${name}||`, embeds: [embed], files: [fileToSend] });
-                // delay for 3.33 seconds
-                await scripts.delay(3333);
-              } catch (error) {
-                console.log(`Failed to send link for ${name}`, error);
-              }
-            }
-            // if the file is over 8 Mb, send it as a link button
-            else {
-              console.log(`the url`, url);
+              batchMessages.push({
+                content: `||${name}||`,
+                embeds: [embed],
+                files: [fileToSend],
+              });
+            } else {
               let row = await createActRow.createActionRow({
                 components: [
                   await createBtn.createButton({
@@ -446,75 +427,39 @@ async function gatherChannelFiles(interaction) {
                   }),
                 ],
               });
-
               let embed = createEmb.createEmbed({
                 title: "File too large to send as a file",
                 description: `File Name: \`${name}\`\nFile Size: \`${size}\``,
                 color: scripts.getColor(),
               });
-
-              try {
-                await interaction.user.send({
-                  content:`||${name}||`,
-                  embeds: [embed],
-                  components: [row],
-                });
-                // delay for 3.33 seconds
-                await scripts.delay(3333);
-              } catch (error) {
-                console.log(`Failed to send link for ${name}`, error);
-              }
+              batchMessages.push({
+                content: `||${name}||`,
+                embeds: [embed],
+                components: [row],
+              });
             }
-            //**/
           }
         }
       }
     }
-
-    console.log(`targetChannel`, targetChannel);
-
-    content = `✅ All files from ${targetChannel.name} have been sent to your DMs!`;
-
-    try {
-      await interaction.user.send({
-        embeds: [
-          createEmb.createEmbed({
-            title: content,
-            color: scripts.getSuccessColor(),
-          }),
-        ],
-      });
-    } catch (error) {
-      console.log(
-        `____ ----- ____ --- error sending embed to user ____ ----- ____ ---`,
-        error
-      );
-    }
-    // edit the original message embed to say "{relevant channel} File Archive Complete!"
-    title = `✅ File Archive Complete!`;
-    content = `Saved \`${filesFoundArray(interaction).length}\` ${
-      filesFoundArray(interaction).length === 1 ? `File` : `Files`
-    } from the ${targetChannel.name} channel in the ${
-      interaction.guild.name
-    } Server\n\nAll the files that we found have been sent to you in dms :wink:`;
-    description = `**Files Saved:**\n${fileList(filesFoundArray(interaction))}`;
-    console.log(`the content`, content);
-
-    embed = createEmb.createEmbed({
-      title: content,
-      description: description,
-      color: scripts.getSuccessColor(),
-    });
-    try {
-      await interaction.editReply({
-        embeds: [embed],
-        ephemeral: true,
-      });
-    } catch (error) {
-      console.log(`error editing last reply`, error);
-    }
-    // await scripts.delay(9990);
-    // await interaction.deleteReply();
+// save the batch messages to the database
+    await scripts_mongoDB.saveBatchMessages(batchMessages, batch_id);
+     await interaction.editReply({embeds: [createEmb.createEmbed({title: `✅ Save Complete!`, content: `\`saved ${batchMessages.length} ${batchMessages.length === 1 ? `file`: `files`}\`` ,description: `\`batch id: ${batch_id}\`\n\nUse \`/downloadfiles\` command and enter the \`batch id\` to retrieve ypu results`, color: scripts.getSuccessColor()})]});
     return;
   }
+}
+
+async function downloadFileBatch(batch_id, targetChannel, interaction){
+  let batchMessages = await scripts_mongoDB.getBatchMessages(batch_id);
+  if (batchMessages.length === 0){
+    await interaction.editReply({embeds: [createEmb.createEmbed({title: `❌ No Files Found!`, content: `\`no files found for batch id: ${batch_id}\``, color: scripts.getErrorColor()})]});
+    return;
+  }
+
+  console.log(`the batch messages`, batchMessages);
+  for (let message of batchMessages){
+    await targetChannel.send(message);
+  }
+  await interaction.editReply({embeds: [createEmb.createEmbed({title: `✅ Download Complete!`, content: `\`downloaded ${batchMessages.length} ${batchMessages.length === 1 ? `file`: `files`}\`` ,description: `\`batch id: ${batch_id}\``, color: scripts.getSuccessColor()})]});
+  return;
 }

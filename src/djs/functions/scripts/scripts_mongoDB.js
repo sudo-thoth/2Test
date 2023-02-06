@@ -3,6 +3,7 @@ const announcementData = require("../../../MongoDB/db/schemas/schema_announcemen
 const scripts = require("../../../djs/functions/scripts/scripts.js");
 const index = require('../../index.js');
 const fetchedFiles = require("../../../MongoDB/db/schemas/schema_fetchedFiles.js");
+const fileBatchs = require("../../../MongoDB/db/schemas/schema_fileBatchs.js");
 
 
 async function saveSlashCommandData(commandData) {
@@ -150,7 +151,41 @@ async function saveFetchFile(obj){
   
 }
 
+let getFileBatch = async (batch_id) => {
+  console.log(`getting batch messages`)
+  let data = await fileBatchs.find({batch_id: batch_id}).exec();
+  console.log(`data: `, data)
+  return data[0];
+}
 
-module.exports = {saveSlashCommandData, addModal_Embed, getData, saveFetchFile, getBatch};
+async function saveBatchMessages(messages, batch_id){
+  console.log(`ATTEMPTING to save [ All Batch Messages ]`);
+  let obj = {};
+  // check to make sure the obj has not been saved to the database already, use the message_id as the unique identifier
+  obj._id = `${new mongoose.Types.ObjectId()}`;
+  obj.messages = messages;
+  obj.batch_id = batch_id;
+  console.lof(`Recieved the following messages: `, messages)
+  
+  console.log(`adding the file [ MESSAGES BATCH id: ${batch_id} ] with the following filter: `, obj);
+
+  // save the obj to the database
+  try {
+    
+    await fileBatchs.create(obj);
+    console.log(`The File [ MESSAGES BATCH id: ${batch_id} ] was JUST saved to the database`);
+    console.log(`returning C`)
+    return; 
+  } catch (error) {
+    console.log(`Error while trying to save [ MESSAGES BATCH id: ${batch_id} ] to the database: `, error);
+    console.log(`returning D`)
+    return;
+  }
+  // log the file name and size
+  
+}
+
+
+module.exports = {saveSlashCommandData, addModal_Embed, getData, saveFetchFile, getBatch, getFileBatch, saveBatchMessages};
 
 

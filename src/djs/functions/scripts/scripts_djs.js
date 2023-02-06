@@ -2596,17 +2596,52 @@ async function saveMessageBatch(message, batch_id, interaction) {
   // create the attachments array and metadata object
   console.log(`the message is`, message);
   console.log(`the message.attachments`, message.attachments);
-  console.log(`the message attachments`, message.attachments.name);
+  let attachment_array = [...message.attachments.values()];
+  console.log(`the attachment_array`, attachment_array);
+  console.log(`the attachment name`, attachment_array[0].name);
   let attachments = [];
   let metadata = {};
   console.log(
-    `saving the message with [ ${message.attachments.name} ] to the database`
+    `saving the message with [ ${attachment_array[0].name} ] to the database`
   );
-  console.log(`the message attachments`, message.attachments.name);
+  console.log(`the message includes`, attachment_array[0].name);
   // for every attachment create an attachment object and push it to the attachments array
-  let attachment_array = [...message.attachments.values()];
+
   for (let attachment_ of attachment_array) {
     console.log(`the attachment_`, attachment_);
+    // testing stuff
+
+    // construct the attachments message formatted object
+    let messageContent = {};
+    if (attachment_.size < 8000000) {
+      messageContent = {
+        content: `||${attachment_.name}||`, // the name of the file is hidden
+        files: [attachment_.url],
+        embed: {
+          title: `File: \`${attachment_.name}\``,
+          description: `Size: \`${attachment_.size / 1000000} Mb\``,
+        },
+        actionRow: false,
+      };
+    } else {
+      messageContent = {
+        content: `||${attachment_.name}||`, // the name of the file is hidden
+        embed: {
+          title: `File: \`${attachment_.name}\``,
+          description: `Size: \`${attachment_.size / 1000000} Mb\``,
+        },
+        actionRow: true,
+        button: {
+          style: "link",
+          label: "Download File to Listen :loud_sound:",
+          link: attachment_.url,
+        },
+      };
+    }
+
+    console.log(`the messageContent`, messageContent);
+
+    // end testing
     let attachment = {
       file_name: attachment_.name,
       file_size: `${attachment_.size / 1000000} Mb`,
@@ -2615,6 +2650,7 @@ async function saveMessageBatch(message, batch_id, interaction) {
       file_extension: attachment_.name.split(".").pop(),
       file_id: attachment_.id,
       file_batch_id: batch_id,
+      message_content: messageContent,
     };
     attachments.push(attachment);
   }
@@ -2657,24 +2693,42 @@ function batchArray(arr, size) {
   }
   return batchedArray;
 }
-let fileList = (arrayOfFiles) => {
+let fileList = (arrayOfFiles, num) => {
   let list = "";
   console.log(`the arrayOfFiles`, arrayOfFiles);
   console.log(`the file 1`, arrayOfFiles[0]);
   // if array is 24 or greater set the array to the first 24 and replace the 25th with a string
-  if (arrayOfFiles.length >= 24) {
-    arrayOfFiles = arrayOfFiles.slice(0, 24);
-    if (typeof arrayOfFiles[0] === "string") {
-      arrayOfFiles.push(`...and more but they could not fit here`);
-    } else {
-      arrayOfFiles.push({ name: `...and more but they could not fit here` });
+  if (!num) {
+    if (arrayOfFiles.length >= 24) {
+      arrayOfFiles = arrayOfFiles.slice(0, 24);
+      if (typeof arrayOfFiles[0] === "string") {
+        arrayOfFiles.push(`...and more but they could not fit here`);
+      } else {
+        arrayOfFiles.push({ name: `...and more but they could not fit here` });
+      }
     }
-  }
-  for (let file of arrayOfFiles) {
-    if (typeof file === "string") {
-      list += `- ${file}\n`;
-    } else {
-      list += `- ${file.name}\n`;
+    for (let file of arrayOfFiles) {
+      if (typeof file === "string") {
+        list += `- ${file}\n`;
+      } else {
+        list += `- ${file.name}\n`;
+      }
+    }
+  } else {
+    if (arrayOfFiles.length >= num) {
+      arrayOfFiles = arrayOfFiles.slice(0, num);
+      if (typeof arrayOfFiles[0] === "string") {
+        arrayOfFiles.push(`...and more but they could not fit here`);
+      } else {
+        arrayOfFiles.push({ name: `...and more but they could not fit here` });
+      }
+    }
+    for (let file of arrayOfFiles) {
+      if (typeof file === "string") {
+        list += `- ${file}\n`;
+      } else {
+        list += `- ${file.name}\n`;
+      }
     }
   }
   return list;
@@ -2851,6 +2905,7 @@ async function gatherChannelFiles(interaction) {
     let totalNum = arrayOfFiles.length;
     let description = fileList(arrayOfFiles);
     let title = `Total Files Saved: ${totalNum}`;
+    let embed;
     await interaction.editReply({
       embeds: [
         createEmb.createEmbed({
@@ -2868,10 +2923,16 @@ async function gatherChannelFiles(interaction) {
     });
     // send files individually HERE
     // for every file in the files array, send it to the user who ran the command
-    content = `Still Processing...`;
-    description = `Total Files Saved: ${totalNum}`;
+    title = `Still Processing Files...`;
+    description = fileList(arrayOfFiles);
     embed = createEmb.createEmbed({
-      title: content,
+      title: title,
+      fields: [
+        {
+          name: "`stats`",
+          value: `\`${totalNum}\` \`files saved\``,
+        },
+      ],
       description: description,
       color: scripts.getSuccessColor(),
     });
@@ -2879,155 +2940,203 @@ async function gatherChannelFiles(interaction) {
       embeds: [embed],
       ephemeral: true,
     });
-    let allFiles = [];
-    for (let file of files) {
-      // filter to only audio files
-      let fileArray = file;
-      console.log(`the file array`, fileArray);
 
-      for (let file of fileArray) {
-        if (
-          ["mp3", "wav", "ogg", "m4a", "flac"].includes(file.file_extension)
-        ) {
-          title = `✅ File Archive Complete!`;
-          content = `So Far I've Saved \`${
-            filesFoundArray(interaction).length
-          }\` ${
-            filesFoundArray(interaction).length === 1 ? `File` : `Files`
-          } from the ${targetChannel.name} channel in the ${
-            interaction.guild.name
-          } Server\n\nAll the files that we found are being downloaded and processed\n**It takes approx. 1 min per 12 files to complete the dm proccess**\n\n\`${
-            Math.round((filesFoundArray(interaction).length / 12) * 100) /
-              100 <=
-            1
-              ? `less than 1 minute`
-              : (Math.round((filesFoundArray(interaction).length / 12) * 100) /
-                  100)`minutes`
-          } estimated\``;
-          description = `**Files Saved:**\n${fileList(
-            filesFoundArray(interaction)
-          )}`;
-          console.log(`the content`, content);
+    console.log(`the files`, files);
 
-          embed = createEmb.createEmbed({
-            title: content,
-            description: description,
-            color: scripts.getSuccessColor(),
-          });
-          try {
-            await interaction.editReply({
-              embeds: [embed],
-              ephemeral: true,
-            });
-          } catch (error) {
-            console.log(`error editing last reply`, error);
-          }
-          // add the attachments name to the filesFound array
-          // setFilesFoundArray(interaction.id, file);
-          // console.log(`updated the files found array`, filesFoundArray(interaction))
-          let currentFileName = file.file_name;
-          // check to see of any files in allFiles have a file.file_name === currentFileName
-          // if they do, add a number to the end of the file name
-          // if they don't, add the file to allFiles
-          let allFilesNames = [];
-          if (allFiles.length > 0) {
-            allFilesNames = allFiles.map((file) => {
-              return file.file_name;
-            });
-            console.log(`all files names`, allFilesNames);
-          }
-          console.log(`current file name`, currentFileName);
+    let firstFile = files[0];
+    console.log(`the first file`, firstFile);
 
-          if (!allFilesNames.includes(currentFileName)) {
-            console.log(`all files`, allFiles);
-            console.log(`the file`, file);
-            allFiles.push(file);
+    let firstFileArray = [];
+    let newArr = [...files.values()];
 
-            console.log(`the file`, file);
+    console.log(`the new array`, newArr);
 
-            let url = file.file_url;
-            let name = file.file_name;
-            let size = file.file_size;
+    for (let arr of newArr) {
+      let arrFilearr = [...arr.values()];
+      console.log(`the arr file`, arrFilearr);
 
-            // console.log(url, name, size)
-            console.log(`the file`, file);
-            let fileToSend = new AttachmentBuilder(url, {
-              name: name,
-              description: size,
-            });
-            // extract the number from the file size string
-            let sizeNum = size.split(" ")[0];
-            console.log(`the size num`, sizeNum);
-            // if the file is under 8 Mb, send it as a file
-
-            // V2
-            //  Here all files are sent indiviually, later in the code they are sent in batches of 10 or less so I don't need this here any more
-            if (sizeNum < 8) {
-              console.log(`SENT INDIVIDUALLY`);
-              title = `✅ File Archive Complete!`;
-              content = `File: \`${name}\``;
-              description = `Size: \`${size}\``;
-              console.log(`the content`, content);
-
-              embed = createEmb.createEmbed({
-                title: content,
-                description: description,
-                color: scripts.getColor(),
-              });
-              try {
-                await interaction.user.send({content:`||${name}||`, embeds: [embed], files: [fileToSend] });
-                // delay for 3.33 seconds
-                await scripts.delay(3333);
-              } catch (error) {
-                console.log(`Failed to send link for ${name}`, error);
-              }
-            }
-            // if the file is over 8 Mb, send it as a link button
-            else {
-              console.log(`the url`, url);
-              let row = await createActRow.createActionRow({
-                components: [
-                  await createBtn.createButton({
-                    style: "link",
-                    label: name,
-                    link: url,
-                  }),
-                ],
-              });
-
-              let embed = createEmb.createEmbed({
-                title: "File too large to send as a file",
-                description: `File Name: \`${name}\`\nFile Size: \`${size}\``,
-                color: scripts.getColor(),
-              });
-
-              try {
-                await interaction.user.send({
-                  content:`||${name}||`,
-                  embeds: [embed],
-                  components: [row],
-                });
-                // delay for 3.33 seconds
-                await scripts.delay(3333);
-              } catch (error) {
-                console.log(`Failed to send link for ${name}`, error);
-              }
-            }
-            //**/
-          }
-        }
+      for (let arrFile of arrFilearr) {
+        console.log(`the arr file length`, arrFilearr.length);
+        console.log(`the arr file #1`, arrFile);
+        firstFileArray.push(arrFile);
       }
     }
 
+    //let firstFileArray = [...firstFile.values()];
+    console.log(`the first file array`, firstFileArray);
+
+    let allFiles = [filesFoundArray(interaction)];
+
+    allFiles = allFiles[0];
+
+    console.log(`all the files`, allFiles);
+
+    for (let i = 0; i < allFiles.length; i++) {
+      console.log(`first file array`, firstFileArray);
+
+      let results = firstFileArray[i];
+      console.log(`results`, results);
+
+      let file = allFiles[i];
+      console.log(`THE FILE NEEDED FOR CONTENT TYPE`, file);
+      // filter to only audio files
+      if (file.contentType === `audio/mpeg`) {
+        content = `So Far I've Saved \`${
+          filesFoundArray(interaction).length
+        }\` ${
+          filesFoundArray(interaction).length === 1 ? `File` : `Files`
+        } from the ${targetChannel.name} channel in the ${
+          interaction.guild.name
+        } Server\n\nAll the files that we found are being downloaded and processed\n**It takes approx. 1 min per 12 files to complete the dm proccess**\n\n\`${
+          Math.round((filesFoundArray(interaction).length / 12) * 100) / 100 <=
+          1
+            ? `less than 1 minute`
+            : (Math.round((filesFoundArray(interaction).length / 12) * 100) /
+                100)`minutes`
+        } estimated\``;
+        description = `**Files Saved:**\n${fileList(
+          filesFoundArray(interaction)
+        )}`;
+        console.log(`the content`, content);
+
+        embed = createEmb.createEmbed({
+          title: content,
+          description: description,
+          color: scripts.getSuccessColor(),
+        });
+        try {
+          await interaction.editReply({
+            embeds: [embed],
+            ephemeral: true,
+          });
+        } catch (error) {
+          console.log(`error editing last reply`, error);
+        }
+
+        // add the attachments name to the filesFound array
+        // setFilesFoundArray(interaction.id, file);
+        // console.log(`updated the files found array`, filesFoundArray(interaction))
+        let currentFileName = file.name;
+        // check to see of any files in allFiles have a file.file_name === currentFileName
+        // if they do, add a number to the end of the file name
+        // if they don't, add the file to allFiles
+        let allFilesNames = [];
+
+        console.log(`all files`, allFiles);
+
+        if (allFiles.length > 0) {
+          allFilesNames = allFiles.map((file) => {
+            return file.file_name;
+          });
+
+          console.log(`all files names`, allFilesNames);
+        }
+        console.log(`current file name`, currentFileName);
+
+        // if (!allFilesNames.includes(currentFileName)) {
+        //   console.log(`all files`, allFiles);
+        //   console.log(`the file`, file);
+        //   allFiles.push(file);
+        // }
+
+        let fileObj = {
+          file_name: file.name,
+          file_url: file.url,
+          file_size: `${file.size / 1000000} Mb`,
+        };
+
+        console.log(`the file Obj`, fileObj);
+
+        let url = fileObj.file_url;
+        let name = fileObj.file_name;
+        let size = fileObj.file_size;
+
+        // console.log(url, name, size)
+
+        let fileToSend = new AttachmentBuilder(url, {
+          name: name,
+          description: size,
+        });
+
+        // extract the number from the file size string
+        let sizeNum = size.split(" ")[0];
+        console.log(`the size num`, sizeNum);
+        // if the file is under 8 Mb, send it as a file
+
+        // V2
+        //  Here all files are sent indiviually, later in the code they are sent in batches of 10 or less so I don't need this here any more
+        console.log(`SENT INDIVIDUALLY`);
+        console.log(`the file`, file);
+
+        if (results) {
+          console.log(`the file message content`, results.message_content);
+
+          title = results.message_content.embed.title;
+          content = results.message_content.content;
+          description = results.message_content.embed.description;
+          let actionRow = results.message_content.actionRow;
+          let buttonObj = {};
+
+          if (results.message_content.button) {
+            let { button } = results.message_content.button;
+            buttonObj = button;
+          }
+
+          embed = createEmb.createEmbed({
+            title: title,
+            description: description,
+            color: scripts.getColor(),
+          });
+          if (!actionRow) {
+            try {
+              await interaction.user.send({
+                content: content,
+                embeds: [embed],
+                files: [fileToSend],
+              });
+              // delay for 3.33 seconds
+              await scripts.delay(3333);
+            } catch (error) {
+              console.log(`Failed to send link for ${name}`, error);
+            }
+          } else {
+            try {
+              await interaction.user.send({
+                content: content,
+                embeds: [embed],
+                files: [fileToSend],
+                components: [
+                  await createActRow.createActionRow({
+                    components: [await createBtn.createButton(buttonObj)],
+                  }),
+                ],
+              });
+              // delay for 3.33 seconds
+              await scripts.delay(3333);
+            } catch (error) {
+              console.log(`Failed to send link for ${name}`, error);
+            }
+          }
+        }
+      }
+
+      console.log(`the file`, file);
+
+      console.log(`the all files`, allFiles);
+    }
+
+    // from 2901 to here
     console.log(`targetChannel`, targetChannel);
 
     content = `✅ All files from ${targetChannel.name} have been sent to your DMs!`;
+    description = `**Files Saved:**\n${fileList(filesFoundArray(interaction))}`;
 
     try {
       await interaction.user.send({
         embeds: [
           createEmb.createEmbed({
             title: content,
+            description: description,
             color: scripts.getSuccessColor(),
           }),
         ],
@@ -3066,6 +3175,311 @@ async function gatherChannelFiles(interaction) {
     return;
   }
 }
+
+async function uploadFileBatch(interaction) {
+  let content;
+  await interaction.deferReply({ ephemeral: true });
+  await sendLoad1(interaction);
+  // create unique batch id
+  // // batch_id will be a unique id compiled from the current date and time
+  let batch_id = getBatchId();
+  const originChannelID = interaction.channel.id;
+  const targetChannel = await interaction.guild.channels.fetch(originChannelID);
+  const lastMessages = await targetChannel.messages.fetch({ limit: 1 });
+  let lastMessage = lastMessages.first();
+  let lastMessageID;
+  if (lastMessage) {
+    lastMessageID = lastMessage.id;
+  }
+  // create a function that goes through and fetches every message in the channel and only returns the messages that have attachments
+  let arrayOfFiles = await getMessageAttachments(
+    targetChannel,
+    interaction,
+    batch_id
+  );
+  // send the files to the user who ran the command in a neat embed
+  // if there are no files, send a message saying "No files found"
+  console.log(arrayOfFiles);
+  if (arrayOfFiles === undefined) {
+    content = "No files found";
+    await interaction.editReply({
+      embeds: [createEmb.createEmbed({ title: content })],
+    });
+    return;
+  }
+  // if there are files, send a message with a list of all the files that were sent and the total number of files sent in a neat embed, the list of files will reside in description and the total number of files sent will be in the title.
+  else {
+    console.log(`the array of files`, arrayOfFiles);
+
+    let totalNum = arrayOfFiles.length;
+    let description = fileList(arrayOfFiles);
+    let title = `Total Files Saved: ${totalNum}`;
+    await interaction.editReply({
+      embeds: [
+        createEmb.createEmbed({
+          title: title,
+          description: description,
+          color: scripts.getColor(),
+        }),
+      ],
+    });
+    let files = arrayOfFiles;
+    // send files individually HERE
+    // for every file in the files array, send it to the user who ran the command
+    content = `Still Processing...`;
+    description = `Total Files Saved: ${totalNum}\n${fileList(
+      arrayOfFiles,
+      23
+    )}`;
+    const embed = createEmb.createEmbed({
+      title: content,
+      description: description,
+      color: scripts.getSuccessColor(),
+    });
+
+    await interaction.editReply({
+      embeds: [embed],
+      ephemeral: true,
+    });
+    let allFiles = [];
+
+    let batchMessages = [];
+    for (let file of files) {
+      console.log(`the file`, file);
+      // allFiles.push(file);
+
+      if (
+        ["mp3", "wav", "ogg", "m4a", "flac"].includes(
+          file.name.split(".").pop()
+        )
+      ) {
+        let embed;
+        console.log(`the file`, file);
+
+        content = `So Far I've Saved \`${
+          filesFoundArray(interaction).length
+        }\` ${
+          filesFoundArray(interaction).length === 1 ? `File` : `Files`
+        } from the ${targetChannel.name} channel in the ${
+          interaction.guild.name
+        } Server\n\nAll the files that we found are being downloaded and processed\n**It takes approx. 1 min per 12 files to complete the dm proccess**\n\n\`${
+          Math.round((filesFoundArray(interaction).length / 12) * 100) / 100 <=
+          1
+            ? `less than 1 minute`
+            : (Math.round((filesFoundArray(interaction).length / 12) * 100) /
+                100)`minutes`
+        } estimated\``;
+        description = `**Files Saved:**\n${fileList(
+          filesFoundArray(interaction)
+        )}`;
+        embed = createEmb.createEmbed({
+          title: content,
+          description: description,
+          color: scripts.getSuccessColor(),
+        });
+        try {
+          await interaction.editReply({
+            embeds: [embed],
+            ephemeral: true,
+          });
+        } catch (error) {
+          console.log(`error editing last reply`, error);
+        }
+
+        // add the attachments name to the filesFound array
+        // setFilesFoundArray(interaction.id, file);
+        // console.log(`updated the files found array`, filesFoundArray(interaction))
+        let currentFileName = file.name;
+        // check to see of any files in allFiles have a file.file_name === currentFileName
+        // if they do, add a number to the end of the file name
+        // if they don't, add the file to allFiles
+        let allFilesNames = [];
+        if (files.length > 0) {
+          allFilesNames = files.map((file) => {
+            return file.name;
+          });
+        }
+        if (!allFilesNames.includes(currentFileName)) {
+          allFiles.push(file);
+        }
+
+        let url = file.url;
+        let name = file.name;
+        let sizeNum = file.size;
+        let size = `${sizeNum / 1000000} Mb`;
+        let fileToSend = new AttachmentBuilder(url, {
+          name: name,
+          description: size,
+        });
+        // convert size to Mband set to `${size} Mb
+        console.log(`the size numeber`, sizeNum);
+        if (sizeNum / 1000000 > 8) {
+          console.log(`SENT INDIVIDUALLY`);
+          content = `File: \`${name}\``;
+          description = `Size: \`${size}\``;
+          console.log(`the content`, content);
+          embed = createEmb.createEmbed({
+            title: content,
+            description: description,
+            color: scripts.getColor(),
+          });
+          // this is the format its saved to db in, but in an array of with all the messages
+          batchMessages.push({
+            content: `||${name}||`,
+            embeds: [embed],
+            files: [fileToSend], // no components when saved
+            components: [],
+          });
+        } else {
+          console.log(`SENT AS A LINK`);
+          let row = await createActRow.createActionRow({
+            components: [
+              await createBtn.createButton({
+                style: "link",
+                label: name,
+                link: url,
+              }),
+            ],
+          });
+          console.log(`the row`, row);
+
+          embed = createEmb.createEmbed({
+            title: "File too large to send as a file",
+            description: `File Name: \`${name}\`\nFile Size: \`${size}\``,
+            color: scripts.getColor(),
+          });
+          console.log(`the embed`, embed);
+
+          console.log(`Pushing Message Obj to batchMessages Array ---> `, {
+            content: `||${name}||`,
+            embeds: [embed],
+            components: [row],
+          });
+
+          batchMessages.push({
+            content: `||${name}||`,
+            embeds: [embed],
+            components: [row],
+          });
+
+          console.log(`pushed-->new batchMessages array`, batchMessages);
+        }
+      }
+    }
+
+    // save the batch messages to the database
+    console.log(`the batch messages`, batchMessages); // this array is saved to db
+    // saved here need to add action somewhere here?
+    await scripts_mongoDB.saveBatchMessages(batchMessages, batch_id);
+
+    await interaction.editReply({
+      embeds: [
+        createEmb.createEmbed({
+          title: `✅ Save Complete!`,
+          content: `\`saved ${batchMessages.length} ${
+            batchMessages.length === 1 ? `file` : `files`
+          }\``,
+          description: `\`batch id: ${batch_id}\`\n\nUse \`/downloadfiles\` command and enter the \`batch id\` to retrieve ypu results`,
+          color: scripts.getSuccessColor(),
+        }),
+      ],
+    });
+    return;
+  }
+}
+
+async function downloadFileBatch(batch_id, targetChannel, interaction) {
+  try {
+    await interaction.deferReply({ ephemeral: true });
+  } catch (error) {
+    scripts.logError(error, `error deferring reply`);
+  }
+  let batchMessages = await scripts_mongoDB.getFileBatch(batch_id);
+
+  if (batchMessages.length === 0) {
+    try {
+      await interaction.editReply({
+        embeds: [
+          createEmb.createEmbed({
+            title: `❌ No Files Found!`,
+            content: `\`no files found for batch id: ${batch_id}\``,
+            color: scripts.getErrorColor(),
+          }),
+        ],
+      });
+    } catch (error) {
+      scripts.logError(error, `error editing last reply`);
+    }
+    return;
+  }
+
+  console.log(`the batch messages`, batchMessages);
+  for (let message of batchMessages.messages) {
+    console.log(`the message`, message);
+
+    console.log(`the target channel`, targetChannel);
+
+    let { content, embeds, files, components } = message;
+    /*console.log(`the content`, content);
+    console.log(`the embeds`, embeds);
+    console.log(`the files`, files);
+    console.log(`the components`, components);*/
+
+    let messageToSend = {
+      content: content ? content : ``,
+      embeds: embeds ? embeds : [],
+      files: files ? files : [],
+      components: components
+        ? (console.log(`ITS LOGGED HERE`, components), components)
+        : [], // oh maybe need to do this
+    };
+
+    console.log(`components[0]`, components[0]);
+
+    // console.log(`components[0].components`, components[0].components);
+
+    console.log(`the message to send`, messageToSend);
+
+    // HERE IS WHERE THE ERROR IS
+    // I added a bunch of try catch's w different combinations of the messageToSend object's components property since the initial error, but no luck as all trys fail
+    try {
+      await targetChannel.send(messageToSend);
+    } catch (error) {
+      // try {
+      //   messageToSend.components = components[0];
+      //   await targetChannel.send({ messageToSend });
+      // } catch (error) {
+      //   try {
+      //     messageToSend.components = components[0].components;
+      //     await targetChannel.send({ messageToSend });
+      //   } catch (error) {
+      //     scripts.logError(error, `error sending message`);
+      //   }
+      //   scripts.logError(error, `error sending message`);
+      // }
+      scripts.logError(error, `error sending message`);
+    }
+  }
+
+  try {
+    await interaction.editReply({
+      embeds: [
+        createEmb.createEmbed({
+          title: `✅ Download Complete!`,
+          content: `\`downloaded ${batchMessages.length} ${
+            batchMessages.length === 1 ? `file` : `files`
+          }\``,
+          description: `\`batch id: ${batch_id}\``,
+          color: scripts.getSuccessColor(),
+        }),
+      ],
+    });
+  } catch (error) {
+    scripts.logError(error, `error editing last reply`);
+  }
+  return;
+}
+
 module.exports = {
   beginFileFetch,
   getInteractionObj,
@@ -3112,4 +3526,6 @@ module.exports = {
   announce,
   fileCheck,
   gatherChannelFiles,
+  uploadFileBatch,
+  downloadFileBatch,
 };

@@ -191,6 +191,9 @@ function createEmbed(obj) {
           scripts.logError(error, "Error adding fields to the embed");
         }
       });
+    } else {
+      console.log("no fields");
+     //  embed.addFields({ name: '\u200B', value: '\u200B' });
     }
   } catch (error) {
     try {

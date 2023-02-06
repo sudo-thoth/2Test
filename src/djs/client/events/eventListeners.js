@@ -258,6 +258,7 @@ if (client) {
       if(interaction.commandName === `sendselectroles`){
         scripts_djs.selectRoleMenu(interaction);
       }
+      // this the second listener but does nothing
     }
   });
 }

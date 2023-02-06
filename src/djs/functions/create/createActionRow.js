@@ -57,6 +57,8 @@ const {
     }
   
     components.forEach((component) => {
+      console.log(component)
+
         // put try catch blocks around a check to make sure the component is a button or selectMenu, if not, log an error and continue
         if (!component.type === "BUTTON" || !component.type === "SELECT_MENU") {
             scripts.logError(
@@ -81,6 +83,8 @@ const {
         scripts.logError(error, `Error adding component ${component.customID} to the Action Row`);
       }
     });
+    console.log(`The New Action ROW ===> `,newCustomActionRow)
+
   
     return newCustomActionRow;
   }

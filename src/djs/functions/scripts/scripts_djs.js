@@ -23,86 +23,23 @@ function extractM4Aurl(str) {
   return res && res[1];
 }
 
-async function krakenWebScraper(url, type) {
-  if (!url) {
-    return;
-  }
-  let link = "";
-  console.log(`the url`, url)
-  console.log(`the type`, type)
-  let url2;
-  let sampleHtml;
-  let tempAxi = await axios.get(url).then( (response) => {
-    console.log(`the response`, response)
-    console.log(`the response.data`, response.data)
-    return response
-  })
-  // console.log(`axios.get(url)`, tempAxi)
-  let tempRes = tempAxi.data;
-  // console.log(`the html response === `, tempRes)
+async function krakenWebScraper(url, batch_id, interaction){
+  if (typeof url !== 'string') return;
 
-let tempLine = tempRes.split("\n").filter((line) => line.includes("m4a:"))[0]
-// console.log(`the tempLine`, tempLine)
+  const data = await (await fetch(url)).text();
+  const tempLine = data.split("\n").filter((line) => line.includes("m4a:"))[0];
+  const titleLine = data.split("\n").filter((line) => line.includes(`<meta property="og:title" content=`))[0];
+  const matches = titleLine.match(/content="(.*)"/);
+  const fileName = matches[1];
+console.log(`the url line`, tempLine);
+let x = extractM4Aurl(tempLine);
+x = x.replace(/'/g, '').replace('//', '');
+saveKrakenBatch(x, fileName, url, batch_id, interaction)
 
-let tempResults = extractM4Aurl(tempLine);
-// console.log(`the tempResults`, tempResults)
-
-console.log(`made it`)
-
-  // try {
-  //    axios.get(url).then(
-  //     (response) => {
-  //       const html = response.data; // html
-
-  //       switch (type) {
-  //         case "audio":
-  //         console.log(`AUDIO CHOSEN ---> html`, html)
-  //           link = html
-  //             .split("\n")
-  //             .filter((line) => line.includes("m4a:"))[0]
-  //             .trim()
-  //             .substring(6)
-  //             .replace("'", "");
-  //           link = "https:" + link;
-  //           break;
-  //         case "video":
-  //           link = html
-  //             .split("\n")
-  //             .filter((line) => line.includes("m4a:"))[0]
-  //             .trim()
-  //             .substring(6)
-  //             .replace("'", "");
-  //           link = "https:" + link;
-  //           break;
-  //         default:
-  //           break;
-  //       }
-  //       console.log(`the link`, link)
-        
+  return extractM4Aurl(tempLine);
+};
 
 
-
-  //       sampleHtml = html
-  //       .split("\n")
-  //       .filter((line) => line.includes("m4a:"))[0];
-
-  //       url2 = extractM4Aurl(sampleHtml);
-
-  //     },
-  //     (error) => {
-  //       console.log(error);
-  //     }
-  //   );
-  // } catch (error) {
-  //   console.log(`error in Kraken function 2`)
-  //   console.log(`err occurred`, error)
-  // }
-  // console.log(`the link in Kraken Function`, link)
-  console.log(`the url in Kraken Function`, tempResults)
-  // console.log(`the sample html  in Kraken Function`, sampleHtml)
-
-  return tempResults;
-}
 
 let getAlertEmoji = () => {
   let alertEmojis = [
@@ -3575,7 +3512,8 @@ firstFileArray.forEach(async result => {
 
     console.log(`the file message content`, results.message_content);
 
-  let fileToSend = results.file_url;
+  let fileToSend = 'https://'.concat(results.file_url.trim());
+  let krakenLink = results.message_content.embed.url;
   let name = results.file_name;
   nameArr.push(name);
   title = results.message_content.embed.title;
@@ -3589,8 +3527,8 @@ firstFileArray.forEach(async result => {
 if (actionRow) {
    buttonObj = {
       style: "link",
-      label: "Download File to Listen :loud_sound:",
-      link: theButton.link,
+      label: "Download File to Save",
+      link: fileToSend,
     };
 }
 
@@ -3600,7 +3538,9 @@ if (actionRow) {
   title: title,
   description: description,
   color: scripts.getColor(),
+  url: krakenLink,
   });
+
 
   if (!actionRow) {
   try {
@@ -3620,6 +3560,7 @@ if (actionRow) {
 
   } catch (error) {
     console.log(`Failed to send link for ${name}`, error);
+    
 
   }
 
@@ -3633,22 +3574,41 @@ if (actionRow) {
           components: [await createBtn.createButton(buttonObj)],
         }),
       ],
+      files: [fileToSend],
     });
     // delay for 3.33 seconds
     await scripts.delay(3333);
   } catch (error) {
-    console.log(`Failed to send link for ${name}`, error);
+    console.log(`Failed to send link2 for ${name}`, error);
+    try {
+      await targetChannel.send({
+        content: content,
+        embeds: [embed],
+        components: [
+          await createActRow.createActionRow({
+            components: [await createBtn.createButton(buttonObj)],
+          }),
+        ],
+      });
+      // delay for 3.33 seconds
+      await scripts.delay(3333);
+    } catch (error) {
+      console.log(`Failed to send link for ${name}`, error);
+  
+    }
 
   }
   }
 });
 // for every name in name array add each one to a string on a new line and a dash in front of it
-let description = `Files Downloaded:\n\`${fileList(nameArr, 23)}\``;
+console.log(`the name array`, nameArr)
+let description = nameArr>0 ?`Files Downloaded:\n\`${fileList(nameArr, 23)}\``  : `Kraken Files Retrieved`; 
+console.log(targetChannel)
 try{
   await targetChannel.send({
     embeds: [
       createEmb.createEmbed({
-        title: `✅ Download from ${targetChannel.name} Complete!`,
+        title: `✅ Download Complete!`,
         description: description,
         color: scripts.getSuccessColor(),
       }),
@@ -3676,8 +3636,8 @@ try{
   return;
 }
 
-async function saveKrakenBatch(url, batch_id, interaction) {
-  if (!url || !interaction || !batch_id) return;
+async function saveKrakenBatch(url, fileName, krakenURL, batch_id, interaction) {
+  if (!url || !interaction || !batch_id || !fileName) return;
   // create the attachments array and metadata object
   let attachments = [];
 
@@ -3689,11 +3649,11 @@ async function saveKrakenBatch(url, batch_id, interaction) {
       messageContent = {
         files: [newAttachmentInstance],
         embed: {
-          title: `Listen Now :loud_sound:`,
-          description: `Kraken File : currently unable to retrieve attributes such as file name, size, and duration.`,
-          url: url
+          title: `${fileName} :loud_sound:`,
+          description: `Kraken File : currently unable to retrieve attributes such as size, duration, etc`,
+          url: krakenURL
         },
-        actionRow: false,
+        actionRow: true,
         button: {
           style: "link",
           label: "Download File to Listen :loud_sound:",
@@ -3705,6 +3665,7 @@ async function saveKrakenBatch(url, batch_id, interaction) {
 
     // end testing
     let attachment = {
+      file_name: fileName,
       file_url: url,
       file_batch_id: batch_id,
       message_content: messageContent,
@@ -3718,18 +3679,18 @@ async function saveKrakenBatch(url, batch_id, interaction) {
   };
   console.log(`The obj:`, obj);
   // run a query to see if a doc with the same (metadata.message_id && batch_id) exists
-  let exists = await fetchedFiles.findOne({ batch_id: batch_id, metadata: { message_id: message_id } });
-  // if it exists, dont save it
+  // let exists = await fetchedFiles.findOne({ batch_id: batch_id, metadata: { message_id: message_id } });
+  // // if it exists, dont save it
 
-  if (exists) {
-    console.log(`--------------------------`);
-    console.log(`--------------------------`);
-    console.log(`The doc already exists`);
-    console.log(`--------------------------`);
-    console.log(`--------------------------`);
-    await scripts.delay(10000)
-    return;
-  }
+  // if (exists) {
+  //   console.log(`--------------------------`);
+  //   console.log(`--------------------------`);
+  //   console.log(`The doc already exists`);
+  //   console.log(`--------------------------`);
+  //   console.log(`--------------------------`);
+  //   await scripts.delay(10000)
+  //   return;
+  // }
   await fetchedFiles.create(obj);
   console.log(`--------------------------`);
   for (i = 0; i < obj.attachments.length; i++) {
@@ -3821,9 +3782,9 @@ let getMessageKrakenLinkFiles = async (targetChannel, interaction, batch_id, be4
       console.log(`the kraken link`, krakenLink);
       let url;
       try {
-         url = await krakenWebScraper(krakenLink, "audio");
+         url = await krakenWebScraper(krakenLink, batch_id, interaction);
          console.log(`the urlHERE is`, url)
-          url =  url.replace(/'/g, '');
+          url =  url.replace(/'/g, '').replace('//', '');
 
       } catch (error) {
         console.log(`Error getting kraken URL from Kraken Site`)

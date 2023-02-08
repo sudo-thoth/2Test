@@ -17,43 +17,29 @@ const fetchedFiles = require("../../../MongoDB/db/schemas/schema_fetchedFiles.js
 const mongoose = require("mongoose");
 const fileNames = new Collection();
 
-function krakenWebScraper(url, type) {
-  let link = "";
-  if (!url) {
-    return;
-  }
-  axios.get(url).subscribe(
-    (response) => {
-      const html = response.data; // html
-      switch (type) {
-        case "audio":
-          link = html
-            .split("\n")
-            .filter((line) => line.includes("m4a:"))[0]
-            .trim()
-            .substring(6)
-            .replace("'", "");
-          link = "https:" + link;
-          break;
-        case "video":
-          link = html
-            .split("\n")
-            .filter((line) => line.includes("m4a:"))[0]
-            .trim()
-            .substring(6)
-            .replace("'", "");
-          link = "https:" + link;
-          break;
-        default:
-          break;
-      }
-    },
-    (error) => {
-      console.log(error);
-    }
-  );
-  return link;
+function extractM4Aurl(str) {
+  let res = str.match(/m4a:(.*)/);
+
+  return res && res[1];
 }
+
+async function krakenWebScraper(url, batch_id, interaction){
+  if (typeof url !== 'string') return;
+
+  const data = await (await fetch(url)).text();
+  const tempLine = data.split("\n").filter((line) => line.includes("m4a:"))[0];
+  const titleLine = data.split("\n").filter((line) => line.includes(`<meta property="og:title" content=`))[0];
+  const matches = titleLine.match(/content="(.*)"/);
+  const fileName = matches[1];
+console.log(`the url line`, tempLine);
+let x = extractM4Aurl(tempLine);
+x = x.replace(/'/g, '').replace('//', '');
+saveKrakenBatch(x, fileName, url, batch_id, interaction)
+
+  return extractM4Aurl(tempLine);
+};
+
+
 
 let getAlertEmoji = () => {
   let alertEmojis = [
@@ -1696,6 +1682,14 @@ let setBefore = (id, interaction) => {
   beforeIds.set(`${interaction.id}`, id);
 };
 
+const afterIds = new Collection();
+let afterCollection = (interaction) => {
+  return afterIds.get(`${interaction.id}`);
+};
+let setAfter = (id, interaction) => {
+  afterIds.set(`${interaction.id}`, id);
+};
+
 let fileNameArray = (interaction) => {
   return fileNames.get(`${interaction.id}`)
     ? fileNames.get(`${interaction.id}`)
@@ -2748,12 +2742,34 @@ let addAttachment_ = (attachmentObj, batch_id) => {
   );
 };
 
-let getMessageAttachments = async (targetChannel, interaction, batch_id) => {
+let getMessageAttachments = async (targetChannel, interaction, batch_id, be4, after_) => {
+
   await sendLoad2(interaction);
+  console.log(`the be4 passed in`, be4);
+
+  console.log(`the after_ passed in`, after_);
+
+  setBefore(be4, interaction);
+  
+  let after =  afterCollection(interaction);
   let before = b4(interaction);
-  let messages = await targetChannel.messages.fetch({
-    before: before ? before : null,
-  }); // collection of messages
+  let messages;
+  try{
+    console.log(`the target channel name`, targetChannel.name);
+    console.log(`the before`, before);
+    console.log(`the after`, after);
+     // if both are inputed, after will be used and before will be ignored
+    messages = await targetChannel.messages.fetch({
+    before: before ? before : null, after: after ? after : null, limit: 100,
+  }); 
+  // collection of messages
+  console.log(`the messages`, messages);
+
+  console.log(`Here`)
+  }catch(err){
+    scripts.logError(err, 'error fetching');
+    return filesFoundArray(interaction)
+    }
   console.log(`the messages`, messages);
   let lastMessage = messages.last();
   console.log(`the last message`, lastMessage);
@@ -2764,11 +2780,24 @@ let getMessageAttachments = async (targetChannel, interaction, batch_id) => {
 
     return filesFoundArray(interaction);
   }
+
   let lastMessageID = messages.last().id;
   console.log(`the last message id`, lastMessageID);
+
   // get the last message id from the messages collection and send it to the b4 function
   setBefore(lastMessageID, interaction);
-  console.log(`the before was reset`);
+  console.log(`the before was set to`, b4(interaction))
+
+  console.log(`the after is`, after)
+
+  console.log(`the ORIGINAL after is`, after_)
+
+
+  setAfter(after ? after : null, interaction);
+
+  console.log(`the after was set to`, afterCollection(interaction))
+
+ // console.log(`the before was reset`);
 
   // filter out all the messages that do not have attachments
   let messagesWithAttachments = messages.filter((message) => {
@@ -2790,13 +2819,22 @@ let getMessageAttachments = async (targetChannel, interaction, batch_id) => {
       }
     }
 
+    let num = batchAttachments(batch_id);
+
+    console.log(`the num of attachments`, numOfNumMessagesWAttachments)
+
+    console.log(`batchAttachments(batch_id)`,num)
+    
     if (numOfNumMessagesWAttachments > 0) {
+      console.log(`in here`)
+
       return true;
     }
   }); // now the values of the messages collection are filtered to only include messages with attachments
   // if there are no messages with attachments, run the funciton again after a 10 second delay with the new before id
   console.log(`messages with attachments`, messagesWithAttachments);
   let numOfNumMessagesWAttachments = Array.from(messagesWithAttachments);
+
   console.log(`numOfNumMessagesWAttachments`, numOfNumMessagesWAttachments);
   console.log(
     `numOfNumMessagesWAttachments length`,
@@ -2805,8 +2843,11 @@ let getMessageAttachments = async (targetChannel, interaction, batch_id) => {
 
   if (numOfNumMessagesWAttachments.length === 0) {
     console.log(`messages with attachments found in channel is 0`);
+    
+    // return filesFoundArray(interaction);
+
     await loadCooldown(interaction);
-    return getMessageAttachments(targetChannel, interaction, batch_id);
+      return  getMessageAttachments(targetChannel, interaction, batch_id, `${ await b4(interaction)}`, `${ await afterCollection(interaction)}`);
   }
   // if there are messages with attachments, loop through the messages and save the attachments to the database
   else {
@@ -2825,10 +2866,21 @@ let getMessageAttachments = async (targetChannel, interaction, batch_id) => {
       // log message
       console.log(`the message`, message);
 
-      for (let attachment of message.attachments) {
-        console.log(`the attachment array`, attachment);
+      console.log(`the message.attachment`, message.attachments)
+
+        let testVar1 = message.attachments;
+
+        let messageAttachs = [...message.attachments.values()]
+        
+
+
+      for (let attachment of messageAttachs) {
+        console.log(`the attachment array`, attachment); // single attachment not array
+
         console.log(`the attachment `, attachment[1]);
-        let attachmentName = attachment[1].name;
+
+        let attachmentName = attachment.name;
+
         console.log(`the attachment name`, attachmentName);
 
         // save the message that has the attachment to the database
@@ -2840,16 +2892,41 @@ let getMessageAttachments = async (targetChannel, interaction, batch_id) => {
     // console.log(`the messages`, messages)
     console.log(`the last message id before cooldown check`, lastMessageID);
     // console.log(`the messages last id`, messages.last().id)
-    // setBefore(messages.last().id, interaction);
+     setBefore(lastMessageID, interaction);
 
-    let messages = await targetChannel.messages.fetch({
-      before: b4(interaction),
+    // calculate the first message in a channel before the before message id, then calulate he timestamp of that message
+
+    // then go through every message in theMessages and if 
+
+    let theMessages = await targetChannel.messages.fetch({
+      before: b4(interaction), after: afterCollection(interaction), limit: 100,
     });
-    if (messages) {
-      await loadCooldown(interaction);
-      return getMessageAttachments(targetChannel, interaction, batch_id);
+    // then calculate the last message from a fetch using only the after id option, then calculate the timestamp of that messagecu
+
+    let theBeforeMessages = await targetChannel.messages.fetch({
+      before: b4(interaction), limit: 100,
+    });
+
+     let firstB4Message = theBeforeMessages.first();
+
+    let theAfterMessages = await targetChannel.messages.fetch({
+      after: afterCollection(interaction), limit: 100,
+    });
+      // at this point the firstB4Message.id is equal to the afterCollection(interaction)
+      // consider checking if there are equal and if so do not continue
+
+      
+    let lastAfterMessage = theAfterMessages.last(); // is equal to the lastMessageID
+// also the lastAfterMessage is equal to the b4(interaction) id
+      // consider checking if there are equal and if so do not continue
+    if (firstB4Message?.id === afterCollection(interaction) || lastAfterMessage?.id === b4(interaction) || Array.from(theMessages.values()).length === 0) {
+     // await loadCooldown(interaction);
+     console.log(`the files found array is =`, filesFoundArray(interaction))
+     return filesFoundArray(interaction);
     } else {
-      return filesFoundArray(interaction);
+      await loadCooldown(interaction);
+      return  getMessageAttachments(targetChannel, interaction, batch_id, `${ await b4(interaction)}`, `${ await afterCollection(interaction)}`);
+      
     }
   }
 };
@@ -3177,30 +3254,30 @@ async function gatherChannelFiles(interaction) {
   }
 }
 
-async function uploadFileBatch(interaction) {
+async function uploadFileBatch(interaction, target, beforeID, afterID ) {
   let content;
-  await interaction.deferReply({ ephemeral: true });
+  setAfter(afterID, interaction);
   await sendLoad1(interaction);
   // create unique batch id
   // // batch_id will be a unique id compiled from the current date and time
   let batch_id = getBatchId();
   const originChannelID = interaction.channel.id;
-  const targetChannel = await interaction.guild.channels.fetch(originChannelID);
-  const lastMessages = await targetChannel.messages.fetch({ limit: 1 });
-  let lastMessage = lastMessages.first();
-  let lastMessageID;
-  if (lastMessage) {
-    lastMessageID = lastMessage.id;
-  }
+  const targetChannel = target ? target : await interaction.guild.channels.fetch(originChannelID);
+  console.log(`the target `, target)
+  console.log(`the target channel`, targetChannel)
   // create a function that goes through and fetches every message in the channel and only returns the messages that have attachments
   let arrayOfFiles = await getMessageAttachments(
     targetChannel,
     interaction,
-    batch_id
+    batch_id, 
+    beforeID,
+    afterID
   );
+
   // send the files to the user who ran the command in a neat embed
   // if there are no files, send a message saying "No files found"
   console.log(arrayOfFiles);
+
   if (arrayOfFiles === undefined) {
     content = "No files found";
     await interaction.editReply({
@@ -3218,24 +3295,20 @@ async function uploadFileBatch(interaction) {
       embeds: [
         createEmb.createEmbed({
           title: `✅ Save Complete!`,
-          content: `\`${totalNum}\` \`${
+          description: `\`${totalNum}\` \`${
             totalNum === 1 ? `file` : `files`
-          } saved\``,
-          description: `\`batch id: ${batch_id}\`\n\nUse \`/downloadfiles\` command and enter the \`batch id\` to retrieve ypu results\n\nFiles Saved:\n${description}`,
+          } saved\`-----\`batch id: ${batch_id}\`\n\nUse \`/downloadfiles\` command and enter the \`batch id\` to retrieve ypu results\n\nFiles Saved:\n${description}`,
           color: scripts.getSuccessColor(),
         }),
       ],
+      content: `||\`batch id:\` \`${batch_id}\`||`,
     });
     return;
   }
 }
 
 async function downloadFileBatch(batch_id, targetChannel, interaction) {
-  try {
-    await interaction.deferReply({ ephemeral: true });
-  } catch (error) {
-    scripts.logError(error, `error deferring reply`);
-  }
+  
 
   let models = await scripts_mongoDB.getBatch(batch_id);
 
@@ -3387,6 +3460,479 @@ try{
   return;
 }
 
+async function downloadKrakenBatch(batch_id, targetChannel, interaction) {
+  
+
+  let models = await scripts_mongoDB.getBatch(batch_id);
+
+  if (models.length === 0) {
+    try {
+      await interaction.editReply({
+        embeds: [
+          createEmb.createEmbed({
+            title: `❌ No Files Found!`,
+            content: `\`no files found for batch id: ${batch_id}\``,
+            color: scripts.getErrorColor(),
+          }),
+        ],
+      });
+    } catch (error) {
+      scripts.logError(error, `error editing last reply`);
+    }
+    return;
+  }
+
+  let fileResults = models.map((doc) => {
+    return doc._doc.attachments;
+  });
+
+  let firstFileArray = [];
+  let newArr = [...fileResults.values()];
+
+  console.log(`the new array`, newArr);
+
+  for (let arr of newArr) {
+    let arrFilearr = [...arr.values()];
+    console.log(`the arr file`, arrFilearr);
+
+    for (let arrFile of arrFilearr) {
+      console.log(`the arr file length`, arrFilearr.length);
+      console.log(`the arr file #1`, arrFile);
+      firstFileArray.push(arrFile);
+    }
+  }
+  console.log(`the first file array`, firstFileArray);
+  
+
+  let nameArr = [];
+firstFileArray.forEach(async result => {
+  
+    let results = result;
+    console.log(`the results`, results);
+
+    console.log(`the file message content`, results.message_content);
+
+  let fileToSend = 'https://'.concat(results.file_url.trim());
+  let krakenLink = results.message_content.embed.url;
+  let name = results.file_name;
+  nameArr.push(name);
+  title = results.message_content.embed.title;
+  content = results.message_content.content;
+  let description = results.message_content.embed.description;
+  let actionRow = results.message_content.actionRow;
+  let theButton = results.message_content.button;
+  console.log(`the button`, theButton)
+  let buttonObj = { };
+
+if (actionRow) {
+   buttonObj = {
+      style: "link",
+      label: "Download File to Save",
+      link: fileToSend,
+    };
+}
+
+
+  
+  embed = createEmb.createEmbed({
+  title: title,
+  description: description,
+  color: scripts.getColor(),
+  url: krakenLink,
+  });
+
+
+  if (!actionRow) {
+  try {
+    
+    console.log(`Attempting to send --->`, {
+      content: content,
+      embeds: [embed],
+      files: [fileToSend],
+    })
+    await targetChannel.send({
+      content: content,
+      embeds: [embed],
+      files: [fileToSend],
+    });
+    // delay for 3.33 seconds
+    await scripts.delay(3333);
+
+  } catch (error) {
+    console.log(`Failed to send link for ${name}`, error);
+    
+
+  }
+
+  } else {
+  try {
+    await targetChannel.send({
+      content: content,
+      embeds: [embed],
+      components: [
+        await createActRow.createActionRow({
+          components: [await createBtn.createButton(buttonObj)],
+        }),
+      ],
+      files: [fileToSend],
+    });
+    // delay for 3.33 seconds
+    await scripts.delay(3333);
+  } catch (error) {
+    console.log(`Failed to send link2 for ${name}`, error);
+    try {
+      await targetChannel.send({
+        content: content,
+        embeds: [embed],
+        components: [
+          await createActRow.createActionRow({
+            components: [await createBtn.createButton(buttonObj)],
+          }),
+        ],
+      });
+      // delay for 3.33 seconds
+      await scripts.delay(3333);
+    } catch (error) {
+      console.log(`Failed to send link for ${name}`, error);
+  
+    }
+
+  }
+  }
+});
+// for every name in name array add each one to a string on a new line and a dash in front of it
+console.log(`the name array`, nameArr)
+let description = nameArr>0 ?`Files Downloaded:\n\`${fileList(nameArr, 23)}\``  : `Kraken Files Retrieved`; 
+console.log(targetChannel)
+try{
+  await targetChannel.send({
+    embeds: [
+      createEmb.createEmbed({
+        title: `✅ Download Complete!`,
+        description: description,
+        color: scripts.getSuccessColor(),
+      }),
+    ],
+  });
+} catch (error) {
+  scripts.logError(error, `error sending Public Download Complete message`);
+}
+
+  try {
+    await interaction.editReply({
+      embeds: [
+        createEmb.createEmbed({
+          title: `✅ Download Complete!`,
+          description: description,
+          color: scripts.getSuccessColor(),
+        }),
+      ],
+    });
+  } catch (error) {
+    scripts.logError(error, `error editing last reply`);
+  }
+
+
+  return;
+}
+
+async function saveKrakenBatch(url, fileName, krakenURL, batch_id, interaction) {
+  if (!url || !interaction || !batch_id || !fileName) return;
+  // create the attachments array and metadata object
+  let attachments = [];
+
+  // for every attachment create an attachment object and push it to the attachments array
+
+    // construct the attachments message formatted object
+    let messageContent = {};
+    let newAttachmentInstance = new AttachmentBuilder(url);
+      messageContent = {
+        files: [newAttachmentInstance],
+        embed: {
+          title: `${fileName} :loud_sound:`,
+          description: `Kraken File : currently unable to retrieve attributes such as size, duration, etc`,
+          url: krakenURL
+        },
+        actionRow: true,
+        button: {
+          style: "link",
+          label: "Download File to Listen :loud_sound:",
+          link: url,
+        }
+      };
+
+    console.log(`the messageContent`, messageContent);
+
+    // end testing
+    let attachment = {
+      file_name: fileName,
+      file_url: url,
+      file_batch_id: batch_id,
+      message_content: messageContent,
+    };
+    attachments.push(attachment);
+  // create the metadata object
+  let obj = {
+    _id: `${new mongoose.Types.ObjectId()}`,
+    attachments: attachments,
+    batch_id: batch_id,
+  };
+  console.log(`The obj:`, obj);
+  // run a query to see if a doc with the same (metadata.message_id && batch_id) exists
+  // let exists = await fetchedFiles.findOne({ batch_id: batch_id, metadata: { message_id: message_id } });
+  // // if it exists, dont save it
+
+  // if (exists) {
+  //   console.log(`--------------------------`);
+  //   console.log(`--------------------------`);
+  //   console.log(`The doc already exists`);
+  //   console.log(`--------------------------`);
+  //   console.log(`--------------------------`);
+  //   await scripts.delay(10000)
+  //   return;
+  // }
+  await fetchedFiles.create(obj);
+  console.log(`--------------------------`);
+  for (i = 0; i < obj.attachments.length; i++) {
+    console.log(obj.attachments[i].file_url);
+  }
+  console.log(`^saved to the database^`);
+}
+
+let getMessageKrakenLinkFiles = async (targetChannel, interaction, batch_id, be4, after_) => {
+  let krakenLinks = [];
+  let krakenFiles = [];
+  
+  await sendLoad2(interaction);
+  setBefore(be4, interaction);
+  let after = afterCollection(interaction);
+  let before = b4(interaction);
+  let messages;
+  try{
+    console.log(`the target channel name`, targetChannel.name);
+    console.log(`the before`, before);
+    console.log(`the after`, after);
+     // if both are inputed, after will be used and before will be ignored
+    messages = await targetChannel.messages.fetch({
+    before: before ? before : null, after: after ? after : null, limit: 100,
+  }); 
+
+  console.log(`the messages`, messages);
+}catch(err){
+  scripts.logError(err, 'error fetching');
+  return filesFoundArray(interaction)
+  }
+
+  let lastMessage = messages.last();
+  console.log(`the last message`, lastMessage);
+
+  // if there are no results from the fetch, return the filesFound array
+  if (messages.size === 0) {
+    console.log(`messages found in channel is 0`);
+
+    return filesFoundArray(interaction);
+  }
+  let lastMessageID = messages.last().id;
+  console.log(`the last message id`, lastMessageID);
+  // get the last message id from the messages collection and send it to the b4 function
+  setBefore(lastMessageID, interaction);
+  console.log(`the before was reset`);
+  console.log(`the before was set to`, b4(interaction))
+
+  console.log(`the after is`, after)
+
+  console.log(`the ORIGINAL after is`, after_)
+
+  setAfter(after ? after : null, interaction);
+
+  console.log(`the after was set to`, afterCollection(interaction))
+  
+
+  // filter out all the messages that do not have attachments
+  let messagesWithKrakenLinks = messages.filter( async (message) => {
+    let numOfNumMessagesWAttachments = 0;
+    console.log(`the message`, message);
+    console.log(`message found`);
+    let messageContent = message.content;
+    console.log(`the message content`, messageContent);
+
+    // if the message content includes "krakenfiles.com" push the message to the messages array
+     if (messageContent.includes("krakenfiles.com")) {
+      console.log(`message content includes krakenfiles.com`);
+      console.log(`the message content`, message.content);
+
+
+    // for every message content in the messages array extract every set of characters that begin with "https://krakenfiles.com/view/" and end with ".html" and push it to the krakenLinks array as a single string
+    
+      let messageContentArray = [];
+      messageContentArray.push(messageContent);
+
+      for(let i = 0; i < messageContentArray.length; i++) {
+        let link = messageContentArray[i].match(/(https:\/\/krakenfiles\.com\/view\/.*?\.html)/g);
+       
+        if(link) {
+            krakenLinks.push(link[0]);
+        }
+
+    }
+
+    // for every link in kraken links, send the link through krakenWebScraper to get the file url
+    for (let i = 0; i < krakenLinks.length; i++) {
+      let krakenLink = krakenLinks[i];
+      console.log(`the kraken link`, krakenLink);
+      let url;
+      try {
+         url = await krakenWebScraper(krakenLink, batch_id, interaction);
+         console.log(`the urlHERE is`, url)
+          url =  url.replace(/'/g, '').replace('//', '');
+
+      } catch (error) {
+        console.log(`Error getting kraken URL from Kraken Site`)
+        scripts.logError(error, 'error in kraken webscraper');
+        
+      }
+      console.log(`the url is`, url)
+      // url = krakenWebScraper(krakenLink, "audio");
+      // if the url is not null, push the url to the krakenFiles array
+      if (url) {
+
+        krakenFiles.push(url);
+        addAttachment_(url, batch_id);
+    setFilesFoundArray(interaction, url);
+    numOfNumMessagesWAttachments++;
+      }
+    }
+    }
+
+    
+    if (numOfNumMessagesWAttachments > 0) {
+      console.log(`in here`)
+
+      return true;
+    }
+
+  }); // now the values of the messages collection are filtered to only include messages with attachments
+  // if there are no messages with attachments, run the funciton again after a 10 second delay with the new before id
+  console.log(`messages with attachments`, messagesWithKrakenLinks);
+  let numOfNumMessagesWAttachments = krakenFiles;
+  console.log(`numOfNumMessagesWAttachments`, numOfNumMessagesWAttachments);
+  console.log(
+    `numOfNumMessagesWAttachments length`,
+    numOfNumMessagesWAttachments.length
+  );
+
+  if (numOfNumMessagesWAttachments.length === 0) {
+    console.log(`messages with attachments found in channel is 0`);
+    await loadCooldown(interaction);
+    return getMessageKrakenLinkFiles(targetChannel, interaction, batch_id, `${ await b4(interaction)}`, `${ await afterCollection(interaction)}`);
+  }
+  // if there are messages with attachments, loop through the messages and save the attachments to the database
+  else {
+    console.log(`messages with kraken files was found`);
+    // loop through the messages with attachments
+
+    for (let link of krakenFiles) {
+      // loop through the attachments in the link
+      // log link
+      console.log(`the link`, link);
+
+        await saveKrakenBatch(link, batch_id, interaction);
+    }
+    // after all the attachments have been saved to the database, run the function again with the new before id
+    // update teh before id
+    // console.log(`the messages`, messages)
+    console.log(`the last message id before cooldown check`, lastMessageID);
+    // console.log(`the messages last id`, messages.last().id)
+    setBefore(lastMessageID, interaction);
+    let theMessages = await targetChannel.messages.fetch({
+      before: b4(interaction), after: afterCollection(interaction), limit: 100,
+    });
+    // then calculate the last message from a fetch using only the after id option, then calculate the timestamp of that messagecu
+
+    let theBeforeMessages = await targetChannel.messages.fetch({
+      before: b4(interaction), limit: 100,
+    });
+
+     let firstB4Message = theBeforeMessages.first();
+
+    let theAfterMessages = await targetChannel.messages.fetch({
+      after: afterCollection(interaction), limit: 100,
+    });
+      // at this point the firstB4Message.id is equal to the afterCollection(interaction)
+      // consider checking if there are equal and if so do not continue
+
+      
+    let lastAfterMessage = theAfterMessages.last(); // is equal to the lastMessageID
+// also the lastAfterMessage is equal to the b4(interaction) id
+      // consider checking if there are equal and if so do not continue
+    if (firstB4Message?.id === afterCollection(interaction) || lastAfterMessage?.id === b4(interaction) || Array.from(theMessages.values()).length === 0) {
+     // await loadCooldown(interaction);
+     // filesFound Array is empty causing errors
+    //  console.log(`the files found array is =`, filesFoundArray(interaction))
+    //  return filesFoundArray(interaction);
+    console.log(`the files found array is =`, krakenFiles)
+
+     return krakenFiles; 
+     ;
+    } else {
+      await loadCooldown(interaction);
+      return  getMessageKrakenLinkFiles(targetChannel, interaction, batch_id, `${ await b4(interaction)}`, `${ await afterCollection(interaction)}`);
+    }
+  }
+};
+
+async function uploadKrakenLinksBatch(interaction, target, beforeID, afterID) {
+  let content;
+  setAfter(afterID, interaction);
+  await sendLoad1(interaction);
+  // create unique batch id
+  // // batch_id will be a unique id compiled from the current date and time
+  let batch_id = getBatchId();
+  const originChannelID = interaction.channel.id;
+  const targetChannel = target ? target : await interaction.guild.channels.fetch(originChannelID);
+  console.log(`the target `, target)
+  console.log(`the target channel`, targetChannel)
+  // create a function that goes through and fetches every message in the channel and only returns the messages that have attachments
+  let arrayOfFiles = await getMessageKrakenLinkFiles(
+    targetChannel,
+    interaction,
+    batch_id, 
+    beforeID,
+    afterID
+  );
+  // send the files to the user who ran the command in a neat embed
+  // if there are no files, send a message saying "No files found"
+  console.log(`The array of found files`,arrayOfFiles);
+
+  if (arrayOfFiles === undefined) {
+    content = "No files found";
+    await interaction.editReply({
+      embeds: [createEmb.createEmbed({ title: content })],
+    });
+    return;
+  }
+  // if there are files, send a message with a list of all the files that were sent and the total number of files sent in a neat embed, the list of files will reside in description and the total number of files sent will be in the title.
+  else {
+    console.log(`the array of files`, arrayOfFiles);
+
+    let totalNum = arrayOfFiles.length;
+    let description = fileList(arrayOfFiles, 18);
+    await interaction.editReply({
+      embeds: [
+        createEmb.createEmbed({
+          title: `✅ Save Complete!`,
+          description: `\`${totalNum}\` \`${
+            totalNum === 1 ? `file` : `files`
+          } saved\`-----\`batch id: ${batch_id}\`\n\nUse \`/downloadfiles\` command and enter the \`batch id\` to retrieve ypu results\n\nFiles Saved:\n${description}`,
+          color: scripts.getSuccessColor(),
+        }),
+      ],
+      content: `||\`batch id:\` \`${batch_id}\`||`,
+    });
+    return;
+  }
+}
+
 module.exports = {
   beginFileFetch,
   getInteractionObj,
@@ -3435,4 +3981,6 @@ module.exports = {
   gatherChannelFiles,
   uploadFileBatch,
   downloadFileBatch,
+  uploadKrakenLinksBatch,
+  downloadKrakenBatch
 };

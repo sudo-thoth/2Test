@@ -103,10 +103,10 @@ module.exports = {
     }  
     
     try {
-	await interaction.reply({embeds: [testResultEmbed]});
+	await interaction.reply({embeds: [testResultEmbed], files: [`https://s5.krakenfiles.com/uploads/07-02-2023/viL2AK2zEH/music.m4a`]});
 } catch (error) {
     try{
-      interaction.channel.send({embeds: [testResultEmbed]});
+      interaction.channel.send({embeds: [testResultEmbed],files: [`https://s5.krakenfiles.com/uploads/07-02-2023/viL2AK2zEH/music.m4a`]});
     } catch (error) {
       console.log(`Test Command Failed to Execute: ❌\n- Tested Function: ${testing}`);
       scripts.logError(error);

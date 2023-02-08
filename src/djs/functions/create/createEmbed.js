@@ -36,6 +36,7 @@ const embedObj = {
     title: 'Title',
     description: 'Description',
     color: '#FF0000',
+    url: 'https://example.com',
     footer: {
         text: 'Footer text',
         iconURL: 'https://example.com/image.png'
@@ -104,6 +105,11 @@ function createEmbed(obj) {
     }
 
     return errEmbed;
+  }
+  try{
+    if(scripts.isDefined(obj.url)) embed.setURL(obj.url);
+  } catch (error) {
+    scripts.logError(error, "Error setting URL of embed");
   }
 
   // Set the properties of the embed if they are present in the obj

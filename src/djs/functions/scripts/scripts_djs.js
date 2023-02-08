@@ -3656,7 +3656,7 @@ async function saveKrakenBatch(url, fileName, krakenURL, batch_id, interaction) 
         actionRow: true,
         button: {
           style: "link",
-          label: "Download File to Listen :loud_sound:",
+          label: "Download File to Listen",
           link: url,
         }
       };

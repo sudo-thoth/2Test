@@ -1,18 +1,7 @@
-const client = require(`../../index.js`);
-
 const { SlashCommandBuilder } = require("@discordjs/builders");
 const commandName = "start";
 const commandDescription = "Generate Kraken Links";
 
-
-// FUNCTION TEST STATION Config.
-// Currently testing the cLog() function
-// Make Sure To change BOTH funcName AND the Import to the relevant function being tested
-
-const createEmbed = require('../../functions/create/createEmbed.js');
-const scripts = require('../../functions/scripts/scripts.js');
-
-// making the funcName bold in the success and fail messages
 module.exports = {
   data: new SlashCommandBuilder()
     .setName(`${commandName}`)
@@ -39,7 +28,7 @@ module.exports = {
             return text;
            }
 
-    const start = ( duration, client, i ) =>  {
+    const start = ( duration, i ) =>  {
       let count = 0;
       let string;
       const channel = i.channel;
@@ -72,8 +61,7 @@ module.exports = {
           // 5 minutes in milliseconds is 300000
           count++;
         }, 300000);
-          if (client) {
-            client.on("interactionCreate", async (interaction) => {
+            interaction.client.on("interactionCreate", async (interaction) => {
               if (interaction.isChatInputCommand()) {
                 if (interaction.commandName === `stop`) {
                   clearInterval(intervalId);
@@ -81,7 +69,6 @@ module.exports = {
                 }
               }
             });
-          }
         setTimeout(() => {
           // send a message stating Command Complete & the amount of links generated
           channel.send({content: `<@${userId}> - ✅ Command Complete!\n\nGenerated ${count} Links`})
@@ -109,7 +96,7 @@ module.exports = {
               return null;
            }
        }
-           start( duration(minutes, hours), client,  interaction)
+           start( duration(minutes, hours),  interaction)
   }
 
 

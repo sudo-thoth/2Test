@@ -3,8 +3,8 @@ const {
   EmbedBuilder,
 } = require("discord.js");
 const scripts = require("../../functions/scripts/scripts.js");
-const createEmbed = require("../../functions/create/createEmbed.js");
-
+const createEmb = require("../../functions/create/createEmbed.js");
+const scripts_djs = require("../../functions/scripts/scripts_djs.js");
 module.exports = {
   // object: a slash command that gets info about a user
   data: new SlashCommandBuilder()
@@ -31,7 +31,7 @@ module.exports = {
     // object: the member object for the target user
     const member = options.getMember("target");
     // object: an object containing information about the member
-    const memberInfoObj = scripts.geMemberInfoObj(member);
+    const memberInfoObj = scripts_djs.getMemberInfoObj(member);
     // destructured object: variables representing various information about the member
     const {
       name,
@@ -50,6 +50,50 @@ module.exports = {
     // function call: logs the messages variable to the console
     scripts.cLog(messages);
     // object: the embed object to be sent as a message
+
+    function getSuffix(day) {
+      const suffixes = ["st", "nd", "rd", "th"];
+      const lastDigit = day % 10;
+      if (lastDigit === 1) {
+        return suffixes[0];
+      } else if (lastDigit === 2) {
+        return suffixes[1];
+      } else if (lastDigit === 3) {
+        return suffixes[2];
+      } else {
+        return suffixes[3];
+      }
+    }
+
+    function formatDate(str) {
+      const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];    
+      const date = new Date(str);
+      const month = months[date.getMonth()];
+      const day = date.getDate();
+      const suffix = getSuffix(day);
+      const year = date.getFullYear();
+      const dateStr = `${month} ${day}${suffix} ${year}`;
+    
+      const now = new Date();
+      const timeDiff = now - date;
+      const days = Math.floor(timeDiff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((timeDiff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((timeDiff % (1000 * 60)) / 1000);
+      const timeSpent = `${days !== 1 ? `${days} Days` : `${days} Day` } ${hours !== 1 ? `${hours} Hours` : `${hours} Hour`} ${minutes !== 1 ? `${minutes} minutes` : `${minutes} minute`} & ${seconds !== 1 ? `${seconds} seconds` : `${seconds} second` }`;
+    
+      return { date: dateStr, timeSpent };
+    }
+
+    let createObj = formatDate(created);
+    let joinObj = formatDate(joined);
+    let createdDate = createObj.date;
+    let createdTime = createObj.timeSpent;
+    let joinedDate = joinObj.date;
+    let joinedTime = joinObj.timeSpent;
+
+    let createStr = `\`${createdDate}\`\n\n\`${createdTime} ago\``;
+    let joinStr = `\`${joinedDate}\`\n\n\`${joinedTime} ago\``;
     const embedObj = {
       // string: the title of the embed
       title: `${displayName} User Info`,
@@ -61,17 +105,17 @@ module.exports = {
       fields: [
         {
           // string: the name of the field
-          name: `Date ${displayName} Joined the Server`,
+          name: `Joined the Server`,
           // string: the value of the field
-          value: joined,
+          value: joinStr,
           // boolean: whether the field should be displayed inline with other fields (true) or on a new line (false)
           inline: true,
         },
         {
           // string: the name of the field
-          name: `Date ${displayName} Joined Discord`,
+          name: `Joined Discord`,
           // string: the value of the field
-          value: created,
+          value: createStr,
           // boolean: whether the field should be displayed inline with other fields (true) or on a new line (false)
           inline: true,
         },
@@ -119,7 +163,7 @@ module.exports = {
       // number: the color of the error message embed
       .setColor(0xc72c3b);
     // object: the embed object to be sent as a message, created using the `createEmbed` function and the `embedObj` object
-    const memberInfoEmbed = createEmbed(embedObj);
+    const memberInfoEmbed = createEmb.createEmbed(embedObj);
 
     try {
       // function call: sends the member info embed to the channel

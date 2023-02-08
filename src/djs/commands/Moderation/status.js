@@ -4,6 +4,8 @@ const createEmbed = require('../../functions/create/createEmbed.js');
 
 const commandName = "status";
 const commandDescription = "Get the status of the server along with additional information";
+const scripts_djs = require('../../functions/scripts/scripts_djs.js');
+const createEmb = require('../../functions/create/createEmbed.js');
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -11,57 +13,56 @@ module.exports = {
     .setDescription(`${commandDescription}`),
   async execute(interaction) {
     // This is the same as the above function, but with an embed
+    let serverStatsObj = scripts_djs.getServerInfoObj(interaction);
+    let { memberCount, botCount, humanCount, onlineCount, offlineCount, idleCount, dndCount, onlineHumans, onlineBots } = serverStatsObj;
+
     let status = async () => {
       // works
-      const memberCount = {
+      const memberCnt = {
         name: `\`Member Count\``,
-        value: `\`${interaction.guild.memberCount}\``,
+        value: `\`${memberCount}\``,
         inline: false,
       };
       // create a field for bot count in the server
       // works
-      const botCount = {
+      const botCnt = {
         name: `\`Bot Count\``,
-        value: `\`${interaction.guild.members.cache.filter(member => member.user.bot).size}\``,
+        value: `\`${botCount}\``,
         inline: false,
       };
       // create a field for human count in the server
       // works
-      const humanCount = {
+      const humanCnt = {
         name: `\`Human Count\``,
-        value: `\`${interaction.guild.members.cache.filter(member => !member.user.bot).size}\``,
+        value: `\`${humanCount}\``,
         inline: false,
       };
       // create a field for online count in the server
       // works sometimes
-      const onlineCount = {
+      const onlineCnt = {
         name: `\`Online Count\``,
-        value: `\`${interaction.guild.members.cache.size}\``,
+        value: `\`${onlineCount}\``,
         inline: false,
       };
       // create a field for offline count in the server
       // not working
-      const offlineCount = {
+      const offlineCnt = {
         name: `\`Offline Count\``,
-        value: `\`${(interaction.guild.memberCount) - (interaction.guild.members.cache.size)}\``,
+        value: `\`${offlineCount}\``,
         inline: false,
       };
       // create a field for idle count in the server
       // not working
-      const idleCount = {
+      const idleCnt = {
         name: `\`Idle Count\``,
-        value: `\`${interaction.guild.members.cache.filter(member => { 
-          return member.presence?.status && member.presence?.status === "idle";
-        }).size}\``,
+        value: `\`${idleCount}\``,
         inline: false,
       };
       // create a field for dnd count in the server
       // not working
-      const dndCount = {
+      const dndCnt = {
         name: `\`Do Not Disturb Count\``,
-        value: `\`${interaction.guild.members.cache.filter(member =>  { 
-          return member.presence?.status && member.presence?.status === "dnd";
-        }).size}\``,
+        value: `\`${dndCount}\``,
         inline: false,
       };
       // create a field for streaming count in the server
@@ -99,27 +100,35 @@ module.exports = {
         value: `\`${interaction.guild.createdAt}\``,
         inline: false,
       };
-      const fieldGroupA = [serverDate, memberCount, botCount, humanCount, onlineCount];
-      const fieldGroupB = [offlineCount, idleCount, dndCount, streamingCount, mobileCount];
+
+      let onlineHumanCnt = {
+        name: `\`Online Humans\``,
+        value: `\`${onlineHumans}\``,
+        inline: false,
+      };
+
+      const fieldGroupA = [serverDate, memberCnt, botCnt, humanCnt, onlineCnt];
+      const fieldGroupB = [offlineCnt, idleCnt, dndCnt, streamingCount, mobileCount];
       const fieldGroupC = [desktopCount, webCount];
+      const fieldGroupD = [serverDate, memberCnt, botCnt, humanCnt, onlineHumanCnt ];
 
       const statusEmbedObj = {
         title: `Server Status`,
         color: `${scripts.getColor()}`,
         author: {
             // the username will be the discord username of the person who ran the command
-            username: `${scripts.getInteractionObj(interaction).userInfo.name}`,
+            username: `${scripts_djs.getInteractionObj(interaction).userInfo.name}`,
             // the icon URL will be the discord avatar of the person who ran the command
-            iconURL: `${scripts.getInteractionObj(interaction).userInfo.avatar}`,
-            url: `https://discord.com/users/${scripts.getInteractionObj(interaction).id}`
+            iconURL: `${scripts_djs.getInteractionObj(interaction).userInfo.avatar}`,
+            url: `https://discord.com/users/${scripts_djs.getInteractionObj(interaction).id}`
         },
-        fields: fieldGroupA,
+        fields: fieldGroupD,
     };
       let message;
       try {
-        message = createEmbed(statusEmbedObj);
+        message = createEmb.createEmbed(statusEmbedObj);
       } catch (error) {
-        logError(error, `Error creating ${commandName} embed`);
+        scripts.logError(error, `Error creating ${commandName} embed`);
       }
           try {
             // Send the embed to Discord channel not as a reply or ephemeral message
@@ -135,7 +144,7 @@ module.exports = {
           } catch (error) {
             console.error(error);
             console.log(`${commandName} Command Failed to Execute: ❌`);
-            logError(error, `Error sending ${commandName} to Discord`);
+            scripts.logError(error, `Error sending ${commandName} to Discord`);
           }
           console.log(`${commandName} Command Complete: ✅`);
     }

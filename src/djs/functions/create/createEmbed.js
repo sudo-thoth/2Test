@@ -28,8 +28,8 @@
  * @throws {Error} If an error occurs while adding fields to the embed.
  */
 
-const { EmbedBuilder } = require('discord.js');
-const scripts = require('../scripts/scripts.js');
+const { EmbedBuilder } = require("discord.js");
+const scripts = require("../scripts/scripts.js");
 
 /* Example embed object that gets passed in below
 const embedObj = {
@@ -70,20 +70,24 @@ const embedObj = {
 
 // Create an embed to be returned if an error occurs
 const errEmbed = new EmbedBuilder()
-.setColor('#FF0000')
-.setTitle('❗️ Error')
-.setDescription('Invalid properties were given to create the embed');
+  .setColor("#FF0000")
+  .setTitle("❗️ Error")
+  .setDescription("Invalid properties were given to create the embed");
 
-function createEmbed(obj) { 
+function createEmbed(obj) {
   // Check if the obj has a valid value in the title, description, image, or fields array
   // At least one of these properties must be present in the obj in order for the embed to be valid
-  if (!obj.title && !obj.description && !obj.image && !obj.fields) {
+  if ((!obj.title && !obj.description && !obj.image && !obj.fields) || (obj.title === null && obj.description === null && obj.image === null && (obj.fields === null || obj.fields === []) ) ) {
     // If not, log an error
     try {
-      scripts.logError(new Error('Invalid properties were given to create the embed'), 'Invalid properties were given to create the embed');
+      scripts.logError(
+        new Error("Invalid properties were given to create the embed"),
+        "Invalid properties were given to create the embed"
+      );
     } catch (error) {
       console.error(error);
     }
+
     return errEmbed;
   }
   // console.log('obj passed into create Embed', obj);
@@ -94,76 +98,117 @@ function createEmbed(obj) {
     embed = new EmbedBuilder();
   } catch (error) {
     try {
-      scripts.logError(error, 'Error creating EmbedBuilder instance');
+      scripts.logError(error, "Error creating EmbedBuilder instance");
     } catch (error) {
       console.error(error);
     }
+
     return errEmbed;
   }
 
   // Set the properties of the embed if they are present in the obj
   try {
-    if (obj.title) embed.setTitle(obj.title);
-    if (obj.description) {
-      embed.setDescription(obj.description);
+    if (scripts.isDefined(obj.title)){ 
+      // check to make sure the title is not longer than 256 characters
+      if (obj.title.length > 256) {
+        obj.title = obj.title.substring(0, 256);
+      }
+      embed.setTitle(obj.title);
+    }
+    if (scripts.isDefined(obj.description)) {
+      try {
+        embed.setDescription(obj.description);
+      //  console.log(`description set to ${obj.description}`);
+      } catch (error) {
+        scripts.logError(error, "Error setting description of embed");
+      }
     }
     if (obj.color) embed.setColor(obj.color);
-    if (obj.footer){ 
-      embed.setFooter({text: obj.footer.text, iconURL: obj.footer.iconURL});}
+    if (scripts.isDefined(obj.footer)) {
+	      try {
+	        
+	        embed.setFooter({ text: obj.footer.text ? obj.footer.text : '\u0020', iconURL: obj.footer.iconURL ? obj.footer.iconURL : null });
+	      //  console.log(`footer set to ${obj.footer.text}`);
+	      } catch (error) {
+	        scripts.logError(error, "Error setting footer of embed");
+	      }
+}
     if (scripts.isDefined(obj.thumbnail)) {
-      console.log('thumbnail', obj.thumbnail)
-      embed.setThumbnail(obj.thumbnail);} // Error occuring
-    if (obj.image) {
-      embed.setImage(obj.image);}
-    if (obj.author) {
-      if (obj.author.name) {
-        embed.setAuthor({name: obj.author.name})
-        if (obj.author.iconURL && obj.author.url) {
-          embed.setAuthor({name: obj.author.name, iconURL: obj.author.iconURL, url: obj.author.url})
-        } else {
-          if (obj.author.iconURL) {
-            embed.setAuthor({name: obj.author.name, iconURL: obj.author.iconURL})
-          }
-          if (obj.author.url) {
-            embed.setAuthor({name: obj.author.name, url: obj.author.url})
-          }
-        }
-       
-        
+      console.log("thumbnail", obj.thumbnail);
+      try {
+      //  console.log("thumbnail", obj.thumbnail);
+        embed.setThumbnail(obj.thumbnail);
+      //  console.log(`thumbnail set to ${obj.thumbnail}`);
+      } catch (error) {
+        scripts.logError(error, "Error setting thumbnail of embed");
       }
-      
-      
-      
-      // embed.setAuthor({name: obj.author.name, iconURL: obj.author.iconURL, url: obj.author.url})
-  };
-	
+    } // Error occuring
+    if (obj.image) {
+      try {
+        embed.setImage(obj.image);
+      //  console.log(`image set to ${obj.image}`);
+      } catch (error) {
+        scripts.logError(error, "Error setting image of embed");
+      }
+    }
+    if (obj.author) {
+      try {
+        embed.setAuthor({
+          name: obj.author.name ? obj.author.name : '\u0020',
+          iconURL: obj.author.iconURL ? obj.author.iconURL : null,
+          url: obj.author.url ? obj.author.url : null,
+        });
+      } catch (error) {
+        scripts.logError(error, "Error setting author of embed");
+      }
+    }
+
+    // embed.setAuthor({name: obj.author.name, iconURL: obj.author.iconURL, url: obj.author.url})
   } catch (error) {
-    
     try {
-      scripts.logError(error, 'Error setting properties of the embed');
+      scripts.logError(error, "Error setting properties of the embed");
     } catch (error) {
       console.error(error);
     }
+    console.log("error setting properties of the embed");
+    console.log(`sending error embed`);
     return errEmbed;
   }
 
   // Add fields to the embed if they are present in the obj
   try {
     if (obj.fields) {
-      obj.fields.forEach(field => {
-        embed.addFields({name: field.name, value: field.value, inline: field.inline});
+      obj.fields.forEach((field) => {
+        if (!scripts.isDefined(field.value)) return;
+        try {
+          embed.addFields({
+            name: field.name,
+            value: field.value,
+            inline: field.inline,
+          });
+        //  console.log(`field ${field.name} set to ${field.value}`);
+        } catch (error) {
+          scripts.logError(error, "Error adding fields to the embed");
+        }
       });
+    } else {
+      console.log("no fields");
+     //  embed.addFields({ name: '\u200B', value: '\u200B' });
     }
   } catch (error) {
     try {
-      scripts.logError(error, 'Error adding fields to the embed');
+      scripts.logError(error, "Error adding fields to the embed");
     } catch (error) {
       console.error(error);
     }
+    console.log("error adding fields to the embed");
+    console.log(`sending error embed`);
     return errEmbed;
   }
 
   // Return the completed embed
+  console.log(`the embed`, embed)
+  console.log(`sending embed`);
   return embed;
 }
-module.exports = { createEmbed }
+module.exports = { createEmbed };

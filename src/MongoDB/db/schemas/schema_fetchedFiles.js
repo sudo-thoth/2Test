@@ -38,6 +38,7 @@ const fetchedFiles = new Schema(
         who_ran_command_avatar: String,
     },
     batch_id: String,
+    file_url: String,
     
   },
   { collection: "fetchedFiles" } // the database default collection name the schema will be stored in

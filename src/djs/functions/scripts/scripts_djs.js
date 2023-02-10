@@ -3647,12 +3647,15 @@ async function saveKrakenBatch(url, fileName, krakenURL, batch_id, interaction) 
   if (!url || !interaction || !batch_id || !fileName) return;
   // create the attachments array and metadata object
   let attachments = [];
+  url = url.replace(/\s/g, '')
 
   // for every attachment create an attachment object and push it to the attachments array
 
     // construct the attachments message formatted object
     let messageContent = {};
     let newAttachmentInstance = new AttachmentBuilder(url);
+    newAttachmentInstance.setName(fileName);
+    newAttachmentInstance.setDescription(`File downloaded from Kraken Files Website`)
       messageContent = {
         files: [newAttachmentInstance],
         embed: {
@@ -3663,7 +3666,7 @@ async function saveKrakenBatch(url, fileName, krakenURL, batch_id, interaction) 
         actionRow: true,
         button: {
           style: "link",
-          label: "Download File to Listen",
+          label: "Download File",
           link: url,
         }
       };

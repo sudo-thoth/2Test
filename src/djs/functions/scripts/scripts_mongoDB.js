@@ -4,7 +4,7 @@ const scripts = require("../../../djs/functions/scripts/scripts.js");
 const index = require('../../index.js');
 const fetchedFiles = require("../../../MongoDB/db/schemas/schema_fetchedFiles.js");
 const fileBatchs = require("../../../MongoDB/db/schemas/schema_fileBatchs.js");
-
+const postData = require("../../../MongoDB/db/schemas/schema_post.js");
 
 async function saveSlashCommandData(commandData) {
     console.log(`SAVING SLASH COMMAND DATA`)
@@ -185,7 +185,73 @@ async function saveBatchMessages(messages, batch_id){
   
 }
 
+async function savePostData(obj){
+  let obj1 = {
+    _id: new mongoose.Types.ObjectId(),
+    userId: obj.userId,
+    user: obj.user,
+    randID: obj.randID,
+    roles: obj.roles,
+    type: obj.type,
+    format: obj.format,
+    file: obj.file,
+    interactionID: obj.interactionID,
+    file_type: obj.file_type,
+    choice: obj.choice,
+  }
+  try {
+    console.log(`Saving a post from [ ${obj.user.username} ]`)
+    await postData.create(obj1);
+    return; 
+  } catch (error) {
+    console.log(`Error while trying to save a post to the database: `, error);
+    return;
+  }
 
-module.exports = {saveSlashCommandData, addModal_Embed, getData, saveFetchFile, getBatch, getFileBatch, saveBatchMessages};
+}
+
+async function getPostData(randID) {
+  console.log(`GETTING DATA`)
+  console.log(`randID: ${randID}`)
+  if (!randID) return;
+  let data;
+  
+  try {
+       data = await postData.findOne({ randID: randID }).exec();
+  } catch (error) {
+      console.log(`an error occurred while trying to get the data from the database: `, error);
+  }
+  if (data == null) {
+    // console.log(data)
+    console.log(`[ data ] NOT found in query`)
+    
+  } else {
+    // console.log(data)
+    console.log(`[ data ] found in query: `)
+  }
+  return data; // an array of docs found that matched the query 
+}
+
+async function updatePostData(randID, obj) {
+  console.log(`UPDATING DATA`)
+  console.log(`randID: ${randID}`)
+  if (!randID || !obj ) return;
+
+  const query = { randID: randID };
+
+  try {
+    await postData.findOneAndUpdate(query, update, { upsert: true },(err, data) => (err ? console.log(`Ran into 
+    some Errors while trying to find and update: `, err) : console.log(`found it and updated it successfully`))
+    ).clone()
+    console.log(`updated the data to the database w the query: `, query)
+  } catch (error) {
+      console.log(`an error occurred while trying to update the data to the database: `, error);
+  }
+  return; 
+}
+  
+
+
+module.exports = {saveSlashCommandData, addModal_Embed, getData, saveFetchFile, getBatch, getFileBatch, saveBatchMessages, savePostData, getPostData, updatePostData};
 
 

@@ -3982,5 +3982,6 @@ module.exports = {
   uploadFileBatch,
   downloadFileBatch,
   uploadKrakenLinksBatch,
-  downloadKrakenBatch
+  downloadKrakenBatch,
+  getAlertEmoji
 };

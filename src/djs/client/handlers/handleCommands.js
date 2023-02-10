@@ -7,10 +7,11 @@ const guildId = "1004377294615351317";
 
 module.exports = async (client, commandFolders, path) => {
   client.commandArray = [];
-  for (folder of commandFolders) {
+  const filteredCommandFolders = commandFolders.filter(folder => !folder.includes('.DS_Store'));
+  for (folder of filteredCommandFolders) {
     const commandFiles = fs
-      .readdirSync(`${path}/${folder}`)
-      .filter((file) => file.endsWith(".js"));
+  .readdirSync(`${path}/${folder}`)
+  .filter((file) => file.endsWith(".js") && !file.includes('.DS_Store'));
     for (const file of commandFiles) {
       const command = require(`../../commands/${folder}/${file}`);
       client.commands.set(command.data.name, command);
@@ -34,7 +35,7 @@ module.exports = async (client, commandFolders, path) => {
       console.log(`Load Commands: ✅`);
     } catch (error) {
       console.error(`Load Commands: ❌`);
-      // console.error(error);
+       console.error(error);
     }
   })();
   console.log(`Handle Commands: ✅`);

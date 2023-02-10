@@ -139,7 +139,7 @@ module.exports = {
     const user = interaction.user;
     // this the first listener, that calls function
     switch (type) {
-      case "upload-all-audio-files":
+      case "upload-all-audio-files": // step 1 
         await scripts_djs.uploadFileBatch(interaction, target, beforeID, afterID)
         break;
       case "upload-all-kraken-files":

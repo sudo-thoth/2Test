@@ -479,7 +479,7 @@ const button_Download = async (randID, mute) => {
 
 const button_View = (randID, mute) => {
   let button = createBtn.createButton({
-    customID: `view${randID}`,
+    customID: `view__${randID}`,
     label: `View`,
     style: `primary`,
     disabled: mute,
@@ -2894,6 +2894,7 @@ let getMessageAttachments = async (targetChannel, interaction, batch_id, be4, af
         await saveMessageBatch(message, batch_id, interaction);
       }
     }
+    await deleteDuplicateDocs_Kraken(url, batch_id) 
     // after all the attachments have been saved to the database, run the function again with the new before id
     // update teh before id
     // console.log(`the messages`, messages)
@@ -3273,7 +3274,7 @@ async function uploadFileBatch(interaction, target, beforeID, afterID ) {
   console.log(`the target `, target)
   console.log(`the target channel`, targetChannel)
   // create a function that goes through and fetches every message in the channel and only returns the messages that have attachments
-  let arrayOfFiles = await getMessageAttachments(
+  let arrayOfFiles = await getMessageAttachments( // next step
     targetChannel,
     interaction,
     batch_id, 
@@ -3294,6 +3295,7 @@ async function uploadFileBatch(interaction, target, beforeID, afterID ) {
   }
   // if there are files, send a message with a list of all the files that were sent and the total number of files sent in a neat embed, the list of files will reside in description and the total number of files sent will be in the title.
   else {
+    
     console.log(`the array of files`, arrayOfFiles);
 
     let totalNum = arrayOfFiles.length;
@@ -3352,6 +3354,7 @@ async function downloadFileBatch(batch_id, targetChannel, interaction) {
     for (let arrFile of arrFilearr) {
       console.log(`the arr file length`, arrFilearr.length);
       console.log(`the arr file #1`, arrFile);
+      if (firstFileArray.includes(arrFile)) continue;
       firstFileArray.push(arrFile);
     }
   }
@@ -3368,6 +3371,7 @@ firstFileArray.forEach(async result => {
 
   let fileToSend = results.file_url;
   let name = results.file_name;
+  if (nameArr.includes(name)) return;
   nameArr.push(name);
   title = results.message_content.embed.title;
   content = results.message_content.content;
@@ -3434,6 +3438,7 @@ if (actionRow) {
   }
 });
 // for every name in name array add each one to a string on a new line and a dash in front of it
+// THIS IS THE LINE W THE EMBED OF DUPLICATES fileList() forms the string list of files
 let description = `Files Downloaded:\n\`${fileList(nameArr, 23)}\``;
 try{
   await targetChannel.send({

@@ -250,8 +250,26 @@ async function updatePostData(randID, obj) {
   return; 
 }
   
+async function deleteDuplicateDocs_Kraken(url, batch_id) {
+  fetchedFiles.find({file_url: url, batch_id: batch_id}, (err, docs) => {
+    if (err) {
+      console.error(err);
+    } else {
+      // slice the docs array to include everything but the first element
+      docs = docs.slice(1);
+      // delete all the docs in the docs array
+      console.log(`Deleting ${docs.length} duplicate documents`);
+      fetchedFiles.deleteMany({_id: {$in: docs.map(doc => doc._id) }}, (err, result) => {
+        if (err) {
+          console.error(err);
+        } else {
+          console.log('Deleted duplicate documents');
+        }
+      });
+    }
+  });
+}
 
-
-module.exports = {saveSlashCommandData, addModal_Embed, getData, saveFetchFile, getBatch, getFileBatch, saveBatchMessages, savePostData, getPostData, updatePostData};
+module.exports = {saveSlashCommandData, addModal_Embed, getData, saveFetchFile, getBatch, getFileBatch, saveBatchMessages, savePostData, getPostData, updatePostData, deleteDuplicateDocs_Kraken};
 
 

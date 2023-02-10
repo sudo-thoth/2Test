@@ -26,7 +26,14 @@ function extractM4Aurl(str) {
 async function krakenWebScraper(url, batch_id, interaction){
   if (typeof url !== 'string') return;
 
-  const data = await (await fetch(url)).text();
+  let data;
+  try {
+    data = await (await fetch(url)).text();
+  } catch (error) {
+    console.log(`there is no data to scrape at this url: ${url}`)
+    console.log(`error`, error)
+    return;
+  }
   const tempLine = data.split("\n").filter((line) => line.includes("m4a:"))[0];
   const titleLine = data.split("\n").filter((line) => line.includes(`<meta property="og:title" content=`))[0];
   const matches = titleLine.match(/content="(.*)"/);
@@ -3297,7 +3304,7 @@ async function uploadFileBatch(interaction, target, beforeID, afterID ) {
           title: `✅ Save Complete!`,
           description: `\`${totalNum}\` \`${
             totalNum === 1 ? `file` : `files`
-          } saved\`-----\`batch id: ${batch_id}\`\n\nUse \`/downloadfiles\` command and enter the \`batch id\` to retrieve ypu results\n\nFiles Saved:\n${description}`,
+          } saved\`-----\`batch id: ${batch_id}\`\n\nUse \`/downloadfiles\` command and enter the \`batch id\` to retrieve your results\n\nFiles Saved:\n${description}`,
           color: scripts.getSuccessColor(),
         }),
       ],
@@ -3676,22 +3683,28 @@ async function saveKrakenBatch(url, fileName, krakenURL, batch_id, interaction) 
     _id: `${new mongoose.Types.ObjectId()}`,
     attachments: attachments,
     batch_id: batch_id,
+    file_url: url.replace(/'/g, ''),
   };
   console.log(`The obj:`, obj);
   // run a query to see if a doc with the same (metadata.message_id && batch_id) exists
-  // let exists = await fetchedFiles.findOne({ batch_id: batch_id, metadata: { message_id: message_id } });
+  let exists = await fetchedFiles.findOne({ batch_id: batch_id, file_url: url });
   // // if it exists, dont save it
+  console.log(`exists`, exists)
 
-  // if (exists) {
-  //   console.log(`--------------------------`);
-  //   console.log(`--------------------------`);
-  //   console.log(`The doc already exists`);
-  //   console.log(`--------------------------`);
-  //   console.log(`--------------------------`);
-  //   await scripts.delay(10000)
-  //   return;
-  // }
-  await fetchedFiles.create(obj);
+  if (exists !== null) {
+    console.log(`--------------------------`);
+    console.log(`--------------------------`);
+    console.log(`The doc already exists`);
+    console.log(`--------------------------`);
+    console.log(`--------------------------`);
+    await scripts.delay(10000)
+    return;
+  }
+try {
+    await fetchedFiles.create(obj);
+} catch (error) {
+  console.log(`error creating the fetchedFiles doc`, error);
+}
   console.log(`--------------------------`);
   for (i = 0; i < obj.attachments.length; i++) {
     console.log(obj.attachments[i].file_url);
@@ -3779,6 +3792,7 @@ let getMessageKrakenLinkFiles = async (targetChannel, interaction, batch_id, be4
     // for every link in kraken links, send the link through krakenWebScraper to get the file url
     for (let i = 0; i < krakenLinks.length; i++) {
       let krakenLink = krakenLinks[i];
+
       console.log(`the kraken link`, krakenLink);
       let url;
       try {
@@ -3789,13 +3803,20 @@ let getMessageKrakenLinkFiles = async (targetChannel, interaction, batch_id, be4
       } catch (error) {
         console.log(`Error getting kraken URL from Kraken Site`)
         scripts.logError(error, 'error in kraken webscraper');
-        
+        console.log(`the url is`, url)
+        console.log(`returning to find more files`)
+        return;
       }
       console.log(`the url is`, url)
       // url = krakenWebScraper(krakenLink, "audio");
       // if the url is not null, push the url to the krakenFiles array
       if (url) {
-
+          // delete any duplicate docs saved to the database
+        try {
+          await scripts_mongoDB.deleteDuplicateDocs_Kraken(url, batch_id);
+        } catch (error) {
+          console.log(`error deleting duplicate docs`, error)
+        }
         krakenFiles.push(url);
         addAttachment_(url, batch_id);
     setFilesFoundArray(interaction, url);
@@ -3813,6 +3834,8 @@ let getMessageKrakenLinkFiles = async (targetChannel, interaction, batch_id, be4
 
   }); // now the values of the messages collection are filtered to only include messages with attachments
   // if there are no messages with attachments, run the funciton again after a 10 second delay with the new before id
+
+
   console.log(`messages with attachments`, messagesWithKrakenLinks);
   let numOfNumMessagesWAttachments = krakenFiles;
   console.log(`numOfNumMessagesWAttachments`, numOfNumMessagesWAttachments);
@@ -3836,7 +3859,7 @@ let getMessageKrakenLinkFiles = async (targetChannel, interaction, batch_id, be4
       // log link
       console.log(`the link`, link);
 
-        await saveKrakenBatch(link, batch_id, interaction);
+     //    await saveKrakenBatch(link, batch_id, interaction);
     }
     // after all the attachments have been saved to the database, run the function again with the new before id
     // update teh before id
@@ -3903,6 +3926,8 @@ async function uploadKrakenLinksBatch(interaction, target, beforeID, afterID) {
   // send the files to the user who ran the command in a neat embed
   // if there are no files, send a message saying "No files found"
   console.log(`The array of found files`,arrayOfFiles);
+  // check for any duplicate in the array and if so remove them
+  arrayOfFiles = arrayOfFiles.filter((item, index) => arrayOfFiles.indexOf(item) === index);
 
   if (arrayOfFiles === undefined) {
     content = "No files found";
@@ -3923,7 +3948,7 @@ async function uploadKrakenLinksBatch(interaction, target, beforeID, afterID) {
           title: `✅ Save Complete!`,
           description: `\`${totalNum}\` \`${
             totalNum === 1 ? `file` : `files`
-          } saved\`-----\`batch id: ${batch_id}\`\n\nUse \`/downloadfiles\` command and enter the \`batch id\` to retrieve ypu results\n\nFiles Saved:\n${description}`,
+          } saved\`-----\`batch id: ${batch_id}\`\n\nUse \`/downloadfiles\` command and enter the \`batch id\` to retrieve your results\n\nFiles Saved:\n${description}`,
           color: scripts.getSuccessColor(),
         }),
       ],

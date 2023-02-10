@@ -198,6 +198,7 @@ async function savePostData(obj){
     interactionID: obj.interactionID,
     file_type: obj.file_type,
     choice: obj.choice,
+    kraken_url: obj.kraken_url,
   }
   try {
     console.log(`Saving a post from [ ${obj.user.username} ]`)
@@ -238,6 +239,7 @@ async function updatePostData(randID, obj) {
   if (!randID || !obj ) return;
 
   const query = { randID: randID };
+  const update = { $set: obj };
 
   try {
     await postData.findOneAndUpdate(query, update, { upsert: true },(err, data) => (err ? console.log(`Ran into 

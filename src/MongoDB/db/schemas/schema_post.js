@@ -13,9 +13,6 @@ const postData = new Schema(
     interactionID: Object,
     file_type: String,
     choice: String,
-    modal: Object,
-    buttons: [Object],
-    embed: Object,
   },
   { collection: "posts" } // the database default collection name the schema will be stored in
 );

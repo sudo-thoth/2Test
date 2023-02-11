@@ -1995,6 +1995,7 @@ async function beginFileFetch(interaction) {
     batch_id = `${year}${month}${day}${hour}${minute}${second}${millisecond}`;
     return batch_id;
   };
+
   let batch_id = getBatchId();
 
   let content = `File Archiving Initiating`;
@@ -2585,10 +2586,14 @@ async function sendLoad2(interaction) {
 
 async function loadCooldown(interaction) {
   let content = `Archive Cooldown In Progress...`;
-  await interaction.editReply({
-    embeds: [createEmb.createEmbed({ title: content })],
-    ephemeral: true,
-  });
+try {
+    await interaction.editReply({
+      embeds: [createEmb.createEmbed({ title: content })],
+      ephemeral: true,
+    });
+} catch (error) {
+  
+}
   await scripts.delay(1000);
 }
 
@@ -2894,7 +2899,7 @@ let getMessageAttachments = async (targetChannel, interaction, batch_id, be4, af
         await saveMessageBatch(message, batch_id, interaction);
       }
     }
-    await deleteDuplicateDocs_Kraken(url, batch_id) 
+    // await deleteDuplicateDocs_Kraken(url, batch_id) 
     // after all the attachments have been saved to the database, run the function again with the new before id
     // update teh before id
     // console.log(`the messages`, messages)
@@ -3300,18 +3305,33 @@ async function uploadFileBatch(interaction, target, beforeID, afterID ) {
 
     let totalNum = arrayOfFiles.length;
     let description = fileList(arrayOfFiles, 18);
-    await interaction.editReply({
-      embeds: [
-        createEmb.createEmbed({
-          title: `✅ Save Complete!`,
-          description: `\`${totalNum}\` \`${
-            totalNum === 1 ? `file` : `files`
-          } saved\`-----\`batch id: ${batch_id}\`\n\nUse \`/downloadfiles\` command and enter the \`batch id\` to retrieve your results\n\nFiles Saved:\n${description}`,
-          color: scripts.getSuccessColor(),
-        }),
-      ],
-      content: `||\`batch id:\` \`${batch_id}\`||`,
-    });
+try {
+      await interaction.editReply({
+        embeds: [
+          createEmb.createEmbed({
+            title: `✅ Save Complete!`,
+            description: `\`${totalNum}\` \`${
+              totalNum === 1 ? `file` : `files`
+            } saved\`-----\`batch id: ${batch_id}\`\n\nUse \`/downloadfiles\` command and enter the \`batch id\` to retrieve your results\n\nFiles Saved:\n${description}`,
+            color: scripts.getSuccessColor(),
+          }),
+        ],
+        content: `||\`batch id:\` \`${batch_id}\`||`,
+      });
+} catch (error) {
+  console.log(`Most Likely a Large Download and it < Connection Timed Out >`, error);
+  interaction.channel.send({embeds: [
+    createEmb.createEmbed({
+      title: `✅ Save Complete!`,
+      description: `Damn <@${interaction.user.id}> , You Downloaded Hella Files Causing a \`< Connection Timed Out >\`\n\`${totalNum}\` \`${
+        totalNum === 1 ? `file` : `files`
+      } saved\`-----\`batch id: ${batch_id}\`\n\nUse \`/downloadfiles\` command and enter the \`batch id\` to retrieve your results\n\nFiles Saved:\n${description}`,
+      color: scripts.getSuccessColor(),
+    }),
+  ],
+  content: `||\`batch id:\` \`${batch_id}\`||`,
+});
+}
     return;
   }
 }
@@ -3950,11 +3970,25 @@ async function uploadKrakenLinksBatch(interaction, target, beforeID, afterID) {
 
     let totalNum = arrayOfFiles.length;
     let description = fileList(arrayOfFiles, 18);
-    await interaction.editReply({
-      embeds: [
+try {
+      await interaction.editReply({
+        embeds: [
+          createEmb.createEmbed({
+            title: `✅ Save Complete!`,
+            description: `\`${totalNum}\` \`${
+              totalNum === 1 ? `file` : `files`
+            } saved\`-----\`batch id: ${batch_id}\`\n\nUse \`/downloadfiles\` command and enter the \`batch id\` to retrieve your results\n\nFiles Saved:\n${description}`,
+            color: scripts.getSuccessColor(),
+          }),
+        ],
+        content: `||\`batch id:\` \`${batch_id}\`||`,
+      });
+    } catch (error) {
+      console.log(`Most Likely a Large Download and it < Connection Timed Out >`, error);
+      interaction.channel.send({embeds: [
         createEmb.createEmbed({
           title: `✅ Save Complete!`,
-          description: `\`${totalNum}\` \`${
+          description: `Damn <@${interaction.user.id}> , You Downloaded Hella Files Causing a \`< Connection Timed Out >\`\n\`${totalNum}\` \`${
             totalNum === 1 ? `file` : `files`
           } saved\`-----\`batch id: ${batch_id}\`\n\nUse \`/downloadfiles\` command and enter the \`batch id\` to retrieve your results\n\nFiles Saved:\n${description}`,
           color: scripts.getSuccessColor(),
@@ -3962,11 +3996,29 @@ async function uploadKrakenLinksBatch(interaction, target, beforeID, afterID) {
       ],
       content: `||\`batch id:\` \`${batch_id}\`||`,
     });
+    }
+
     return;
   }
 }
 
+let getRandID = () =>
+{ 
+  let randID = "";
+  let date = new Date();
+  let year = date.getFullYear();
+  let month = date.getMonth();
+  let day = date.getDate();
+  let hour = date.getHours();
+  let minute = date.getMinutes();
+  let second = date.getSeconds();
+  let millisecond = date.getMilliseconds();
+  randID = `#${Math.floor(Math.random() * 999) + 999}${year}${month}${day}${hour}${minute}${second}${millisecond}`;
+  return randID;
+}
+
 module.exports = {
+  getRandID,
   beginFileFetch,
   getInteractionObj,
   getMemberInfoObj,

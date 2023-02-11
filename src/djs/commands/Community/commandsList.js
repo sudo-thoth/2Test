@@ -8,7 +8,8 @@ const client = require("../../index.js");
 const createEmb = require('../../functions/create/createEmbed.js');
 const createActRow = require('../../functions/create/createActionRow.js');
 const createBtn = require('../../functions/create/createButton.js');
-// making the funcName bold in the success and fail messages
+// modify this code so that only 1 embed is shown at a time via 1 message with an action row with buttons to cycle through each page aka each embed in the embeds array. there should be 4 buttons in the action row, 1 button to go to the first page, 1 button to go the the previous page (unless on the first page), 1 button to go the the next page (unless on the last page), 1 button to go the the last result. remove the followUps and just all an update of the message's embed everytime one of the buttons is clicked
+
 module.exports = {
   data: new SlashCommandBuilder()
     .setName(`${commandName}`)

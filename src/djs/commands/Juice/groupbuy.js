@@ -26,8 +26,7 @@ module.exports = {
       console.log(`error saving interaction: ${error}`);
     }
 
-
-    int
+ 
     // upon execution of the command, the user obj, interaction obj and message obj is sent to the database
     // then a message is sent with an embed that welcomes the user to the Group Buy Hub, it lays out how the hub works and what the user can do.
 

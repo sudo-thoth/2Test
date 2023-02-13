@@ -240,7 +240,8 @@ async function updatePostData(randID, obj) {
 
   const query = { randID: randID };
   const update = { $set: obj };
-
+  console.log(`the query: `, query)
+  console.log(`the update: `, update)
   try {
     await postData.findOneAndUpdate(query, update, { upsert: true },(err, data) => (err ? console.log(`Ran into 
     some Errors while trying to find and update: `, err) : console.log(`found it and updated it successfully`))

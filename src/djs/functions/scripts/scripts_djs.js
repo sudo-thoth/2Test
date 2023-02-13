@@ -41,9 +41,12 @@ async function krakenWebScraper(url, batch_id, interaction){
 console.log(`the url line`, tempLine);
 let x = extractM4Aurl(tempLine);
 x = x.replace(/'/g, '').replace('//', '');
+// replace all spaces inthe string
+x = x.replace(/ /g, '');
+x= `https://` + x;
 saveKrakenBatch(x, fileName, url, batch_id, interaction)
 
-  return extractM4Aurl(tempLine);
+  return x;
 };
 
 

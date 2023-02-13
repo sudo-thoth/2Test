@@ -79,7 +79,9 @@ async function createButton(buttonObj, randID) {
               }
             } else {
 
-              button.setURL(link);
+              if (link !== null) {
+                button.setURL(link); 
+              }
             }
           } else {
             button.setURL(`https://google.com/`);
@@ -113,7 +115,9 @@ async function createButton(buttonObj, randID) {
       }
     } else {
 
-      button.setURL(link); 
+      if (link !== null) {
+        button.setURL(link); 
+      }
     }
   }
   if (!scripts.isDefined(label)) {
@@ -180,7 +184,9 @@ async function createButton(buttonObj, randID) {
           scripts.logError(error, "link is not defined");
         }
       } else {
-        button.setURL(link);
+        if (link !== null) {
+          button.setURL(link); 
+        }
       }
     }
   } else {

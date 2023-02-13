@@ -260,6 +260,7 @@ if (client) {
         }
       } else if (customID.includes("direct_message_")) {
         await interaction.deferReply({ ephemeral: true });
+        randID = scripts_djs.extractID(customID);
         let data = await scripts_mongoDB.getPostData(randID);
         let { file } = data;
         let { choice, size, name, url, attachment } = file;
@@ -310,7 +311,9 @@ if (client) {
         }
       } else if (customID.includes("view_attachment_")) {
         await interaction.deferReply({ ephemeral: true });
+        randID = scripts_djs.extractID(customID);
         let data = await scripts_mongoDB.getPostData(randID);
+
         let { file } = data;
         let { choice, size, name, url, attachment } = file;
         let user = interaction.user;
@@ -822,11 +825,15 @@ if (client) {
               
             ],
           });
+          console.log(`the action row is`, actionRow)
+
           actionRow2 = await createActRow.createActionRow({
             components: [
               directMessageButton,
               viewAttachmentButton,
               ]});
+              console.log(`the action row 2 is`, actionRow2)
+
           try {
             interaction.channel.send({
               content: `${
@@ -930,11 +937,15 @@ if (client) {
               
             ],
           });
+          console.log(`the action row is`, actionRow)
+          
           actionRow2 = await createActRow.createActionRow({
             components: [
               directMessageButton,
               viewAttachmentButton,
               ]});
+              console.log(`the action row 2 is`, actionRow2)
+
           try {
             interaction.channel.send({
               content: `${
@@ -3187,18 +3198,24 @@ if (client) {
           }
         }
       } else if (customID.includes(`post_magicaledit_modal`)) {
+
+randID = scripts_djs.extractID(customID);
         let data = await scripts_mongoDB.getPostData(randID);
+        file = 
+
+         user = interaction.user;
         // console.log(`the data is right here data`, data);
         let {
           //  userId,
           roles,
           //  type,
           //  format,
-          file,
+          // file,
           //  interactionID,
           //  file_type,
           choice,
         } = data;
+        console.log(`the file is`, file)
         const songName = interaction.fields.getTextInputValue("name")
           ? interaction.fields.getTextInputValue("name")
           : null;
@@ -3214,6 +3231,10 @@ if (client) {
         const kraken = interaction.fields.getTextInputValue("kraken")
           ? interaction.fields.getTextInputValue("kraken")
           : null;
+        file = kraken ? await scripts_djs.krakenWebScraper(kraken) : null;
+        console.log(`the file is`, file)
+        let query = {file: file}
+        await scripts_mongoDB.updatePostData(randID, query)
 
         // const user = await client.users.fetch(userId);
         // const interaction = await client.rest.interactions(interactionID).get();
@@ -3264,10 +3285,14 @@ if (client) {
         const embed = createEmb.createEmbed(embedObj);
 
         // create a button to download the image
+        console.log(`the kraken`, kraken)
+        console.log(`the file`, file)
+        console.log(`the decision`, kraken ? (file ? file : null) : (file ? file.attachment : null))
+
         const downloadButton = await createBtn.createButton({
           label: `Download`,
           style: `link`,
-          link: file ? file.attachment : null,
+          link: kraken ? (file ? file : null) : (file ? file.attachment : null),
         });
         let krakenButton;
         if (kraken !== null) {
@@ -3311,20 +3336,20 @@ if (client) {
               content: `${
                 role.length > 1
                   ? `|| ${scripts_djs.getAlertEmoji()} ${role}\n${
-                      file.name ? `Song Name : ${file.name}` : null
+                      file.name ? `Song Name : ${file.name}` : ``
                     }${
                       altname !== null
                         ? `\nAlternate Name(s) : ${altname}`
-                        : null
+                        : ``
                     } ||`
                   : `${
                       file.name
                         ? `|| Song Name : ${file.name}${
                             altname !== null
                               ? `\nAlternate Name(s) : ${altname}`
-                              : null
+                              : ``
                           } ||`
-                        : null
+                        : ``
                     }`
               }`,
               embeds: [embed],
@@ -3415,24 +3440,25 @@ if (client) {
               viewAttachmentButton,
               ]});
           try {
+            let str2 = 
             interaction.channel.send({
               content: `${
                 role.length > 1
                   ? `|| ${scripts_djs.getAlertEmoji()} ${role}\n${
-                      file.name ? `Song Name : ${file.name}` : null
+                      file.name ? `Song Name : ${file.name}` : ``
                     }${
                       altname !== null
                         ? `\nAlternate Name(s) : ${altname}`
-                        : null
+                        : ``
                     } ||`
                   : `${
                       file.name
                         ? `|| Song Name : ${file.name}${
                             altname !== null
                               ? `\nAlternate Name(s) : ${altname}`
-                              : null
+                              : ``
                           } ||`
-                        : null
+                        : ``
                     }`
               }`,
               embeds: [embed],

@@ -57,31 +57,34 @@ const {
     }
   
     components.forEach((component) => {
+      console.log(`The Component ===> `)
       console.log(component)
 
         // put try catch blocks around a check to make sure the component is a button or selectMenu, if not, log an error and continue
-        if (!component.type === "BUTTON" || !component.type === "SELECT_MENU") {
-            scripts.logError(
-                new Error("Component is not a button or selectMenu"),
-                `Error Creating Action Row`
-                );
+        if (component !== null && component !== undefined) {
+          if (!component.type === "BUTTON" || !component.type === "SELECT_MENU") {
+              scripts.logError(
+                  new Error("Component is not a button or selectMenu"),
+                  `Error Creating Action Row`
+                  );
+          }
+  
+          if (component.type === "SELECT_MENU") {
+              if (components.length > 1) {
+                  scripts.logError(
+                      new Error("If Select Menu is present, Max Component Length is 1; Components property length is greater than 1"),
+                      `Error Creating Action Row`
+                      );
+              }
+          }
+  
+        // put try catch blocks around newCustomActionRow.addComponents() and createTextInputField() function calls, catch error and continue, but make the error message custom like "Error adding row "blank" to modal ${error.line}"
+        try {
+          newCustomActionRow.addComponents(component);
+        } catch (error) {
+          scripts.logError(error, `Error adding component ${component.customID} to the Action Row`);
         }
-
-        if (component.type === "SELECT_MENU") {
-            if (components.length > 1) {
-                scripts.logError(
-                    new Error("If Select Menu is present, Max Component Length is 1; Components property length is greater than 1"),
-                    `Error Creating Action Row`
-                    );
-            }
         }
-
-      // put try catch blocks around newCustomActionRow.addComponents() and createTextInputField() function calls, catch error and continue, but make the error message custom like "Error adding row "blank" to modal ${error.line}"
-      try {
-        newCustomActionRow.addComponents(component);
-      } catch (error) {
-        scripts.logError(error, `Error adding component ${component.customID} to the Action Row`);
-      }
     });
     console.log(`The New Action ROW ===> `,newCustomActionRow)
 

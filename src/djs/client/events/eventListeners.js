@@ -79,7 +79,7 @@ if (client) {
     let randID = 0;
     let doc, targetChannel, targetChannelID;
     if (!interaction.isChatInputCommand()) {
-      if (!customID.includes("post_") && !customID.includes("view_attachment_") && !customID.includes("direct_message_")) {
+      if (!customID.includes("post_") && !customID.includes("view_attachment_") && !customID.includes("direct_message_") && !customID.includes("groupbuy_")) {
         randID = scripts_djs.extractID(customID);
         doc = await scripts_mongoDB.getData(randID);
         // scripts.cLog(`The Doc`, doc);
@@ -100,8 +100,13 @@ if (client) {
 
     // BUTTONS
     if (interaction.isButton()) {
-      console.log(`Button Clicked`);
-      if (customID.includes("newleak")) {
+    console.log(`Button Clicked`);
+
+      if(customID.includes("groupbuy_")){
+        console.log(`Group Buy Button Clicked`)
+        client.emit("GroupBuyButton", interaction);
+
+      } else if (customID.includes("newleak")) {
         // Launch New Leak Modal
         let modal = await scripts_djs.modal_NewLeak(randID);
         console.log(`interaction reply 10`);
@@ -123,6 +128,15 @@ if (client) {
         await interaction.showModal(modal);
       } else if (customID.includes("groupbuybtn")) {
         // Launch Group Buy Hub {Embed}
+        await interaction.editReply({embeds: [createEmb.createEmbed({
+          title: `This button has been redacted`,
+          description: `please use the command \`/groupbuy\` to access the group buy hub`,
+          color: scripts.getErrorColor(),
+        })]})
+        // delete the reply in 6 seconds
+        setTimeout(async () => {
+          await interaction.deleteReply();
+        }, 6000);
       } else if (customID.includes("custom")) {
         // Launch Custom Modal
         let modal = await scripts_djs.modal_NewCustomAnnouncement(randID);
@@ -366,8 +380,16 @@ if (client) {
       await interaction.deferReply({
         ephemeral: true,
       });
+
       let modalInput = null;
       let embed = null;
+      if(customID.includes("groupbuy_")){
+        console.log(`Group Buy Modal Submitted`)
+        console.log(`the interaction`, interaction)
+        client.emit("GroupBuyModal", interaction, customID);
+        console.log(`emitted modal submittion`)
+
+      }
       if (customID.includes(`newleakmodal`)) {
         modalInput = scripts_djs.getModalInput_A(randID, interaction);
         console.log(`modalInput`, modalInput);

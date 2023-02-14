@@ -145,7 +145,7 @@ async function createButton(buttonObj, randID) {
       style !== "secondary" &&
       style !== "success" &&
       style !== "danger" &&
-      style !== "link"
+      style !== "link" && style !== "PRIMARY" && style!== "SECONDARY" && style!== "SUCCESS" && style!== "DANGER" && style!== "LINK"
     ) {
       try {
         scripts.cLog(
@@ -170,6 +170,21 @@ async function createButton(buttonObj, randID) {
         button.setStyle(ButtonStyle.Danger);
         break;
       case "link":
+        button.setStyle(ButtonStyle.Link);
+        break;
+        case "PRIMARY":
+        button.setStyle(ButtonStyle.Primary);
+        break;
+        case "SECONDARY":
+        button.setStyle(ButtonStyle.Secondary);
+        break;
+        case "SUCCESS":
+        button.setStyle(ButtonStyle.Success);
+        break;
+        case "DANGER":
+        button.setStyle(ButtonStyle.Danger);
+        break;
+        case "LINK":
         button.setStyle(ButtonStyle.Link);
         break;
       default:

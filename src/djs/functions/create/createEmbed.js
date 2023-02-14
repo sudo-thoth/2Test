@@ -139,6 +139,10 @@ function createEmbed(obj) {
 	        scripts.logError(error, "Error setting footer of embed");
 	      }
 }
+
+if (obj.timestamp) embed.setTimestamp( new Date());
+
+
     if (scripts.isDefined(obj.thumbnail)) {
       console.log("thumbnail", obj.thumbnail);
       try {

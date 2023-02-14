@@ -234,6 +234,27 @@ module.exports = {
             groupBuyObj.messageID = messageID;
             groupBuyObj.groupBuyID = groupBuyID;
   //        // convert roles to strings in an array
+  console.log(groupBuyObj.roles)
+
+
+  console.log(roles)
+  
+
+
+            console.log(interaction.member.roles)
+            // for each role in member.roles convert to a string array
+            let newRoles = []
+            interaction.member.roles.cache.forEach(role => {
+              if (role === null)return
+              newRoles.push(role.toString())
+            })
+            console.log(newRoles)
+
+            let dbMessageObj = dbVars.getMessageObj(interaction);
+
+            console.log(dbMessageObj)
+            
+
             roles = roles? roles.map(role => role!== null ? role.toString() : null) : [];
             let groupBuyDBObj = {
               _id: mongoose.Types.ObjectId(),
@@ -243,9 +264,9 @@ module.exports = {
               messageID: messageID,
               groupBuyID: groupBuyID,
               channel: {
-                id: targetChannel.id,
-                type: targetChannel.type,
-                name: targetChannel.name,
+                id: `${targetChannel.id}`,
+                type: `${targetChannel.type}`,
+                name: `${targetChannel.name}`,
               },
               guild: {
                 id: interaction.guild.id,
@@ -255,7 +276,7 @@ module.exports = {
               },
               member: {
                 nickname: interaction.member.nickname,
-                roles: interaction.member.roles,
+                roles: newRoles,
               },
               timestamp: Date.now(),
               date: `${moment(Date.now()).format("MMMM Do YYYY, h:mm:ss a")}`,
@@ -268,7 +289,7 @@ module.exports = {
                 system: interaction.user.system,
                 tag: interaction.user.tag,
               },
-              message: dbVars.getMessageObj(interaction),
+              message: dbMessageObj,
               amountPaid: 0,
               totalCost: 0,
               timeCreated: Date.now(),

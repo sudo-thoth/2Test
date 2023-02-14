@@ -422,6 +422,8 @@ messageEmbeds.push(embedObj);
         }
        }
 
+       console.log(messageObject);
+       
        return messageObject;
 
 }

@@ -106,6 +106,31 @@ if (client) {
         console.log(`Group Buy Button Clicked`)
         client.emit("GroupBuyButton", interaction);
 
+      }else if (customID.includes("gb_")){
+
+if (customID.includes("gb_edit")) {
+  let randID = scripts_djs.extractID(customID);
+  client.emit("gb-edit", interaction, randID);
+}else if(customID.includes("gb_update")){
+  let randID = scripts_djs.extractID(customID);
+  if (customID.includes("add")) {
+    client.emit("gb-add", interaction, randID);
+  } else if (customID.includes("minus")){
+    client.emit("gb-sub", interaction, randID);
+  } else if (customID.includes("embed")){
+    client.emit("gb-embed", interaction, randID);
+  } else {
+    client.emit("gb-update", interaction, randID);
+  }
+} else if (customID.includes("gb_delete")) {
+  let randID = scripts_djs.extractID(customID);
+  client.emit("gb-delete", interaction, randID);
+} else if (customID.includes("gb_end")) {
+  let randID = scripts_djs.extractID(customID);
+  client.emit("gb-end", interaction, randID);
+}
+        
+
       } else if (customID.includes("newleak")) {
         // Launch New Leak Modal
         let modal = await scripts_djs.modal_NewLeak(randID);
@@ -389,7 +414,63 @@ if (client) {
         client.emit("GroupBuyModal", interaction, customID);
         console.log(`emitted modal submittion`)
 
-      }
+      } else if (customID.includes("gb-post")){
+        // extract the name, price, and current amount raised from the modal
+        const songName = interaction.fields.getTextInputValue("gp_p_name")
+          ? interaction.fields.getTextInputValue("gp_p_name")
+          : '';
+        let songPrice = interaction.fields.getTextInputValue("gp_p_price")
+          ? interaction.fields.getTextInputValue("gp_p_price") : '';
+          songPrice = songPrice ? songPrice.replace(/[^0-9]/g, '') : '';
+        let currentRaised = interaction.fields.getTextInputValue("gp_p_current") ? interaction.fields.getTextInputValue("gp_p_current") : '';
+        currentRaised = currentRaised ? currentRaised.replace(/[^0-9]/g, '') : '';
+        let channel = interaction.channel;
+        let randID = scripts_djs.extractID(customID);
+        let obj = {
+          randID: randID,
+          name: songName,
+          price: songPrice,
+          amountPaid: currentRaised,
+          channel: channel,
+        }
+        client.emit("gb-post",obj);
+      } else if (customID.includes("gb-add")){
+        // extract the num from the modal
+        const num = interaction.fields.getTextInputValue("gb_add")
+          ? interaction.fields.getTextInputValue("gb_add")
+          : '';
+        let randID = scripts_djs.extractID(customID);
+        let obj = {
+          randID: randID,
+          num: num,
+        }
+        client.emit("gb-addtototal",obj);
+      } else if (customID.includes("gb-minus")){
+        // extract the num from the modal
+        const num = interaction.fields.getTextInputValue("gb_sub")
+          ? interaction.fields.getTextInputValue("gb_sub")
+          : '';
+        let randID = scripts_djs.extractID(customID);
+        let obj = {
+          randID: randID,
+          num: num,
+        }
+        client.emit("gb-subfromtotal",obj);
+
+      } else if (customID.includes("gb-reset")){
+        let name = interaction.fields.getTextInputValue("gb_update_name") ? interaction.fields.getTextInputValue("gb_update_name") : '';
+        let price = interaction.fields.getTextInputValue("gb_update_price") ? interaction.fields.getTextInputValue("gb_update_price") : '';
+        price = price ? price.replace(/[^0-9]/g, '') : '';
+        let current = interaction.fields.getTextInputValue("gb_update_current") ? interaction.fields.getTextInputValue("gb_update_current") : '';
+        current = current ? current.replace(/[^0-9]/g, '') : '';
+        let randID = scripts_djs.extractID(customID);
+        let obj = {
+          randID: randID,
+          name: name,
+          price: price,
+          amountPaid: current,
+        }
+        client.emit("gb-reset",obj);
       if (customID.includes(`newleakmodal`)) {
         modalInput = scripts_djs.getModalInput_A(randID, interaction);
         console.log(`modalInput`, modalInput);

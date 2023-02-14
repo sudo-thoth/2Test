@@ -32,7 +32,7 @@ const groupbuy = new Schema(
     },
     member: {
       nickname: String,
-      roles: String,
+      roles: [String],
     },
     timestamp: Number,
     date: String,
@@ -77,13 +77,6 @@ const groupbuy = new Schema(
         username: String,
         discriminator: String,
         avatar: String,
-        flags: String,
-        bot: Boolean,
-        dmChannel: {
-          id: String,
-          url: String,
-          lastMessageId: String,
-        },
       },
       reference: {
         messageID: String,

@@ -26,6 +26,26 @@ const dbVars = require("../../functions/groupbuy/databaseVariables.js");
 const mongoose = require("mongoose");
 const gbdb = require("../../../MongoDB/db/schemas/schema_gb.js");
 let modal;
+async function throwNewError(interaction, err){
+  try {
+    await interaction.editReply({ embeds: [createEmb.createEmbed({
+      title: "There was an Error , Share the Error w the Developer\n\n```js\n" +
+      err +
+      "```",
+      description: "```js" +  `Error occurred for admin user:\nusername: ${interaction.member.user.username}\nID: ${interaction.member.user.id}\nGuild: ${interaction.guild.name}\nGuild ID: ${interaction.guild.id}\nChannel: ${interaction.channel.name}\nChannel ID: ${interaction.channel.id}\nMessage ID: ${interaction.message.id}\nButton ID: ${interaction.customID}\n\n\n__**STEVE JOBS**__` + "```",
+          color: scripts.getErrorColor(),
+  footer: {
+    text: "Contact STEVE JOBS and Send the Error",
+    iconURL: interaction.user.avatarURL(),
+  },
+    })]
+    })
+  } catch (error) {
+    console.log(`error occurred when trying to send the user this Error: ${err}\n\n\nThe error that occurred when trying to send the user the error is: ${error}`)
+    
+  }
+
+}
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("gb")
@@ -227,7 +247,7 @@ module.exports = {
           embeds: [
             createEmb.createEmbed({
               title: `Successfully Posted the Group Buy embed`,
-              description: `\`Amount Paid:\` \`${amountPaid}\`\n\`Amount Left:\` \`$\` \`${amountLeft}\`\n\`Percent Left:\` \`${percentLeft}\` \`%\``,
+              description: `\`Amount Paid:\` \`$\` \`${amountPaid}\`\n\`Amount Left:\` \`$\` \`${amountLeft}\`\n\`Percent Left:\` \`${percentLeft}\` \`%\``,
               color: scripts.getSuccessColor(),
             }),
           ],
@@ -243,17 +263,7 @@ module.exports = {
     } catch (err) {
       // reply to the user emphemerally saying there was an error updating the gb embed, please contact steve jobs
       try {
-        await interaction.editReply({
-          embeds: [
-            createEmb.createEmbed({
-              title:
-                "There was an error updating the group buy embed, please contact STEVE JOBS\n\n```js\n" +
-                err +
-                "```",
-              color: scripts.getErrorColor(),
-            }),
-          ],
-        });
+        await throwNewError(interaction, err)
       } catch (error) {
         console.log(error);
       }
@@ -392,25 +402,29 @@ module.exports = {
     //     .once('end', (collected) => console.log(collected));
   },
   async gbedit(interaction, randID) {
-    await interaction.deferReply({ ephemeral: true });
-    if (!interaction.memberPermissions.has("ADMINISTRATOR")) {
+     await interaction.deferReply({ ephemeral: true });
+    if (!interaction.memberPermissions.has("Administrator")) {
       console.log(
         `Edit Button Clicked by a non-admin user:\nusername: ${interaction.member.user.username}\nID: ${interaction.member.user.id}\nGuild: ${interaction.guild.name}\nGuild ID: ${interaction.guild.id}\nChannel: ${interaction.channel.name}\nChannel ID: ${interaction.channel.id}\nMessage ID: ${interaction.message.id}\nButton ID: ${interaction.customID}`
       );
       // reply with an ephemeral message saying that only admins can use this button
-      await interaction.editReply({
-        embeds: [
-          createEmb.createEmbed({
-            title: `Only admins can use this button`,
-            color: scripts.getErrorColor(),
-            description: `Leave this button alone <@${interaction.user.id}>!\n\n\n**You do not have permission to use this button. You can only VIEW the group buy**.`,
-            timestamp: true,
-            thumbnail: {
-              url: interaction.user.displayAvatarURL({ dynamic: true }),
-            },
-          }),
-        ],
-      });
+     try {
+       await interaction.editReply({
+         embeds: [
+           createEmb.createEmbed({
+             title: `Only admins can use this button`,
+             color: scripts.getErrorColor(),
+             description: `Leave this button alone <@${interaction.user.id}>!\n\n\n**You do not have permission to use this button. You can only VIEW the group buy**.`,
+             timestamp: true,
+             thumbnail: {
+               url: interaction.user.displayAvatarURL({ dynamic: true }),
+             },
+           }),
+         ],
+       });
+     } catch (error) {
+      await throwNewError(interaction, error)
+     }
     } else {
       console.log(
         `Edit Button Clicked by an admin user:\nusername: ${interaction.member.user.username}\nID: ${interaction.member.user.id}\nGuild: ${interaction.guild.name}\nGuild ID: ${interaction.guild.id}\nChannel: ${interaction.channel.name}\nChannel ID: ${interaction.channel.id}\nMessage ID: ${interaction.message.id}\nButton ID: ${interaction.customID}`
@@ -482,16 +496,7 @@ module.exports = {
           error
         );
         try {
-          await interaction.editReply({
-            embeds: [
-              createEmb.createEmbed({
-                title: `Error`,
-                color: scripts.getErrorColor(),
-                description: `There was an error displaying the GB Edit Actions for admin user:\nusername: ${interaction.member.user.username}\nID: ${interaction.member.user.id}\nGuild: ${interaction.guild.name}\nGuild ID: ${interaction.guild.id}\nChannel: ${interaction.channel.name}\nChannel ID: ${interaction.channel.id}\nMessage ID: ${interaction.message.id}\nButton ID: ${interaction.customID}\nError: ${error}\n\n\n**CONTACT STEVE JOBS**`,
-              }),
-            ],
-            components: [],
-          });
+          await throwNewError(interaction, error)
         } catch (error) {
           console.log(
             `Error displaying the GB Edit Actions Error Message \nError:`
@@ -566,20 +571,7 @@ module.exports = {
         error
       );
       try {
-        await interaction.editReply({
-          embeds: [
-            createEmb.createEmbed({
-              title: `Error`,
-              color: scripts.getErrorColor(),
-              description:
-                `There was an error displaying the GB Update Actions for admin user:\nusername: ${interaction.member.user.username}\nID: ${interaction.member.user.id}\nGuild: ${interaction.guild.name}\nGuild ID: ${interaction.guild.id}\nChannel: ${interaction.channel.name}\nChannel ID: ${interaction.channel.id}\nMessage ID: ${interaction.message.id}\nButton ID: ${interaction.customID}` +
-                "\n\n\n```js\n" +
-                error +
-                "```\n\n\n**CONTACT STEVE JOBS**",
-            }),
-          ],
-          components: [],
-        });
+        await throwNewError(interaction, error)
       } catch (error) {
         console.log(
           `Error displaying the GB Update Actions Error Message \nError:`
@@ -668,7 +660,7 @@ module.exports = {
   },
 
   async gbembed(interaction, randID) {
-    await interaction.deferReply({ ephemeral: true });
+    // await interaction.deferReply({ ephemeral: true });
     console.log(
       `Update Embed Button Clicked by an admin user:\nusername: ${interaction.member.user.username}\nID: ${interaction.member.user.id}\nGuild: ${interaction.guild.name}\nGuild ID: ${interaction.guild.id}\nChannel: ${interaction.channel.name}\nChannel ID: ${interaction.channel.id}\nMessage ID: ${interaction.message.id}\nButton ID: ${interaction.customID}`
     );
@@ -678,14 +670,14 @@ module.exports = {
     let gbMessage = await client.channels.cache.get(gbInfo.channelID).messages.fetch(gbInfo.messageID);
     let gbEmbed = gbMessage.embeds[0];
     let gbEmbedFields = gbEmbed.fields;
-    let theEmbedTitle = theEmbed.title;
+    let theEmbedTitle = gbEmbed.title;
     let songName =
-      theEmbedTitle !== `Total Paid`
-        ? theEmbedTitle.split(`Total Paid • `)[1]
-        : `Currently No Song Name`;
+      theEmbedTitle !== null ? `${theEmbedTitle.includes(`Total Paid`)
+        ? `${theEmbedTitle.includes(`Total Paid • `) ? theEmbedTitle.split(`Total Paid • `)[1] : `Currently No Song Name`}`
+        : `Currently No Song Name`}` : `Currently No Song Name`;
     songName =
       songName !== `Currently No Song Name`
-        ? songName.split(` GB`)[0]
+        ? `${songName.split(` GB`)[0]}`
         : `Currently No Song Name`;
     let gbEmbedAmountPaidField = gbEmbedFields[0];
     let gbEmbedAmountPaid = gbEmbedAmountPaidField.value;
@@ -907,17 +899,7 @@ module.exports = {
     } catch (err) {
       // reply to the user emphemerally saying there was an error updating the gb embed, please contact steve jobs
       try {
-        await interaction.editReply({
-          embeds: [
-            createEmb.createEmbed({
-              title:
-                "There was an error updating the group buy embed, please contact STEVE JOBS\n\n```js\n" +
-                err +
-                "```",
-              color: scripts.getErrorColor(),
-            }),
-          ],
-        });
+        await throwNewError(interaction, error)
       } catch (error) {
         console.log(error);
       }
@@ -1079,17 +1061,7 @@ let footerNumbers = footerNums(gbEmbedFooterText);
     } catch (err) {
       // reply to the user emphemerally saying there was an error updating the gb embed, please contact steve jobs
       try {
-        await interaction.editReply({
-          embeds: [
-            createEmb.createEmbed({
-              title:
-                "There was an error updating the group buy embed, please contact STEVE JOBS\n\n```js\n" +
-                err +
-                "```",
-              color: scripts.getErrorColor(),
-            }),
-          ],
-        });
+        await throwNewError(interaction, error)
       } catch (error) {
         console.log(error);
       }
@@ -1101,7 +1073,7 @@ let footerNumbers = footerNums(gbEmbedFooterText);
     // View Group Buys (allows user to see all active group buys in the current server and all active group buys in the database that was created by their user id),
   },
 
-  async gbreset(obj) {
+  async gbreset(obj, interaction) {
     // await interaction.deferReply({ ephemeral: true });
     console.log(
       `Change Embed Modal Submitted by an admin user:\nusername: ${interaction.member.user.username}\nID: ${interaction.member.user.id}\nGuild: ${interaction.guild.name}\nGuild ID: ${interaction.guild.id}\nChannel: ${interaction.channel.name}\nChannel ID: ${interaction.channel.id}\nMessage ID: ${interaction.message.id}\nButton ID: ${interaction.customID}`
@@ -1109,15 +1081,15 @@ let footerNumbers = footerNums(gbEmbedFooterText);
 
     const { name, price, amountPaid, randID } = obj;
     // remove anything thats not a number in the num string
-    num = num.replace(/[^0-9]/g, "");
-    // convert the num to an integer
-    num = parseInt(num);
+    // num = num.replace(/[^0-9]/g, "");
+    // // convert the num to an integer
+    // num = parseInt(num);
 
     let gbInfo = await this.getdbObjfromdb(randID);
     // fetch the message with the message id in gbInfo
     let gbMessage = await client.channels.cache.get(gbInfo.channelID).messages.fetch(gbInfo.messageID);
     let gbEmbed = gbMessage.embeds[0];
-    let gbEmbedTitle = name !== "" ? `Total Paid • ${name} GB` : gbEmbed.title;
+    let gbEmbedTitle = gbEmbed.title;
     let gbEmbedDescription = gbEmbed.description;
     let gbEmbedColor = gbEmbed.color;
     let gbEmbedThumbnail = gbEmbed.thumbnail;
@@ -1126,6 +1098,8 @@ let footerNumbers = footerNums(gbEmbedFooterText);
     let gbEmbedFields = gbEmbed.fields;
     let gbEmbedTimestamp = gbEmbed.timestamp;
     let gbEmbedAuthor = gbEmbed.author;
+    let gbEmbedAuthorName = gbEmbed.author.name;
+    gbEmbedAuthorName = name !== "" ? `Total Paid • ${name} GB` : name !== "" ? `Total Paid • ${name} GB` : gbEmbed.titlegbEmbed.title
     let gbEmbedAmountPaidField = gbEmbedFields[0];
     let gbEmbedAmountPaid =
       amountPaid !== "" ? amountPaid : gbEmbedAmountPaidField.value;
@@ -1133,12 +1107,22 @@ let footerNumbers = footerNums(gbEmbedFooterText);
     let gbEmbedAmountPaidInline = gbEmbedAmountPaidField.inline;
     let gbEmbedSongPriceField = gbEmbedFields[1];
     let gbEmbedSongPrice = price !== "" ? price : gbEmbedSongPriceField.value;
-
-    let amountLeft = footerNums[0];
+    let footerNums = (gbEmbedFooterText) => {
+           
+      const dollarRegex = /(?<=\$)-?\d+/;
+      const percentRegex = /-?\d+(?=%)/;
+      
+      const dollarAmount = Number(gbEmbedFooterText.match(dollarRegex)[0]).toFixed(2);
+      const percentComplete = Number(gbEmbedFooterText.match(percentRegex)[0]).toFixed(2);
+      
+      return [dollarAmount, percentComplete];
+  }
+  let footerNumbers = footerNums(gbEmbedFooterText);
+    let amountLeft = footerNumbers[0];
     // convert the amountLeft to an integer and round it to 2 decimal places
     amountLeft = Math.round(parseInt(amountLeft) * 100) / 100;
 
-    let percentLeft = footerNums[1];
+    let percentLeft = footerNumbers[1];
     // convert the percentLeft to an integer and round it to 1 decimal place
     percentLeft = Math.round(parseInt(percentLeft) * 10) / 10;
 
@@ -1159,6 +1143,9 @@ let footerNumbers = footerNums(gbEmbedFooterText);
     // add the $ to the gbEmbedAmountPaid
     gbEmbedAmountPaid = `\`$\` \`${gbEmbedAmountPaid}\``;
 
+    gbEmbedSongPrice = gbEmbedSongPrice.toString();
+    gbEmbedSongPrice = `\`$\` \`${gbEmbedSongPrice}\``;
+
     // update the gbFooterText
     gbEmbedFooterText = `$${amountLeft} left • ${percentLeft}% complete`;
     // update the gbEmbedAmountPaidField
@@ -1166,6 +1153,12 @@ let footerNumbers = footerNums(gbEmbedFooterText);
       name: gbEmbedAmountPaidName,
       value: gbEmbedAmountPaid,
       inline: gbEmbedAmountPaidInline,
+    };
+    // update the song price field
+    gbEmbedSongPriceField = {
+      name: "Song Price",
+      value: gbEmbedSongPrice,
+      inline: true,
     };
     // update the footer
     gbEmbedFooter = {
@@ -1225,7 +1218,7 @@ let footerNumbers = footerNums(gbEmbedFooterText);
           embeds: [
             createEmb.createEmbed({
               title: `${interaction.user.username} You Have Successfully Updated the Group Buy Embed`,
-              description: `\`Amount Paid:\` \`$\` \`${gbEmbedAmountPaid}\`\n\`Amount Left:\` \`$\` \`${amountLeft}\`\n\`Percent Left:\` \`${percentLeft}\` \`%\``,
+              description: `\`Amount Paid:\` ${gbEmbedAmountPaid}\n\`Amount Left:\` \`$\` \`${amountLeft}\`\n\`Percent Left:\` \`${percentLeft}\` \`%\``,
               color: scripts.getSuccessColor(),
             }),
           ],
@@ -1241,17 +1234,7 @@ let footerNumbers = footerNums(gbEmbedFooterText);
     } catch (err) {
       // reply to the user emphemerally saying there was an error updating the gb embed, please contact steve jobs
       try {
-        await interaction.editReply({
-          embeds: [
-            createEmb.createEmbed({
-              title:
-                "There was an error updating the group buy embed, please contact STEVE JOBS\n\n```js\n" +
-                err +
-                "```",
-              color: scripts.getErrorColor(),
-            }),
-          ],
-        });
+        await throwNewError(interaction, error)
       } catch (error) {
         console.log(error);
       }
@@ -1393,20 +1376,7 @@ collector.on('end', async (collected) => {
         error
       );
       try {
-        await interaction.editReply({
-          embeds: [
-            createEmb.createEmbed({
-              title: `Error`,
-              color: scripts.getErrorColor(),
-              description:
-                `There was an error displaying the GB Delete Options for admin user:\nusername: ${interaction.member.user.username}\nID: ${interaction.member.user.id}\nGuild: ${interaction.guild.name}\nGuild ID: ${interaction.guild.id}\nChannel: ${interaction.channel.name}\nChannel ID: ${interaction.channel.id}\nMessage ID: ${interaction.message.id}\nButton ID: ${interaction.customID}` +
-                "\n\n\n```js\n" +
-                error +
-                "```\n\n\n**CONTACT STEVE JOBS**",
-            }),
-          ],
-          components: [],
-        });
+        await throwNewError(interaction, error)
       } catch (error) {
         console.log(
           `Error displaying the GB Delete Options Error Message \nError:`
@@ -1434,20 +1404,7 @@ collector.on('end', async (collected) => {
         gbMessage = await client.channels.cache.get(gbInfo.channelID).messages.fetch(gbInfo.messageID);
     } catch (error) {
         console.log(`Error Deleteing GB Message`)
-        await interaction.editReply({
-            embeds: [
-              createEmb.createEmbed({
-                title: `Error`,
-                color: scripts.getErrorColor(),
-                description:
-                  `There was an error deleting the GB Message for admin user:\nusername: ${interaction.member.user.username}\nID: ${interaction.member.user.id}\nGuild: ${interaction.guild.name}\nGuild ID: ${interaction.guild.id}\nChannel: ${interaction.channel.name}\nChannel ID: ${interaction.channel.id}\nMessage ID: ${interaction.message.id}\nButton ID: ${interaction.customID}` +
-                  "\n\n\n```js\n" +
-                  error +
-                  "```\n\n\n**CONTACT STEVE JOBS**",
-              }),
-            ],
-            components: [],
-          });
+        await throwNewError(interaction, error);
         
     }
 if (gbMessage) {
@@ -1508,25 +1465,7 @@ if (gbMessage) {
     try {
       await interaction.deleteReply();
     } catch (error) {
-    //   try {
-    //     await interaction.editReply({
-    //       embeds: [
-    //         createEmb.createEmbed({
-    //           title: `Error`,
-    //           color: scripts.getErrorColor(),
-    //           description:
-    //             `There was an error deleting deletion options menufor the  GB for admin user:\nusername: ${interaction.member.user.username}\nID: ${interaction.member.user.id}\nGuild: ${interaction.guild.name}\nGuild ID: ${interaction.guild.id}\nChannel: ${interaction.channel.name}\nChannel ID: ${interaction.channel.id}\nMessage ID: ${interaction.message.id}\nButton ID: ${interaction.customID}` +
-    //             "\n\n\n```js\n" +
-    //             err +
-    //             "```\n\n\n**CONTACT STEVE JOBS**",
-    //         }),
-    //       ],
-    //       components: [],
-    //     });
-    //   } catch (error) {
-    //     console.log(`Error deleting the GB Error Message \nError:`);
-    //     console.log(error);
-    //   }
+    await throwNewError(interaction, error)
     }
 
     return;
@@ -1591,20 +1530,7 @@ if (gbMessage) {
       });
     } catch (error) {
       try {
-        await interaction.editReply({
-          embeds: [
-            createEmb.createEmbed({
-              title: `Error`,
-              color: scripts.getErrorColor(),
-              description:
-                `There was an error creating the end hub for the  GB for admin user:\nusername: ${interaction.member.user.username}\nID: ${interaction.member.user.id}\nGuild: ${interaction.guild.name}\nGuild ID: ${interaction.guild.id}\nChannel: ${interaction.channel.name}\nChannel ID: ${interaction.channel.id}\nMessage ID: ${interaction.message.id}\nButton ID: ${interaction.customID}` +
-                "\n\n\n```js\n" +
-                error +
-                "```\n\n\n**CONTACT STEVE JOBS**",
-            }),
-          ],
-          components: [],
-        });
+        await throwNewError(interaction, error)
       } catch (error) {
         console.log(
           `Error sending error message for error about end hub for the  GB for admin user:\nusername: ${interaction.member.user.username}\nID: ${interaction.member.user.id}\nGuild: ${interaction.guild.name}\nGuild ID: ${interaction.guild.id}\nChannel: ${interaction.channel.name}\nChannel ID: ${interaction.channel.id}\nMessage ID: ${interaction.message.id}\nButton ID: ${interaction.customID}\nError: `,
@@ -1712,6 +1638,7 @@ if (gbMessage) {
           `Error sending error message for error about getting the GB message for admin user:\nusername: ${interaction.member.user.username}\nID: ${interaction.member.user.id}\nGuild: ${interaction.guild.name}\nGuild ID: ${interaction.guild.id}\nChannel: ${interaction.channel.name}\nChannel ID: ${interaction.channel.id}\nMessage ID: ${interaction.message.id}\nButton ID: ${interaction.customID}\nError: `,
           error
         );
+        await throwNewError(interaction, error)
       }
     }
   },
@@ -1814,16 +1741,7 @@ if (gbMessage) {
             }
           } catch (error) {
             try {
-              await interaction.editReply({
-                embeds: [
-                  createEmb.createEmbed({
-                    title: `Error`,
-                    color: scripts.getErrorColor(),
-                    description: `There was an error Marking the GB as Cancelled for admin user:\nusername: ${interaction.member.user.username}\nID: ${interaction.member.user.id}\nGuild: ${interaction.guild.name}\nGuild ID: ${interaction.guild.id}\nChannel: ${interaction.channel.name}\nChannel ID: ${interaction.channel.id}\nMessage ID: ${interaction.message.id}\nButton ID: ${interaction.customID}\nError: ${error}`,
-                  }),
-                ],
-                components: [],
-              });
+              await throwNewError(interaction, error)
             } catch (error) {
               console.log(
                 `Error sending ERROR Marking the GB as Cancelled message for admin user:\nusername: ${interaction.member.user.username}\nID: ${interaction.member.user.id}\nGuild: ${interaction.guild.name}\nGuild ID: ${interaction.guild.id}\nChannel: ${interaction.channel.name}\nChannel ID: ${interaction.channel.id}\nMessage ID: ${interaction.message.id}\nButton ID: ${interaction.customID}\nError: `,
@@ -1833,16 +1751,7 @@ if (gbMessage) {
           }
         } else {
             try {
-                await interaction.editReply({
-                embeds: [
-                    createEmb.createEmbed({
-                    title: `Error`,
-                    color: scripts.getErrorColor(),
-                    description: `There was an error Marking the GB as Cancelled for admin user:\nusername: ${interaction.member.user.username}\nID: ${interaction.member.user.id}\nGuild: ${interaction.guild.name}\nGuild ID: ${interaction.guild.id}\nChannel: ${interaction.channel.name}\nChannel ID: ${interaction.channel.id}\nMessage ID: ${interaction.message.id}\nButton ID: ${interaction.customID}\nError: ${error}`,
-                    }),
-                ],
-                components: [],
-                });
+              await throwNewError(interaction, error)
             } catch (error) {
                 console.log(
                 `Error sending ERROR Marking the GB as Cancelled message for admin user:\nusername: ${interaction.member.user.username}\nID: ${interaction.member.user.id}\nGuild: ${interaction.guild.name}\nGuild ID: ${interaction.guild.id}\nChannel: ${interaction.channel.name}\nChannel ID: ${interaction.channel.id}\nMessage ID: ${interaction.message.id}\nButton ID: ${interaction.customID}\nError: `,
@@ -1909,16 +1818,7 @@ if (gbMessage) {
             }
           } catch (error) {
             try {
-              await interaction.editReply({
-                embeds: [
-                  createEmb.createEmbed({
-                    title: `Error`,
-                    color: scripts.getErrorColor(),
-                    description: `There was an error Marking the GB as postponed for admin user:\nusername: ${interaction.member.user.username}\nID: ${interaction.member.user.id}\nGuild: ${interaction.guild.name}\nGuild ID: ${interaction.guild.id}\nChannel: ${interaction.channel.name}\nChannel ID: ${interaction.channel.id}\nMessage ID: ${interaction.message.id}\nButton ID: ${interaction.customID}\nError: ${error}`,
-                  }),
-                ],
-                components: [],
-              });
+              await throwNewError(interaction, error)
             } catch (error) {
               console.log(
                 `Error sending ERROR Marking the GB as postponed message for admin user:\nusername: ${interaction.member.user.username}\nID: ${interaction.member.user.id}\nGuild: ${interaction.guild.name}\nGuild ID: ${interaction.guild.id}\nChannel: ${interaction.channel.name}\nChannel ID: ${interaction.channel.id}\nMessage ID: ${interaction.message.id}\nButton ID: ${interaction.customID}\nError: `,
@@ -1928,16 +1828,7 @@ if (gbMessage) {
           }
         } else {
             try {
-                await interaction.editReply({
-                embeds: [
-                    createEmb.createEmbed({
-                    title: `Error`,
-                    color: scripts.getErrorColor(),
-                    description: `There was an error Marking the GB as postponed for admin user:\nusername: ${interaction.member.user.username}\nID: ${interaction.member.user.id}\nGuild: ${interaction.guild.name}\nGuild ID: ${interaction.guild.id}\nChannel: ${interaction.channel.name}\nChannel ID: ${interaction.channel.id}\nMessage ID: ${interaction.message.id}\nButton ID: ${interaction.customID}\nError: ${error}`,
-                    }),
-                ],
-                components: [],
-                });
+              await throwNewError(interaction, error)
             } catch (error) {
                 console.log(
                 `Error sending ERROR Marking the GB as postponed message for admin user:\nusername: ${interaction.member.user.username}\nID: ${interaction.member.user.id}\nGuild: ${interaction.guild.name}\nGuild ID: ${interaction.guild.id}\nChannel: ${interaction.channel.name}\nChannel ID: ${interaction.channel.id}\nMessage ID: ${interaction.message.id}\nButton ID: ${interaction.customID}\nError: `,

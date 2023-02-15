@@ -499,7 +499,7 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
           amountPaid: current,
           amountPaidNumber: currentNumber,
         }
-        await gb.gbreset(obj);
+        await gb.gbreset(obj, interaction);
       } else if (customID.includes("gb-canceledgb_modal2")){
 
         let reason = interaction.fields.getTextInputValue("why") ? interaction.fields.getTextInputValue("why") : '';

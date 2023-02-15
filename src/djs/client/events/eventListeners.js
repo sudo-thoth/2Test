@@ -5,6 +5,7 @@ const scripts_mongoDB = require(`../../functions/scripts/scripts_mongoDB.js`);
 const createEmb = require(`../../functions/create/createEmbed.js`);
 const createBtn = require(`../../functions/create/createButton.js`);
 const createActRow = require(`../../functions/create/createActionRow.js`);
+const gb = require(`../../commands/Juice/gb.js`);
 // const index = require(`src/djs/index.js`)
 // const client = index.getClient();
 // console.log(client);
@@ -110,24 +111,39 @@ if (client) {
 
 if (customID.includes("gb_edit")) {
   let randID = scripts_djs.extractID(customID);
-  client.emit("gb-edit", interaction, randID);
+  await gb.gbedit(interaction, randID);
 }else if(customID.includes("gb_update")){
   let randID = scripts_djs.extractID(customID);
   if (customID.includes("add")) {
-    client.emit("gb-add", interaction, randID);
+    await gb.gbadd(interaction, randID);
   } else if (customID.includes("minus")){
-    client.emit("gb-sub", interaction, randID);
+    await gb.gbsub(interaction, randID);
   } else if (customID.includes("embed")){
-    client.emit("gb-embed", interaction, randID);
-  } else {
-    client.emit("gb-update", interaction, randID);
-  }
+    await gb.gbembed(interaction, randID);
+  } 
+  // else if (customID.includes("gb_update_delete_confirm")) {
+  //   let randID = scripts_djs.extractID(customID);
+  //   await gb.gbconfirmdelete(interaction, randID);
+  // } else if (customID.includes("gb_update_delete_cancel")) {
+  //   await gb.gbcanceldelete(interaction);
+  // } 
+  else {
+    await gb.gbupdate(interaction, randID);
+  } 
 } else if (customID.includes("gb_delete")) {
   let randID = scripts_djs.extractID(customID);
-  client.emit("gb-delete", interaction, randID);
+  await gb.gbdelete(interaction, randID);
 } else if (customID.includes("gb_end")) {
   let randID = scripts_djs.extractID(customID);
-  client.emit("gb-end", interaction, randID);
+  await gb.gbend(interaction, randID);
+}  else if (customID.includes("gb_completedgb")) {
+  let randID = scripts_djs.extractID(customID);
+  await gb.gbcompletedgb(interaction, randID);
+} else if (customID.includes("gb_canceledgb")) {
+  let randID = scripts_djs.extractID(customID);
+  await gb.gbcanceledgb_modal(interaction, randID);
+} else if (customID.includes("gb_postponedgb")) {
+  await gb.gbpostponedgb_modal(interaction, randID);
 }
         
 
@@ -416,61 +432,112 @@ if (customID.includes("gb_edit")) {
 
       } else if (customID.includes("gb-post")){
         // extract the name, price, and current amount raised from the modal
-        const songName = interaction.fields.getTextInputValue("gp_p_name")
-          ? interaction.fields.getTextInputValue("gp_p_name")
+        const songName = interaction.fields.getTextInputValue("gb_p_name")
+          ? interaction.fields.getTextInputValue("gb_p_name")
           : '';
-        let songPrice = interaction.fields.getTextInputValue("gp_p_price")
-          ? interaction.fields.getTextInputValue("gp_p_price") : '';
-          songPrice = songPrice ? songPrice.replace(/[^0-9]/g, '') : '';
-        let currentRaised = interaction.fields.getTextInputValue("gp_p_current") ? interaction.fields.getTextInputValue("gp_p_current") : '';
-        currentRaised = currentRaised ? currentRaised.replace(/[^0-9]/g, '') : '';
+        let price = interaction.fields.getTextInputValue("gb_p_price")
+          ? interaction.fields.getTextInputValue("gb_p_price") : '';
+        let current = interaction.fields.getTextInputValue("gb_p_current") ? interaction.fields.getTextInputValue("gb_p_current") : '0';
+        // if price or current has no numbers and all alphabetical characters edit the reply telling the user if they put in an input, it must be a number in the price & current field, then return
+        let priceNumber = price ? price.replace(/[^0-9]/g, '') : '0';
+const matches = price ? price.match(/\$?(\d+\.\d{2})|(\d+\.\d)|(\d+)/g) : ['0'];
+const transformedMatches = matches.map(match => match );
+price = transformedMatches[0] ? transformedMatches[0] : price;
+
+        let currentNumber = current ? current.replace(/[^0-9]/g, '') : '0';
+        const currentMatches = current ? current.match(/\$?(\d+\.\d{2})|(\d+\.\d)|(\d+)/g) : ['0'];
+const transformedCurrentMatches = currentMatches.map(match => match );
+current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
         let channel = interaction.channel;
         let randID = scripts_djs.extractID(customID);
         let obj = {
-          randID: randID,
+          randID: randID, 
           name: songName,
-          price: songPrice,
-          amountPaid: currentRaised,
+          price: price,
+          priceNumber: priceNumber,
+          amountPaid: current,
+          amountPaidNumber: currentNumber,
           channel: channel,
         }
-        client.emit("gb-post",obj);
+       await gb.runGB(obj, interaction);
       } else if (customID.includes("gb-add")){
         // extract the num from the modal
         const num = interaction.fields.getTextInputValue("gb_add")
           ? interaction.fields.getTextInputValue("gb_add")
           : '';
         let randID = scripts_djs.extractID(customID);
-        let obj = {
-          randID: randID,
-          num: num,
-        }
-        client.emit("gb-addtototal",obj);
+
+        await gb.gbaddtototal(num, randID, interaction);
       } else if (customID.includes("gb-minus")){
         // extract the num from the modal
         const num = interaction.fields.getTextInputValue("gb_sub")
           ? interaction.fields.getTextInputValue("gb_sub")
           : '';
         let randID = scripts_djs.extractID(customID);
-        let obj = {
-          randID: randID,
-          num: num,
-        }
-        client.emit("gb-subfromtotal",obj);
+
+        await gb.gbsubfromtotal(num, randID, interaction);
 
       } else if (customID.includes("gb-reset")){
         let name = interaction.fields.getTextInputValue("gb_update_name") ? interaction.fields.getTextInputValue("gb_update_name") : '';
         let price = interaction.fields.getTextInputValue("gb_update_price") ? interaction.fields.getTextInputValue("gb_update_price") : '';
-        price = price ? price.replace(/[^0-9]/g, '') : '';
         let current = interaction.fields.getTextInputValue("gb_update_current") ? interaction.fields.getTextInputValue("gb_update_current") : '';
-        current = current ? current.replace(/[^0-9]/g, '') : '';
+        let priceNumber = price ? price.replace(/[^0-9]/g, '') : '';
+const matches = price ? price.match(/\$?(\d+\.\d{2})|(\d+\.\d)|(\d+)/g) : '';
+const transformedMatches = matches.map(match => match );
+price = transformedMatches[0] ? transformedMatches[0] : price;
+
+        let currentNumber = current ? current.replace(/[^0-9]/g, '') : '';
+        const currentMatches = current ? current.match(/\$?(\d+\.\d{2})|(\d+\.\d)|(\d+)/g) : '';
+const transformedCurrentMatches = currentMatches.map(match => match );
+current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
         let randID = scripts_djs.extractID(customID);
         let obj = {
           randID: randID,
           name: name,
           price: price,
+          priceNumber: priceNumber,
           amountPaid: current,
+          amountPaidNumber: currentNumber,
         }
-        client.emit("gb-reset",obj);
+        await gb.gbreset(obj);
+      } else if (customID.includes("gb-canceledgb_modal2")){
+
+        let reason = interaction.fields.getTextInputValue("why") ? interaction.fields.getTextInputValue("why") : '';
+
+        let randID = scripts_djs.extractID(customID);
+
+        let obj = {
+          randID: randID,
+          reason: reason,
+        }
+
+        await gb.gbcanceledgb(interaction, obj)
+
+
+      } else if (customID.includes("gb-ppgb_modal")){
+        let reason = interaction.fields.getTextInputValue("why") ? interaction.fields.getTextInputValue("why") : '';
+
+        let randID = scripts_djs.extractID(customID);
+
+        let obj = {
+          randID: randID,
+          reason: reason,
+        }
+
+        await gb.gbpostponedgb(interaction, obj)
+
+
+
+      } else if (customID.includes("gb-sub-modal")){
+
+        const num = interaction.fields.getTextInputValue("gb_sub")
+        ? interaction.fields.getTextInputValue("gb_sub")
+        : '';
+      let randID = scripts_djs.extractID(customID);
+
+
+        await gb.gbsubfromtotal(num, randID, interaction)
+      }
       if (customID.includes(`newleakmodal`)) {
         modalInput = scripts_djs.getModalInput_A(randID, interaction);
         console.log(`modalInput`, modalInput);
@@ -4083,4 +4150,5 @@ randID = scripts_djs.extractID(customID);
       // this the second listener but does nothing
     }
   });
+  
 }

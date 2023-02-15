@@ -143,6 +143,7 @@ module.exports = {
               },
             ],
           });
+          console.log(`the modal`,createGroupBuyModal)
           // send the modal
           await interaction.showModal(createGroupBuyModal);
           break;

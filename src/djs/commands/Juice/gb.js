@@ -417,7 +417,7 @@ module.exports = {
              description: `Leave this button alone <@${interaction.user.id}>!\n\n\n**You do not have permission to use this button. You can only VIEW the group buy**.`,
              timestamp: true,
              thumbnail: {
-               url: interaction.user.displayAvatarURL({ dynamic: true }),
+               url: `${interaction.user.displayAvatarURL({ dynamic: true })}`,
              },
            }),
          ],

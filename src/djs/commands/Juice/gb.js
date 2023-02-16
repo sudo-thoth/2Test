@@ -1099,7 +1099,7 @@ let footerNumbers = footerNums(gbEmbedFooterText);
     let gbEmbedTimestamp = gbEmbed.timestamp;
     let gbEmbedAuthor = gbEmbed.author;
     let gbEmbedAuthorName = gbEmbed.author.name;
-    gbEmbedAuthorName = name !== "" ? `Total Paid • ${name} GB` : name !== "" ? `Total Paid • ${name} GB` : gbEmbed.titlegbEmbed.title
+    gbEmbedAuthorName = name !== "" ? `Total Paid • ${name} GB` : name !== "" ? `Total Paid • ${name} GB` : gbEmbed.title
     let gbEmbedAmountPaidField = gbEmbedFields[0];
     let gbEmbedAmountPaid =
       amountPaid !== "" ? amountPaid : gbEmbedAmountPaidField.value;

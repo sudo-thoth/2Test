@@ -708,13 +708,17 @@ module.exports = {
     let gbEmbed = gbMessage.embeds[0];
     let gbEmbedFields = gbEmbed.fields;
     let theEmbedTitle = gbEmbed.title;
+    let gbEmbedAuthor = gbEmbed.author;
+
+    let gbEmbedAuthorName = gbEmbedAuthor ? gbEmbedAuthor.name : null;
+    let gbEmbedAuthorIcon = gbEmbedAuthor ? gbEmbedAuthor.iconURL : null;
     let songName =
-      theEmbedTitle !== null
+    gbEmbedAuthorName !== null
         ? `${
-            theEmbedTitle.includes(`Total Paid`)
+          gbEmbedAuthorName.includes(`Total Paid`)
               ? `${
-                  theEmbedTitle.includes(`Total Paid • `)
-                    ? theEmbedTitle.split(`Total Paid • `)[1]
+                gbEmbedAuthorName.includes(`Total Paid • `)
+                    ? gbEmbedAuthorName.split(`Total Paid • `)[1]
                     : `Currently No Song Name`
                 }`
               : `Currently No Song Name`
@@ -781,7 +785,7 @@ module.exports = {
       .setLabel("Amount of money raised")
       .setStyle(TextInputStyle.Short)
       .setPlaceholder(
-        `${gbInfo.amountPaid ? gbInfo.amountPaid : gbEmbedAmountPaid}`
+        `${gbInfo.amountPaid ? gbInfo.amountPaid.toString().replace(/[^0-9]/g, "") : gbEmbedAmountPaid.toString().replace(/[^0-9]/g, "")}`
       )
       .setRequired(false);
 
@@ -1242,7 +1246,7 @@ module.exports = {
     };
     // update the song price field
     gbEmbedSongPriceField = {
-      name: "Song Price",
+      name: "__Song Price__",
       value: gbEmbedSongPrice,
       inline: true,
     };

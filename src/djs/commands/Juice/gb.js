@@ -1722,7 +1722,7 @@ module.exports = {
         },
       ],
       footer: {
-        text: `🟢 Status: COMPLETE • 1000% Complete`,
+        text: `🟢 Status: COMPLETE • 100% Complete`,
       },
       timestamp: new Date(),
     });

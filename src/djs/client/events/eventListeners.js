@@ -121,12 +121,12 @@ if (customID.includes("gb_edit")) {
   } else if (customID.includes("embed")){
     await gb.gbembed(interaction, randID);
   } 
-  // else if (customID.includes("gb_update_delete_confirm")) {
-  //   let randID = scripts_djs.extractID(customID);
-  //   await gb.gbconfirmdelete(interaction, randID);
-  // } else if (customID.includes("gb_update_delete_cancel")) {
-  //   await gb.gbcanceldelete(interaction);
-  // } 
+  else if (customID.includes("gb_update_delete_confirm")) {
+    let randID = scripts_djs.extractID(customID);
+    await gb.gbconfirmdelete(interaction, randID);
+  } else if (customID.includes("gb_update_delete_cancel")) {
+    await gb.gbcanceldelete(interaction);
+  } 
   else {
     await gb.gbupdate(interaction, randID);
   } 

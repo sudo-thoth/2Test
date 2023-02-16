@@ -447,9 +447,9 @@ module.exports = {
               color: scripts.getErrorColor(),
               description: `Leave this button alone <@${interaction.user.id}>!\n\n\n**You do not have permission to use this button. You can only VIEW the group buy**.`,
               timestamp: true,
-              thumbnail: {
-                url: `${interaction.user.displayAvatarURL({ dynamic: true })}`,
-              },
+              thumbnail:
+                `${interaction.user.displayAvatarURL({ dynamic: true })}`,
+             
             }),
           ],
         });
@@ -708,13 +708,17 @@ module.exports = {
     let gbEmbed = gbMessage.embeds[0];
     let gbEmbedFields = gbEmbed.fields;
     let theEmbedTitle = gbEmbed.title;
+    let gbEmbedAuthor = gbEmbed.author;
+
+    let gbEmbedAuthorName = gbEmbedAuthor ? gbEmbedAuthor.name : null;
+    let gbEmbedAuthorIcon = gbEmbedAuthor ? gbEmbedAuthor.iconURL : null;
     let songName =
-      theEmbedTitle !== null
+    gbEmbedAuthorName !== null
         ? `${
-            theEmbedTitle.includes(`Total Paid`)
+          gbEmbedAuthorName.includes(`Total Paid`)
               ? `${
-                  theEmbedTitle.includes(`Total Paid • `)
-                    ? theEmbedTitle.split(`Total Paid • `)[1]
+                gbEmbedAuthorName.includes(`Total Paid • `)
+                    ? gbEmbedAuthorName.split(`Total Paid • `)[1]
                     : `Currently No Song Name`
                 }`
               : `Currently No Song Name`
@@ -781,7 +785,7 @@ module.exports = {
       .setLabel("Amount of money raised")
       .setStyle(TextInputStyle.Short)
       .setPlaceholder(
-        `${gbInfo.amountPaid ? gbInfo.amountPaid : gbEmbedAmountPaid}`
+        `${gbInfo.amountPaid ? gbInfo.amountPaid.toString().replace(/[^0-9]/g, "") : gbEmbedAmountPaid.toString().replace(/[^0-9]/g, "")}`
       )
       .setRequired(false);
 
@@ -1242,7 +1246,7 @@ module.exports = {
     };
     // update the song price field
     gbEmbedSongPriceField = {
-      name: "Song Price",
+      name: "__Song Price__",
       value: gbEmbedSongPrice,
       inline: true,
     };
@@ -1701,9 +1705,9 @@ module.exports = {
         name: title,
       },
       title: `Completed`,
-      thumbnail: {
-        url: `https://media.tenor.com/iFziyj2nF7sAAAAd/juice-wrld-ewaste999.gif`,
-      },
+      thumbnail:
+       `https://media.tenor.com/iFziyj2nF7sAAAAd/juice-wrld-ewaste999.gif`,
+      
       color: scripts.getSuccessColor(),
       fields: [
         {
@@ -1889,9 +1893,9 @@ module.exports = {
         name: title,
       },
       title: `Cancelled`,
-      thumbnail: {
-        url: `https://gifdb.com/images/high/juice-wrld-meditating-4qjh8wzretuzu6qz.gif`,
-      },
+      thumbnail: 
+        `https://gifdb.com/images/high/juice-wrld-meditating-4qjh8wzretuzu6qz.gif`,
+      
       color: scripts.getErrorColor(),
       fields: [
         {
@@ -1981,9 +1985,9 @@ module.exports = {
       author: {
         name: title,
       },
-      thumbnail: {
-        url: `https://gifsec.com/wp-content/uploads/2022/10/juice-wrld-gif-34.gif`,
-      },
+      thumbnail:
+         `https://gifsec.com/wp-content/uploads/2022/10/juice-wrld-gif-34.gif`,
+     
       title: `Postponed`,
       color: `#FBC740`,
       fields: [

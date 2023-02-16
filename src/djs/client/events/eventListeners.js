@@ -483,12 +483,12 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
         let current = interaction.fields.getTextInputValue("gb_update_current") ? interaction.fields.getTextInputValue("gb_update_current") : '';
         let priceNumber = price ? price.replace(/[^0-9]/g, '') : '';
 const matches = price ? price.match(/\$?(\d+\.\d{2})|(\d+\.\d)|(\d+)/g) : '';
-const transformedMatches = matches.map(match => match );
+const transformedMatches = matches ? matches.map(match => match ) : '';
 price = transformedMatches[0] ? transformedMatches[0] : price;
 
         let currentNumber = current ? current.replace(/[^0-9]/g, '') : '';
         const currentMatches = current ? current.match(/\$?(\d+\.\d{2})|(\d+\.\d)|(\d+)/g) : '';
-const transformedCurrentMatches = currentMatches.map(match => match );
+const transformedCurrentMatches = currentMatches ? currentMatches.map(match => match ) : '';
 current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
         let randID = scripts_djs.extractID(customID);
         let obj = {

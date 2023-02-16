@@ -213,9 +213,7 @@ module.exports = {
         iconURL: `https://preview.redd.it/wwjqha4r8t941.jpg?auto=webp&s=98fd64e4741d3e4b69cdc4af9a476a1c34b9689e`,
       },
       timestamp: true,
-      thumbnail: {
-        url: channel.guild.iconURL({ dynamic: true }),
-      },
+      thumbnail: `${interaction.guild.iconURL({ dynamic: true })}`,
     });
 
     actionRow = await createActRow.createActionRow({
@@ -510,15 +508,13 @@ module.exports = {
                   inline: true,
                 },
               ],
-              thumbnail: {
-                url: interaction.user.displayAvatarURL({ dynamic: true }),
-              },
+              thumbnail: `${interaction.user.displayAvatarURL({ dynamic: true })}`,
               footer: {
                 text: `GB ID: ${randID}`,
                 iconURL: `${
                   interaction.client.user.displayAvatarURL({
                     dynamic: true,
-                  }).url
+                  })
                 }`,
               },
             }),
@@ -777,7 +773,7 @@ module.exports = {
       .setCustomId("gb_update_price")
       .setLabel("Price of the song")
       .setStyle(TextInputStyle.Short)
-      .setPlaceholder(`${gbInfo.price ? gbInfo.price : gbEmbedPrice}`)
+      .setPlaceholder(`${gbInfo.price ? gbInfo.price.toString().replace(/[^0-9]/g, "") : gbEmbedPrice.toString().replace(/[^0-9]/g, "")}`)
       .setRequired(false);
 
     const field3 = new TextInputBuilder()
@@ -823,7 +819,7 @@ module.exports = {
     let gbEmbedTitle = gbEmbed.title;
     let gbEmbedDescription = gbEmbed.description;
     let gbEmbedColor = gbEmbed.color;
-    let gbEmbedThumbnail = gbEmbed.thumbnail;
+    let gbEmbedThumbnail = gbEmbed.thumbnail ? gbEmbed.thumbnail.url : "";
     let gbEmbedFooter = gbEmbed.footer;
     let gbEmbedFooterText = gbEmbedFooter.text;
     let gbEmbedFields = gbEmbed.fields;
@@ -997,7 +993,7 @@ module.exports = {
     let gbEmbedTitle = gbEmbed.title;
     let gbEmbedDescription = gbEmbed.description;
     let gbEmbedColor = gbEmbed.color;
-    let gbEmbedThumbnail = gbEmbed.thumbnail;
+    let gbEmbedThumbnail = gbEmbed.thumbnail ? gbEmbed.thumbnail.url : "";
     let gbEmbedFooter = gbEmbed.footer;
     let gbEmbedFooterText = gbEmbedFooter.text;
     let gbEmbedFields = gbEmbed.fields;
@@ -1174,7 +1170,7 @@ module.exports = {
     let gbEmbedTitle = gbEmbed.title;
     let gbEmbedDescription = gbEmbed.description;
     let gbEmbedColor = gbEmbed.color;
-    let gbEmbedThumbnail = gbEmbed.thumbnail;
+    let gbEmbedThumbnail = gbEmbed.thumbnail ? gbEmbed.thumbnail.url : "";
     let gbEmbedFooter = gbEmbed.footer;
     let gbEmbedFooterText = gbEmbedFooter.text;
     let gbEmbedFields = gbEmbed.fields;
@@ -1722,7 +1718,7 @@ module.exports = {
         },
       ],
       footer: {
-        text: `🟢 Status: COMPLETE • 1000% Complete`,
+        text: `🟢 Status: COMPLETE • 100% Complete`,
       },
       timestamp: new Date(),
     });

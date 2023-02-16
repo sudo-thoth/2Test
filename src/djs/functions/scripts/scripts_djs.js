@@ -24,7 +24,7 @@ function extractM4Aurl(str) {
 }
 
 async function krakenWebScraper(url, batch_id, interaction){
-  if (typeof url !== 'string') return;
+  if (typeof url !== 'string') return null;
 
   let data;
   try {
@@ -32,10 +32,13 @@ async function krakenWebScraper(url, batch_id, interaction){
   } catch (error) {
     console.log(`there is no data to scrape at this url: ${url}`)
     console.log(`error`, error)
-    return;
+    return null;
   }
   const tempLine = data.split("\n").filter((line) => line.includes("m4a:"))[0];
   const titleLine = data.split("\n").filter((line) => line.includes(`<meta property="og:title" content=`))[0];
+  if (!tempLine)  {
+    return null
+  } 
   const matches = titleLine.match(/content="(.*)"/);
   const fileName = matches[1];
 console.log(`the url line`, tempLine);
@@ -3828,6 +3831,9 @@ let getMessageKrakenLinkFiles = async (targetChannel, interaction, batch_id, be4
       let url;
       try {
          url = await krakenWebScraper(krakenLink, batch_id, interaction);
+         if(url === null) {
+          break;
+         }
          console.log(`the urlHERE is`, url)
           url =  url.replace(/'/g, '').replace('//', '');
 
@@ -3841,7 +3847,7 @@ let getMessageKrakenLinkFiles = async (targetChannel, interaction, batch_id, be4
       console.log(`the url is`, url)
       // url = krakenWebScraper(krakenLink, "audio");
       // if the url is not null, push the url to the krakenFiles array
-      if (url) {
+      if (url !== null) {
           // delete any duplicate docs saved to the database
         try {
           await scripts_mongoDB.deleteDuplicateDocs_Kraken(url, batch_id);
@@ -3958,7 +3964,7 @@ async function uploadKrakenLinksBatch(interaction, target, beforeID, afterID) {
   // if there are no files, send a message saying "No files found"
   console.log(`The array of found files`,arrayOfFiles);
   // check for any duplicate in the array and if so remove them
-  arrayOfFiles = arrayOfFiles.filter((item, index) => arrayOfFiles.indexOf(item) === index);
+  arrayOfFiles = arrayOfFiles ? arrayOfFiles.filter((item, index) => arrayOfFiles.indexOf(item) === index) : arrayOfFiles;
 
   if (arrayOfFiles === undefined) {
     content = "No files found";

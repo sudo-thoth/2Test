@@ -447,9 +447,9 @@ module.exports = {
               color: scripts.getErrorColor(),
               description: `Leave this button alone <@${interaction.user.id}>!\n\n\n**You do not have permission to use this button. You can only VIEW the group buy**.`,
               timestamp: true,
-              thumbnail: {
-                url: `${interaction.user.displayAvatarURL({ dynamic: true })}`,
-              },
+              thumbnail:
+                `${interaction.user.displayAvatarURL({ dynamic: true })}`,
+             
             }),
           ],
         });
@@ -819,7 +819,7 @@ module.exports = {
     let gbEmbedTitle = gbEmbed.title;
     let gbEmbedDescription = gbEmbed.description;
     let gbEmbedColor = gbEmbed.color;
-    let gbEmbedThumbnail = gbEmbed.thumbnail.url;
+    let gbEmbedThumbnail = gbEmbed.thumbnail ? gbEmbed.thumbnail.url : "";
     let gbEmbedFooter = gbEmbed.footer;
     let gbEmbedFooterText = gbEmbedFooter.text;
     let gbEmbedFields = gbEmbed.fields;
@@ -993,7 +993,7 @@ module.exports = {
     let gbEmbedTitle = gbEmbed.title;
     let gbEmbedDescription = gbEmbed.description;
     let gbEmbedColor = gbEmbed.color;
-    let gbEmbedThumbnail = gbEmbed.thumbnail.url;
+    let gbEmbedThumbnail = gbEmbed.thumbnail ? gbEmbed.thumbnail.url : "";
     let gbEmbedFooter = gbEmbed.footer;
     let gbEmbedFooterText = gbEmbedFooter.text;
     let gbEmbedFields = gbEmbed.fields;
@@ -1170,7 +1170,7 @@ module.exports = {
     let gbEmbedTitle = gbEmbed.title;
     let gbEmbedDescription = gbEmbed.description;
     let gbEmbedColor = gbEmbed.color;
-    let gbEmbedThumbnail = gbEmbed.thumbnail.url;
+    let gbEmbedThumbnail = gbEmbed.thumbnail ? gbEmbed.thumbnail.url : "";
     let gbEmbedFooter = gbEmbed.footer;
     let gbEmbedFooterText = gbEmbedFooter.text;
     let gbEmbedFields = gbEmbed.fields;
@@ -1701,9 +1701,9 @@ module.exports = {
         name: title,
       },
       title: `Completed`,
-      thumbnail: {
-        url: `https://media.tenor.com/iFziyj2nF7sAAAAd/juice-wrld-ewaste999.gif`,
-      },
+      thumbnail:
+       `https://media.tenor.com/iFziyj2nF7sAAAAd/juice-wrld-ewaste999.gif`,
+      
       color: scripts.getSuccessColor(),
       fields: [
         {
@@ -1889,9 +1889,9 @@ module.exports = {
         name: title,
       },
       title: `Cancelled`,
-      thumbnail: {
-        url: `https://gifdb.com/images/high/juice-wrld-meditating-4qjh8wzretuzu6qz.gif`,
-      },
+      thumbnail: 
+        `https://gifdb.com/images/high/juice-wrld-meditating-4qjh8wzretuzu6qz.gif`,
+      
       color: scripts.getErrorColor(),
       fields: [
         {
@@ -1981,9 +1981,9 @@ module.exports = {
       author: {
         name: title,
       },
-      thumbnail: {
-        url: `https://gifsec.com/wp-content/uploads/2022/10/juice-wrld-gif-34.gif`,
-      },
+      thumbnail:
+         `https://gifsec.com/wp-content/uploads/2022/10/juice-wrld-gif-34.gif`,
+     
       title: `Postponed`,
       color: `#FBC740`,
       fields: [

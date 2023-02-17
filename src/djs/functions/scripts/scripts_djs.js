@@ -1405,27 +1405,31 @@ async function sendDraft(randID, interaction) {
         )}`
       : `Are you sure you want to send to channel: ${targetChannel} ?`;
   console.log(`interaction reply 17`);
-  interaction.editReply({
-    content: text,
-    embeds: [
-      createEmb.createEmbed({
-        title: title,
-        description: description,
-        color: color,
-        fields: fields,
-        thumbnail: thumbnail
-          ? thumbnail.url
-          : interaction.guild.icon
-          ? interaction.guild.iconURL({ dynamic: true })
-          : "https://media.discordapp.net/attachments/969397226373804082/1070662471683149844/ezgif.com-gif-maker.jpg",
-        footer: avatar
-          ? { text: interaction.member.user.displayName, iconURL: avatar }
-          : {},
-      }),
-    ],
-    ephemeral: true,
-    components: array,
-  });
+  try {
+    interaction.editReply({
+      content: text,
+      embeds: [
+        createEmb.createEmbed({
+          title: title,
+          description: description,
+          color: color,
+          fields: fields,
+          thumbnail: thumbnail
+            ? thumbnail.url
+            : interaction.guild.icon
+            ? interaction.guild.iconURL({ dynamic: true })
+            : "https://media.discordapp.net/attachments/969397226373804082/1070662471683149844/ezgif.com-gif-maker.jpg",
+          footer: avatar
+            ? { text: interaction.member.user.displayName, iconURL: avatar }
+            : {},
+        }),
+      ],
+      ephemeral: true,
+      components: array,
+    });
+  } catch (error) {
+    console.log(`🚨 ~ error`, error);
+  }
 
   console.log("DONE W sending DRAFT");
 }
@@ -1791,34 +1795,54 @@ async function fetching(interaction, targetChannel, count, batch_id) {
     count++;
     console.log(`targetChannelMessages.size > 0`);
     let content = `Fetching files....`;
-    await interaction.editReply({
-      embeds: [createEmb.createEmbed({ title: content })],
-      ephemeral: true,
-    });
+  try {
+      await interaction.editReply({
+        embeds: [createEmb.createEmbed({ title: content })],
+        ephemeral: true,
+      });
+  } catch (error) {
+    console.log(`🚨 ~ error`, error);
+  }
     await scripts.delay(1000);
     content = `Fetching files`;
-    await interaction.editReply({
-      embeds: [createEmb.createEmbed({ title: content })],
-      ephemeral: true,
-    });
+try {
+      await interaction.editReply({
+        embeds: [createEmb.createEmbed({ title: content })],
+        ephemeral: true,
+      });
+} catch (error) {
+  console.log(`🚨 ~ error`, error);
+}
     await scripts.delay(1000);
     content = `Fetching files.`;
-    await interaction.editReply({
-      embeds: [createEmb.createEmbed({ title: content })],
-      ephemeral: true,
-    });
+    try {
+      await interaction.editReply({
+        embeds: [createEmb.createEmbed({ title: content })],
+        ephemeral: true,
+      });
+} catch (error) {
+  console.log(`🚨 ~ error`, error);
+}
     await scripts.delay(1000);
     content = `Fetching files..`;
-    await interaction.editReply({
-      embeds: [createEmb.createEmbed({ title: content })],
-      ephemeral: true,
-    });
+    try {
+      await interaction.editReply({
+        embeds: [createEmb.createEmbed({ title: content })],
+        ephemeral: true,
+      });
+} catch (error) {
+  console.log(`🚨 ~ error`, error);
+}
     await scripts.delay(1000);
     content = `Fetching files...`;
-    await interaction.editReply({
-      embeds: [createEmb.createEmbed({ title: content })],
-      ephemeral: true,
-    });
+    try {
+      await interaction.editReply({
+        embeds: [createEmb.createEmbed({ title: content })],
+        ephemeral: true,
+      });
+} catch (error) {
+  console.log(`🚨 ~ error`, error);
+}
 
     targetChannelMessages = targetChannelMessages.map((message) => message); // A COLLECTION of messages <50 max>
 
@@ -1857,16 +1881,21 @@ async function fetching(interaction, targetChannel, count, batch_id) {
                 interaction.user.send({ files: [attachment.url] });
               } catch (error) {
                 console.log(`Error sending the file:`, error);
-                interaction.user.send({
-                  content: `The File Name: ${attachment.name}\n\nFile Link: ${attachment.url}`,
-                  embeds: [
-                    createEmb.createEmbed({
-                      color: scripts.getErrorColor(),
-                      title: `Error sending the file:`,
-                      description: `${error}`,
-                    }),
-                  ],
-                });
+                try {
+                  interaction.user.send({
+                    content: `The File Name: ${attachment.name}\n\nFile Link: ${attachment.url}`,
+                    embeds: [
+                      createEmb.createEmbed({
+                        color: scripts.getErrorColor(),
+                        title: `Error sending the file:`,
+                        description: `${error}`,
+                      }),
+                    ],
+                  });
+                } catch (error) {
+                  console.log(`🚨 ~ error`, error);
+                  
+                }
               }
               // interaction.user.send({ files: [attachment.url] });
             } else {
@@ -1946,10 +1975,14 @@ async function fetching(interaction, targetChannel, count, batch_id) {
 
         if (theArray.size > 0) {
           content = `Fetch Cooldown In Progress...`;
-          await interaction.editReply({
-            embeds: [createEmb.createEmbed({ title: content })],
-            ephemeral: true,
-          });
+try {
+            await interaction.editReply({
+              embeds: [createEmb.createEmbed({ title: content })],
+              ephemeral: true,
+            });
+} catch (error) {
+  console.log(`🚨 ~ error`, error);
+}
           console.log(`Waiting 30 sec before fetching the next messages`);
 
           await scripts.delay(3000);
@@ -1962,11 +1995,15 @@ async function fetching(interaction, targetChannel, count, batch_id) {
           // with all the file names in a bulleted list single string
           //ex: - file1.mp3
           //    - file2.mp3
-          await interaction.editReply({
-            embeds: [
-              createEmb.createEmbed({ title: `Still working on it...` }),
-            ],
-          });
+          try {
+            await interaction.editReply({
+              embeds: [
+                createEmb.createEmbed({ title: `Still working on it...` }),
+              ],
+            });
+          } catch (error) {
+            console.log(`🚨 ~ error`, error);
+          }
         }
       }
     }
@@ -1981,7 +2018,11 @@ async function fetching(interaction, targetChannel, count, batch_id) {
       description: description,
       color: scripts.getErrorColor(),
     });
-    await interaction.editReply({ embeds: [embed] });
+    try {
+      await interaction.editReply({ embeds: [embed] });
+    } catch (error) {
+      console.log(`🚨 ~ error`, error);
+    }
   }
 }
 
@@ -2005,10 +2046,14 @@ async function beginFileFetch(interaction) {
   let batch_id = getBatchId();
 
   let content = `File Archiving Initiating`;
-  await interaction.editReply({
-    embeds: [createEmb.createEmbed({ title: content })],
-    ephemeral: true,
-  });
+try {
+    await interaction.editReply({
+      embeds: [createEmb.createEmbed({ title: content })],
+      ephemeral: true,
+    });
+} catch (error) {
+  console.log(`🚨 ~ error`, error);
+}
   await scripts.delay(1500);
   let count = 0;
   // start a stopwatch that tracks how long it takes to fetch all the files
@@ -2017,28 +2062,44 @@ async function beginFileFetch(interaction) {
   // create a collection for the before message id
 
   content = `File Archiving Initiating.`;
-  await interaction.editReply({
-    embeds: [createEmb.createEmbed({ title: content })],
-    ephemeral: true,
-  });
+try {
+    await interaction.editReply({
+      embeds: [createEmb.createEmbed({ title: content })],
+      ephemeral: true,
+    });
+} catch (error) {
+  console.log(`🚨 ~ error`, error);
+}
   await scripts.delay(1000);
   content = `File Archiving Initiating..`;
-  await interaction.editReply({
-    embeds: [createEmb.createEmbed({ title: content })],
-    ephemeral: true,
-  });
+  try {
+    await interaction.editReply({
+      embeds: [createEmb.createEmbed({ title: content })],
+      ephemeral: true,
+    });
+} catch (error) {
+  console.log(`🚨 ~ error`, error);
+}
   await scripts.delay(500);
   content = `File Archiving Initiating...`;
-  await interaction.editReply({
-    embeds: [createEmb.createEmbed({ title: content })],
-    ephemeral: true,
-  });
+  try {
+    await interaction.editReply({
+      embeds: [createEmb.createEmbed({ title: content })],
+      ephemeral: true,
+    });
+} catch (error) {
+  console.log(`🚨 ~ error`, error);
+}
   await scripts.delay(500);
   content = `File Downloading In Progress...`;
-  await interaction.editReply({
-    embeds: [createEmb.createEmbed({ title: content })],
-    ephemeral: true,
-  });
+  try {
+    await interaction.editReply({
+      embeds: [createEmb.createEmbed({ title: content })],
+      ephemeral: true,
+    });
+} catch (error) {
+  console.log(`🚨 ~ error`, error);
+}
   await scripts.delay(100);
 
   const fromChannelID = interaction.channel.id;
@@ -2078,7 +2139,11 @@ async function beginFileFetch(interaction) {
     });
     // TODO: Change to almost there message
 
-    await interaction.editReply({ embeds: [embed] });
+try {
+      await interaction.editReply({ embeds: [embed] });
+} catch (error) {
+  console.log(`🚨 ~ error`, error);
+}
 
     let fileNames = [];
     let files = [];
@@ -2504,10 +2569,15 @@ async function selectRoleMenu(interaction) {
           : `${displayName} aka { ${name} }`
       } does not have permission to use this command`
     );
-    await interaction.reply({
-      embeds: [embed_NoPermission(interaction)],
-      ephemeral: true,
-    });
+    try {
+      await interaction.reply({
+        embeds: [embed_NoPermission(interaction)],
+        ephemeral: true,
+      });
+    } catch (error) {
+      console.log(`🚨 ~ error`, error);
+      
+    }
   }
 }
 
@@ -2528,66 +2598,109 @@ let setFilesFoundArray = (interaction, newFile) => {
 
 async function sendLoad1(interaction) {
   content = `File Archiving Initiating`;
-  await interaction.editReply({
-    embeds: [createEmb.createEmbed({ title: content })],
-    ephemeral: true,
-  });
+  try {
+    await interaction.editReply({
+      embeds: [createEmb.createEmbed({ title: content })],
+      ephemeral: true,
+    });
+  } catch (error) {
+    console.log(`🚨 ~ error`, error);
+    
+  }
   await scripts.delay(1500);
   content = `File Archiving Initiating.`;
-  await interaction.editReply({
-    embeds: [createEmb.createEmbed({ title: content })],
-    ephemeral: true,
-  });
+try {
+    await interaction.editReply({
+      embeds: [createEmb.createEmbed({ title: content })],
+      ephemeral: true,
+    });
+  } catch (error) {
+    console.log(`🚨 ~ error`, error);
+    
+  }
   await scripts.delay(1000);
   content = `File Archiving Initiating..`;
-  await interaction.editReply({
-    embeds: [createEmb.createEmbed({ title: content })],
-    ephemeral: true,
-  });
+try {
+    await interaction.editReply({
+      embeds: [createEmb.createEmbed({ title: content })],
+      ephemeral: true,
+    });
+  } catch (error) {
+    console.log(`🚨 ~ error`, error);
+    
+  }
   await scripts.delay(500);
   content = `File Archiving Initiating...`;
-  await interaction.editReply({
-    embeds: [createEmb.createEmbed({ title: content })],
-    ephemeral: true,
-  });
+try {
+    await interaction.editReply({
+      embeds: [createEmb.createEmbed({ title: content })],
+      ephemeral: true,
+    });
+} catch (error) {
+  console.log(`🚨 ~ error`, error);
+}
   await scripts.delay(500);
   content = `File Downloading In Progress...`;
-  await interaction.editReply({
-    embeds: [createEmb.createEmbed({ title: content })],
-    ephemeral: true,
-  });
+try {
+    await interaction.editReply({
+      embeds: [createEmb.createEmbed({ title: content })],
+      ephemeral: true,
+    });
+} catch (error) {
+  console.log(`🚨 ~ error`, error);
+}
   await scripts.delay(100);
 }
 async function sendLoad2(interaction) {
   let content = `Fetching Messages....`;
-  await interaction.editReply({
-    embeds: [createEmb.createEmbed({ title: content })],
-    ephemeral: true,
-  });
+try {
+    await interaction.editReply({
+      embeds: [createEmb.createEmbed({ title: content })],
+      ephemeral: true,
+    });
+} catch (error) {
+  console.log(`🚨 ~ error`, error);
+}
   await scripts.delay(1000);
   content = `Fetching Messages`;
-  await interaction.editReply({
-    embeds: [createEmb.createEmbed({ title: content })],
-    ephemeral: true,
-  });
+try {
+    await interaction.editReply({
+      embeds: [createEmb.createEmbed({ title: content })],
+      ephemeral: true,
+    });
+} catch (error) {
+  console.log(`🚨 ~ error`, error);
+}
   await scripts.delay(1000);
   content = `Fetching Messages.`;
-  await interaction.editReply({
-    embeds: [createEmb.createEmbed({ title: content })],
-    ephemeral: true,
-  });
+try {
+    await interaction.editReply({
+      embeds: [createEmb.createEmbed({ title: content })],
+      ephemeral: true,
+    });
+} catch (error) {
+  console.log(`🚨 ~ error`, error);
+}
   await scripts.delay(1000);
   content = `Fetching Messages..`;
-  await interaction.editReply({
-    embeds: [createEmb.createEmbed({ title: content })],
-    ephemeral: true,
-  });
+try {
+    await interaction.editReply({
+      embeds: [createEmb.createEmbed({ title: content })],
+      ephemeral: true,
+    });
+} catch (error) {
+  console.log(`🚨 ~ error`, error);
+}
   await scripts.delay(1000);
   content = `Fetching Messages...`;
-  await interaction.editReply({
-    embeds: [createEmb.createEmbed({ title: content })],
-    ephemeral: true,
-  });
+try {
+    await interaction.editReply({
+      embeds: [createEmb.createEmbed({ title: content })],
+      ephemeral: true,
+    });
+} catch (error) {
+  console.log(`🚨 ~ error`, error);
+}
 }
 
 async function loadCooldown(interaction) {
@@ -2598,7 +2711,7 @@ try {
       ephemeral: true,
     });
 } catch (error) {
-  
+  console.log(`🚨 ~ error`, error);
 }
   await scripts.delay(1000);
 }
@@ -2781,9 +2894,8 @@ let getMessageAttachments = async (targetChannel, interaction, batch_id, be4, af
     before: before ? before : null, after: after ? after : null, limit: 100,
   }); 
   // collection of messages
-  console.log(`the messages`, messages);
+  console.log(`Recieved 100 Messages or less in the fetch around line 2784`);
 
-  console.log(`Here`)
   }catch(err){
     scripts.logError(err, 'error fetching');
     return filesFoundArray(interaction)
@@ -2991,9 +3103,13 @@ async function gatherChannelFiles(interaction) {
   console.log(arrayOfFiles);
   if (arrayOfFiles === undefined) {
     content = "No files found";
-    await interaction.editReply({
-      embeds: [createEmb.createEmbed({ title: content })],
-    });
+  try {
+      await interaction.editReply({
+        embeds: [createEmb.createEmbed({ title: content })],
+      });
+  } catch (error) {
+    console.log(`🚨 ~ error`, error);
+  }
     return;
   }
   // if there are files, send a message with a list of all the files that were sent and the total number of files sent in a neat embed, the list of files will reside in description and the total number of files sent will be in the title.
@@ -3002,15 +3118,19 @@ async function gatherChannelFiles(interaction) {
     let description = fileList(arrayOfFiles);
     let title = `Total Files Saved: ${totalNum}`;
     let embed;
-    await interaction.editReply({
-      embeds: [
-        createEmb.createEmbed({
-          title: title,
-          description: description,
-          color: scripts.getColor(),
-        }),
-      ],
-    });
+try {
+      await interaction.editReply({
+        embeds: [
+          createEmb.createEmbed({
+            title: title,
+            description: description,
+            color: scripts.getColor(),
+          }),
+        ],
+      });
+} catch (error) {
+  console.log(`🚨 ~ error`, error);
+}
     let docs = await scripts_mongoDB.getBatch(batch_id);
     console.log(docs);
     console.log(docs.length);
@@ -3032,10 +3152,14 @@ async function gatherChannelFiles(interaction) {
       description: description,
       color: scripts.getSuccessColor(),
     });
-    await interaction.editReply({
-      embeds: [embed],
-      ephemeral: true,
-    });
+try {
+      await interaction.editReply({
+        embeds: [embed],
+        ephemeral: true,
+      });
+} catch (error) {
+  console.log(`🚨 ~ error`, error);
+}
 
     console.log(`the files`, files);
 
@@ -3299,9 +3423,13 @@ async function uploadFileBatch(interaction, target, beforeID, afterID ) {
 
   if (arrayOfFiles === undefined) {
     content = "No files found";
-    await interaction.editReply({
-      embeds: [createEmb.createEmbed({ title: content })],
-    });
+    try {
+      await interaction.editReply({
+        embeds: [createEmb.createEmbed({ title: content })],
+      });
+    } catch (error) {
+      console.log(`🚨 ~ error`, error);
+    }
     return;
   }
   // if there are files, send a message with a list of all the files that were sent and the total number of files sent in a neat embed, the list of files will reside in description and the total number of files sent will be in the title.
@@ -3326,17 +3454,21 @@ try {
       });
 } catch (error) {
   console.log(`Most Likely a Large Download and it < Connection Timed Out >`, error);
-  interaction.channel.send({embeds: [
-    createEmb.createEmbed({
-      title: `✅ Save Complete!`,
-      description: `Damn <@${interaction.user.id}> , You Downloaded Hella Files Causing a \`< Connection Timed Out >\`\n\`${totalNum}\` \`${
-        totalNum === 1 ? `file` : `files`
-      } saved\`-----\`batch id: ${batch_id}\`\n\nUse \`/downloadfiles\` command and enter the \`batch id\` to retrieve your results\n\nFiles Saved:\n${description}`,
-      color: scripts.getSuccessColor(),
-    }),
-  ],
-  content: `||\`batch id:\` \`${batch_id}\`||`,
-});
+ try {
+   interaction.channel.send({embeds: [
+     createEmb.createEmbed({
+       title: `✅ Save Complete!`,
+       description: `Damn <@${interaction.user.id}> , You Downloaded Hella Files Causing a \`< Connection Timed Out >\`\n\`${totalNum}\` \`${
+         totalNum === 1 ? `file` : `files`
+       } saved\`-----\`batch id: ${batch_id}\`\n\nUse \`/downloadfiles\` command and enter the \`batch id\` to retrieve your results\n\nFiles Saved:\n${description}`,
+       color: scripts.getSuccessColor(),
+     }),
+   ],
+   content: `||\`batch id:\` \`${batch_id}\`||`,
+ });
+ } catch (error) {
+  console.log(`🚨 ~ error`, error);
+ }
 }
     return;
   }
@@ -3968,9 +4100,13 @@ async function uploadKrakenLinksBatch(interaction, target, beforeID, afterID) {
 
   if (arrayOfFiles === undefined) {
     content = "No files found";
-    await interaction.editReply({
-      embeds: [createEmb.createEmbed({ title: content })],
-    });
+try {
+      await interaction.editReply({
+        embeds: [createEmb.createEmbed({ title: content })],
+      })
+} catch (error) {
+  console.log(`🚨 ~ error`, error);
+};
     return;
   }
   // if there are files, send a message with a list of all the files that were sent and the total number of files sent in a neat embed, the list of files will reside in description and the total number of files sent will be in the title.

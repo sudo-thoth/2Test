@@ -2937,7 +2937,7 @@ let getMessageAttachments = async (targetChannel, interaction, batch_id, be4, af
     console.log(`theAttachments`, theAttachments);
     let numOfNumMessagesWAttachments = 0;
     for (let attachment of theAttachments) {
-      if (attachment.contentType === "audio/mpeg") {
+      if (attachment.contentType === "audio/mpeg" || attachment.url.substr(attachment.url.length - 4).endsWith(".mp3") || attachment.url.substr(attachment.url.length - 4).endsWith(".wav")) {
         addAttachment_(attachment, batch_id);
         setFilesFoundArray(interaction, attachment);
         console.log(`the attachments_`, attachments_);
@@ -3012,7 +3012,7 @@ let getMessageAttachments = async (targetChannel, interaction, batch_id, be4, af
         let attachmentName = attachment.name;
 
         console.log(`the attachment name`, attachmentName);
-
+        // FIX Here is where the files save duplicates to the db becuase messsages could haHer
         // save the message that has the attachment to the database
         await saveMessageBatch(message, batch_id, interaction);
       }

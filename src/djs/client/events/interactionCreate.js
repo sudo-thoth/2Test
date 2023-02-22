@@ -18,9 +18,10 @@ console.log(`the command`, command)
 	            await command.execute(interaction, client);
 	        } catch (error) {
 	            console.log(error);
-	            await interaction.reply({
-	                content: 'There was an error while executing this command!', 
-	                ephemeral: true
+	            await interaction.channel.send({
+	                content: 'There was an error while executing this command!\n' + "```js\n" + error + "\n```",
+ 
+	                
 	            });
 	        } 
 } else {

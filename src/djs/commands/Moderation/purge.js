@@ -41,6 +41,13 @@ module.exports = {
     ),
 
   async execute(interaction) {
+    if (!interaction.guild.members.get(client.user.id).hasPermission("ManageMessages")) return interaction.reply({
+      embeds: [createEmbd.createEmbed({
+        title: `❌ Invalid Permissions`,
+        description: `<@${interaction.client.user.id}> Needs \`ManageMessages\` Permissions in order to execute this command!`,
+        color: scripts.getErrorColor(),
+      })]
+    })
     const { channel, options } = interaction;
     const type = options.getSubcommand();
     const amount = options.getInteger("num");

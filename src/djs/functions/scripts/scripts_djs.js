@@ -222,7 +222,7 @@ const embed_FileSizeTooBig = (interaction) => {
     title: `File Size TOO BIG`,
 
     description: `Choose a how you would like to proceed`,
-    color: "RANDOM_COLOR_PLACEHOLDER",
+    color: scripts.getColor(),
     footer: {
       // string: the text for the footer
       text: `After choosing Option 1 you must re-enter the slash command`,
@@ -1262,7 +1262,7 @@ async function announce(interaction) {
       case -1:
         console.log(`Sending -1 interaction`);
         let embed = embed_FileSizeTooBig(interaction, randID);
-        let choiceRow = row_FileSizeTooBig(randID);
+        let choiceRow = await row_FileSizeTooBig(randID);
 
         message_fileSizeTooBig = {
           content: `Select One of the 2 Options`,

@@ -418,9 +418,21 @@ if (customID.includes("gb_edit")) {
       console.log(`Modal Submitted`);
       // defer the interaction
       console.log(`interaction reply 8`);
-      await interaction.deferReply({
-        ephemeral: true,
-      });
+      try {
+        await interaction.deferReply({
+          ephemeral: true,
+        });
+      } catch (error) {
+        try {
+          await interaction.reply({embeds: [createEmb.createEmbed({
+            title: "Error",
+            description: `An Error occurred when trying to reply to a Modal Button Request\n**Please Contact Steve Jobs and allow him to look into the error below**\n*Do Not Forget To Tell Him What Your Actions That Were Taken Were*\n__Error Explained:__`+"```js"+`\n${error}\n`+"```",
+            color: scripts.getErrorColor(),
+          })]})
+        } catch (errr) {
+          console.log(`The Original Error has something to do w the interaction`, error)
+        }
+      }
 
       let modalInput = null;
       let embed = null;
@@ -2273,7 +2285,7 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
         }
       } else if (customID.includes(`post_mixedsession_modal`)) {
         let data = await scripts_mongoDB.getPostData(randID);
-        // console.log(`the data is right here data`, data);
+         console.log(`the data is right here data`, data);
         let {
           //  userId,
           roles,

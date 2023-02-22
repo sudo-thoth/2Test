@@ -50,6 +50,251 @@ let labelT = `${emoji} ${
 }`;
 
 if (client) {
+  client.on("role", async (interaction, customID) => {
+    console.log(`emit recieved`)
+          let r = customID.split("role_")[1];
+          //separate the custom id from teh rand id at the #
+          r = r.split("#")[0];
+    const role = r;
+    console.log(`the role is ${role}`);
+    
+        const leaksrole = await interaction.guild.roles.fetch("1077656315331084338");
+        const ogfilesrole = await interaction.guild.roles.fetch("1077656318845919242");
+        const snippetsrole = await interaction.guild.roles.fetch("1077656316396445847")
+        const sessionsrole = await interaction.guild.roles.fetch("1077656317344366614")
+        const compupdatesrole = await interaction.guild.roles.fetch("1077785531645186088")
+        const newsrole = await interaction.guild.roles.fetch("1077656323379961996")
+        const groupbuysrole = await interaction.guild.roles.fetch("1077656322226536558")
+        const chatreviverole = await interaction.guild.roles.fetch("1077656319642828802")
+        const giveawaysrole = await interaction.guild.roles.fetch("1077656320980828220")
+        const songofthedayrole = await interaction.guild.roles.fetch("1077656324726341662")
+        async function throwNewError(
+          action = action && typeof action === "string" ? action : null,
+          interaction,
+          err,
+          i
+        ) {
+          console.log(`the action is`, action);
+          console.log(`the interaction is`, interaction);
+          console.log(`the error is`, err);
+          console.log(`the index is`, i);
+          try {
+            await interaction.editReply({
+              embeds: [
+                createEmb.createEmbed({
+                  title: "There was an Error , Share the Error w the Developer",
+                  description:
+                    `__While :__ \`${action !== null ? action : "?"}\`\n` +
+                    "```js\n" +
+                    err +
+                    "\n```\n" +
+                    `Error Report Summary:` +
+                    "\n```js\n" +
+                    `username: ${interaction.member.user.username}\nID: ${interaction.member.user.id}\nGuild: ${interaction.guild.name}\nGuild ID: ${interaction.guild.id}\nChannel: ${interaction.channel.name}\nChannel ID: ${interaction.channel.id}\nMessage ID: ${interaction.message.id}\nButton ID: ${interaction.customID}` +
+                    "\n```",
+                  color: scripts.getErrorColor(),
+                  footer: {
+                    text: "Contact STEVE JOBS and Send the Error",
+                    iconURL: interaction.user.avatarURL(),
+                  },
+                }),
+              ],
+            });
+          } catch (error) {
+        if (i) {
+              try {
+                await i.editReply({
+                  embeds: [
+                    createEmb.createEmbed({
+                      title: "There was an Error , Share the Error w the Developer",
+                      description:
+                        "```js\n" +
+                        err +
+                        "\n```\n" +
+                        `Error Report Summary:` +
+                        "\n```js\n" +
+                        `username: ${i.member.user.username}\nID: ${i.member.user.id}\nGuild: ${i.guild.name}\nGuild ID: ${i.guild.id}\nChannel: ${i.channel.name}\nChannel ID: ${i.channel.id}\nMessage ID: ${i.message.id}\nButton ID: ${i.customID}` +
+                        "\n```",
+                      color: scripts.getErrorColor(),
+                      footer: {
+                        text: "Contact STEVE JOBS and Send the Error",
+                        iconURL: i.user.avatarURL(),
+                      },
+                    }),
+                  ],
+                });
+              } catch (errr) {
+                console.log(
+                  `error occurred when trying to send the user this-> Error: ${err}\n\n\nThe error that occurred when trying to send the user the 2nd time -> error is: ${error}\n\n\nThe error that occurred when trying to send the user the 3rd time -> error is: ${errr}`
+                );
+              }
+        } else {
+          await interaction.editReply({
+            embeds: [
+              createEmb.createEmbed({
+                title: "There was an Error, Share the Error w the Developer",
+                description:
+                `${interaction.commandName ?`Command: \`${interaction.commandName}\`\n` : ""}`+
+                  "```js\n" +
+                  err +
+                  "\n```\n" +
+                  `Error occurred for admin user:` +
+                  "\n```js\n" +
+                  `username: ${interaction.member.user.username}\nID: ${interaction.member.user.id}\nGuild: ${interaction.guild.name}\nGuild ID: ${interaction.guild.id}\nChannel: ${interaction.channel.name}\nChannel ID: ${interaction.channel.id}${interaction.message ?`\nMessage ID: ${interaction.message.id}` : ""}${interaction.customID ?`\nCustom ID: ${interaction.customID}` : ""}` +
+                  "\n```",
+                color: scripts.getErrorColor(),
+                footer: {
+                  text: "Contact STEVE JOBS and Send the Error",
+                  iconURL: interaction.user.avatarURL(),
+                },
+              }),],
+            });
+          }
+        }
+        }
+    
+        const updateRole = async (interaction, role) => {
+    if (role) {
+            
+            const member = interaction.guild.members.cache.get(interaction.user.id);
+            if (member.roles.cache.has(role)) {
+              try {
+                  try {
+                    member.roles.remove(role);
+                  } catch (error) {
+                    await throwNewError(
+                      "removing leaks role",
+                      interaction,
+                      error
+                    );
+                  }
+                  await interaction.editReply({
+                    embeds: [
+                      createEmb.createEmbed({
+                        title: `${role.name} Role Removed`,
+                        description: "role status updated successfully",
+                        color: scripts.getErrorColor(),
+                        author: {
+                          name: member.user.tag,
+                        },
+                        thumbnail: member.user.displayAvatarURL({ dynamic: true }),
+                      }),
+                    ],
+                  });
+                  
+                  await scripts.delay(4444);
+                  await interaction.deleteReply();
+        } catch (error) {
+          await throwNewError(
+            `sending updated role status for ${role.name} role`,
+            interaction,
+            error
+          );
+          
+        }
+              } else {
+                try {
+                  try {
+                    member.roles.add(role);
+                  } catch (error) {
+                    await throwNewError(
+                      "adding leaks role",
+                      interaction,
+                      error
+                    );
+                  }
+                  await interaction.editReply({
+                    embeds: [
+                      createEmb.createEmbed({
+                        title: `${role.name} Role Added`,
+                        description: "role status updated successfully",
+                        color: scripts.getErrorColor(),
+                        author: {
+                          name: member.user.tag,
+                        },
+                        thumbnail: member.user.displayAvatarURL({ dynamic: true }),
+                      }),
+                    ],
+                  });
+                  
+                  await scripts.delay(4444);
+                  await interaction.deleteReply();
+                  } catch (error) {
+                    await throwNewError(
+                      `sending updated role status for ${role.name} role`,
+                      interaction,
+                      error
+                    );
+                  }
+                }
+      
+    } else {
+      try {
+        try {
+          await interaction.editReply({
+            embeds: [
+              createEmb.createEmbed({
+                title: `🚫 Role Not Found`,
+                description: "The Requested Role Was Not Found In The Current Server\nFailed to add role to user",
+                color: scripts.getErrorColor(),
+                author: {
+                  name: interaction.user.tag,
+                },
+                thumbnail: interaction.user.displayAvatarURL({ dynamic: true }),
+              }),
+            ],
+          });
+        } catch (error) {
+          await throwNewError(
+            "sending error message for role not found",
+            interaction,
+            error
+          );
+        }
+      } catch (error) {
+        await throwNewError(
+          "executing roles command",
+          interaction,
+          error
+        );
+      }
+        }
+      }
+        switch (role) {
+          case "leaks":        
+          await updateRole(interaction, leaksrole);
+          break;
+          case "ogfiles":
+          await updateRole(interaction, ogfilesrole);
+          break;
+          case "snippets":
+          await updateRole(interaction, snippetsrole);
+          break;
+          case "sessions":
+          await updateRole(interaction, sessionsrole);
+          break;
+          case "compupdates":
+          await updateRole(interaction, compupdatesrole);
+          break;
+          case "news":
+          await updateRole(interaction, newsrole);
+          break;
+          case "groupbuys":
+          await updateRole(interaction, groupbuysrole);
+          break;
+          case "chatrevive":
+          await updateRole(interaction, chatreviverole);
+          break;
+          case "giveaways":
+          await updateRole(interaction, giveawaysrole);
+          break;
+          case "songoftheday":
+          await updateRole(interaction, songofthedayrole);
+          break;
+          default:
+          break;
+        }
+      });
   // console.log(`The Client`, client);
   client.on("PostCommand", (optionsObj) => {
     // code to execute when the emit is triggered
@@ -106,6 +351,12 @@ if (client) {
       if(customID.includes("groupbuy_")){
         console.log(`Group Buy Button Clicked`)
         client.emit("GroupBuyButton", interaction);
+
+      }else if(customID.includes("role_")){
+        console.log(`a role selection Button Clicked`)
+        await interaction.deferReply({ ephemeral: true });
+        client.emit("role", interaction, customID);
+        console.log(`after role emit`);
 
       }else if (customID.includes("gb_")){
 
@@ -4162,5 +4413,6 @@ randID = scripts_djs.extractID(customID);
       // this the second listener but does nothing
     }
   });
+
   
 }

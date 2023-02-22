@@ -1,32 +1,13 @@
 const {
   SlashCommandBuilder,
   PermissionFlagsBits,
-  EmbedBuilder,
-  ActionRowBuilder,
-  ModalBuilder,
-  TextInputBuilder,
-  TextInputStyle,
-  Collection,
 } = require("discord.js");
-const createModal = require("../../functions/create/createModal.js");
-const client = require(`../../index.js`);
-const saveInteraction = require("../../functions/groupbuy/saveInteraction.js");
 const scripts = require("../../functions/scripts/scripts.js");
 const scripts_djs = require("../../functions/scripts/scripts_djs.js");
 const createEmb = require("../../functions/create/createEmbed.js");
 const createButtn = require("../../functions/create/createButton.js");
 const createActRow = require("../../functions/create/createActionRow.js");
-const interactionCollection = new Collection();
-const gbCollection = new Collection();
-client.gb = new Collection();
-client.gb_i = new Collection();
-let embed, actionRow, embedObj;
-const moment = require("moment");
-const groupBuys = require("../../../MongoDB/db/schemas/schema_groupbuys.js");
-const dbVars = require("../../functions/groupbuy/databaseVariables.js");
-const mongoose = require("mongoose");
-const gbdb = require("../../../MongoDB/db/schemas/schema_gb.js");
-let modal;
+
 async function throwNewError(
   action = action && typeof action === "string" ? action : null,
   interaction,
@@ -129,70 +110,70 @@ module.exports = {
       // ...
     });
     const leaks = await createButtn.createButton({
-      customID: `role_leaks${randID}`,
+      customID: `role_leaks_${interaction.guild.name}${randID}`,
       label: "Leaks",
       style: "primary",
       disabled: false,
       emoji: "🎶",
     });
     const ogfiles = await createButtn.createButton({
-      customID: `role_ogfiles${randID}`,
+      customID: `role_ogfiles_${interaction.guild.name}${randID}`,
       label: "OG Files",
       style: "primary",
       disabled: false,
       emoji: "🎵",
     });
     const snippets = await createButtn.createButton({
-      customID: `role_snippets${randID}`,
+      customID: `role_snippets_${interaction.guild.name}${randID}`,
       label: "Snippets",
       style: "primary",
       disabled: false,
       emoji: "🎞️",
     });
     const sessions = await createButtn.createButton({
-      customID: `role_sessions${randID}`,
+      customID: `role_sessions_${interaction.guild.name}${randID}`,
       label: "Sessions",
       style: "primary",
       disabled: false,
       emoji: "💽",
     });
     const compupdates = await createButtn.createButton({
-      customID: `role_compupdates${randID}`,
+      customID: `role_compupdates_${interaction.guild.name}${randID}`,
       label: "Comp",
       style: "primary",
       disabled: false,
       emoji: "📁",
     });
     const news = await createButtn.createButton({
-      customID: `role_news${randID}`,
+      customID: `role_news_${interaction.guild.name}${randID}`,
       label: "News",
       style: "primary",
       disabled: false,
       emoji: "📰",
     });
     const groupbuys = await createButtn.createButton({
-      customID: `role_groupbuys${randID}`,
+      customID: `role_groupbuys_${interaction.guild.name}${randID}`,
       label: "Group Buys",
       style: "primary",
       disabled: false,
       emoji: "💰",
     });
     const chatrevive = await createButtn.createButton({
-      customID: `role_chatrevive${randID}`,
+      customID: `role_chatrevive_${interaction.guild.name}${randID}`,
       label: "Chat Revive",
       style: "primary",
       disabled: false,
       emoji: "🫂",
     });
     const giveaways = await createButtn.createButton({
-      customID: `role_giveaways${randID}`,
+      customID: `role_giveaways_${interaction.guild.name}${randID}`,
       label: "Giveaways",
       style: "primary",
       disabled: false,
       emoji: "🎉",
     });
     const songoftheday = await createButtn.createButton({
-      customID: `role_songoftheday${randID}`,
+      customID: `role_songoftheday_${interaction.guild.name}${randID}`,
       label: "Song Of The Day",
       style: "primary",
       disabled: false,

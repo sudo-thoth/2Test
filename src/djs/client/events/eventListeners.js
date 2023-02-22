@@ -52,22 +52,19 @@ let labelT = `${emoji} ${
 if (client) {
   client.on("role", async (interaction, customID) => {
     console.log(`emit recieved`)
+    console.log(`original role is ${customID}`)
           let r = customID.split("role_")[1];
           //separate the custom id from teh rand id at the #
           r = r.split("#")[0];
+          console.log(`the r is ${r}`)
+          let roleName = r.split("_")[0]
+          let currentServer = r.split("_")[1];
     const role = r;
+    console.log(`the role name is ${roleName}\nthe current server is ${currentServer}`);
+
     console.log(`the role is ${role}`);
-    
-        const leaksrole = await interaction.guild.roles.fetch("1077656315331084338");
-        const ogfilesrole = await interaction.guild.roles.fetch("1077656318845919242");
-        const snippetsrole = await interaction.guild.roles.fetch("1077656316396445847")
-        const sessionsrole = await interaction.guild.roles.fetch("1077656317344366614")
-        const compupdatesrole = await interaction.guild.roles.fetch("1077785531645186088")
-        const newsrole = await interaction.guild.roles.fetch("1077656323379961996")
-        const groupbuysrole = await interaction.guild.roles.fetch("1077656322226536558")
-        const chatreviverole = await interaction.guild.roles.fetch("1077656319642828802")
-        const giveawaysrole = await interaction.guild.roles.fetch("1077656320980828220")
-        const songofthedayrole = await interaction.guild.roles.fetch("1077656324726341662")
+    // WRLD Updates Roles
+
         async function throwNewError(
           action = action && typeof action === "string" ? action : null,
           interaction,
@@ -155,9 +152,15 @@ if (client) {
     
         const updateRole = async (interaction, role) => {
     if (role) {
-            
-            const member = interaction.guild.members.cache.get(interaction.user.id);
-            if (member.roles.cache.has(role)) {
+      const member = interaction.guild.members.cache.get(interaction.user.id);
+      // get an array of the role names the user has
+      const roleNames = member.roles.cache.map((role) => role.name);
+      // if rolenames includes the role.name set toggle to true
+      let toggle = false;
+      if (roleNames.includes(role.name)) {
+        toggle = true;
+        }
+            if (toggle) {
               try {
                   try {
                     member.roles.remove(role);
@@ -208,7 +211,7 @@ if (client) {
                       createEmb.createEmbed({
                         title: `${role.name} Role Added`,
                         description: "role status updated successfully",
-                        color: scripts.getErrorColor(),
+                        color: scripts.getSuccessColor(),
                         author: {
                           name: member.user.tag,
                         },
@@ -260,40 +263,66 @@ if (client) {
       }
         }
       }
-        switch (role) {
-          case "leaks":        
-          await updateRole(interaction, leaksrole);
+// set a servername variable to the role sliced at the '_' and everything after it is the server name
+
+
+switch (currentServer) {
+  case "WRLD Updates":
+  const leaksrole = await interaction.guild.roles.fetch("1077656315331084338");
+  const ogfilesrole = await interaction.guild.roles.fetch("1077656318845919242");
+  const snippetsrole = await interaction.guild.roles.fetch("1077656316396445847")
+  const sessionsrole = await interaction.guild.roles.fetch("1077656317344366614")
+  const compupdatesrole = await interaction.guild.roles.fetch("1077785531645186088")
+  const newsrole = await interaction.guild.roles.fetch("1077656323379961996")
+  const groupbuysrole = await interaction.guild.roles.fetch("1077656322226536558")
+  const chatreviverole = await interaction.guild.roles.fetch("1077656319642828802")
+  const giveawaysrole = await interaction.guild.roles.fetch("1077656320980828220")
+  const songofthedayrole = await interaction.guild.roles.fetch("1077656324726341662")
+          switch (roleName) {
+            // WRLD Updates Roles
+            case "leaks":        
+            await updateRole(interaction, leaksrole);
+            break;
+            case "ogfiles":
+            await updateRole(interaction, ogfilesrole);
+            break;
+            case "snippets":
+            await updateRole(interaction, snippetsrole);
+            break;
+            case "sessions":
+            await updateRole(interaction, sessionsrole);
+            break;
+            case "compupdates":
+            await updateRole(interaction, compupdatesrole);
+            break;
+            case "news":
+            await updateRole(interaction, newsrole);
+            break;
+            case "groupbuys":
+            await updateRole(interaction, groupbuysrole);
+            break;
+            case "chatrevive":
+            await updateRole(interaction, chatreviverole);
+            break;
+            case "giveaways":
+            await updateRole(interaction, giveawaysrole);
+            break;
+            case "songoftheday":
+            await updateRole(interaction, songofthedayrole);
+            break;
+            default:
+            break;
+          }
           break;
-          case "ogfiles":
-          await updateRole(interaction, ogfilesrole);
-          break;
-          case "snippets":
-          await updateRole(interaction, snippetsrole);
-          break;
-          case "sessions":
-          await updateRole(interaction, sessionsrole);
-          break;
-          case "compupdates":
-          await updateRole(interaction, compupdatesrole);
-          break;
-          case "news":
-          await updateRole(interaction, newsrole);
-          break;
-          case "groupbuys":
-          await updateRole(interaction, groupbuysrole);
-          break;
-          case "chatrevive":
-          await updateRole(interaction, chatreviverole);
-          break;
-          case "giveaways":
-          await updateRole(interaction, giveawaysrole);
-          break;
-          case "songoftheday":
-          await updateRole(interaction, songofthedayrole);
+          case "WOK WRLD":
+
           break;
           default:
+          await interaction.editReply({content: `error happened here\n the server name is ${currentServer}\nthe role is ${role}\nthe role name is ${roleName}`});
+
           break;
-        }
+        
+}
       });
   // console.log(`The Client`, client);
   client.on("PostCommand", (optionsObj) => {

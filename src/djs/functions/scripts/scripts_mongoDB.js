@@ -186,6 +186,7 @@ async function saveBatchMessages(messages, batch_id){
 }
 
 async function savePostData(obj){
+
   let obj1 = {
     _id: new mongoose.Types.ObjectId(),
     userId: obj.userId,
@@ -203,6 +204,7 @@ async function savePostData(obj){
   try {
     console.log(`Saving a post from [ ${obj.user.username} ]`)
     await postData.create(obj1);
+    console.log(`✅ [ ${obj.user.username} ] Saved a post SUCCESSFULLY`)
     return; 
   } catch (error) {
     console.log(`Error while trying to save a post to the database: `, error);

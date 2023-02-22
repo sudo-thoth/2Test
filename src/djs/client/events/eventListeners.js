@@ -48,6 +48,90 @@ let labelText = [
 let labelT = `${emoji} ${
   labelText[Math.floor(Math.random() * labelText.length)]
 }`;
+async function throwNewError(
+  action = action && typeof action === "string" ? action : null,
+  interaction,
+  err,
+  i
+) {
+  console.log(`the action is`, action);
+  console.log(`the interaction is`, interaction);
+  console.log(`the error is`, err);
+  console.log(`the index is`, i);
+  try {
+    await interaction.editReply({
+      embeds: [
+        createEmb.createEmbed({
+          title: "There was an Error , Share the Error w the Developer",
+          description:
+            `__While :__ \`${action !== null ? action : "?"}\`\n` +
+            "```js\n" +
+            err +
+            "\n```\n" +
+            `Error Report Summary:` +
+            "\n```js\n" +
+            `username: ${interaction.member.user.username}\nID: ${interaction.member.user.id}\nGuild: ${interaction.guild.name}\nGuild ID: ${interaction.guild.id}\nChannel: ${interaction.channel.name}\nChannel ID: ${interaction.channel.id}\nMessage ID: ${interaction.message.id}\nButton ID: ${interaction.customID}` +
+            "\n```",
+          color: scripts.getErrorColor(),
+          footer: {
+            text: "Contact STEVE JOBS and Send the Error",
+            iconURL: interaction.user.avatarURL(),
+          },
+        }),
+      ],
+    });
+  } catch (error) {
+if (i) {
+      try {
+        await i.editReply({
+          embeds: [
+            createEmb.createEmbed({
+              title: "There was an Error , Share the Error w the Developer",
+              description:
+                "```js\n" +
+                err +
+                "\n```\n" +
+                `Error Report Summary:` +
+                "\n```js\n" +
+                `username: ${i.member.user.username}\nID: ${i.member.user.id}\nGuild: ${i.guild.name}\nGuild ID: ${i.guild.id}\nChannel: ${i.channel.name}\nChannel ID: ${i.channel.id}\nMessage ID: ${i.message.id}\nButton ID: ${i.customID}` +
+                "\n```",
+              color: scripts.getErrorColor(),
+              footer: {
+                text: "Contact STEVE JOBS and Send the Error",
+                iconURL: i.user.avatarURL(),
+              },
+            }),
+          ],
+        });
+      } catch (errr) {
+        console.log(
+          `error occurred when trying to send the user this-> Error: ${err}\n\n\nThe error that occurred when trying to send the user the 2nd time -> error is: ${error}\n\n\nThe error that occurred when trying to send the user the 3rd time -> error is: ${errr}`
+        );
+      }
+} else {
+  await interaction.editReply({
+    embeds: [
+      createEmb.createEmbed({
+        title: "There was an Error, Share the Error w the Developer",
+        description:
+        `${interaction.commandName ?`Command: \`${interaction.commandName}\`\n` : ""}`+
+          "```js\n" +
+          err +
+          "\n```\n" +
+          `Error occurred for admin user:` +
+          "\n```js\n" +
+          `username: ${interaction.member.user.username}\nID: ${interaction.member.user.id}\nGuild: ${interaction.guild.name}\nGuild ID: ${interaction.guild.id}\nChannel: ${interaction.channel.name}\nChannel ID: ${interaction.channel.id}${interaction.message ?`\nMessage ID: ${interaction.message.id}` : ""}${interaction.customID ?`\nCustom ID: ${interaction.customID}` : ""}` +
+          "\n```",
+        color: scripts.getErrorColor(),
+        footer: {
+          text: "Contact STEVE JOBS and Send the Error",
+          iconURL: interaction.user.avatarURL(),
+        },
+      }),],
+    });
+  }
+}
+}
 
 if (client) {
   client.on("role", async (interaction, customID) => {
@@ -64,91 +148,6 @@ if (client) {
 
     console.log(`the role is ${role}`);
     // WRLD Updates Roles
-
-        async function throwNewError(
-          action = action && typeof action === "string" ? action : null,
-          interaction,
-          err,
-          i
-        ) {
-          console.log(`the action is`, action);
-          console.log(`the interaction is`, interaction);
-          console.log(`the error is`, err);
-          console.log(`the index is`, i);
-          try {
-            await interaction.editReply({
-              embeds: [
-                createEmb.createEmbed({
-                  title: "There was an Error , Share the Error w the Developer",
-                  description:
-                    `__While :__ \`${action !== null ? action : "?"}\`\n` +
-                    "```js\n" +
-                    err +
-                    "\n```\n" +
-                    `Error Report Summary:` +
-                    "\n```js\n" +
-                    `username: ${interaction.member.user.username}\nID: ${interaction.member.user.id}\nGuild: ${interaction.guild.name}\nGuild ID: ${interaction.guild.id}\nChannel: ${interaction.channel.name}\nChannel ID: ${interaction.channel.id}\nMessage ID: ${interaction.message.id}\nButton ID: ${interaction.customID}` +
-                    "\n```",
-                  color: scripts.getErrorColor(),
-                  footer: {
-                    text: "Contact STEVE JOBS and Send the Error",
-                    iconURL: interaction.user.avatarURL(),
-                  },
-                }),
-              ],
-            });
-          } catch (error) {
-        if (i) {
-              try {
-                await i.editReply({
-                  embeds: [
-                    createEmb.createEmbed({
-                      title: "There was an Error , Share the Error w the Developer",
-                      description:
-                        "```js\n" +
-                        err +
-                        "\n```\n" +
-                        `Error Report Summary:` +
-                        "\n```js\n" +
-                        `username: ${i.member.user.username}\nID: ${i.member.user.id}\nGuild: ${i.guild.name}\nGuild ID: ${i.guild.id}\nChannel: ${i.channel.name}\nChannel ID: ${i.channel.id}\nMessage ID: ${i.message.id}\nButton ID: ${i.customID}` +
-                        "\n```",
-                      color: scripts.getErrorColor(),
-                      footer: {
-                        text: "Contact STEVE JOBS and Send the Error",
-                        iconURL: i.user.avatarURL(),
-                      },
-                    }),
-                  ],
-                });
-              } catch (errr) {
-                console.log(
-                  `error occurred when trying to send the user this-> Error: ${err}\n\n\nThe error that occurred when trying to send the user the 2nd time -> error is: ${error}\n\n\nThe error that occurred when trying to send the user the 3rd time -> error is: ${errr}`
-                );
-              }
-        } else {
-          await interaction.editReply({
-            embeds: [
-              createEmb.createEmbed({
-                title: "There was an Error, Share the Error w the Developer",
-                description:
-                `${interaction.commandName ?`Command: \`${interaction.commandName}\`\n` : ""}`+
-                  "```js\n" +
-                  err +
-                  "\n```\n" +
-                  `Error occurred for admin user:` +
-                  "\n```js\n" +
-                  `username: ${interaction.member.user.username}\nID: ${interaction.member.user.id}\nGuild: ${interaction.guild.name}\nGuild ID: ${interaction.guild.id}\nChannel: ${interaction.channel.name}\nChannel ID: ${interaction.channel.id}${interaction.message ?`\nMessage ID: ${interaction.message.id}` : ""}${interaction.customID ?`\nCustom ID: ${interaction.customID}` : ""}` +
-                  "\n```",
-                color: scripts.getErrorColor(),
-                footer: {
-                  text: "Contact STEVE JOBS and Send the Error",
-                  iconURL: interaction.user.avatarURL(),
-                },
-              }),],
-            });
-          }
-        }
-        }
     
         const updateRole = async (interaction, role) => {
     if (role) {
@@ -1305,21 +1304,21 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
                     }${
                       altname !== null
                         ? `\nAlternate Name(s) : ${altname}`
-                        : null
+                        : ""
                     } ||`
                   : `${
                       file.name
                         ? `|| Song Name : ${file.name}${
                             altname !== null
                               ? `\nAlternate Name(s) : ${altname}`
-                              : null
+                              : ""
                           } ||`
                         : null
                     }`
               }`,
               embeds: [embed],
               components: [actionRow, actionRow2],
-              files: [file],
+              // files: [file],
             });
             interaction.editReply({
               embeds: [
@@ -1330,14 +1329,7 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
             });
           } catch (error) {
             console.log(`Leak Kraken (with attachment) Post error`, error);
-            interaction.editReply({
-              embeds: [
-                createEmb.createEmbed({
-                  title: `Sorry But There was an Error Posting [ Leak: ${songName} ]`,
-                  color: scripts.getErrorColor(),
-                }),
-              ],
-            });
+            await throwNewError(`Posting [ Leak Kraken (with attachment) : ${songName} ]`, interaction, error)
           }
         }
         if (choice === "no") {
@@ -1357,14 +1349,14 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
                     }${
                       altname !== null
                         ? `\nAlternate Name(s) : ${altname}`
-                        : null
+                        : ""
                     } ||`
                   : `${
                       file.name
                         ? `|| Song Name : ${file.name}${
                             altname !== null
                               ? `\nAlternate Name(s) : ${altname}`
-                              : null
+                              : ""
                           } ||`
                         : null
                     }`
@@ -1381,14 +1373,7 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
             });
           } catch (error) {
             console.log(`Leak Kraken (no attachment) Post error`, error);
-            interaction.editReply({
-              embeds: [
-                createEmb.createEmbed({
-                  title: `Sorry But There was an Error Posting [ Leak: ${songName} ]`,
-                  color: scripts.getErrorColor(),
-                }),
-              ],
-            });
+            await throwNewError(`Posting [ Leak Kraken (with attachment) : ${songName} ]`, interaction, error)
           }
         } else {
           // attach the file to the message
@@ -1417,21 +1402,21 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
                     }${
                       altname !== null
                         ? `\nAlternate Name(s) : ${altname}`
-                        : null
+                        : ""
                     } ||`
                   : `${
                       file.name
                         ? `|| Song Name : ${file.name}${
                             altname !== null
                               ? `\nAlternate Name(s) : ${altname}`
-                              : null
+                              : ""
                           } ||`
                         : null
                     }`
               }`,
               embeds: [embed],
               components: [actionRow, actionRow2],
-              files: [file],
+              // files: [file],
             });
             interaction.editReply({
               embeds: [
@@ -1442,14 +1427,7 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
             });
           } catch (error) {
             console.log(`Leak Kraken (with attachment) Post error`, error);
-            interaction.editReply({
-              embeds: [
-                createEmb.createEmbed({
-                  title: `Sorry But There was an Error Posting [ Leak: ${songName} ]`,
-                  color: scripts.getErrorColor(),
-                }),
-              ],
-            });
+            await throwNewError(`Posting [ Leak Kraken (with attachment) : ${songName} ]`, interaction, error)
           }
         }
       } else if (customID.includes(`post_ogfile_modal`)) {
@@ -1587,21 +1565,21 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
                     }${
                       altname !== null
                         ? `\nAlternate Name(s) : ${altname}`
-                        : null
+                        : ""
                     } ||`
                   : `${
                       file.name
                         ? `|| Song Name : ${file.name}${
                             altname !== null
                               ? `\nAlternate Name(s) : ${altname}`
-                              : null
+                              : ""
                           } ||`
                         : null
                     }`
               }`,
               embeds: [embed],
               components: [actionRow,actionRow2],
-              files: [file],
+              // files: [file],
             });
             interaction.editReply({
               embeds: [
@@ -1612,14 +1590,7 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
             });
           } catch (error) {
             console.log(`OG File Post error`, error);
-            interaction.editReply({
-              embeds: [
-                createEmb.createEmbed({
-                  title: `Sorry But There was an Error Posting [ OG File: ${songName} ]`,
-                  color: scripts.getErrorColor(),
-                }),
-              ],
-            });
+            await throwNewError(`Posting [ OG File : ${songName} ]`, interaction, error)
           }
         }
         if (choice === "no") {
@@ -1639,14 +1610,14 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
                     }${
                       altname !== null
                         ? `\nAlternate Name(s) : ${altname}`
-                        : null
+                        : ""
                     } ||`
                   : `${
                       file.name
                         ? `|| Song Name : ${file.name}${
                             altname !== null
                               ? `\nAlternate Name(s) : ${altname}`
-                              : null
+                              : ""
                           } ||`
                         : null
                     }`
@@ -1663,14 +1634,7 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
             });
           } catch (error) {
             console.log(`OG File Post error`, error);
-            interaction.editReply({
-              embeds: [
-                createEmb.createEmbed({
-                  title: `Sorry But There was an Error Posting [ OG File : ${songName} ]`,
-                  color: scripts.getErrorColor(),
-                }),
-              ],
-            });
+            await throwNewError(`Posting [ OG File : ${songName} ]`, interaction, error)
           }
         } else {
           // attach the file to the message
@@ -1695,21 +1659,21 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
                     }${
                       altname !== null
                         ? `\nAlternate Name(s) : ${altname}`
-                        : null
+                        : ""
                     } ||`
                   : `${
                       file.name
                         ? `|| Song Name : ${file.name}${
                             altname !== null
                               ? `\nAlternate Name(s) : ${altname}`
-                              : null
+                              : ""
                           } ||`
                         : null
                     }`
               }`,
               embeds: [embed],
               components: [actionRow, actoinRow2],
-              files: [file],
+              // files: [file],
             });
             interaction.editReply({
               embeds: [
@@ -1720,14 +1684,7 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
             });
           } catch (error) {
             console.log(`OG File Post error`, error);
-            interaction.editReply({
-              embeds: [
-                createEmb.createEmbed({
-                  title: `Sorry But There was an Error Posting [ OG File: ${songName} ]`,
-                  color: scripts.getErrorColor(),
-                }),
-              ],
-            });
+            await throwNewError(`Posting [ OG File : ${songName} ]`, interaction, error)
           }
         }
       } else if (customID.includes(`post_studiosession_modal`)) {
@@ -1865,21 +1822,21 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
                     }${
                       altname !== null
                         ? `\nAlternate Name(s) : ${altname}`
-                        : null
+                        : ""
                     } ||`
                   : `${
                       file.name
                         ? `|| Song Name : ${file.name}${
                             altname !== null
                               ? `\nAlternate Name(s) : ${altname}`
-                              : null
+                              : ""
                           } ||`
                         : null
                     }`
               }`,
               embeds: [embed],
               components: [actionRow,actionRow2],
-              files: [file],
+              // files: [file],
             });
             interaction.editReply({
               embeds: [
@@ -1890,14 +1847,7 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
             });
           } catch (error) {
             console.log(`Studio Session Post error`, error);
-            interaction.editReply({
-              embeds: [
-                createEmb.createEmbed({
-                  title: `Sorry But There was an Error Posting [ Studio Session: ${songName} ]`,
-                  color: scripts.getErrorColor(),
-                }),
-              ],
-            });
+            await throwNewError(`Posting [ Studio Session : ${songName} ]`, interaction, error)
           }
         }
         if (choice === "no") {
@@ -1917,14 +1867,14 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
                     }${
                       altname !== null
                         ? `\nAlternate Name(s) : ${altname}`
-                        : null
+                        : ""
                     } ||`
                   : `${
                       file.name
                         ? `|| Song Name : ${file.name}${
                             altname !== null
                               ? `\nAlternate Name(s) : ${altname}`
-                              : null
+                              : ""
                           } ||`
                         : null
                     }`
@@ -1941,14 +1891,7 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
             });
           } catch (error) {
             console.log(`Studio Session Post error`, error);
-            interaction.editReply({
-              embeds: [
-                createEmb.createEmbed({
-                  title: `Sorry But There was an Error Posting [ Studio Session : ${songName} ]`,
-                  color: scripts.getErrorColor(),
-                }),
-              ],
-            });
+            await throwNewError(`Posting [ Studio Session : ${songName} ]`, interaction, error)
           }
         } else {
           // attach the file to the message
@@ -1973,21 +1916,21 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
                     }${
                       altname !== null
                         ? `\nAlternate Name(s) : ${altname}`
-                        : null
+                        : ""
                     } ||`
                   : `${
                       file.name
                         ? `|| Song Name : ${file.name}${
                             altname !== null
                               ? `\nAlternate Name(s) : ${altname}`
-                              : null
+                              : ""
                           } ||`
                         : null
                     }`
               }`,
               embeds: [embed],
               components: [actionRow,actionRow2],
-              files: [file],
+              // files: [file],
             });
             interaction.editReply({
               embeds: [
@@ -1998,14 +1941,7 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
             });
           } catch (error) {
             console.log(`Studio Session Post error`, error);
-            interaction.editReply({
-              embeds: [
-                createEmb.createEmbed({
-                  title: `Sorry But There was an Error Posting [ Studio Session: ${songName} ]`,
-                  color: scripts.getErrorColor(),
-                }),
-              ],
-            });
+            await throwNewError(`Posting [ Studio Session : ${songName} ]`, interaction, error)
           }
         }
       } else if (customID.includes(`post_instrumental_modal`)) {
@@ -2024,24 +1960,28 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
         const songName = interaction.fields.getTextInputValue("name")
           ? interaction.fields.getTextInputValue("name")
           : null;
-        const era = interaction.fields.getTextInputValue("era")
-          ? interaction.fields.getTextInputValue("era")
+          const text = interaction.fields.getTextInputValue("text")
+          ? interaction.fields.getTextInputValue("text")
           : null;
         const altname = interaction.fields.getTextInputValue("altname")
           ? interaction.fields.getTextInputValue("altname")
           : null;
-        const date = interaction.fields.getTextInputValue("date")
-          ? interaction.fields.getTextInputValue("date")
+          const producer = interaction.fields.getTextInputValue("producer")
+          ? interaction.fields.getTextInputValue("producer")
           : null;
         const kraken = interaction.fields.getTextInputValue("kraken")
           ? interaction.fields.getTextInputValue("kraken")
           : null;
+
+          
+
 
         // const user = await client.users.fetch(userId);
         // const interaction = await client.rest.interactions(interactionID).get();
         const role = roleString(roles);
         let embedObj = {
           title: `${songName}`,
+          description: text ? text : null,
           color: scripts.getColor(),
           author: {
             name: `New Instrumental`,
@@ -2050,10 +1990,10 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
         };
 
         let fields = [];
-        if (era !== null) {
+        if (producer !== null) {
           fields.push({
-            name: `Era`,
-            value: `${era}`,
+            name: `Produced By:`,
+            value: `${producer}`,
             inline: true,
           });
         }
@@ -2061,13 +2001,6 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
           fields.push({
             name: `Alternate Name(s)`,
             value: `${altname}`,
-            inline: true,
-          });
-        }
-        if (date !== null) {
-          fields.push({
-            name: `Date Leaked`,
-            value: `${date}`,
             inline: true,
           });
         }
@@ -2143,21 +2076,21 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
                     }${
                       altname !== null
                         ? `\nAlternate Name(s) : ${altname}`
-                        : null
+                        : ""
                     } ||`
                   : `${
                       file.name
                         ? `|| Song Name : ${file.name}${
                             altname !== null
                               ? `\nAlternate Name(s) : ${altname}`
-                              : null
+                              : ""
                           } ||`
                         : null
                     }`
               }`,
               embeds: [embed],
               components: [actionRow,actionRow2],
-              files: [file],
+              // files: [file],
             });
             interaction.editReply({
               embeds: [
@@ -2168,14 +2101,7 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
             });
           } catch (error) {
             console.log(`Instrumental Post error`, error);
-            interaction.editReply({
-              embeds: [
-                createEmb.createEmbed({
-                  title: `Sorry But There was an Error Posting [ Instrumental: ${songName} ]`,
-                  color: scripts.getErrorColor(),
-                }),
-              ],
-            });
+            await throwNewError(`Posting [ Instrumental : ${songName} ]`, interaction, error)
           }
         }
         if (choice === "no") {
@@ -2195,14 +2121,14 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
                     }${
                       altname !== null
                         ? `\nAlternate Name(s) : ${altname}`
-                        : null
+                        : ""
                     } ||`
                   : `${
                       file.name
                         ? `|| Song Name : ${file.name}${
                             altname !== null
                               ? `\nAlternate Name(s) : ${altname}`
-                              : null
+                              : ""
                           } ||`
                         : null
                     }`
@@ -2219,14 +2145,7 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
             });
           } catch (error) {
             console.log(`Instrumental Post error`, error);
-            interaction.editReply({
-              embeds: [
-                createEmb.createEmbed({
-                  title: `Sorry But There was an Error Posting [ Instrumental : ${songName} ]`,
-                  color: scripts.getErrorColor(),
-                }),
-              ],
-            });
+            await throwNewError(`Posting [ Instrumental : ${songName} ]`, interaction, error)
           }
         } else {
           actionRow = await createActRow.createActionRow({
@@ -2250,21 +2169,21 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
                     }${
                       altname !== null
                         ? `\nAlternate Name(s) : ${altname}`
-                        : null
+                        : ""
                     } ||`
                   : `${
                       file.name
                         ? `|| Song Name : ${file.name}${
                             altname !== null
                               ? `\nAlternate Name(s) : ${altname}`
-                              : null
+                              : ""
                           } ||`
                         : null
                     }`
               }`,
               embeds: [embed],
               components: [actionRow,actionRow2],
-              files: [file],
+              // files: [file],
             });
             interaction.editReply({
               embeds: [
@@ -2275,14 +2194,7 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
             });
           } catch (error) {
             console.log(`Instrumental Post error`, error);
-            interaction.editReply({
-              embeds: [
-                createEmb.createEmbed({
-                  title: `Sorry But There was an Error Posting [ Instrumental: ${songName} ]`,
-                  color: scripts.getErrorColor(),
-                }),
-              ],
-            });
+            await throwNewError(`Posting [ Instrumental : ${songName} ]`, interaction, error)
           }
         }
       } else if (customID.includes(`post_acapella_modal`)) {
@@ -2301,24 +2213,22 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
         const songName = interaction.fields.getTextInputValue("name")
           ? interaction.fields.getTextInputValue("name")
           : null;
-        const era = interaction.fields.getTextInputValue("era")
-          ? interaction.fields.getTextInputValue("era")
+          const text = interaction.fields.getTextInputValue("text")
+          ? interaction.fields.getTextInputValue("text")
           : null;
         const altname = interaction.fields.getTextInputValue("altname")
           ? interaction.fields.getTextInputValue("altname")
           : null;
-        const date = interaction.fields.getTextInputValue("date")
-          ? interaction.fields.getTextInputValue("date")
+          const producer = interaction.fields.getTextInputValue("producer")
+          ? interaction.fields.getTextInputValue("producer")
           : null;
         const kraken = interaction.fields.getTextInputValue("kraken")
           ? interaction.fields.getTextInputValue("kraken")
           : null;
-
-        // const user = await client.users.fetch(userId);
-        // const interaction = await client.rest.interactions(interactionID).get();
-        const role = roleString(roles);
+const role = roleString(roles);
         let embedObj = {
           title: `${songName}`,
+          description: text ? text : null,
           color: scripts.getColor(),
           author: {
             name: `New Accapella`,
@@ -2327,10 +2237,11 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
         };
 
         let fields = [];
-        if (era !== null) {
+    
+        if (producer !== null) {
           fields.push({
-            name: `Era`,
-            value: `${era}`,
+            name: `Produced By:`,
+            value: `${producer}`,
             inline: true,
           });
         }
@@ -2341,13 +2252,9 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
             inline: true,
           });
         }
-        if (date !== null) {
-          fields.push({
-            name: `Date Leaked`,
-            value: `${date}`,
-            inline: true,
-          });
-        }
+
+        // const user = await client.users.fetch(userId);
+        // const interaction = await client.rest.interactions(interactionID).get();
         if (kraken !== null) {
           embedObj.url = `${kraken}`;
           try {
@@ -2420,21 +2327,21 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
                     }${
                       altname !== null
                         ? `\nAlternate Name(s) : ${altname}`
-                        : null
+                        : ""
                     } ||`
                   : `${
                       file.name
                         ? `|| Song Name : ${file.name}${
                             altname !== null
                               ? `\nAlternate Name(s) : ${altname}`
-                              : null
+                              : ""
                           } ||`
                         : null
                     }`
               }`,
               embeds: [embed],
               components: [actionRow,actionRow2],
-              files: [file],
+              // files: [file],
             });
             interaction.editReply({
               embeds: [
@@ -2445,14 +2352,7 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
             });
           } catch (error) {
             console.log(`Accapella Post error`, error);
-            interaction.editReply({
-              embeds: [
-                createEmb.createEmbed({
-                  title: `Sorry But There was an Error Posting [ Accapella: ${songName} ]`,
-                  color: scripts.getErrorColor(),
-                }),
-              ],
-            });
+            await throwNewError(`Posting [ Accapella : ${songName} ]`, interaction, error)
           }
         }
         if (choice === "no") {
@@ -2472,14 +2372,14 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
                     }${
                       altname !== null
                         ? `\nAlternate Name(s) : ${altname}`
-                        : null
+                        : ""
                     } ||`
                   : `${
                       file.name
                         ? `|| Song Name : ${file.name}${
                             altname !== null
                               ? `\nAlternate Name(s) : ${altname}`
-                              : null
+                              : ""
                           } ||`
                         : null
                     }`
@@ -2496,14 +2396,7 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
             });
           } catch (error) {
             console.log(`Accapella Post error`, error);
-            interaction.editReply({
-              embeds: [
-                createEmb.createEmbed({
-                  title: `Sorry But There was an Error Posting [ Accapella : ${songName} ]`,
-                  color: scripts.getErrorColor(),
-                }),
-              ],
-            });
+            await throwNewError(`Posting [ Accapella : ${songName} ]`, interaction, error)
           }
         } else {
           // attach the file to the message
@@ -2528,21 +2421,21 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
                     }${
                       altname !== null
                         ? `\nAlternate Name(s) : ${altname}`
-                        : null
+                        : ""
                     } ||`
                   : `${
                       file.name
                         ? `|| Song Name : ${file.name}${
                             altname !== null
                               ? `\nAlternate Name(s) : ${altname}`
-                              : null
+                              : ""
                           } ||`
                         : null
                     }`
               }`,
               embeds: [embed],
               components: [actionRow,actionRow2],
-              files: [file],
+              // files: [file],
             });
             interaction.editReply({
               embeds: [
@@ -2553,14 +2446,7 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
             });
           } catch (error) {
             console.log(`Accapella Post error`, error);
-            interaction.editReply({
-              embeds: [
-                createEmb.createEmbed({
-                  title: `Sorry But There was an Error Posting [ Accapella: ${songName} ]`,
-                  color: scripts.getErrorColor(),
-                }),
-              ],
-            });
+            await throwNewError(`Posting [ Accapella : ${songName} ]`, interaction, error)
           }
         }
       } else if (customID.includes(`post_mixedsession_modal`)) {
@@ -2698,21 +2584,21 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
                     }${
                       altname !== null
                         ? `\nAlternate Name(s) : ${altname}`
-                        : null
+                        : ""
                     } ||`
                   : `${
                       file.name
                         ? `|| Song Name : ${file.name}${
                             altname !== null
                               ? `\nAlternate Name(s) : ${altname}`
-                              : null
+                              : ""
                           } ||`
                         : null
                     }`
               }`,
               embeds: [embed],
               components: [actionRow,actionRow2],
-              files: [file],
+              // files: [file],
             });
             interaction.editReply({
               embeds: [
@@ -2723,14 +2609,7 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
             });
           } catch (error) {
             console.log(`Mixed Session Edit Post error`, error);
-            interaction.editReply({
-              embeds: [
-                createEmb.createEmbed({
-                  title: `Sorry But There was an Error Posting [ Mixed Session Edit: ${songName} ]`,
-                  color: scripts.getErrorColor(),
-                }),
-              ],
-            });
+            await throwNewError(`Posting [ Mixed Session Edit : ${songName} ]`, interaction, error)
           }
         }
         if (choice === "no") {
@@ -2750,14 +2629,14 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
                     }${
                       altname !== null
                         ? `\nAlternate Name(s) : ${altname}`
-                        : null
+                        : ""
                     } ||`
                   : `${
                       file.name
                         ? `|| Song Name : ${file.name}${
                             altname !== null
                               ? `\nAlternate Name(s) : ${altname}`
-                              : null
+                              : ""
                           } ||`
                         : null
                     }`
@@ -2774,14 +2653,7 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
             });
           } catch (error) {
             console.log(`Mixed Session Edit Post error`, error);
-            interaction.editReply({
-              embeds: [
-                createEmb.createEmbed({
-                  title: `Sorry But There was an Error Posting [ Mixed Session Edit : ${songName} ]`,
-                  color: scripts.getErrorColor(),
-                }),
-              ],
-            });
+            await throwNewError(`Posting [ Mixed Session Edit : ${songName} ]`, interaction, error)
           }
         } else {
           // attach the file to the message
@@ -2806,21 +2678,21 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
                     }${
                       altname !== null
                         ? `\nAlternate Name(s) : ${altname}`
-                        : null
+                        : ""
                     } ||`
                   : `${
                       file.name
                         ? `|| Song Name : ${file.name}${
                             altname !== null
                               ? `\nAlternate Name(s) : ${altname}`
-                              : null
+                              : ""
                           } ||`
                         : null
                     }`
               }`,
               embeds: [embed],
               components: [actionRow,actionRow2],
-              files: [file],
+              // files: [file],
             });
             interaction.editReply({
               embeds: [
@@ -2831,14 +2703,7 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
             });
           } catch (error) {
             console.log(`Mixed Session Edit Post error`, error);
-            interaction.editReply({
-              embeds: [
-                createEmb.createEmbed({
-                  title: `Sorry But There was an Error Posting [ Mixed Session Edit: ${songName} ]`,
-                  color: scripts.getErrorColor(),
-                }),
-              ],
-            });
+            await throwNewError(`Posting [ Mixed Session Edit : ${songName} ]`, interaction, error)
           }
         }
       } else if (customID.includes(`post_snippet_modal`)) {
@@ -2972,21 +2837,21 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
                     }${
                       altname !== null
                         ? `\nAlternate Name(s) : ${altname}`
-                        : null
+                        : ""
                     } ||`
                   : `${
                       file.name
                         ? `|| Song Name : ${file.name}${
                             altname !== null
                               ? `\nAlternate Name(s) : ${altname}`
-                              : null
+                              : ""
                           } ||`
                         : null
                     }`
               }`,
               embeds: [embed],
               components: [actionRow],
-              files: [file],
+              // files: [file],
             });
             interaction.editReply({
               embeds: [
@@ -2997,14 +2862,7 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
             });
           } catch (error) {
             console.log(`Snippet Post error`, error);
-            interaction.editReply({
-              embeds: [
-                createEmb.createEmbed({
-                  title: `Sorry But There was an Error Posting [ Snippet: ${songName} ]`,
-                  color: scripts.getErrorColor(),
-                }),
-              ],
-            });
+            await throwNewError(`Posting [ Snippet : ${songName} ]`, interaction, error)
           }
         }
         if (choice === "no") {
@@ -3024,14 +2882,14 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
                     }${
                       altname !== null
                         ? `\nAlternate Name(s) : ${altname}`
-                        : null
+                        : ""
                     } ||`
                   : `${
                       file.name
                         ? `|| Song Name : ${file.name}${
                             altname !== null
                               ? `\nAlternate Name(s) : ${altname}`
-                              : null
+                              : ""
                           } ||`
                         : null
                     }`
@@ -3048,14 +2906,7 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
             });
           } catch (error) {
             console.log(`Snippet Post error`, error);
-            interaction.editReply({
-              embeds: [
-                createEmb.createEmbed({
-                  title: `Sorry But There was an Error Posting [ Snippet : ${songName} ]`,
-                  color: scripts.getErrorColor(),
-                }),
-              ],
-            });
+            await throwNewError(`Posting [ Snippet : ${songName} ]`, interaction, error)
           }
         } else {
           // attach the file to the message
@@ -3080,21 +2931,21 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
                     }${
                       altname !== null
                         ? `\nAlternate Name(s) : ${altname}`
-                        : null
+                        : ""
                     } ||`
                   : `${
                       file.name
                         ? `|| Song Name : ${file.name}${
                             altname !== null
                               ? `\nAlternate Name(s) : ${altname}`
-                              : null
+                              : ""
                           } ||`
                         : null
                     }`
               }`,
               embeds: [embed],
               components: [actionRow,actionRow2],
-              files: [file],
+              // files: [file],
             });
             interaction.editReply({
               embeds: [
@@ -3105,14 +2956,7 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
             });
           } catch (error) {
             console.log(`Snippet Post error`, error);
-            interaction.editReply({
-              embeds: [
-                createEmb.createEmbed({
-                  title: `Sorry But There was an Error Posting [ Snippet: ${songName} ]`,
-                  color: scripts.getErrorColor(),
-                }),
-              ],
-            });
+            await throwNewError(`Posting [ Snippet : ${songName} ]`, interaction, error)
           }
         }
       } else if (customID.includes(`post_remaster_modal`)) {
@@ -3244,21 +3088,21 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
                     }${
                       altname !== null
                         ? `\nAlternate Name(s) : ${altname}`
-                        : null
+                        : ""
                     } ||`
                   : `${
                       file.name
                         ? `|| Song Name : ${file.name}${
                             altname !== null
                               ? `\nAlternate Name(s) : ${altname}`
-                              : null
+                              : ""
                           } ||`
                         : null
                     }`
               }`,
               embeds: [embed],
               components: [actionRow,actionRow2],
-              files: [file],
+              // files: [file],
             });
             interaction.editReply({
               embeds: [
@@ -3269,14 +3113,7 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
             });
           } catch (error) {
             console.log(`Remaster Post error`, error);
-            interaction.editReply({
-              embeds: [
-                createEmb.createEmbed({
-                  title: `Sorry But There was an Error Posting [ Remaster: ${songName} ]`,
-                  color: scripts.getErrorColor(),
-                }),
-              ],
-            });
+            await throwNewError(`Posting [ Remaster : ${songName} ]`, interaction, error)
           }
         }
         if (choice === "no") {
@@ -3296,14 +3133,14 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
                     }${
                       altname !== null
                         ? `\nAlternate Name(s) : ${altname}`
-                        : null
+                        : ""
                     } ||`
                   : `${
                       file.name
                         ? `|| Song Name : ${file.name}${
                             altname !== null
                               ? `\nAlternate Name(s) : ${altname}`
-                              : null
+                              : ""
                           } ||`
                         : null
                     }`
@@ -3320,14 +3157,7 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
             });
           } catch (error) {
             console.log(`Remaster Post error`, error);
-            interaction.editReply({
-              embeds: [
-                createEmb.createEmbed({
-                  title: `Sorry But There was an Error Posting [ Remaster : ${songName} ]`,
-                  color: scripts.getErrorColor(),
-                }),
-              ],
-            });
+            await throwNewError(`Posting [ Remaster : ${songName} ]`, interaction, error)
           }
         } else {
           // attach the file to the message
@@ -3352,21 +3182,21 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
                     }${
                       altname !== null
                         ? `\nAlternate Name(s) : ${altname}`
-                        : null
+                        : ""
                     } ||`
                   : `${
                       file.name
                         ? `|| Song Name : ${file.name}${
                             altname !== null
                               ? `\nAlternate Name(s) : ${altname}`
-                              : null
+                              : ""
                           } ||`
                         : null
                     }`
               }`,
               embeds: [embed],
               components: [actionRow,actionRow2],
-              files: [file],
+              // files: [file],
             });
             interaction.editReply({
               embeds: [
@@ -3377,14 +3207,7 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
             });
           } catch (error) {
             console.log(`Remaster Post error`, error);
-            interaction.editReply({
-              embeds: [
-                createEmb.createEmbed({
-                  title: `Sorry But There was an Error Posting [ Remaster: ${songName} ]`,
-                  color: scripts.getErrorColor(),
-                }),
-              ],
-            });
+            await throwNewError(`Posting [ Remaster : ${songName} ]`, interaction, error)
           }
         }
       } else if (customID.includes(`post_stemedit_modal`)) {
@@ -3424,10 +3247,11 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
           description: text ? text : null,
           color: scripts.getColor(),
           author: {
-            name: `New Remaster`,
+            name: `New Stem Edit`,
             icon_url: scripts.getJuice(),
           },
         };
+        
 
         let fields = [];
         if (producer !== null) {
@@ -3516,39 +3340,32 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
                     }${
                       altname !== null
                         ? `\nAlternate Name(s) : ${altname}`
-                        : null
+                        : ""
                     } ||`
                   : `${
                       file.name
                         ? `|| Song Name : ${file.name}${
                             altname !== null
                               ? `\nAlternate Name(s) : ${altname}`
-                              : null
+                              : ""
                           } ||`
                         : null
                     }`
               }`,
               embeds: [embed],
               components: [actionRow,actionRow2],
-              files: [file],
+              // files: [file],
             });
             interaction.editReply({
               embeds: [
                 createEmb.createEmbed({
-                  title: `Sent [ Remaster: ${songName} ]`,
+                  title: `Sent [ Stem Edit: ${songName} ]`,
                 }),
               ],
             });
           } catch (error) {
-            console.log(`Remaster Post error`, error);
-            interaction.editReply({
-              embeds: [
-                createEmb.createEmbed({
-                  title: `Sorry But There was an Error Posting [ Remaster: ${songName} ]`,
-                  color: scripts.getErrorColor(),
-                }),
-              ],
-            });
+            console.log(`Stem Edit Post error`, error);
+            await throwNewError(`Posting [ Stem Edit: ${songName} ]`, interaction, error)
           }
         }
         if (choice === "no") {
@@ -3568,14 +3385,14 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
                     }${
                       altname !== null
                         ? `\nAlternate Name(s) : ${altname}`
-                        : null
+                        : ""
                     } ||`
                   : `${
                       file.name
                         ? `|| Song Name : ${file.name}${
                             altname !== null
                               ? `\nAlternate Name(s) : ${altname}`
-                              : null
+                              : ""
                           } ||`
                         : null
                     }`
@@ -3592,14 +3409,7 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
             });
           } catch (error) {
             console.log(`Remaster Post error`, error);
-            interaction.editReply({
-              embeds: [
-                createEmb.createEmbed({
-                  title: `Sorry But There was an Error Posting [ Remaster : ${songName} ]`,
-                  color: scripts.getErrorColor(),
-                }),
-              ],
-            });
+            await throwNewError(`Posting [ Remaster: ${songName} ]`, interaction, error)
           }
         } else {
           // attach the file to the message
@@ -3624,21 +3434,21 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
                     }${
                       altname !== null
                         ? `\nAlternate Name(s) : ${altname}`
-                        : null
+                        : ""
                     } ||`
                   : `${
                       file.name
                         ? `|| Song Name : ${file.name}${
                             altname !== null
                               ? `\nAlternate Name(s) : ${altname}`
-                              : null
+                              : ""
                           } ||`
                         : null
                     }`
               }`,
               embeds: [embed],
               components: [actionRow,actionRow2],
-              files: [file],
+              // files: [file],
             });
             interaction.editReply({
               embeds: [
@@ -3649,14 +3459,7 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
             });
           } catch (error) {
             console.log(`Remaster Post error`, error);
-            interaction.editReply({
-              embeds: [
-                createEmb.createEmbed({
-                  title: `Sorry But There was an Error Posting [ Remaster: ${songName} ]`,
-                  color: scripts.getErrorColor(),
-                }),
-              ],
-            });
+            await throwNewError(`Posting [ Remaster: ${songName} ]`, interaction, error)
           }
         }
       } else if (customID.includes(`post_magicaledit_modal`)) {
@@ -3816,7 +3619,7 @@ randID = scripts_djs.extractID(customID);
               }`,
               embeds: [embed],
               components: [actionRow,actionRow2],
-              files: [file],
+              // files: [file],
             });
             interaction.editReply({
               embeds: [
@@ -3827,14 +3630,7 @@ randID = scripts_djs.extractID(customID);
             });
           } catch (error) {
             console.log(`Magical Edit Post error`, error);
-            interaction.editReply({
-              embeds: [
-                createEmb.createEmbed({
-                  title: `Sorry But There was an Error Posting [ Magical Edit: ${songName} ]`,
-                  color: scripts.getErrorColor(),
-                }),
-              ],
-            });
+            await throwNewError(`Posting [ Magical Edit: ${songName} ]`, interaction, error)
           }
         }
         if (choice === "no") {
@@ -3854,14 +3650,14 @@ randID = scripts_djs.extractID(customID);
                     }${
                       altname !== null
                         ? `\nAlternate Name(s) : ${altname}`
-                        : null
+                        : ""
                     } ||`
                   : `${
                       file.name
                         ? `|| Song Name : ${file.name}${
                             altname !== null
                               ? `\nAlternate Name(s) : ${altname}`
-                              : null
+                              : ""
                           } ||`
                         : null
                     }`
@@ -3878,14 +3674,7 @@ randID = scripts_djs.extractID(customID);
             });
           } catch (error) {
             console.log(`Magical Edit Post error`, error);
-            interaction.editReply({
-              embeds: [
-                createEmb.createEmbed({
-                  title: `Sorry But There was an Error Posting [ Magical Edit : ${songName} ]`,
-                  color: scripts.getErrorColor(),
-                }),
-              ],
-            });
+            await throwNewError(`Posting [ Magical Edit: ${songName} ]`, interaction, error)
           }
         } else {
           // attach the file to the message
@@ -3902,7 +3691,7 @@ randID = scripts_djs.extractID(customID);
               viewAttachmentButton,
               ]});
           try {
-            let str2 = 
+            // let str2 = 
             interaction.channel.send({
               content: `${
                 role.length > 1
@@ -3925,7 +3714,7 @@ randID = scripts_djs.extractID(customID);
               }`,
               embeds: [embed],
               components: [actionRow,actionRow2],
-              files: [file],
+              // files: [file],
             });
             interaction.editReply({
               embeds: [
@@ -3936,14 +3725,7 @@ randID = scripts_djs.extractID(customID);
             });
           } catch (error) {
             console.log(`Magical Edit Post error`, error);
-            interaction.editReply({
-              embeds: [
-                createEmb.createEmbed({
-                  title: `Sorry But There was an Error Posting [ Magical Edit: ${songName} ]`,
-                  color: scripts.getErrorColor(),
-                }),
-              ],
-            });
+            await throwNewError(`Posting [ Magical Edit: ${songName} ]`, interaction, error)
           }
         }
       } else if (customID.includes(`post_slowreverb_modal`)) {
@@ -4075,21 +3857,21 @@ randID = scripts_djs.extractID(customID);
                     }${
                       altname !== null
                         ? `\nAlternate Name(s) : ${altname}`
-                        : null
+                        : ""
                     } ||`
                   : `${
                       file.name
                         ? `|| Song Name : ${file.name}${
                             altname !== null
                               ? `\nAlternate Name(s) : ${altname}`
-                              : null
+                              : ""
                           } ||`
                         : null
                     }`
               }`,
               embeds: [embed],
               components: [actionRow],actionRow2,
-              files: [file],
+              // files: [file],
             });
             interaction.editReply({
               embeds: [
@@ -4100,14 +3882,7 @@ randID = scripts_djs.extractID(customID);
             });
           } catch (error) {
             console.log(`Slowed & Reverb Post error`, error);
-            interaction.editReply({
-              embeds: [
-                createEmb.createEmbed({
-                  title: `Sorry But There was an Error Posting [ Slowed & Reverb: ${songName} ]`,
-                  color: scripts.getErrorColor(),
-                }),
-              ],
-            });
+            await throwNewError(`Posting [ Slowed & Reverb : ${songName} ]`, interaction, error)
           }
         }
         if (choice === "no") {
@@ -4127,14 +3902,14 @@ randID = scripts_djs.extractID(customID);
                     }${
                       altname !== null
                         ? `\nAlternate Name(s) : ${altname}`
-                        : null
+                        : ""
                     } ||`
                   : `${
                       file.name
                         ? `|| Song Name : ${file.name}${
                             altname !== null
                               ? `\nAlternate Name(s) : ${altname}`
-                              : null
+                              : ""
                           } ||`
                         : null
                     }`
@@ -4151,14 +3926,7 @@ randID = scripts_djs.extractID(customID);
             });
           } catch (error) {
             console.log(`Slowed & Reverb Post error`, error);
-            interaction.editReply({
-              embeds: [
-                createEmb.createEmbed({
-                  title: `Sorry But There was an Error Posting [ Slowed & Reverb : ${songName} ]`,
-                  color: scripts.getErrorColor(),
-                }),
-              ],
-            });
+            await throwNewError(`Posting [ Slowed & Reverb : ${songName} ]`, interaction, error)
           }
         } else {
           // attach the file to the message
@@ -4183,21 +3951,21 @@ randID = scripts_djs.extractID(customID);
                     }${
                       altname !== null
                         ? `\nAlternate Name(s) : ${altname}`
-                        : null
+                        : ""
                     } ||`
                   : `${
                       file.name
                         ? `|| Song Name : ${file.name}${
                             altname !== null
                               ? `\nAlternate Name(s) : ${altname}`
-                              : null
+                              : ""
                           } ||`
                         : null
                     }`
               }`,
               embeds: [embed],
               components: [actionRow,actionRow2],
-              files: [file],
+              // files: [file],
             });
             interaction.editReply({
               embeds: [
@@ -4208,14 +3976,7 @@ randID = scripts_djs.extractID(customID);
             });
           } catch (error) {
             console.log(`Slowed & Reverb Post error`, error);
-            interaction.editReply({
-              embeds: [
-                createEmb.createEmbed({
-                  title: `Sorry But There was an Error Posting [ Slowed & Reverb: ${songName} ]`,
-                  color: scripts.getErrorColor(),
-                }),
-              ],
-            });
+            await throwNewError(`Posting [ Slowed & Reverb : ${songName} ]`, interaction, error)
           }
         }
       } else if (customID.includes(`post_rando_audio_modal`)) {
@@ -4323,7 +4084,7 @@ randID = scripts_djs.extractID(customID);
               }`,
               embeds: [embed],
               components: [actionRow,actionRow2],
-              files: [file],
+              // files: [file],
             });
             interaction.editReply({
               embeds: [
@@ -4334,14 +4095,7 @@ randID = scripts_djs.extractID(customID);
             });
           } catch (error) {
             console.log(`Audio File Post error`, error);
-            interaction.editReply({
-              embeds: [
-                createEmb.createEmbed({
-                  title: `Sorry But There was an Error Posting [ Audio File: ${songName} ]`,
-                  color: scripts.getErrorColor(),
-                }),
-              ],
-            });
+            await throwNewError(`Posting [ Audio File : ${songName} ]`, interaction, error)
           }
         }
         if (choice === "no") {
@@ -4373,14 +4127,7 @@ randID = scripts_djs.extractID(customID);
             });
           } catch (error) {
             console.log(`Audio File Post error`, error);
-            interaction.editReply({
-              embeds: [
-                createEmb.createEmbed({
-                  title: `Sorry But There was an Error Posting [ Audio File : ${songName} ]`,
-                  color: scripts.getErrorColor(),
-                }),
-              ],
-            });
+            await throwNewError(`Posting [ Audio File : ${songName} ]`, interaction, error)
           }
         } else {
           // attach the file to the message
@@ -4407,7 +4154,7 @@ randID = scripts_djs.extractID(customID);
               }`,
               embeds: [embed],
               components: [actionRow,actionRow2],
-              files: [file],
+              // files: [file],
             });
             interaction.editReply({
               embeds: [
@@ -4418,14 +4165,7 @@ randID = scripts_djs.extractID(customID);
             });
           } catch (error) {
             console.log(`Audio File Post error`, error);
-            interaction.editReply({
-              embeds: [
-                createEmb.createEmbed({
-                  title: `Sorry But There was an Error Posting [ Audio File: ${songName} ]`,
-                  color: scripts.getErrorColor(),
-                }),
-              ],
-            });
+            await throwNewError(`Posting [ Audio File : ${songName} ]`, interaction, error)
           }
         }
       }

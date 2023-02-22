@@ -47,7 +47,7 @@ async function throwNewError(
             "```js\n" +
             err +
             "\n```\n" +
-            `Error occurred for admin user:` +
+            `Error Report Summary:` +
             "\n```js\n" +
             `username: ${interaction.member.user.username}\nID: ${interaction.member.user.id}\nGuild: ${interaction.guild.name}\nGuild ID: ${interaction.guild.id}\nChannel: ${interaction.channel.name}\nChannel ID: ${interaction.channel.id}\nMessage ID: ${interaction.message.id}\nButton ID: ${interaction.customID}` +
             "\n```",
@@ -70,7 +70,7 @@ if (i) {
                 "```js\n" +
                 err +
                 "\n```\n" +
-                `Error occurred for admin user:` +
+                `Error Report Summary:` +
                 "\n```js\n" +
                 `username: ${i.member.user.username}\nID: ${i.member.user.id}\nGuild: ${i.guild.name}\nGuild ID: ${i.guild.id}\nChannel: ${i.channel.name}\nChannel ID: ${i.channel.id}\nMessage ID: ${i.message.id}\nButton ID: ${i.customID}` +
                 "\n```",
@@ -124,7 +124,7 @@ module.exports = {
     // use #ffcb6b as the embed color
 
     const roleHubEmbed = createEmb.createEmbed({
-      title: "Role Selections",
+      title: `${interaction.guild.name} Role Selection`,
       color: scripts.getColor(),
       // ...
     });
@@ -243,5 +243,6 @@ module.exports = {
     await throwNewError("executing roles command", interaction, error);
     }
   }
+
   },
 };

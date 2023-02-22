@@ -2,5 +2,5 @@
     "editor.tabCompletion": "on",
     "diffEditor.codeLens": true,
     "discord.enabled": true,
-    "vscord.enabled": true
+    "vscord.enabled": false
 }

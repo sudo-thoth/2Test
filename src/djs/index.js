@@ -63,14 +63,14 @@ client.on("ready", () => {
 });
 module.exports = client;
 handleEvents(client, mongoConfig, 2);
-const { MongoDB_Token_2Test } = process.env;
+const { MongoDB_Token_2Test_bot, MongoDB_Token_Wok_Beta } = process.env;
 
 
 (async () => {
     if (mongoose === undefined) {
       return;
     } else {
-      await mongoose.connect(MongoDB_Token_2Test).catch(console.error);
+      await mongoose.connect(MongoDB_Token_Wok_Beta).catch(console.error);
       console.log(`---------- >> MongoDB is Online << ----------`)
     }
   })();

@@ -934,23 +934,25 @@ let era, producedby, dateleaked, alternatenames, otherinfo;
         for (let i = 0; i < fields.length; i++) {
           let field = fields[i];
           let { name, value } = field;
-          if (name.toLowerCase === "era"){
+          if (name.toLowerCase()=== "era"){
             era = value;
-          } else if (name.toLowerCase === 'alternate name(s)') {
+          } else if (name.toLowerCase()=== 'alternate name(s)') {
             alternatenames = value;
-          } else if (name.toLowerCase === 'date leaked'){
+          } else if (name.toLowerCase()=== 'date leaked'){
             dateleaked = value;
-          } else if (name.toLowerCase === 'produced by') {
+          } else if (name.toLowerCase()=== 'produced by') {
             producedby = value;
           }  
         }
-        if (description.includes('Cover Art:')){
-          title = title.replace('Cover Art: ', '');
-        } else if(description.includes('Snippet: ')){
-          title = title.replace('Snippet: ', '');
-          } else {
-            otherinfo = embedObj.description ? embedObj.description : '';
-          }
+        if (description) {
+          if (description.includes('Cover Art:')){
+            title = title.replace('Cover Art: ', '');
+          } else if(description.includes('Snippet: ')){
+            title = title.replace('Snippet: ', '');
+            } else {
+              otherinfo = embedObj.description ? embedObj.description : '';
+            }
+        }
        }
           let fileInfoString = `${era ? `**Era:** ${era}\n` : ''}${producedby ? `**Produced By:** ${producedby}\n` : ''}${dateleaked ? `**Date Leaked:** ${dateleaked}\n` : ''}${alternatenames ? `**Alternate Name(s):** ${alternatenames}\n` : ''}${otherinfo ? `**Other Info:** ${otherinfo}\n` : ''}`;
           let fileTechnicalInfoString = `${`**File Name:** \`${nameOfFile}\``}${file.contentType? `**Content Type:** ${file.contentType}\n` : ''}${file.size? `**File Size:** ${(file.size / 1048576).toFixed(2)} Mb\n` : ''}`;
@@ -1011,7 +1013,7 @@ let era, producedby, dateleaked, alternatenames, otherinfo;
             user.send({ 
               embeds: nameOfFile === `music.m4a` ? [createEmb.createEmbed({
               title: `${(title ? title : `${name ? name : nameOfFile}`) === nameOfFile ? `` : `${title ? title : `${name ? name : nameOfFile}`}`}`,
-                      description: fileInfoString || fileTechnicalInfoString ? `**__File Information:__**\n\n${fileInfoString ? `${fileInfoString}\n\n` : ``}${fileTechnicalInfoString ? `${fileTechnicalInfoString}` : ``}` : '',
+                      description: fileInfoString || fileTechnicalInfoString ? `**__File Information:__**\n\n${fileInfoString ? `${fileInfoString}` : ``}${fileTechnicalInfoString ? `${fileTechnicalInfoString}` : ``}` : '',
                   url: file.url ? file.url : null,
               color: scripts.getColor(),
               thumbnail: thumbnail ? thumbnail : null,
@@ -1034,7 +1036,7 @@ let era, producedby, dateleaked, alternatenames, otherinfo;
   
             })] : [createEmb.createEmbed({
               title: `${(title ? title : `${name ? name : nameOfFile}`) === nameOfFile ? `` : `${title ? title : `${name ? name : nameOfFile}`}`}`,
-                      description: fileInfoString || fileTechnicalInfoString ? `**__File Information:__**\n\n${fileInfoString ? `${fileInfoString}\n\n` : ``}${fileTechnicalInfoString ? `${fileTechnicalInfoString}` : ``}` : '',
+                      description: fileInfoString || fileTechnicalInfoString ? `**__File Information:__**\n\n${fileInfoString ? `${fileInfoString}` : ``}${fileTechnicalInfoString ? `${fileTechnicalInfoString}` : ``}` : '',
                   url: file.url ? file.url : null,
               color: scripts.getColor(),
               thumbnail: thumbnail ? thumbnail : null,
@@ -1307,27 +1309,33 @@ let era, producedby, dateleaked, alternatenames, otherinfo;
                   // for every field get the value and key
         for (let i = 0; i < fields.length; i++) {
           let field = fields[i];
+          console.log(`the field # ${i}`, field)
+          
           let { name, value } = field;
-          if (name.toLowerCase === "era"){
+
+          if (name.toLowerCase()=== "era"){
             era = value;
-          } else if (name.toLowerCase === 'alternate name(s)') {
+          } else if (name.toLowerCase()=== 'alternate name(s)') {
             alternatenames = value;
-          } else if (name.toLowerCase === 'date leaked'){
+          } else if (name.toLowerCase()=== 'date leaked'){
             dateleaked = value;
-          } else if (name.toLowerCase === 'produced by') {
+          } else if (name.toLowerCase()=== 'produced by') {
             producedby = value;
           }  
         }
-        if (description.includes('Cover Art:')){
-          title = title.replace('Cover Art: ', '');
-        } else if(description.includes('Snippet: ')){
-          title = title.replace('Snippet: ', '');
-          } else {
-            otherinfo = embedObj.description ? embedObj.description : '';
-          }
+        if (description) {
+          if (description.includes('Cover Art:')){
+            title = title.replace('Cover Art: ', '');
+          } else if(description.includes('Snippet: ')){
+            title = title.replace('Snippet: ', '');
+            } else {
+              otherinfo = embedObj.description ? embedObj.description : '';
+            }
+        }
        }
         
-
+          // interaction.channel.send({content:`the era : ${era}\nproducedby : ${producedby}\ndateleaked : ${dateleaked}\nalternatenames : ${alternatenames}\notherinfo : ${otherinfo}`})
+          // console.log(`the embed obj`, embedObj)
           let fileInfoString = `${era ? `**Era:** ${era}\n` : ''}${producedby ? `**Produced By:** ${producedby}\n` : ''}${dateleaked ? `**Date Leaked:** ${dateleaked}\n` : ''}${alternatenames ? `**Alternate Name(s):** ${alternatenames}\n` : ''}${otherinfo ? `**Other Info:** ${otherinfo}\n` : ''}`;
           let fileTechnicalInfoString = `${`**File Name:** \`${nameOfFile}\`\n`}${file.contentType? `**Content Type:** ${file.contentType}\n` : ''}${file.size? `**File Size:** ${(file.size / 1048576).toFixed(2)} Mb\n` : ''}`;
 
@@ -1388,7 +1396,7 @@ let era, producedby, dateleaked, alternatenames, otherinfo;
               files: [file],
               embeds: nameOfFile === `music.m4a` ? [createEmb.createEmbed({
                 title: `${(title ? title : `${name ? name : nameOfFile}`) === nameOfFile ? `` : `${title ? title : `${name ? name : nameOfFile}`}`}`,
-                        description: fileInfoString || fileTechnicalInfoString ? `**__File Information:__**\n\n${fileInfoString ? `${fileInfoString}\n\n` : ``}${fileTechnicalInfoString ? `${fileTechnicalInfoString}` : ``}` : '',
+                        description: fileInfoString || fileTechnicalInfoString ? `**__File Information:__**\n\n${fileInfoString ? `${fileInfoString}` : ``}${fileTechnicalInfoString ? `${fileTechnicalInfoString}` : ``}` : '',
                     url: file.url ? file.url : null,
                 color: scripts.getColor(),
                 thumbnail: thumbnail ? thumbnail : null,
@@ -1411,7 +1419,7 @@ let era, producedby, dateleaked, alternatenames, otherinfo;
     
               })] : [createEmb.createEmbed({
                 title: `${(title ? title : `${name ? name : nameOfFile}`) === nameOfFile ? `` : `${title ? title : `${name ? name : nameOfFile}`}`}`,
-                        description: fileInfoString || fileTechnicalInfoString ? `**__File Information:__**\n\n${fileInfoString ? `${fileInfoString}\n\n` : ``}${fileTechnicalInfoString ? `${fileTechnicalInfoString}` : ``}` : '',
+                        description: fileInfoString || fileTechnicalInfoString ? `**__File Information:__**\n\n${fileInfoString ? `${fileInfoString}` : ``}${fileTechnicalInfoString ? `${fileTechnicalInfoString}` : ``}` : '',
                     url: file.url ? file.url : null,
                 color: scripts.getColor(),
                 thumbnail: thumbnail ? thumbnail : null,

@@ -22,6 +22,15 @@ const jtkgif =
 // const index = require(`src/djs/index.js`)
 // const client = index.getClient();
 // console.log(client);
+
+async function fileProcessing(interaction){
+  try {
+    await interaction.editReply({embeds: [createEmb.createEmbed({title: 'File Being Processed', description: 'Please wait...', color: 0x00ff00})], components: []})
+  } catch (error) {
+    await throwNewError('Sending File Processing Update', interaction, error)
+    
+  }
+}
 const roleString = (roles) => {
   // for every role in the array, add it to the string
   let string = ``;
@@ -633,7 +642,7 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
         let attachmentURL = doc.attachmentURL;
 
         let isFile = await scripts_djs.fileCheck(attachmentURL);
-
+        await fileProcessing(interaction)
         if (isFile === true) {
           console.log(`should send reply with file`);
 
@@ -663,9 +672,105 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
         let title = doc.embed.title;
         let user = await client.users.fetch(userId);
         let isFile = await scripts_djs.fileCheck(attachmentURL);
-
+        await fileProcessing(interaction)
         if (isFile === true) {
-          user.send({ content: title, files: [attachmentURL] });
+          try {
+            user.send({ content: title, files: [attachmentURL] });
+          } catch (error) {
+              try {
+    await user.send({
+      embeds: [
+        createEmb.createEmbed({
+          title: "There was an Error , Share the Error w the Developer",
+          description:
+            `__While :__ \`Dm'ing File\`\n` +
+            "```js\n" +
+            err +
+            "\n```\n" +
+            `Error Report Summary:` +
+            "\n```js\n" +
+            `username: ${interaction.member.user.username}\nID: ${interaction.member.user.id}\nGuild: ${interaction.guild.name}\nGuild ID: ${interaction.guild.id}\nChannel: ${interaction.channel.name}\nChannel ID: ${interaction.channel.id}\nMessage ID: ${interaction.message.id}\nButton ID: ${interaction.customID}` +
+            "\n```",
+          color: scripts.getErrorColor(),
+          footer: {
+            text: "Contact STEVE JOBS and Send the Error",
+            iconURL: interaction.user.avatarURL(),
+          },
+        }),
+      ],
+    });
+  } catch (error) {
+    if (i) {
+      try {
+        await i.editReply({
+          embeds: [
+            createEmb.createEmbed({
+              title: "There was an Error , Share the Error w the Developer",
+              description:
+                "```js\n" +
+                err +
+                "\n```\n" +
+                `Error Report Summary:` +
+                "\n```js\n" +
+                `username: ${i.member.user.username}\nID: ${i.member.user.id}\nGuild: ${i.guild.name}\nGuild ID: ${i.guild.id}\nChannel: ${i.channel.name}\nChannel ID: ${i.channel.id}\nMessage ID: ${i.message.id}\nButton ID: ${i.customID}` +
+                "\n```",
+              color: scripts.getErrorColor(),
+              footer: {
+                text: "Contact STEVE JOBS and Send the Error",
+                iconURL: i.user.avatarURL(),
+              },
+            }),
+          ],
+        });
+      } catch (errr) {
+        console.log(
+          `error occurred when trying to send the user this-> Error: ${err}\n\n\nThe error that occurred when trying to send the user the 2nd time -> error is: ${error}\n\n\nThe error that occurred when trying to send the user the 3rd time -> error is: ${errr}`
+        );
+      }
+    } else {
+      await interaction.editReply({
+        embeds: [
+          createEmb.createEmbed({
+            title: "There was an Error, Share the Error w the Developer",
+            description:
+              `${
+                interaction.commandName
+                  ? `Command: \`${interaction.commandName}\`\n`
+                  : ""
+              }` +
+              "```js\n" +
+              err +
+              "\n```\n" +
+              `Error occurred for admin user:` +
+              "\n```js\n" +
+              `username: ${interaction.member.user.username}\nID: ${
+                interaction.member.user.id
+              }\nGuild: ${interaction.guild.name}\nGuild ID: ${
+                interaction.guild.id
+              }\nChannel: ${interaction.channel.name}\nChannel ID: ${
+                interaction.channel.id
+              }${
+                interaction.message
+                  ? `\nMessage ID: ${interaction.message.id}`
+                  : ""
+              }${
+                interaction.customID
+                  ? `\nCustom ID: ${interaction.customID}`
+                  : ""
+              }` +
+              "\n```",
+            color: scripts.getErrorColor(),
+            footer: {
+              text: "Contact STEVE JOBS and Send the Error",
+              iconURL: interaction.user.avatarURL(),
+            },
+          }),
+        ],
+      });
+    }
+  }
+            
+          }
           let obj = await scripts_djs.createFinalAnnouncement(
             doc,
             randID,
@@ -687,7 +792,103 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
           console.log(`interaction reply 66`);
           await interaction.update(obj);
         } else if (isFile === false) {
-          user.send({ content: attachmentURL });
+          try {
+            user.send({ content: attachmentURL });
+          } catch (error) {
+              try {
+    await user.send({
+      embeds: [
+        createEmb.createEmbed({
+          title: "There was an Error , Share the Error w the Developer",
+          description:
+            `__While :__ \`Dm'ing File\`\n` +
+            "```js\n" +
+            err +
+            "\n```\n" +
+            `Error Report Summary:` +
+            "\n```js\n" +
+            `username: ${interaction.member.user.username}\nID: ${interaction.member.user.id}\nGuild: ${interaction.guild.name}\nGuild ID: ${interaction.guild.id}\nChannel: ${interaction.channel.name}\nChannel ID: ${interaction.channel.id}\nMessage ID: ${interaction.message.id}\nButton ID: ${interaction.customID}` +
+            "\n```",
+          color: scripts.getErrorColor(),
+          footer: {
+            text: "Contact STEVE JOBS and Send the Error",
+            iconURL: interaction.user.avatarURL(),
+          },
+        }),
+      ],
+    });
+  } catch (error) {
+    if (i) {
+      try {
+        await i.editReply({
+          embeds: [
+            createEmb.createEmbed({
+              title: "There was an Error , Share the Error w the Developer",
+              description:
+                "```js\n" +
+                err +
+                "\n```\n" +
+                `Error Report Summary:` +
+                "\n```js\n" +
+                `username: ${i.member.user.username}\nID: ${i.member.user.id}\nGuild: ${i.guild.name}\nGuild ID: ${i.guild.id}\nChannel: ${i.channel.name}\nChannel ID: ${i.channel.id}\nMessage ID: ${i.message.id}\nButton ID: ${i.customID}` +
+                "\n```",
+              color: scripts.getErrorColor(),
+              footer: {
+                text: "Contact STEVE JOBS and Send the Error",
+                iconURL: i.user.avatarURL(),
+              },
+            }),
+          ],
+        });
+      } catch (errr) {
+        console.log(
+          `error occurred when trying to send the user this-> Error: ${err}\n\n\nThe error that occurred when trying to send the user the 2nd time -> error is: ${error}\n\n\nThe error that occurred when trying to send the user the 3rd time -> error is: ${errr}`
+        );
+      }
+    } else {
+      await interaction.editReply({
+        embeds: [
+          createEmb.createEmbed({
+            title: "There was an Error, Share the Error w the Developer",
+            description:
+              `${
+                interaction.commandName
+                  ? `Command: \`${interaction.commandName}\`\n`
+                  : ""
+              }` +
+              "```js\n" +
+              err +
+              "\n```\n" +
+              `Error occurred for admin user:` +
+              "\n```js\n" +
+              `username: ${interaction.member.user.username}\nID: ${
+                interaction.member.user.id
+              }\nGuild: ${interaction.guild.name}\nGuild ID: ${
+                interaction.guild.id
+              }\nChannel: ${interaction.channel.name}\nChannel ID: ${
+                interaction.channel.id
+              }${
+                interaction.message
+                  ? `\nMessage ID: ${interaction.message.id}`
+                  : ""
+              }${
+                interaction.customID
+                  ? `\nCustom ID: ${interaction.customID}`
+                  : ""
+              }` +
+              "\n```",
+            color: scripts.getErrorColor(),
+            footer: {
+              text: "Contact STEVE JOBS and Send the Error",
+              iconURL: interaction.user.avatarURL(),
+            },
+          }),
+        ],
+      });
+    }
+  }
+            
+          }
           let obj = await scripts_djs.createFinalAnnouncement(
             doc,
             randID,
@@ -716,6 +917,43 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
         let data = await scripts_mongoDB.getPostData(randID);
         data = data._doc
         let file  = data.file;
+        let nameOfFile = file.attachment.split('/').pop();
+        let embedObj = data.embed;
+let era, producedby, dateleaked, alternatenames, otherinfo;
+        // await interaction.channel.send({content:`\`\`\`js
+        // \n${embedObj}\n\`\`\``})
+        let title, description, color, fields, thumbnail;
+        
+       if (embedObj) {
+         title= embedObj.title;
+          description = embedObj.description;
+          color = embedObj.color;
+          fields = embedObj.fields;
+          thumbnail = embedObj.thumbnail;
+                  // for every field get the value and key
+        for (let i = 0; i < fields.length; i++) {
+          let field = fields[i];
+          let { name, value } = field;
+          if (name.toLowerCase === "era"){
+            era = value;
+          } else if (name.toLowerCase === 'alternate name(s)') {
+            alternatenames = value;
+          } else if (name.toLowerCase === 'date leaked'){
+            dateleaked = value;
+          } else if (name.toLowerCase === 'produced by') {
+            producedby = value;
+          }  
+        }
+        if (description.includes('Cover Art:')){
+          title = title.replace('Cover Art: ', '');
+        } else if(description.includes('Snippet: ')){
+          title = title.replace('Snippet: ', '');
+          } else {
+            otherinfo = embedObj.description ? embedObj.description : '';
+          }
+       }
+          let fileInfoString = `${era ? `**Era:** ${era}\n` : ''}${producedby ? `**Produced By:** ${producedby}\n` : ''}${dateleaked ? `**Date Leaked:** ${dateleaked}\n` : ''}${alternatenames ? `**Alternate Name(s):** ${alternatenames}\n` : ''}${otherinfo ? `**Other Info:** ${otherinfo}\n` : ''}`;
+          let fileTechnicalInfoString = `${`**File Name:** \`${nameOfFile}\``}${file.contentType? `**Content Type:** ${file.contentType}\n` : ''}${file.size? `**File Size:** ${(file.size / 1048576).toFixed(2)} Mb\n` : ''}`;
         let { name, url, attachment } = file;
         let size;
         console.log(`the attachment`, attachment)
@@ -767,18 +1005,140 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
         let newFile = scripts_djs.createAttachment(attach)
         file = file.url ? newFile : file
         console.log(`the file`, file)
-
+        await fileProcessing(interaction)
         if (isFile === true) {
-          user.send({ embeds: [createEmb.createEmbed({
-            title: name,
-            description: `${file.name? `Original File Name: ${file.name}` : ''}`,
-            url: file.url ? file.url : null,
-            color: scripts.getColor(),
+          try {
+            user.send({ 
+              embeds: nameOfFile === `music.m4a` ? [createEmb.createEmbed({
+              title: `${(title ? title : `${name ? name : nameOfFile}`) === nameOfFile ? `` : `${title ? title : `${name ? name : nameOfFile}`}`}`,
+                      description: fileInfoString || fileTechnicalInfoString ? `**__File Information:__**\n\n${fileInfoString ? `${fileInfoString}\n\n` : ``}${fileTechnicalInfoString ? `${fileTechnicalInfoString}` : ``}` : '',
+                  url: file.url ? file.url : null,
+              color: scripts.getColor(),
+              thumbnail: thumbnail ? thumbnail : null,
+              footer: {
+                text: `${file.url ? `this file was scraped from Kraken Files by Steve Jobs` : `Wok Bot provided by Steve Jobs` }`,
+                iconURL: `https://a57.foxnews.com/static.foxnews.com/foxnews.com/content/uploads/2018/09/1200/675/youngstevo.jpg?ve=1&tl=1`
+              }
+  
+            }), createEmb.createEmbed({
+              title: `:warning: caution`,
+                  description: `\`\`\`js\nVulnerability Status : true\n\`\`\`\nThis File Was Pulled From The Kraken Link Provided Causing Manipulation\n\n\n:warning:  **Possible Manipulation:**\n\n🤒 \`File Name Manipulation :\` \`file name changed to\` \`music\`\n🤢 \`File Type Manipulation :\` \`file type changed to\` \`.m4a\`\n🤮 \`File Degradation :\` \`quality reduced to\` \`64 kb/s\`\n\n\n👀 **What You Can Do:**\n> *IF you just want to* __**LISTEN**__ : This file is more than sufficient to have a quick listen
+                   \n
+                  > *IF you would like to* ** __Retain the Highest Quality__** : I recommend viewing the link on Kraken and Downloading/Listening from there`,
+                  url: embedObj.url ? embedObj.url : null,
+              color: "Yellow",
+              footer: {
+                text: `this file was scraped from Kraken Files by Steve Jobs`,
+                iconURL: `https://a57.foxnews.com/static.foxnews.com/foxnews.com/content/uploads/2018/09/1200/675/youngstevo.jpg?ve=1&tl=1`
+              }
+  
+            })] : [createEmb.createEmbed({
+              title: `${(title ? title : `${name ? name : nameOfFile}`) === nameOfFile ? `` : `${title ? title : `${name ? name : nameOfFile}`}`}`,
+                      description: fileInfoString || fileTechnicalInfoString ? `**__File Information:__**\n\n${fileInfoString ? `${fileInfoString}\n\n` : ``}${fileTechnicalInfoString ? `${fileTechnicalInfoString}` : ``}` : '',
+                  url: file.url ? file.url : null,
+              color: scripts.getColor(),
+              thumbnail: thumbnail ? thumbnail : null,
+              footer: {
+                text: `${file.url ? `this file was scraped from Kraken Files by Steve Jobs` : `Wok Bot provided by Steve Jobs` }`,
+                iconURL: `https://a57.foxnews.com/static.foxnews.com/foxnews.com/content/uploads/2018/09/1200/675/youngstevo.jpg?ve=1&tl=1`
+              }
+  
+            })], files: [file] });
+          } catch (error) {
+              try {
+    await user.send({
+      embeds: [
+        createEmb.createEmbed({
+          title: "There was an Error , Share the Error w the Developer",
+          description:
+            `__While :__ \`Dm'ing File\`\n` +
+            "```js\n" +
+            err +
+            "\n```\n" +
+            `Error Report Summary:` +
+            "\n```js\n" +
+            `username: ${interaction.member.user.username}\nID: ${interaction.member.user.id}\nGuild: ${interaction.guild.name}\nGuild ID: ${interaction.guild.id}\nChannel: ${interaction.channel.name}\nChannel ID: ${interaction.channel.id}\nMessage ID: ${interaction.message.id}\nButton ID: ${interaction.customID}` +
+            "\n```",
+          color: scripts.getErrorColor(),
+          footer: {
+            text: "Contact STEVE JOBS and Send the Error",
+            iconURL: interaction.user.avatarURL(),
+          },
+        }),
+      ],
+    });
+  } catch (error) {
+    if (i) {
+      try {
+        await i.editReply({
+          embeds: [
+            createEmb.createEmbed({
+              title: "There was an Error , Share the Error w the Developer",
+              description:
+                "```js\n" +
+                err +
+                "\n```\n" +
+                `Error Report Summary:` +
+                "\n```js\n" +
+                `username: ${i.member.user.username}\nID: ${i.member.user.id}\nGuild: ${i.guild.name}\nGuild ID: ${i.guild.id}\nChannel: ${i.channel.name}\nChannel ID: ${i.channel.id}\nMessage ID: ${i.message.id}\nButton ID: ${i.customID}` +
+                "\n```",
+              color: scripts.getErrorColor(),
+              footer: {
+                text: "Contact STEVE JOBS and Send the Error",
+                iconURL: i.user.avatarURL(),
+              },
+            }),
+          ],
+        });
+      } catch (errr) {
+        console.log(
+          `error occurred when trying to send the user this-> Error: ${err}\n\n\nThe error that occurred when trying to send the user the 2nd time -> error is: ${error}\n\n\nThe error that occurred when trying to send the user the 3rd time -> error is: ${errr}`
+        );
+      }
+    } else {
+      await interaction.editReply({
+        embeds: [
+          createEmb.createEmbed({
+            title: "There was an Error, Share the Error w the Developer",
+            description:
+              `${
+                interaction.commandName
+                  ? `Command: \`${interaction.commandName}\`\n`
+                  : ""
+              }` +
+              "```js\n" +
+              err +
+              "\n```\n" +
+              `Error occurred for admin user:` +
+              "\n```js\n" +
+              `username: ${interaction.member.user.username}\nID: ${
+                interaction.member.user.id
+              }\nGuild: ${interaction.guild.name}\nGuild ID: ${
+                interaction.guild.id
+              }\nChannel: ${interaction.channel.name}\nChannel ID: ${
+                interaction.channel.id
+              }${
+                interaction.message
+                  ? `\nMessage ID: ${interaction.message.id}`
+                  : ""
+              }${
+                interaction.customID
+                  ? `\nCustom ID: ${interaction.customID}`
+                  : ""
+              }` +
+              "\n```",
+            color: scripts.getErrorColor(),
             footer: {
-              text: `${file.url ? `this file was scraped from Kraken Files by Steve Jobs` : `Wok Bot provided by Steve Jobs` }`
-            }
-
-          })], files: [file] });
+              text: "Contact STEVE JOBS and Send the Error",
+              iconURL: interaction.user.avatarURL(),
+            },
+          }),
+        ],
+      });
+    }
+  }
+            
+          }
           try {
             await interaction.editReply({
               embeds: [createEmb.createEmbed({ title: labelT })],
@@ -793,15 +1153,112 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
             );
           }
         } else if (isFile === false) {
-          user.send({
-            content: `__**Visit :**__ ${attachment}`,
-            embeds: [
-              createEmb.createEmbed({
-                title: name,
-                description: `the file is too big to be sent as an attachment, visit the link with your web browser to download the file`,
-              }),
-            ],
-          });
+
+          try {
+            user.send({
+              content: `__**Visit :**__ ${attachment}`,
+              embeds: [
+                createEmb.createEmbed({
+                  title: name,
+                  description: `the file is too big to be sent as an attachment, visit the link with your web browser to download the file`,
+                }),
+              ],
+            });
+          } catch (error) {
+              try {
+    await user.send({
+      embeds: [
+        createEmb.createEmbed({
+          title: "There was an Error , Share the Error w the Developer",
+          description:
+            `__While :__ \`Dm'ing File\`\n` +
+            "```js\n" +
+            err +
+            "\n```\n" +
+            `Error Report Summary:` +
+            "\n```js\n" +
+            `username: ${interaction.member.user.username}\nID: ${interaction.member.user.id}\nGuild: ${interaction.guild.name}\nGuild ID: ${interaction.guild.id}\nChannel: ${interaction.channel.name}\nChannel ID: ${interaction.channel.id}\nMessage ID: ${interaction.message.id}\nButton ID: ${interaction.customID}` +
+            "\n```",
+          color: scripts.getErrorColor(),
+          footer: {
+            text: "Contact STEVE JOBS and Send the Error",
+            iconURL: interaction.user.avatarURL(),
+          },
+        }),
+      ],
+    });
+  } catch (error) {
+    if (i) {
+      try {
+        await i.editReply({
+          embeds: [
+            createEmb.createEmbed({
+              title: "There was an Error , Share the Error w the Developer",
+              description:
+                "```js\n" +
+                err +
+                "\n```\n" +
+                `Error Report Summary:` +
+                "\n```js\n" +
+                `username: ${i.member.user.username}\nID: ${i.member.user.id}\nGuild: ${i.guild.name}\nGuild ID: ${i.guild.id}\nChannel: ${i.channel.name}\nChannel ID: ${i.channel.id}\nMessage ID: ${i.message.id}\nButton ID: ${i.customID}` +
+                "\n```",
+              color: scripts.getErrorColor(),
+              footer: {
+                text: "Contact STEVE JOBS and Send the Error",
+                iconURL: i.user.avatarURL(),
+              },
+            }),
+          ],
+        });
+      } catch (errr) {
+        console.log(
+          `error occurred when trying to send the user this-> Error: ${err}\n\n\nThe error that occurred when trying to send the user the 2nd time -> error is: ${error}\n\n\nThe error that occurred when trying to send the user the 3rd time -> error is: ${errr}`
+        );
+      }
+    } else {
+      await interaction.editReply({
+        embeds: [
+          createEmb.createEmbed({
+            title: "There was an Error, Share the Error w the Developer",
+            description:
+              `${
+                interaction.commandName
+                  ? `Command: \`${interaction.commandName}\`\n`
+                  : ""
+              }` +
+              "```js\n" +
+              err +
+              "\n```\n" +
+              `Error occurred for admin user:` +
+              "\n```js\n" +
+              `username: ${interaction.member.user.username}\nID: ${
+                interaction.member.user.id
+              }\nGuild: ${interaction.guild.name}\nGuild ID: ${
+                interaction.guild.id
+              }\nChannel: ${interaction.channel.name}\nChannel ID: ${
+                interaction.channel.id
+              }${
+                interaction.message
+                  ? `\nMessage ID: ${interaction.message.id}`
+                  : ""
+              }${
+                interaction.customID
+                  ? `\nCustom ID: ${interaction.customID}`
+                  : ""
+              }` +
+              "\n```",
+            color: scripts.getErrorColor(),
+            footer: {
+              text: "Contact STEVE JOBS and Send the Error",
+              iconURL: interaction.user.avatarURL(),
+            },
+          }),
+        ],
+      });
+    }
+  }
+            
+          }
           try {
             await interaction.editReply({
               embeds: [createEmb.createEmbed({ title: labelT })],
@@ -820,7 +1277,8 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
         await interaction.deferReply({ ephemeral: true });
         randID = scripts_djs.extractID(customID);
         let data = await scripts_mongoDB.getPostData(randID);
-
+        // await interaction.channel.send({content:`\`\`\`js
+        // \n${data}\n\`\`\``})
         // determine what boost tier the server is to determine how big the file can be sent
 
         let level = interaction.guild.premiumTier;
@@ -832,10 +1290,49 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
         } else if (level === "TIER_3" || level === 3) {
           limit = 100;
         }
+        let file  = data.file;
+        let nameOfFile = file.attachment.split('/').pop();
+        let embedObj = data.embed;
+let era, producedby, dateleaked, alternatenames, otherinfo;
+        // await interaction.channel.send({content:`\`\`\`js
+        // \n${embedObj}\n\`\`\``})
+        let title, description, color, fields, thumbnail;
+        
+       if (embedObj) {
+         title= embedObj.title;
+          description = embedObj.description;
+          color = embedObj.color;
+          fields = embedObj.fields;
+          thumbnail = embedObj.thumbnail;
+                  // for every field get the value and key
+        for (let i = 0; i < fields.length; i++) {
+          let field = fields[i];
+          let { name, value } = field;
+          if (name.toLowerCase === "era"){
+            era = value;
+          } else if (name.toLowerCase === 'alternate name(s)') {
+            alternatenames = value;
+          } else if (name.toLowerCase === 'date leaked'){
+            dateleaked = value;
+          } else if (name.toLowerCase === 'produced by') {
+            producedby = value;
+          }  
+        }
+        if (description.includes('Cover Art:')){
+          title = title.replace('Cover Art: ', '');
+        } else if(description.includes('Snippet: ')){
+          title = title.replace('Snippet: ', '');
+          } else {
+            otherinfo = embedObj.description ? embedObj.description : '';
+          }
+       }
+        
+
+          let fileInfoString = `${era ? `**Era:** ${era}\n` : ''}${producedby ? `**Produced By:** ${producedby}\n` : ''}${dateleaked ? `**Date Leaked:** ${dateleaked}\n` : ''}${alternatenames ? `**Alternate Name(s):** ${alternatenames}\n` : ''}${otherinfo ? `**Other Info:** ${otherinfo}\n` : ''}`;
+          let fileTechnicalInfoString = `${`**File Name:** \`${nameOfFile}\`\n`}${file.contentType? `**Content Type:** ${file.contentType}\n` : ''}${file.size? `**File Size:** ${(file.size / 1048576).toFixed(2)} Mb\n` : ''}`;
 
         scripts.cLog(`the limit is ${limit} MB`);
 
-        let { file } = data;
         let { url, attachment } = file;
         let size, name;
         if (file.name) {
@@ -883,20 +1380,46 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
         }
         let newFile = scripts_djs.createAttachment(attach)
         file = file.url ? newFile : file
-        console.log(`the file`, file)
 
+        await fileProcessing(interaction)
         if (isFile === true) {
           try {
             await interaction.editReply({
               files: [file],
-              embeds: [createEmb.createEmbed({
-                title: name,
-                description: `${file.name? `Original File Name: ${file.name}` : ''}`,
-                url: file.url ? file.url : null,
+              embeds: nameOfFile === `music.m4a` ? [createEmb.createEmbed({
+                title: `${(title ? title : `${name ? name : nameOfFile}`) === nameOfFile ? `` : `${title ? title : `${name ? name : nameOfFile}`}`}`,
+                        description: fileInfoString || fileTechnicalInfoString ? `**__File Information:__**\n\n${fileInfoString ? `${fileInfoString}\n\n` : ``}${fileTechnicalInfoString ? `${fileTechnicalInfoString}` : ``}` : '',
+                    url: file.url ? file.url : null,
                 color: scripts.getColor(),
+                thumbnail: thumbnail ? thumbnail : null,
                 footer: {
-                  text: `${file.url ? `this file was scraped from Kraken Files by Steve Jobs` : `Wok Bot provided by Steve Jobs` }`
+                  text: `${file.url ? `this file was scraped from Kraken Files by Steve Jobs` : `Wok Bot provided by Steve Jobs` }`,
+                  iconURL: `https://a57.foxnews.com/static.foxnews.com/foxnews.com/content/uploads/2018/09/1200/675/youngstevo.jpg?ve=1&tl=1`
                 }
+    
+              }), createEmb.createEmbed({
+                title: `:warning: caution`,
+                    description: `\`\`\`js\nVulnerability Status : true\n\`\`\`\nThis File Was Pulled From The Kraken Link Provided Causing Manipulation\n\n\n:warning:  **Possible Manipulation:**\n\n🤒 \`File Name Manipulation :\` \`file name changed to\` \`music\`\n🤢 \`File Type Manipulation :\` \`file type changed to\` \`.m4a\`\n🤮 \`File Degradation :\` \`quality reduced to\` \`64 kb/s\`\n\n\n👀 **What You Can Do:**\n> *IF you just want to* __**LISTEN**__ : This file is more than sufficient to have a quick listen
+                     \n
+                    > *IF you would like to* ** __Retain the Highest Quality__** : I recommend viewing the link on Kraken and Downloading/Listening from there`,
+                    url: embedObj.url ? embedObj.url : null,
+                color: "Yellow",
+                footer: {
+                  text: `this file was scraped from Kraken Files by Steve Jobs`,
+                  iconURL: `https://a57.foxnews.com/static.foxnews.com/foxnews.com/content/uploads/2018/09/1200/675/youngstevo.jpg?ve=1&tl=1`
+                }
+    
+              })] : [createEmb.createEmbed({
+                title: `${(title ? title : `${name ? name : nameOfFile}`) === nameOfFile ? `` : `${title ? title : `${name ? name : nameOfFile}`}`}`,
+                        description: fileInfoString || fileTechnicalInfoString ? `**__File Information:__**\n\n${fileInfoString ? `${fileInfoString}\n\n` : ``}${fileTechnicalInfoString ? `${fileTechnicalInfoString}` : ``}` : '',
+                    url: file.url ? file.url : null,
+                color: scripts.getColor(),
+                thumbnail: thumbnail ? thumbnail : null,
+                footer: {
+                  text: `${file.url ? `this file was scraped from Kraken Files by Steve Jobs` : `Wok Bot provided by Steve Jobs` }`,
+                  iconURL: `https://a57.foxnews.com/static.foxnews.com/foxnews.com/content/uploads/2018/09/1200/675/youngstevo.jpg?ve=1&tl=1`
+                }
+    
               })],
               content: "",
               components: [],
@@ -906,6 +1429,7 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
               `An Error occured when trying to reply to a Show File Button Request`,
               error
             );
+            await throwNewError('sending file attachment', interaction, error)
           }
         } else if (isFile === false) {
           try {
@@ -921,10 +1445,12 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
               components: [],
             });
           } catch (error) {
+            
             console.log(
               `An Error occured when trying to reply to a Show File Button Request`,
               error
             );
+            await throwNewError('sending file attachment', interaction, error)
           }
         }
       }
@@ -1591,8 +2117,8 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
         if (fields.length > 0) {
           embedObj.fields = fields;
         }
-
-        const embed = createEmb.createEmbed(embedObj);
+await scripts_mongoDB.updatePostData(randID, { embed: embedObj });
+const embed = createEmb.createEmbed(embedObj);
 
         // create a button to download the image
         const downloadButton = await createBtn.createButton({
@@ -1908,8 +2434,8 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
         if (fields.length > 0) {
           embedObj.fields = fields;
         }
-
-        const embed = createEmb.createEmbed(embedObj);
+await scripts_mongoDB.updatePostData(randID, { embed: embedObj });
+const embed = createEmb.createEmbed(embedObj);
 
         // create a button to download the image
         const downloadButton = await createBtn.createButton({
@@ -2209,8 +2735,8 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
         if (fields.length > 0) {
           embedObj.fields = fields;
         }
-
-        const embed = createEmb.createEmbed(embedObj);
+await scripts_mongoDB.updatePostData(randID, { embed: embedObj });
+const embed = createEmb.createEmbed(embedObj);
 
         // create a button to download the image
         const downloadButton = await createBtn.createButton({
@@ -2466,8 +2992,8 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
         if (fields.length > 0) {
           embedObj.fields = fields;
         }
-
-        const embed = createEmb.createEmbed(embedObj);
+await scripts_mongoDB.updatePostData(randID, { embed: embedObj });
+const embed = createEmb.createEmbed(embedObj);
 
         // create a button to download the image
         const downloadButton = await createBtn.createButton({
@@ -2723,8 +3249,8 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
         if (fields.length > 0) {
           embedObj.fields = fields;
         }
-
-        const embed = createEmb.createEmbed(embedObj);
+await scripts_mongoDB.updatePostData(randID, { embed: embedObj });
+const embed = createEmb.createEmbed(embedObj);
 
         // create a button to download the image
         const downloadButton = await createBtn.createButton({
@@ -3024,8 +3550,8 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
         if (fields.length > 0) {
           embedObj.fields = fields;
         }
-
-        const embed = createEmb.createEmbed(embedObj);
+await scripts_mongoDB.updatePostData(randID, { embed: embedObj });
+const embed = createEmb.createEmbed(embedObj);
 
         // create a button to download the image
         const downloadButton = await createBtn.createButton({
@@ -3325,8 +3851,8 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
         if (fields.length > 0) {
           embedObj.fields = fields;
         }
-
-        const embed = createEmb.createEmbed(embedObj);
+await scripts_mongoDB.updatePostData(randID, { embed: embedObj });
+const embed = createEmb.createEmbed(embedObj);
 
         // create a button to download the image
         const downloadButton = await createBtn.createButton({
@@ -3584,8 +4110,8 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
         if (fields.length > 0) {
           embedObj.fields = fields;
         }
-
-        const embed = createEmb.createEmbed(embedObj);
+await scripts_mongoDB.updatePostData(randID, { embed: embedObj });
+const embed = createEmb.createEmbed(embedObj);
 
         // create a button to download the image
         const downloadButton = await createBtn.createButton({
@@ -3841,8 +4367,8 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
         if (fields.length > 0) {
           embedObj.fields = fields;
         }
-
-        const embed = createEmb.createEmbed(embedObj);
+await scripts_mongoDB.updatePostData(randID, { embed: embedObj });
+const embed = createEmb.createEmbed(embedObj);
 
         // create a button to download the image
         const downloadButton = await createBtn.createButton({
@@ -4105,8 +4631,8 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
         if (fields.length > 0) {
           embedObj.fields = fields;
         }
-
-        const embed = createEmb.createEmbed(embedObj);
+await scripts_mongoDB.updatePostData(randID, { embed: embedObj });
+const embed = createEmb.createEmbed(embedObj);
 
         // create a button to download the image
         console.log(`the kraken`, kraken);
@@ -4386,8 +4912,8 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
         if (fields.length > 0) {
           embedObj.fields = fields;
         }
-
-        const embed = createEmb.createEmbed(embedObj);
+await scripts_mongoDB.updatePostData(randID, { embed: embedObj });
+const embed = createEmb.createEmbed(embedObj);
 
         // create a button to download the image
         const downloadButton = await createBtn.createButton({
@@ -4618,8 +5144,8 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
             console.log(`error updating kraken url in database`, error);
           }
         }
-
-        const embed = createEmb.createEmbed(embedObj);
+        await scripts_mongoDB.updatePostData(randID, { embed: embedObj });
+const embed = createEmb.createEmbed(embedObj);
 
         // create a button to download the image
         const downloadButton = await createBtn.createButton({

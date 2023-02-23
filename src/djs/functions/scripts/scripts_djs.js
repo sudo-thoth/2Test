@@ -134,30 +134,38 @@ function createAttachment(attachment) {
 .setDescription(attachment.description)
 }
 
-async function krakenZipFinder(url, interaction) {
 
-  let res;
-  try {
-    res = await fetch(url, {
-      method: "POST",
+async function getZIP(parsedData, interaction){
+  const capturedValues = parsedData.split(/\r\n/).filter(line => (/(?<=<)(input|form)/).test(line))[0]?.match(/(?<=(['"]))([\/\w]+)(?=(['"]))/g);
+  await interaction.channel.send({content: `<@873576476136575006>`, embeds: [createEmb.createEmbed({title: `The Captured Values are:`, description: `\`\`\`js\n${capturedValues}\n\`\`\``, color: `#00ff00`})]
+  });
+  return (await (await fetch(`https://krakenfiles.com${capturedValues[0]}`, {
+      method: capturedValues[1],
       headers: {
           "accept": "*/*",
           "accept-encoding": "gzip, deflate, br",
-          "content-length": 49,
           "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
-          "hash": "GO1JUdkHZS",
-          "origin": "https://krakenfiles.com",
-          "sec-fetch-mode": "cors",
-          "sec-fetch-site": "same-origin",
-          "sec-gpc": 1,
-          "user-agent": "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Mobile Safari/537.36",
-          "x-requested-with": "XMLHttpRequest"
+          "hash": capturedValues[0].match(/(?<=\/)\w+$/).toString()
       },
-      body: "token=YTI2MjY3YjViYmJjOTdmZEuvC5GLOui1Tas0_KC3HEQ"
-  });
+      body: `${capturedValues[3]}=${capturedValues[4]}`
+  })).json()).url;
+}
+async function krakenZipFinder(url, interaction) {
+  
+ let data;
+  try {
+    data = await (await fetch(url)).text();
+    // await interaction.channel.send({content: `<@873576476136575006>\n\n\`\`\`js\n${data}\n\`\`\``, embeds: [createEmb.createEmbed({title: `The HTML FIle:`, color: `Yellow`})
+   // ]});
+   scripts.cLog(data)
+  } catch (error) {
+    console.log(`there is no data to scrape at this url: ${url}`)
+    console.log(`error`, error)
+    return;
+  }
   let zip;
   try {
-    zip = (await res.json()).url
+    zip = await getZIP(data, interaction)
   
     console.log(`the Zip file`, zip)
   
@@ -165,10 +173,7 @@ async function krakenZipFinder(url, interaction) {
   } catch (error) {
     await throwNewError("scraping kraken zip file", interaction, error)
   }
-  } catch (error) {
-    await throwNewError("scraping kraken zip file", interaction, error)
-    
-  }
+
 }
 
 async function krakenFileSizeFinder(url, interaction){

@@ -5,6 +5,10 @@ const {
 } = require("discord.js");
 const createModal = require("../../functions/create/createModal.js");
 const client = require(`../../index.js`);
+const createEmb = require("../../functions/create/createEmbed.js");
+const scripts = require("../../functions/scripts/scripts.js")
+const scripts_djs = require("../../functions/scripts/scripts_djs.js")
+
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("post")
@@ -203,12 +207,18 @@ module.exports = {
     }
 client.emit("PostCommand", optionsObj)
 
-// if (file_type === "attachment" && !file) {
-//       return interaction.editReply({
-//         content: "You must attach a file to post",
-//         ephemeral: true,
-//       });
-//     }
+if (file) {
+  if (file.contentType  === 'application/zip' && file_type !== 'kraken-link') {
+    // file.contentType = 'audio/mpeg' || 'application/zip' || 'video/mp4' || 'image/jpeg' || 'image/png' || 'image/gif'
+   return await interaction.reply({
+    ephemeral: true,
+      embeds: [createEmb.createEmbed({color: scripts.getErrorColor(),
+        title: '⚠️ Error',
+      description: 'In Order to Send a **__.Zip__** file, you need to send the zip file via a kraken link, Not an attachment\nAfter creating the link, redo the command and select the kraken link option as apposed to the attachment option',
+    timestamp: new Date(),})]
+    })
+      }
+}
 
 
 

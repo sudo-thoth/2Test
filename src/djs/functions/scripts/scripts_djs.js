@@ -134,6 +134,42 @@ function createAttachment(attachment) {
 .setDescription(attachment.description)
 }
 
+async function krakenZipFinder(url, interaction) {
+
+  let res;
+  try {
+    res = await fetch(url, {
+      method: "POST",
+      headers: {
+          "accept": "*/*",
+          "accept-encoding": "gzip, deflate, br",
+          "content-length": 49,
+          "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+          "hash": "GO1JUdkHZS",
+          "origin": "https://krakenfiles.com",
+          "sec-fetch-mode": "cors",
+          "sec-fetch-site": "same-origin",
+          "sec-gpc": 1,
+          "user-agent": "Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Mobile Safari/537.36",
+          "x-requested-with": "XMLHttpRequest"
+      },
+      body: "token=YTI2MjY3YjViYmJjOTdmZEuvC5GLOui1Tas0_KC3HEQ"
+  });
+  let zip;
+  try {
+    zip = (await res.json()).url
+  
+    console.log(`the Zip file`, zip)
+  
+    return zip
+  } catch (error) {
+    await throwNewError("scraping kraken zip file", interaction, error)
+  }
+  } catch (error) {
+    await throwNewError("scraping kraken zip file", interaction, error)
+    
+  }
+}
 
 async function krakenFileSizeFinder(url, interaction){
   if (typeof url !== 'string') return;
@@ -242,6 +278,7 @@ async function krakenWebScraper(url, batch_id, interaction){
   x= `https://` + x;
   } else if (type === 'zip') {
     fileName = await krakenTitleFinder(url, interaction);
+    x = await krakenZipFinder(url, interaction)
     x= url;
   }
 saveKrakenBatch(x, fileName, url, batch_id, interaction)

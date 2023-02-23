@@ -10,8 +10,13 @@ const drflgif =
   "https://media.discordapp.net/attachments/981241396608532534/1078161086794174464/ezgif.com-gif-maker_4.gif";
 const gbgrgif =
   "https://media.discordapp.net/attachments/981241396608532534/1078159688983654441/ezgif.com-optimize.gif";
-const jw3gif =
-  "https://media.discordapp.net/attachments/981241396608532534/1078163296412246016/ezgif.com-optimize_2.gif";
+
+  const jw3gif = () => {
+let gifs =  ["https://media.discordapp.net/attachments/981241396608532534/1078163296412246016/ezgif.com-optimize_2.gif", "https://media.discordapp.net/attachments/1070594771699118191/1078236873299861565/ezgif.com-optimize_3.gif"]
+  return gifs[Math.floor(Math.random() * gifs.length)];
+};
+
+ 
 const jtkgif =
   "https://media.discordapp.net/attachments/981241396608532534/1078161981086892153/ezgif.com-optimize_1.gif";
 // const index = require(`src/djs/index.js`)
@@ -709,20 +714,36 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
         scripts.cLog(`the limit is ${limit} MB`);
         randID = scripts_djs.extractID(customID);
         let data = await scripts_mongoDB.getPostData(randID);
-        let { file } = data;
+        data = data._doc
+        let file  = data.file;
         let { name, url, attachment } = file;
         let size;
-        if (data.size) {
-          size = data.size;
+        console.log(`the attachment`, attachment)
+        console.log(`the attachment size`, attachment.size)
+        console.log(`the file attachment`, file.attachment)
+        console.log(`the file attachment size`, file.size)
+        if (file.name) {
+          name = file.name;
+        } else {
+          name = await scripts_djs.krakenTitleFinder(url, interaction)
+        }
+        if (file.size) {
+          size = file.size;
         } else {
           size = await scripts_djs.krakenFileSizeFinder(url, interaction);
-          let isGB = size.includes("GB");
+          let isGB;
+          file.size = size;
+          data.file = file;
+          await scripts_mongoDB.updatePostData(randID, data)
+          if(typeof size === 'string'){
+           isGB = size.includes("GB");
+          } 
           size = parseFloat(size);
 
           if (isGB) {
             size *= 1024;
           }
-          url = attachment;
+          // attachment = url;
         }
         let user = interaction.user;
         // direct message the user the file
@@ -737,8 +758,27 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
             isFile = false;
         }
         }
+        console.log(`the file`, file)
+        let attach = {
+          url: file.attachment,
+          // filename: name,
+          //description: `File was scraped from Kraken Files by Steve Jobs`
+        }
+        let newFile = scripts_djs.createAttachment(attach)
+        file = file.url ? newFile : file
+        console.log(`the file`, file)
+
         if (isFile === true) {
-          user.send({ content: file.name, files: [file] });
+          user.send({ embeds: [createEmb.createEmbed({
+            title: name,
+            description: `${file.name? `Original File Name: ${file.name}` : ''}`,
+            url: file.url ? file.url : null,
+            color: scripts.getColor(),
+            footer: {
+              text: `${file.url ? `this file was scraped from Kraken Files by Steve Jobs` : `Wok Bot provided by Steve Jobs` }`
+            }
+
+          })], files: [file] });
           try {
             await interaction.editReply({
               embeds: [createEmb.createEmbed({ title: labelT })],
@@ -803,11 +843,14 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
         } else {
           name = await scripts_djs.krakenTitleFinder(url, interaction)
         }
-        if (data.size) {
-          size = data.size;
+        if (file.size) {
+          size = file.size;
         } else {
           size = await scripts_djs.krakenFileSizeFinder(url, interaction);
-          let isGB = size.includes("GB");
+          let isGB;
+          if(typeof size === 'string'){
+           isGB = size.includes("GB");
+          } 
           size = parseFloat(size);
 
           if (isGB) {
@@ -832,13 +875,29 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
             isFile = false;
         }
         }
-
+        console.log(`the file`, file)
+        let attach = {
+          url: file.attachment,
+          // filename: name,
+          //description: `File was scraped from Kraken Files by Steve Jobs`
+        }
+        let newFile = scripts_djs.createAttachment(attach)
+        file = file.url ? newFile : file
+        console.log(`the file`, file)
 
         if (isFile === true) {
           try {
             await interaction.editReply({
               files: [file],
-              embeds: [createEmb.createEmbed({ title: name })],
+              embeds: [createEmb.createEmbed({
+                title: name,
+                description: `${file.name? `Original File Name: ${file.name}` : ''}`,
+                url: file.url ? file.url : null,
+                color: scripts.getColor(),
+                footer: {
+                  text: `${file.url ? `this file was scraped from Kraken Files by Steve Jobs` : `Wok Bot provided by Steve Jobs` }`
+                }
+              })],
               content: "",
               components: [],
             });
@@ -1393,33 +1452,36 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
             ? interaction.fields.getTextInputValue("name")
             : "";
           let krakFile;
-          try {
-            krakFile = await scripts_djs.krakenWebScraper(krakLink);
-          } catch (error) {
-            await throwNewError(
-              "getting file from kraken link",
-              interaction,
-              error
-            );
-          }
-          file = {
-            name: theName,
-            attachment: `${
-              krakFile
-                ? krakFile
-                : `https://media4.giphy.com/media/8L0Pky6C83SzkzU55a/giphy.gif?cid=ecf05e47mactcs5z03dril6i1ffrxb7tfkukvayujqxuql2i&rid=giphy.gif&ct=g`
-            }`,
-            url: `${krakLink ? krakLink : null}`,
-          };
-                  // update the data obj file if the file is changed
-          data.file = file
-              
-      try {
-                    await scripts_mongoDB.updatePostData(randID, data); 
-      } catch (error) {
-        await throwNewError("updating the kraken file elements to the db", interaction, error)
-        
-      }
+         if (krakLink !== null) {
+           try {
+             krakFile = await scripts_djs.krakenWebScraper(krakLink, randID, interaction)
+             file = {
+              name: theName,
+              attachment: `${
+                krakFile
+                  ? krakFile
+                  : `https://media4.giphy.com/media/8L0Pky6C83SzkzU55a/giphy.gif?cid=ecf05e47mactcs5z03dril6i1ffrxb7tfkukvayujqxuql2i&rid=giphy.gif&ct=g`
+              }`,
+              url: `${krakLink ? krakLink : null}`,
+            }; 
+                             // update the data obj file if the file is changed
+            data.file = file
+                
+        try {
+                      await scripts_mongoDB.updatePostData(randID, data); 
+        } catch (error) {
+          await throwNewError("updating the kraken file elements to the db", interaction, error)
+          
+        }
+           } catch (error) {
+             await throwNewError(
+               "getting file from kraken link",
+               interaction,
+               error
+             );
+           }
+         }
+
         }
 
 
@@ -1488,7 +1550,7 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
             era.toLowerCase() === "post-homous" ||
             era.toLowerCase() === "posthumous"
           ) {
-            embedObj.thumbnail = jw3gif;
+            embedObj.thumbnail = jw3gif();
           } else if (
             era.toLowerCase() === "jtk" ||
             era.toLowerCase() === "juice the kidd"
@@ -1686,6 +1748,10 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
         }
       } else if (customID.includes(`post_ogfile_modal`)) {
         let data = await scripts_mongoDB.getPostData(randID);
+        console.log(`the data`, data)
+
+        data = data._doc;
+        console.log(`the data`, data)
         // console.log(`the data is right here data`, data);
         let {
           //  userId,
@@ -1706,33 +1772,36 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
             ? interaction.fields.getTextInputValue("name")
             : "";
           let krakFile;
-          try {
-            krakFile = await scripts_djs.krakenWebScraper(krakLink);
-          } catch (error) {
-            await throwNewError(
-              "getting file from kraken link",
-              interaction,
-              error
-            );
+
+          if (krakLink !==null) {
+            try {
+              krakFile = await scripts_djs.krakenWebScraper(krakLink, randID, interaction)
+            } catch (error) {
+              await throwNewError(
+                "getting file from kraken link",
+                interaction,
+                error
+              );
+            }
+            file = {
+              name: theName,
+              attachment: `${
+                krakFile
+                  ? krakFile
+                  : `https://media4.giphy.com/media/8L0Pky6C83SzkzU55a/giphy.gif?cid=ecf05e47mactcs5z03dril6i1ffrxb7tfkukvayujqxuql2i&rid=giphy.gif&ct=g`
+              }`,
+              url: `${krakLink ? krakLink : null}`,
+            };
+                    // update the data obj file if the file is changed
+            data.file = file
+                
+        try {
+                      await scripts_mongoDB.updatePostData(randID, data); 
+        } catch (error) {
+          await throwNewError("updating the kraken file elements to the db", interaction, error)
+          
+        }
           }
-          file = {
-            name: theName,
-            attachment: `${
-              krakFile
-                ? krakFile
-                : `https://media4.giphy.com/media/8L0Pky6C83SzkzU55a/giphy.gif?cid=ecf05e47mactcs5z03dril6i1ffrxb7tfkukvayujqxuql2i&rid=giphy.gif&ct=g`
-            }`,
-            url: `${krakLink ? krakLink : null}`,
-          };
-                  // update the data obj file if the file is changed
-          data.file = file
-              
-      try {
-                    await scripts_mongoDB.updatePostData(randID, data); 
-      } catch (error) {
-        await throwNewError("updating the kraken file elements to the db", interaction, error)
-        
-      }
         }
         const songName = interaction.fields.getTextInputValue("name")
           ? interaction.fields.getTextInputValue("name")
@@ -1798,7 +1867,7 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
             era.toLowerCase() === "post-homous" ||
             era.toLowerCase() === "posthumous"
           ) {
-            embedObj.thumbnail = jw3gif;
+            embedObj.thumbnail = jw3gif();
           } else if (
             era.toLowerCase() === "jtk" ||
             era.toLowerCase() === "juice the kidd"
@@ -2008,7 +2077,7 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
             : "";
           let krakFile;
           try {
-            krakFile = await scripts_djs.krakenWebScraper(krakLink);
+            krakFile = await scripts_djs.krakenWebScraper(krakLink, randID, interaction)
           } catch (error) {
             await throwNewError(
               "getting file from kraken link",
@@ -2099,7 +2168,7 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
             era.toLowerCase() === "post-homous" ||
             era.toLowerCase() === "posthumous"
           ) {
-            embedObj.thumbnail = jw3gif;
+            embedObj.thumbnail = jw3gif();
           } else if (
             era.toLowerCase() === "jtk" ||
             era.toLowerCase() === "juice the kidd"
@@ -2309,7 +2378,7 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
             : "";
           let krakFile;
           try {
-            krakFile = await scripts_djs.krakenWebScraper(krakLink);
+            krakFile = await scripts_djs.krakenWebScraper(krakLink, randID, interaction)
           } catch (error) {
             await throwNewError(
               "getting file from kraken link",
@@ -2565,7 +2634,7 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
             : "";
           let krakFile;
           try {
-            krakFile = await scripts_djs.krakenWebScraper(krakLink);
+            krakFile = await scripts_djs.krakenWebScraper(krakLink, randID, interaction)
           } catch (error) {
             await throwNewError(
               "getting file from kraken link",
@@ -2823,7 +2892,7 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
             : "";
           let krakFile;
           try {
-            krakFile = await scripts_djs.krakenWebScraper(krakLink);
+            krakFile = await scripts_djs.krakenWebScraper(krakLink, randID, interaction)
           } catch (error) {
             await throwNewError(
               "getting file from kraken link",
@@ -2914,7 +2983,7 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
             era.toLowerCase() === "post-homous" ||
             era.toLowerCase() === "posthumous"
           ) {
-            embedObj.thumbnail = jw3gif;
+            embedObj.thumbnail = jw3gif();
           } else if (
             era.toLowerCase() === "jtk" ||
             era.toLowerCase() === "juice the kidd"
@@ -3124,7 +3193,7 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
             : "";
           let krakFile;
           try {
-            krakFile = await scripts_djs.krakenWebScraper(krakLink);
+            krakFile = await scripts_djs.krakenWebScraper(krakLink, randID, interaction)
           } catch (error) {
             await throwNewError(
               "getting file from kraken link",
@@ -3215,7 +3284,7 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
             era.toLowerCase() === "post-homous" ||
             era.toLowerCase() === "posthumous"
           ) {
-            embedObj.thumbnail = jw3gif;
+            embedObj.thumbnail = jw3gif();
           } else if (
             era.toLowerCase() === "jtk" ||
             era.toLowerCase() === "juice the kidd"
@@ -3427,7 +3496,7 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
             : "";
           let krakFile;
           try {
-            krakFile = await scripts_djs.krakenWebScraper(krakLink);
+            krakFile = await scripts_djs.krakenWebScraper(krakLink, randID, interaction)
           } catch (error) {
             await throwNewError(
               "getting file from kraken link",
@@ -3684,7 +3753,7 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
             : "";
           let krakFile;
           try {
-            krakFile = await scripts_djs.krakenWebScraper(krakLink);
+            krakFile = await scripts_djs.krakenWebScraper(krakLink, randID, interaction)
           } catch (error) {
             await throwNewError(
               "getting file from kraken link",
@@ -3943,7 +4012,7 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
             : "";
           let krakFile;
           try {
-            krakFile = await scripts_djs.krakenWebScraper(krakLink);
+            krakFile = await scripts_djs.krakenWebScraper(krakLink, randID, interaction)
           } catch (error) {
             await throwNewError(
               "getting file from kraken link",
@@ -4229,7 +4298,7 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
             : "";
           let krakFile;
           try {
-            krakFile = await scripts_djs.krakenWebScraper(krakLink);
+            krakFile = await scripts_djs.krakenWebScraper(krakLink, randID, interaction)
           } catch (error) {
             await throwNewError(
               "getting file from kraken link",
@@ -4487,7 +4556,7 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
             : "";
           let krakFile;
           try {
-            krakFile = await scripts_djs.krakenWebScraper(krakLink);
+            krakFile = await scripts_djs.krakenWebScraper(krakLink, randID, interaction)
           } catch (error) {
             await throwNewError(
               "getting file from kraken link",

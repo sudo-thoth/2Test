@@ -23,6 +23,118 @@ function extractM4Aurl(str) {
   return res && res[1];
 }
 
+async function throwNewError(
+  action = action && typeof action === "string" ? action : null,
+  interaction,
+  err,
+  i
+) {
+  console.log(`the action is`, action);
+  console.log(`the interaction is`, interaction);
+  console.log(`the error is`, err);
+  console.log(`the index is`, i);
+  try {
+    await interaction.editReply({
+      embeds: [
+        createEmb.createEmbed({
+          title: "There was an Error , Share the Error w the Developer",
+          description:
+            `__While :__ \`${action !== null ? action : "?"}\`\n` +
+            "```js\n" +
+            err +
+            "\n```\n" +
+            `Error Report Summary:` +
+            "\n```js\n" +
+            `username: ${interaction.member.user.username}\nID: ${interaction.member.user.id}\nGuild: ${interaction.guild.name}\nGuild ID: ${interaction.guild.id}\nChannel: ${interaction.channel.name}\nChannel ID: ${interaction.channel.id}\nMessage ID: ${interaction.message.id}\nButton ID: ${interaction.customID}` +
+            "\n```",
+          color: scripts.getErrorColor(),
+          footer: {
+            text: "Contact STEVE JOBS and Send the Error",
+            iconURL: interaction.user.avatarURL(),
+          },
+        }),
+      ],
+    });
+  } catch (error) {
+    if (i) {
+      try {
+        await i.editReply({
+          embeds: [
+            createEmb.createEmbed({
+              title: "There was an Error , Share the Error w the Developer",
+              description:
+                "```js\n" +
+                err +
+                "\n```\n" +
+                `Error Report Summary:` +
+                "\n```js\n" +
+                `username: ${i.member.user.username}\nID: ${i.member.user.id}\nGuild: ${i.guild.name}\nGuild ID: ${i.guild.id}\nChannel: ${i.channel.name}\nChannel ID: ${i.channel.id}\nMessage ID: ${i.message.id}\nButton ID: ${i.customID}` +
+                "\n```",
+              color: scripts.getErrorColor(),
+              footer: {
+                text: "Contact STEVE JOBS and Send the Error",
+                iconURL: i.user.avatarURL(),
+              },
+            }),
+          ],
+        });
+      } catch (errr) {
+        console.log(
+          `error occurred when trying to send the user this-> Error: ${err}\n\n\nThe error that occurred when trying to send the user the 2nd time -> error is: ${error}\n\n\nThe error that occurred when trying to send the user the 3rd time -> error is: ${errr}`
+        );
+      }
+    } else {
+      await interaction.editReply({
+        embeds: [
+          createEmb.createEmbed({
+            title: "There was an Error, Share the Error w the Developer",
+            description:
+              `${
+                interaction.commandName
+                  ? `Command: \`${interaction.commandName}\`\n`
+                  : ""
+              }` +
+              "```js\n" +
+              err +
+              "\n```\n" +
+              `Error occurred for admin user:` +
+              "\n```js\n" +
+              `username: ${interaction.member.user.username}\nID: ${
+                interaction.member.user.id
+              }\nGuild: ${interaction.guild.name}\nGuild ID: ${
+                interaction.guild.id
+              }\nChannel: ${interaction.channel.name}\nChannel ID: ${
+                interaction.channel.id
+              }${
+                interaction.message
+                  ? `\nMessage ID: ${interaction.message.id}`
+                  : ""
+              }${
+                interaction.customID
+                  ? `\nCustom ID: ${interaction.customID}`
+                  : ""
+              }` +
+              "\n```",
+            color: scripts.getErrorColor(),
+            footer: {
+              text: "Contact STEVE JOBS and Send the Error",
+              iconURL: interaction.user.avatarURL(),
+            },
+          }),
+        ],
+      });
+    }
+  }
+}
+
+function createAttachment(attachment) {
+  return new AttachmentBuilder()
+.setName(attachment.filename)
+.setFile(attachment.url)
+.setDescription(attachment.description)
+}
+
+
 async function krakenFileSizeFinder(url, interaction){
   if (typeof url !== 'string') return;
 
@@ -43,7 +155,7 @@ console.log(fileSize);
 try {
 throw new Error('Could not find kraken file size');
 } catch (error) {
-await throwNewError("", interaction, error)
+await throwNewError("scraping kraken file size", interaction, error)
 
 }
 }
@@ -115,7 +227,7 @@ async function krakenWebScraper(url, batch_id, interaction){
   }
   let fileName;
   let type = await krakenFileTypeFinder(url, interaction);
-
+  let x;
   if (type === 'mp3') {
     
     const tempLine = data.split("\n").filter((line) => line.includes("m4a:"))[0];
@@ -123,7 +235,7 @@ async function krakenWebScraper(url, batch_id, interaction){
     const matches = titleLine.match(/content="(.*)"/);
     fileName = matches[1];
   console.log(`the url line`, tempLine);
-  let x = extractM4Aurl(tempLine);
+  x = extractM4Aurl(tempLine);
   x = x.replace(/'/g, '').replace('//', '');
   // replace all spaces inthe string
   x = x.replace(/ /g, '');
@@ -4161,5 +4273,6 @@ module.exports = {
   downloadKrakenBatch,
   getAlertEmoji,
   krakenFileSizeFinder,
-  krakenTitleFinder
+  krakenTitleFinder,
+  createAttachment
 };

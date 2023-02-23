@@ -281,37 +281,37 @@ if (client) {
       }
     };
     // set a servername variable to the role sliced at the '_' and everything after it is the server name
-
+let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrole, groupbuysrole, chatreviverole, giveawaysrole, songofthedayrole;
     switch (currentServer) {
       case "WRLD Updates":
-        const leaksrole = await interaction.guild.roles.fetch(
+        leaksrole = await interaction.guild.roles.fetch(
           "1077656315331084338"
         );
-        const ogfilesrole = await interaction.guild.roles.fetch(
+        ogfilesrole = await interaction.guild.roles.fetch(
           "1077656318845919242"
         );
-        const snippetsrole = await interaction.guild.roles.fetch(
+        snippetsrole = await interaction.guild.roles.fetch(
           "1077656316396445847"
         );
-        const sessionsrole = await interaction.guild.roles.fetch(
+        sessionsrole = await interaction.guild.roles.fetch(
           "1077656317344366614"
         );
-        const compupdatesrole = await interaction.guild.roles.fetch(
+        compupdatesrole = await interaction.guild.roles.fetch(
           "1077785531645186088"
         );
-        const newsrole = await interaction.guild.roles.fetch(
+        newsrole = await interaction.guild.roles.fetch(
           "1077656323379961996"
         );
-        const groupbuysrole = await interaction.guild.roles.fetch(
+        groupbuysrole = await interaction.guild.roles.fetch(
           "1077656322226536558"
         );
-        const chatreviverole = await interaction.guild.roles.fetch(
+        chatreviverole = await interaction.guild.roles.fetch(
           "1077656319642828802"
         );
-        const giveawaysrole = await interaction.guild.roles.fetch(
+        giveawaysrole = await interaction.guild.roles.fetch(
           "1077656320980828220"
         );
-        const songofthedayrole = await interaction.guild.roles.fetch(
+        songofthedayrole = await interaction.guild.roles.fetch(
           "1077656324726341662"
         );
         switch (roleName) {
@@ -352,7 +352,68 @@ if (client) {
         break;
       case "WOK WRLD":
         break;
-      default:
+        case "999 News":
+        leaksrole = await interaction.guild.roles.fetch(
+          "1078117434898268171"
+        );
+        ogfilesrole = await interaction.guild.roles.fetch(
+          "1078202186703585310"
+        );
+        snippetsrole = await interaction.guild.roles.fetch(
+          "1078202074724040735"
+        );
+        sessionsrole = await interaction.guild.roles.fetch(
+          "1078202260779171881"
+        );
+        compupdatesrole = await interaction.guild.roles.fetch(
+          "1078117450060677300"
+        );
+        newsrole = await interaction.guild.roles.fetch(
+          "1078117433145045072"
+        );
+        groupbuysrole = await interaction.guild.roles.fetch(
+          "1078117436521459722"
+        );
+        chatreviverole = await interaction.guild.roles.fetch(
+          "1078117440464093244"
+        );
+        giveawaysrole = await interaction.guild.roles.fetch(
+          "1078117442468982944"
+        );
+        switch (roleName) {
+          // WRLD Updates Roles
+          case "leaks":
+            await updateRole(interaction, leaksrole);
+            break;
+          case "ogfiles":
+            await updateRole(interaction, ogfilesrole);
+            break;
+          case "snippets":
+            await updateRole(interaction, snippetsrole);
+            break;
+          case "sessions":
+            await updateRole(interaction, sessionsrole);
+            break;
+          case "compupdates":
+            await updateRole(interaction, compupdatesrole);
+            break;
+          case "news":
+            await updateRole(interaction, newsrole);
+            break;
+          case "groupbuys":
+            await updateRole(interaction, groupbuysrole);
+            break;
+          case "chatrevive":
+            await updateRole(interaction, chatreviverole);
+            break;
+          case "giveaways":
+            await updateRole(interaction, giveawaysrole);
+            break;
+          default:
+            break;
+        }
+        break;
+        default:
         await interaction.editReply({
           content: `error happened here\n the server name is ${currentServer}\nthe role is ${role}\nthe role name is ${roleName}`,
         });
@@ -1142,7 +1203,7 @@ if (client) {
           interaction.editReply({
             embeds: [
               createEmb.createEmbed({
-                title: `Sent [ Image: ${songName} ]`,
+                title: `Sent [ Image: ${title ? title : "unnamed"} ]`,
               }),
             ],
           });
@@ -1151,7 +1212,7 @@ if (client) {
           interaction.editReply({
             embeds: [
               createEmb.createEmbed({
-                title: `Sorry But There was an Error Posting [ Image: ${songName} ]`,
+                title: `Sorry But There was an Error Posting [ Image: ${title ? title : "unnamed"} ]`,
                 color: scripts.getErrorColor(),
               }),
             ],
@@ -1252,7 +1313,8 @@ if (client) {
         const role = roleString(roles);
         const embed = createEmb.createEmbed({
           title: `${title}`,
-          description: `${text !== null ? `${text}` : ` `}`,
+          description: `${text !== null ? `${text}` : `${!title ? `Sent from ${interaction.user.username}` : ` `}`}`,
+
           color: scripts.getColor(),
         });
         // create a button to download the image
@@ -1280,7 +1342,7 @@ if (client) {
           interaction.editReply({
             embeds: [
               createEmb.createEmbed({
-                title: `Sent [ Snippet: ${songName} ]`,
+                title: `Sent [ Snippet: ${title ? title : "unnamed"} ]`,
               }),
             ],
           });
@@ -1289,7 +1351,7 @@ if (client) {
           interaction.editReply({
             embeds: [
               createEmb.createEmbed({
-                title: `Sorry But There was an Error Posting [ Snippet: ${songName} ]`,
+                title: `Sorry But There was an Error Posting [ Snippet: ${title ? title : "unnamed"} ]`,
               }),
             ],
           });

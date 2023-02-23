@@ -8,7 +8,7 @@ const client = require(`../../index.js`);
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("post")
-    .setDescription("Files must be 8mb or less or posted via Kraken Link")
+    .setDescription("Files must be less than server mb limit or posted via Kraken Link")
     .setDefaultMemberPermissions(PermissionFlagsBits.AttachFiles)
     .addSubcommandGroup((group) =>
     group
@@ -49,7 +49,7 @@ module.exports = {
                 { name: "Stem Edit", value: "stemedit" },
                 { name: "Magical Edit", value: "magicaledit" },
                 { name: "Slowed & Reverb", value: "slowreverb" },
-                { name: "Random", value: "rand" }
+                { name: "Random", value: "rando" }
               )
           )
           .addRoleOption((opt) =>
@@ -95,7 +95,7 @@ module.exports = {
                 )
             )
             .addAttachmentOption((option) =>
-              option.setName("attachment").setDescription("The file to post")
+              option.setName("attachment").setDescription("The file to post").setRequired(true)
             )
             .addRoleOption((opt) =>
               opt
@@ -123,7 +123,7 @@ module.exports = {
                 )
             )
             .addAttachmentOption((option) =>
-              option.setName("attachment").setDescription("The file to post")
+              option.setName("attachment").setDescription("The file to post").setRequired(true)
             )
             .addRoleOption((opt) =>
               opt
@@ -151,7 +151,7 @@ module.exports = {
                 )
             )
             .addAttachmentOption((option) =>
-              option.setName("attachment").setDescription("The file to post")
+              option.setName("attachment").setDescription("The file to post").setRequired(true)
             )
             .addRoleOption((opt) =>
               opt
@@ -202,6 +202,15 @@ module.exports = {
 
     }
 client.emit("PostCommand", optionsObj)
+
+// if (file_type === "attachment" && !file) {
+//       return interaction.editReply({
+//         content: "You must attach a file to post",
+//         ephemeral: true,
+//       });
+//     }
+
+
 
     switch (format) {
       case "image":
@@ -958,6 +967,7 @@ if (file_type === "attachment") {
               break;
           }
 } else if (file_type === "kraken-link") {
+
   switch (type) {
     case "leak":
       // do leak things
@@ -1167,7 +1177,7 @@ if (file_type === "attachment") {
     // Show the modal
     await interaction.showModal(modal);
       break;
-    case "acapella":
+    case "accapella":
       // do acappella things
                             // Modal Object that gets passed in below
     modalObj = {

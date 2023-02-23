@@ -23,6 +23,58 @@ function extractM4Aurl(str) {
   return res && res[1];
 }
 
+async function krakenFileSizeFinder(url, interaction){
+  if (typeof url !== 'string') return;
+
+  let data;
+  try {
+    data = await (await fetch(url)).text();
+  } catch (error) {
+    await throwNewError(`there is no data to scrape at this url: ${url}`, interaction, error)
+    return;
+  }
+  const regex = /<div class="sub-text">File size<\/div>\n\s*<div class="lead-text">(.+)<\/div>/;
+const match = data.match(regex);
+let fileSize = 0;
+if (match) {
+fileSize = match[1];
+console.log(fileSize);
+} else {
+try {
+throw new Error('Could not find kraken file size');
+} catch (error) {
+await throwNewError("", interaction, error)
+
+}
+}
+  return fileSize;
+};
+
+async function krakenTitleFinder(url, interaction){
+  if (typeof url !== 'string') return;
+
+  let data;
+  try {
+    data = await (await fetch(url)).text();
+  } catch (error) {
+    console.log(`there is no data to scrape at this url: ${url}`)
+    console.log(`error`, error)
+    return;
+  }
+
+try {
+    const titleLine = data.split("\n").filter((line) => line.includes(`<meta property="og:title" content=`))[0];
+    const matches = titleLine.match(/content="(.*)"/);
+    const fileName = matches[1];
+  
+    return fileName;
+} catch (error) {
+  await throwNewError(`there is no data to scrape at this url: ${url}`, interaction, error)
+  
+}
+
+};
+
 async function krakenWebScraper(url, batch_id, interaction){
   if (typeof url !== 'string') return;
 
@@ -4071,5 +4123,7 @@ module.exports = {
   downloadFileBatch,
   uploadKrakenLinksBatch,
   downloadKrakenBatch,
-  getAlertEmoji
+  getAlertEmoji,
+  krakenFileSizeFinder,
+  krakenTitleFinder
 };

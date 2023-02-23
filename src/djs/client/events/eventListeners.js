@@ -6,6 +6,14 @@ const createEmb = require(`../../functions/create/createEmbed.js`);
 const createBtn = require(`../../functions/create/createButton.js`);
 const createActRow = require(`../../functions/create/createActionRow.js`);
 const gb = require(`../../commands/Juice/gb.js`);
+const drflgif =
+  "https://media.discordapp.net/attachments/981241396608532534/1078161086794174464/ezgif.com-gif-maker_4.gif";
+const gbgrgif =
+  "https://media.discordapp.net/attachments/981241396608532534/1078159688983654441/ezgif.com-optimize.gif";
+const jw3gif =
+  "https://media.discordapp.net/attachments/981241396608532534/1078163296412246016/ezgif.com-optimize_2.gif";
+const jtkgif =
+  "https://media.discordapp.net/attachments/981241396608532534/1078161981086892153/ezgif.com-optimize_1.gif";
 // const index = require(`src/djs/index.js`)
 // const client = index.getClient();
 // console.log(client);
@@ -81,7 +89,7 @@ async function throwNewError(
       ],
     });
   } catch (error) {
-if (i) {
+    if (i) {
       try {
         await i.editReply({
           embeds: [
@@ -108,221 +116,250 @@ if (i) {
           `error occurred when trying to send the user this-> Error: ${err}\n\n\nThe error that occurred when trying to send the user the 2nd time -> error is: ${error}\n\n\nThe error that occurred when trying to send the user the 3rd time -> error is: ${errr}`
         );
       }
-} else {
-  await interaction.editReply({
-    embeds: [
-      createEmb.createEmbed({
-        title: "There was an Error, Share the Error w the Developer",
-        description:
-        `${interaction.commandName ?`Command: \`${interaction.commandName}\`\n` : ""}`+
-          "```js\n" +
-          err +
-          "\n```\n" +
-          `Error occurred for admin user:` +
-          "\n```js\n" +
-          `username: ${interaction.member.user.username}\nID: ${interaction.member.user.id}\nGuild: ${interaction.guild.name}\nGuild ID: ${interaction.guild.id}\nChannel: ${interaction.channel.name}\nChannel ID: ${interaction.channel.id}${interaction.message ?`\nMessage ID: ${interaction.message.id}` : ""}${interaction.customID ?`\nCustom ID: ${interaction.customID}` : ""}` +
-          "\n```",
-        color: scripts.getErrorColor(),
-        footer: {
-          text: "Contact STEVE JOBS and Send the Error",
-          iconURL: interaction.user.avatarURL(),
-        },
-      }),],
-    });
+    } else {
+      await interaction.editReply({
+        embeds: [
+          createEmb.createEmbed({
+            title: "There was an Error, Share the Error w the Developer",
+            description:
+              `${
+                interaction.commandName
+                  ? `Command: \`${interaction.commandName}\`\n`
+                  : ""
+              }` +
+              "```js\n" +
+              err +
+              "\n```\n" +
+              `Error occurred for admin user:` +
+              "\n```js\n" +
+              `username: ${interaction.member.user.username}\nID: ${
+                interaction.member.user.id
+              }\nGuild: ${interaction.guild.name}\nGuild ID: ${
+                interaction.guild.id
+              }\nChannel: ${interaction.channel.name}\nChannel ID: ${
+                interaction.channel.id
+              }${
+                interaction.message
+                  ? `\nMessage ID: ${interaction.message.id}`
+                  : ""
+              }${
+                interaction.customID
+                  ? `\nCustom ID: ${interaction.customID}`
+                  : ""
+              }` +
+              "\n```",
+            color: scripts.getErrorColor(),
+            footer: {
+              text: "Contact STEVE JOBS and Send the Error",
+              iconURL: interaction.user.avatarURL(),
+            },
+          }),
+        ],
+      });
+    }
   }
-}
 }
 
 if (client) {
   client.on("role", async (interaction, customID) => {
-    console.log(`emit recieved`)
-    console.log(`original role is ${customID}`)
-          let r = customID.split("role_")[1];
-          //separate the custom id from teh rand id at the #
-          r = r.split("#")[0];
-          console.log(`the r is ${r}`)
-          let roleName = r.split("_")[0]
-          let currentServer = r.split("_")[1];
+    console.log(`emit recieved`);
+    console.log(`original role is ${customID}`);
+    let r = customID.split("role_")[1];
+    //separate the custom id from teh rand id at the #
+    r = r.split("#")[0];
+    console.log(`the r is ${r}`);
+    let roleName = r.split("_")[0];
+    let currentServer = r.split("_")[1];
     const role = r;
-    console.log(`the role name is ${roleName}\nthe current server is ${currentServer}`);
+    console.log(
+      `the role name is ${roleName}\nthe current server is ${currentServer}`
+    );
 
     console.log(`the role is ${role}`);
     // WRLD Updates Roles
-    
-        const updateRole = async (interaction, role) => {
-    if (role) {
-      const member = interaction.guild.members.cache.get(interaction.user.id);
-      // get an array of the role names the user has
-      const roleNames = member.roles.cache.map((role) => role.name);
-      // if rolenames includes the role.name set toggle to true
-      let toggle = false;
-      if (roleNames.includes(role.name)) {
-        toggle = true;
+
+    const updateRole = async (interaction, role) => {
+      if (role) {
+        const member = interaction.guild.members.cache.get(interaction.user.id);
+        // get an array of the role names the user has
+        const roleNames = member.roles.cache.map((role) => role.name);
+        // if rolenames includes the role.name set toggle to true
+        let toggle = false;
+        if (roleNames.includes(role.name)) {
+          toggle = true;
         }
-            if (toggle) {
-              try {
-                  try {
-                    member.roles.remove(role);
-                  } catch (error) {
-                    await throwNewError(
-                      "removing leaks role",
-                      interaction,
-                      error
-                    );
-                  }
-                  await interaction.editReply({
-                    embeds: [
-                      createEmb.createEmbed({
-                        title: `${role.name} Role Removed`,
-                        description: "role status updated successfully",
-                        color: scripts.getErrorColor(),
-                        author: {
-                          name: member.user.tag,
-                        },
-                        thumbnail: member.user.displayAvatarURL({ dynamic: true }),
-                      }),
-                    ],
-                  });
-                  
-                  await scripts.delay(4444);
-                  await interaction.deleteReply();
-        } catch (error) {
-          await throwNewError(
-            `sending updated role status for ${role.name} role`,
-            interaction,
-            error
-          );
-          
+        if (toggle) {
+          try {
+            try {
+              member.roles.remove(role);
+            } catch (error) {
+              await throwNewError("removing leaks role", interaction, error);
+            }
+            await interaction.editReply({
+              embeds: [
+                createEmb.createEmbed({
+                  title: `${role.name} Role Removed`,
+                  description: "role status updated successfully",
+                  color: scripts.getErrorColor(),
+                  author: {
+                    name: member.user.tag,
+                  },
+                  thumbnail: member.user.displayAvatarURL({ dynamic: true }),
+                }),
+              ],
+            });
+
+            await scripts.delay(4444);
+            await interaction.deleteReply();
+          } catch (error) {
+            await throwNewError(
+              `sending updated role status for ${role.name} role`,
+              interaction,
+              error
+            );
+          }
+        } else {
+          try {
+            try {
+              member.roles.add(role);
+            } catch (error) {
+              await throwNewError("adding leaks role", interaction, error);
+            }
+            await interaction.editReply({
+              embeds: [
+                createEmb.createEmbed({
+                  title: `${role.name} Role Added`,
+                  description: "role status updated successfully",
+                  color: scripts.getSuccessColor(),
+                  author: {
+                    name: member.user.tag,
+                  },
+                  thumbnail: member.user.displayAvatarURL({ dynamic: true }),
+                }),
+              ],
+            });
+
+            await scripts.delay(4444);
+            await interaction.deleteReply();
+          } catch (error) {
+            await throwNewError(
+              `sending updated role status for ${role.name} role`,
+              interaction,
+              error
+            );
+          }
         }
-              } else {
-                try {
-                  try {
-                    member.roles.add(role);
-                  } catch (error) {
-                    await throwNewError(
-                      "adding leaks role",
-                      interaction,
-                      error
-                    );
-                  }
-                  await interaction.editReply({
-                    embeds: [
-                      createEmb.createEmbed({
-                        title: `${role.name} Role Added`,
-                        description: "role status updated successfully",
-                        color: scripts.getSuccessColor(),
-                        author: {
-                          name: member.user.tag,
-                        },
-                        thumbnail: member.user.displayAvatarURL({ dynamic: true }),
-                      }),
-                    ],
-                  });
-                  
-                  await scripts.delay(4444);
-                  await interaction.deleteReply();
-                  } catch (error) {
-                    await throwNewError(
-                      `sending updated role status for ${role.name} role`,
-                      interaction,
-                      error
-                    );
-                  }
-                }
-      
-    } else {
-      try {
+      } else {
         try {
-          await interaction.editReply({
-            embeds: [
-              createEmb.createEmbed({
-                title: `🚫 Role Not Found`,
-                description: "The Requested Role Was Not Found In The Current Server\nFailed to add role to user",
-                color: scripts.getErrorColor(),
-                author: {
-                  name: interaction.user.tag,
-                },
-                thumbnail: interaction.user.displayAvatarURL({ dynamic: true }),
-              }),
-            ],
-          });
+          try {
+            await interaction.editReply({
+              embeds: [
+                createEmb.createEmbed({
+                  title: `🚫 Role Not Found`,
+                  description:
+                    "The Requested Role Was Not Found In The Current Server\nFailed to add role to user",
+                  color: scripts.getErrorColor(),
+                  author: {
+                    name: interaction.user.tag,
+                  },
+                  thumbnail: interaction.user.displayAvatarURL({
+                    dynamic: true,
+                  }),
+                }),
+              ],
+            });
+          } catch (error) {
+            await throwNewError(
+              "sending error message for role not found",
+              interaction,
+              error
+            );
+          }
         } catch (error) {
-          await throwNewError(
-            "sending error message for role not found",
-            interaction,
-            error
-          );
+          await throwNewError("executing roles command", interaction, error);
         }
-      } catch (error) {
-        await throwNewError(
-          "executing roles command",
-          interaction,
-          error
+      }
+    };
+    // set a servername variable to the role sliced at the '_' and everything after it is the server name
+
+    switch (currentServer) {
+      case "WRLD Updates":
+        const leaksrole = await interaction.guild.roles.fetch(
+          "1077656315331084338"
         );
-      }
-        }
-      }
-// set a servername variable to the role sliced at the '_' and everything after it is the server name
-
-
-switch (currentServer) {
-  case "WRLD Updates":
-  const leaksrole = await interaction.guild.roles.fetch("1077656315331084338");
-  const ogfilesrole = await interaction.guild.roles.fetch("1077656318845919242");
-  const snippetsrole = await interaction.guild.roles.fetch("1077656316396445847")
-  const sessionsrole = await interaction.guild.roles.fetch("1077656317344366614")
-  const compupdatesrole = await interaction.guild.roles.fetch("1077785531645186088")
-  const newsrole = await interaction.guild.roles.fetch("1077656323379961996")
-  const groupbuysrole = await interaction.guild.roles.fetch("1077656322226536558")
-  const chatreviverole = await interaction.guild.roles.fetch("1077656319642828802")
-  const giveawaysrole = await interaction.guild.roles.fetch("1077656320980828220")
-  const songofthedayrole = await interaction.guild.roles.fetch("1077656324726341662")
-          switch (roleName) {
-            // WRLD Updates Roles
-            case "leaks":        
+        const ogfilesrole = await interaction.guild.roles.fetch(
+          "1077656318845919242"
+        );
+        const snippetsrole = await interaction.guild.roles.fetch(
+          "1077656316396445847"
+        );
+        const sessionsrole = await interaction.guild.roles.fetch(
+          "1077656317344366614"
+        );
+        const compupdatesrole = await interaction.guild.roles.fetch(
+          "1077785531645186088"
+        );
+        const newsrole = await interaction.guild.roles.fetch(
+          "1077656323379961996"
+        );
+        const groupbuysrole = await interaction.guild.roles.fetch(
+          "1077656322226536558"
+        );
+        const chatreviverole = await interaction.guild.roles.fetch(
+          "1077656319642828802"
+        );
+        const giveawaysrole = await interaction.guild.roles.fetch(
+          "1077656320980828220"
+        );
+        const songofthedayrole = await interaction.guild.roles.fetch(
+          "1077656324726341662"
+        );
+        switch (roleName) {
+          // WRLD Updates Roles
+          case "leaks":
             await updateRole(interaction, leaksrole);
             break;
-            case "ogfiles":
+          case "ogfiles":
             await updateRole(interaction, ogfilesrole);
             break;
-            case "snippets":
+          case "snippets":
             await updateRole(interaction, snippetsrole);
             break;
-            case "sessions":
+          case "sessions":
             await updateRole(interaction, sessionsrole);
             break;
-            case "compupdates":
+          case "compupdates":
             await updateRole(interaction, compupdatesrole);
             break;
-            case "news":
+          case "news":
             await updateRole(interaction, newsrole);
             break;
-            case "groupbuys":
+          case "groupbuys":
             await updateRole(interaction, groupbuysrole);
             break;
-            case "chatrevive":
+          case "chatrevive":
             await updateRole(interaction, chatreviverole);
             break;
-            case "giveaways":
+          case "giveaways":
             await updateRole(interaction, giveawaysrole);
             break;
-            case "songoftheday":
+          case "songoftheday":
             await updateRole(interaction, songofthedayrole);
             break;
-            default:
-            break;
-          }
-          break;
-          case "WOK WRLD":
-
-          break;
           default:
-          await interaction.editReply({content: `error happened here\n the server name is ${currentServer}\nthe role is ${role}\nthe role name is ${roleName}`});
+            break;
+        }
+        break;
+      case "WOK WRLD":
+        break;
+      default:
+        await interaction.editReply({
+          content: `error happened here\n the server name is ${currentServer}\nthe role is ${role}\nthe role name is ${roleName}`,
+        });
 
-          break;
-        
-}
-      });
+        break;
+    }
+  });
   // console.log(`The Client`, client);
   client.on("PostCommand", (optionsObj) => {
     // code to execute when the emit is triggered
@@ -353,7 +390,12 @@ switch (currentServer) {
     let randID = 0;
     let doc, targetChannel, targetChannelID;
     if (!interaction.isChatInputCommand()) {
-      if (!customID.includes("post_") && !customID.includes("view_attachment_") && !customID.includes("direct_message_") && !customID.includes("groupbuy_")) {
+      if (
+        !customID.includes("post_") &&
+        !customID.includes("view_attachment_") &&
+        !customID.includes("direct_message_") &&
+        !customID.includes("groupbuy_")
+      ) {
         randID = scripts_djs.extractID(customID);
         doc = await scripts_mongoDB.getData(randID);
         // scripts.cLog(`The Doc`, doc);
@@ -362,70 +404,62 @@ switch (currentServer) {
         // console.log(`randID`, randID);
         if (doc) {
           targetChannel = doc.targetChannel;
-        targetChannelID = targetChannel.replace(/[^0-9]/g, "");
-        console.log(`the target channel`, targetChannelID);
+          targetChannelID = targetChannel.replace(/[^0-9]/g, "");
+          console.log(`the target channel`, targetChannelID);
         }
-
       } else if (customID.includes("post_")) {
         randID = scripts_djs.extractID(customID);
         doc = await scripts_mongoDB.getPostData(randID);
-      } 
+      }
     }
 
     // BUTTONS
     if (interaction.isButton()) {
-    console.log(`Button Clicked`);
+      console.log(`Button Clicked`);
 
-      if(customID.includes("groupbuy_")){
-        console.log(`Group Buy Button Clicked`)
+      if (customID.includes("groupbuy_")) {
+        console.log(`Group Buy Button Clicked`);
         client.emit("GroupBuyButton", interaction);
-
-      }else if(customID.includes("role_")){
-        console.log(`a role selection Button Clicked`)
+      } else if (customID.includes("role_")) {
+        console.log(`a role selection Button Clicked`);
         await interaction.deferReply({ ephemeral: true });
         client.emit("role", interaction, customID);
         console.log(`after role emit`);
-
-      }else if (customID.includes("gb_")){
-
-if (customID.includes("gb_edit")) {
-  let randID = scripts_djs.extractID(customID);
-  await gb.gbedit(interaction, randID);
-}else if(customID.includes("gb_update")){
-  let randID = scripts_djs.extractID(customID);
-  if (customID.includes("add")) {
-    await gb.gbadd(interaction, randID);
-  } else if (customID.includes("minus")){
-    await gb.gbsub(interaction, randID);
-  } else if (customID.includes("embed")){
-    await gb.gbembed(interaction, randID);
-  } 
-  else if (customID.includes("gb_update_delete_confirm")) {
-    let randID = scripts_djs.extractID(customID);
-    await gb.gbconfirmdelete(interaction, randID);
-  } else if (customID.includes("gb_update_delete_cancel")) {
-    await gb.gbcanceldelete(interaction);
-  } 
-  else {
-    await gb.gbupdate(interaction, randID);
-  } 
-} else if (customID.includes("gb_delete")) {
-  let randID = scripts_djs.extractID(customID);
-  await gb.gbdelete(interaction, randID);
-} else if (customID.includes("gb_end")) {
-  let randID = scripts_djs.extractID(customID);
-  await gb.gbend(interaction, randID);
-}  else if (customID.includes("gb_completedgb")) {
-  let randID = scripts_djs.extractID(customID);
-  await gb.gbcompletedgb(interaction, randID);
-} else if (customID.includes("gb_canceledgb")) {
-  let randID = scripts_djs.extractID(customID);
-  await gb.gbcanceledgb_modal(interaction, randID);
-} else if (customID.includes("gb_postponedgb")) {
-  await gb.gbpostponedgb_modal(interaction, randID);
-}
-        
-
+      } else if (customID.includes("gb_")) {
+        if (customID.includes("gb_edit")) {
+          let randID = scripts_djs.extractID(customID);
+          await gb.gbedit(interaction, randID);
+        } else if (customID.includes("gb_update")) {
+          let randID = scripts_djs.extractID(customID);
+          if (customID.includes("add")) {
+            await gb.gbadd(interaction, randID);
+          } else if (customID.includes("minus")) {
+            await gb.gbsub(interaction, randID);
+          } else if (customID.includes("embed")) {
+            await gb.gbembed(interaction, randID);
+          } else if (customID.includes("gb_update_delete_confirm")) {
+            let randID = scripts_djs.extractID(customID);
+            await gb.gbconfirmdelete(interaction, randID);
+          } else if (customID.includes("gb_update_delete_cancel")) {
+            await gb.gbcanceldelete(interaction);
+          } else {
+            await gb.gbupdate(interaction, randID);
+          }
+        } else if (customID.includes("gb_delete")) {
+          let randID = scripts_djs.extractID(customID);
+          await gb.gbdelete(interaction, randID);
+        } else if (customID.includes("gb_end")) {
+          let randID = scripts_djs.extractID(customID);
+          await gb.gbend(interaction, randID);
+        } else if (customID.includes("gb_completedgb")) {
+          let randID = scripts_djs.extractID(customID);
+          await gb.gbcompletedgb(interaction, randID);
+        } else if (customID.includes("gb_canceledgb")) {
+          let randID = scripts_djs.extractID(customID);
+          await gb.gbcanceledgb_modal(interaction, randID);
+        } else if (customID.includes("gb_postponedgb")) {
+          await gb.gbpostponedgb_modal(interaction, randID);
+        }
       } else if (customID.includes("newleak")) {
         // Launch New Leak Modal
         let modal = await scripts_djs.modal_NewLeak(randID);
@@ -448,11 +482,15 @@ if (customID.includes("gb_edit")) {
         await interaction.showModal(modal);
       } else if (customID.includes("groupbuybtn")) {
         // Launch Group Buy Hub {Embed}
-        await interaction.editReply({embeds: [createEmb.createEmbed({
-          title: `This button has been redacted`,
-          description: `please use the command \`/groupbuy\` to access the group buy hub`,
-          color: scripts.getErrorColor(),
-        })]})
+        await interaction.editReply({
+          embeds: [
+            createEmb.createEmbed({
+              title: `This button has been redacted`,
+              description: `please use the command \`/groupbuy\` to access the group buy hub`,
+              color: scripts.getErrorColor(),
+            }),
+          ],
+        });
         // delete the reply in 6 seconds
         setTimeout(async () => {
           await interaction.deleteReply();
@@ -594,15 +632,42 @@ if (customID.includes("gb_edit")) {
         }
       } else if (customID.includes("direct_message_")) {
         await interaction.deferReply({ ephemeral: true });
+
+        // determine what boost tier the server is to determine how big the file can be sent
+
+        let level = interaction.guild.premiumTier;
+        let limit = 8;
+        // if (level === "TIER_1" || level === 1) {
+        //   limit = 8;
+        // } else if (level === "TIER_2" || level === 2) {
+        //   limit = 50;
+        // } else if (level === "TIER_3" || level === 3) {
+        //   limit = 100;
+        // }
+
+        scripts.cLog(`the limit is ${limit} MB`);
         randID = scripts_djs.extractID(customID);
         let data = await scripts_mongoDB.getPostData(randID);
         let { file } = data;
-        let { choice, size, name, url, attachment } = file;
+        let { name, url, attachment } = file;
+        let size;
+        if (data.size) {
+          size = data.size;
+        } else {
+          size = await scripts_djs.krakenFileSizeFinder(url, interaction);
+          let isGB = size.includes("GB");
+          size = parseFloat(inputString);
+
+          if (isGB) {
+            size *= 1024;
+          }
+          url = attachment;
+        }
         let user = interaction.user;
         // direct message the user the file
         // convert size from bytes to mb
         let sizeMB = size / 1000000;
-        let isFile = sizeMB > 8 ? false : true;
+        let isFile = sizeMB > limit ? false : true;
 
         if (isFile === true) {
           user.send({ content: file.name, files: [file] });
@@ -648,14 +713,51 @@ if (customID.includes("gb_edit")) {
         randID = scripts_djs.extractID(customID);
         let data = await scripts_mongoDB.getPostData(randID);
 
+        // determine what boost tier the server is to determine how big the file can be sent
+
+        let level = interaction.guild.premiumTier;
+        let limit = 8;
+        if (level === "TIER_1" || level === 1) {
+          limit = 8;
+        } else if (level === "TIER_2" || level === 2) {
+          limit = 50;
+        } else if (level === "TIER_3" || level === 3) {
+          limit = 100;
+        }
+
+        scripts.cLog(`the limit is ${limit} MB`);
+
         let { file } = data;
-        let { choice, size, name, url, attachment } = file;
+        let { url, attachment } = file;
+        let size, name;
+        if (file.name) {
+          name = file.name;
+        } else {
+          name = await scripts_djs.krakenTitleFinder(url, interaction)
+        }
+        if (data.size) {
+          size = data.size;
+        } else {
+          size = await scripts_djs.krakenFileSizeFinder(url, interaction);
+          let isGB = size.includes("GB");
+          size = parseFloat(inputString);
+
+          if (isGB) {
+            size *= 1024;
+          }
+          url = attachment;
+        }
+
+
         let user = interaction.user;
         // direct message the user the file
+
         // convert size from bytes to mb
         let sizeMB = size / 1000000;
-        let isFile = sizeMB > 8 ? false : true;
-
+        let isFile = sizeMB > limit ? false : true;
+        if (size === 0) {
+          isFile = false;
+        }
         if (isFile === true) {
           try {
             await interaction.editReply({
@@ -703,84 +805,116 @@ if (customID.includes("gb_edit")) {
         });
       } catch (error) {
         try {
-          await interaction.reply({embeds: [createEmb.createEmbed({
-            title: "Error",
-            description: `An Error occurred when trying to reply to a Modal Button Request\n**Please Contact Steve Jobs and allow him to look into the error below**\n*Do Not Forget To Tell Him What Your Actions That Were Taken Were*\n__Error Explained:__`+"```js"+`\n${error}\n`+"```",
-            color: scripts.getErrorColor(),
-          })]})
+          await interaction.reply({
+            embeds: [
+              createEmb.createEmbed({
+                title: "Error",
+                description:
+                  `An Error occurred when trying to reply to a Modal Button Request\n**Please Contact Steve Jobs and allow him to look into the error below**\n*Do Not Forget To Tell Him What Your Actions That Were Taken Were*\n__Error Explained:__` +
+                  "```js" +
+                  `\n${error}\n` +
+                  "```",
+                color: scripts.getErrorColor(),
+              }),
+            ],
+          });
         } catch (errr) {
-          console.log(`The Original Error has something to do w the interaction`, error)
+          console.log(
+            `The Original Error has something to do w the interaction`,
+            error
+          );
         }
       }
 
       let modalInput = null;
       let embed = null;
-      if(customID.includes("groupbuy_")){
-        console.log(`Group Buy Modal Submitted`)
-        console.log(`the interaction`, interaction)
+      if (customID.includes("groupbuy_")) {
+        console.log(`Group Buy Modal Submitted`);
+        console.log(`the interaction`, interaction);
         client.emit("GroupBuyModal", interaction, customID);
-        console.log(`emitted modal submittion`)
-
-      } else if (customID.includes("gb-post")){
+        console.log(`emitted modal submittion`);
+      } else if (customID.includes("gb-post")) {
         // extract the name, price, and current amount raised from the modal
         const songName = interaction.fields.getTextInputValue("gb_p_name")
           ? interaction.fields.getTextInputValue("gb_p_name")
-          : '';
+          : "";
         let price = interaction.fields.getTextInputValue("gb_p_price")
-          ? interaction.fields.getTextInputValue("gb_p_price") : '';
-        let current = interaction.fields.getTextInputValue("gb_p_current") ? interaction.fields.getTextInputValue("gb_p_current") : '0';
+          ? interaction.fields.getTextInputValue("gb_p_price")
+          : "";
+        let current = interaction.fields.getTextInputValue("gb_p_current")
+          ? interaction.fields.getTextInputValue("gb_p_current")
+          : "0";
         // if price or current has no numbers and all alphabetical characters edit the reply telling the user if they put in an input, it must be a number in the price & current field, then return
-        let priceNumber = price ? price.replace(/[^0-9]/g, '') : '0';
-const matches = price ? price.match(/\$?(\d+\.\d{2})|(\d+\.\d)|(\d+)/g) : ['0'];
-const transformedMatches = matches.map(match => match );
-price = transformedMatches[0] ? transformedMatches[0] : price;
+        let priceNumber = price ? price.replace(/[^0-9]/g, "") : "0";
+        const matches = price
+          ? price.match(/\$?(\d+\.\d{2})|(\d+\.\d)|(\d+)/g)
+          : ["0"];
+        const transformedMatches = matches.map((match) => match);
+        price = transformedMatches[0] ? transformedMatches[0] : price;
 
-        let currentNumber = current ? current.replace(/[^0-9]/g, '') : '0';
-        const currentMatches = current ? current.match(/\$?(\d+\.\d{2})|(\d+\.\d)|(\d+)/g) : ['0'];
-const transformedCurrentMatches = currentMatches.map(match => match );
-current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
+        let currentNumber = current ? current.replace(/[^0-9]/g, "") : "0";
+        const currentMatches = current
+          ? current.match(/\$?(\d+\.\d{2})|(\d+\.\d)|(\d+)/g)
+          : ["0"];
+        const transformedCurrentMatches = currentMatches.map((match) => match);
+        current = transformedCurrentMatches[0]
+          ? transformedCurrentMatches[0]
+          : current;
         let channel = interaction.channel;
         let randID = scripts_djs.extractID(customID);
         let obj = {
-          randID: randID, 
+          randID: randID,
           name: songName,
           price: price,
           priceNumber: priceNumber,
           amountPaid: current,
           amountPaidNumber: currentNumber,
           channel: channel,
-        }
-       await gb.runGB(obj, interaction);
-      } else if (customID.includes("gb-add")){
+        };
+        await gb.runGB(obj, interaction);
+      } else if (customID.includes("gb-add")) {
         // extract the num from the modal
         const num = interaction.fields.getTextInputValue("gb_add")
           ? interaction.fields.getTextInputValue("gb_add")
-          : '';
+          : "";
         let randID = scripts_djs.extractID(customID);
 
         await gb.gbaddtototal(num, randID, interaction);
-      } else if (customID.includes("gb-minus")){
+      } else if (customID.includes("gb-minus")) {
         // extract the num from the modal
         const num = interaction.fields.getTextInputValue("gb_sub")
           ? interaction.fields.getTextInputValue("gb_sub")
-          : '';
+          : "";
         let randID = scripts_djs.extractID(customID);
 
         await gb.gbsubfromtotal(num, randID, interaction);
+      } else if (customID.includes("gb-reset")) {
+        let name = interaction.fields.getTextInputValue("gb_update_name")
+          ? interaction.fields.getTextInputValue("gb_update_name")
+          : "";
+        let price = interaction.fields.getTextInputValue("gb_update_price")
+          ? interaction.fields.getTextInputValue("gb_update_price")
+          : "";
+        let current = interaction.fields.getTextInputValue("gb_update_current")
+          ? interaction.fields.getTextInputValue("gb_update_current")
+          : "";
+        let priceNumber = price ? price.replace(/[^0-9]/g, "") : "";
+        const matches = price
+          ? price.match(/\$?(\d+\.\d{2})|(\d+\.\d)|(\d+)/g)
+          : "";
+        const transformedMatches = matches ? matches.map((match) => match) : "";
+        price = transformedMatches[0] ? transformedMatches[0] : price;
 
-      } else if (customID.includes("gb-reset")){
-        let name = interaction.fields.getTextInputValue("gb_update_name") ? interaction.fields.getTextInputValue("gb_update_name") : '';
-        let price = interaction.fields.getTextInputValue("gb_update_price") ? interaction.fields.getTextInputValue("gb_update_price") : '';
-        let current = interaction.fields.getTextInputValue("gb_update_current") ? interaction.fields.getTextInputValue("gb_update_current") : '';
-        let priceNumber = price ? price.replace(/[^0-9]/g, '') : '';
-const matches = price ? price.match(/\$?(\d+\.\d{2})|(\d+\.\d)|(\d+)/g) : '';
-const transformedMatches = matches ? matches.map(match => match ) : '';
-price = transformedMatches[0] ? transformedMatches[0] : price;
-
-        let currentNumber = current ? current.replace(/[^0-9]/g, '') : '';
-        const currentMatches = current ? current.match(/\$?(\d+\.\d{2})|(\d+\.\d)|(\d+)/g) : '';
-const transformedCurrentMatches = currentMatches ? currentMatches.map(match => match ) : '';
-current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
+        let currentNumber = current ? current.replace(/[^0-9]/g, "") : "";
+        const currentMatches = current
+          ? current.match(/\$?(\d+\.\d{2})|(\d+\.\d)|(\d+)/g)
+          : "";
+        const transformedCurrentMatches = currentMatches
+          ? currentMatches.map((match) => match)
+          : "";
+        current = transformedCurrentMatches[0]
+          ? transformedCurrentMatches[0]
+          : current;
         let randID = scripts_djs.extractID(customID);
         let obj = {
           randID: randID,
@@ -789,45 +923,41 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
           priceNumber: priceNumber,
           amountPaid: current,
           amountPaidNumber: currentNumber,
-        }
+        };
         await gb.gbreset(obj, interaction);
-      } else if (customID.includes("gb-canceledgb_modal2")){
-
-        let reason = interaction.fields.getTextInputValue("why") ? interaction.fields.getTextInputValue("why") : '';
-
-        let randID = scripts_djs.extractID(customID);
-
-        let obj = {
-          randID: randID,
-          reason: reason,
-        }
-
-        await gb.gbcanceledgb(interaction, obj)
-
-
-      } else if (customID.includes("gb-ppgb_modal")){
-        let reason = interaction.fields.getTextInputValue("why") ? interaction.fields.getTextInputValue("why") : '';
+      } else if (customID.includes("gb-canceledgb_modal2")) {
+        let reason = interaction.fields.getTextInputValue("why")
+          ? interaction.fields.getTextInputValue("why")
+          : "";
 
         let randID = scripts_djs.extractID(customID);
 
         let obj = {
           randID: randID,
           reason: reason,
-        }
+        };
 
-        await gb.gbpostponedgb(interaction, obj)
+        await gb.gbcanceledgb(interaction, obj);
+      } else if (customID.includes("gb-ppgb_modal")) {
+        let reason = interaction.fields.getTextInputValue("why")
+          ? interaction.fields.getTextInputValue("why")
+          : "";
 
+        let randID = scripts_djs.extractID(customID);
 
+        let obj = {
+          randID: randID,
+          reason: reason,
+        };
 
-      } else if (customID.includes("gb-sub-modal")){
-
+        await gb.gbpostponedgb(interaction, obj);
+      } else if (customID.includes("gb-sub-modal")) {
         const num = interaction.fields.getTextInputValue("gb_sub")
-        ? interaction.fields.getTextInputValue("gb_sub")
-        : '';
-      let randID = scripts_djs.extractID(customID);
+          ? interaction.fields.getTextInputValue("gb_sub")
+          : "";
+        let randID = scripts_djs.extractID(customID);
 
-
-        await gb.gbsubfromtotal(num, randID, interaction)
+        await gb.gbsubfromtotal(num, randID, interaction);
       }
       if (customID.includes(`newleakmodal`)) {
         modalInput = scripts_djs.getModalInput_A(randID, interaction);
@@ -1176,7 +1306,47 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
           //  interactionID,
           //  file_type,
           choice,
+          file_type,
         } = data;
+        if (file_type === "kraken-link") {
+          let krakLink = interaction.fields.getTextInputValue("kraken")
+            ? interaction.fields.getTextInputValue("kraken")
+            : null;
+          let theName = interaction.fields.getTextInputValue("name")
+            ? interaction.fields.getTextInputValue("name")
+            : "";
+          let krakFile;
+          try {
+            krakFile = await scripts_djs.krakenWebScraper(krakLink);
+          } catch (error) {
+            await throwNewError(
+              "getting file from kraken link",
+              interaction,
+              error
+            );
+          }
+          file = {
+            name: theName,
+            attachment: `${
+              krakFile
+                ? krakFile
+                : `https://media4.giphy.com/media/8L0Pky6C83SzkzU55a/giphy.gif?cid=ecf05e47mactcs5z03dril6i1ffrxb7tfkukvayujqxuql2i&rid=giphy.gif&ct=g`
+            }`,
+            url: `${krakLink ? krakLink : null}`,
+          };
+                  // update the data obj file if the file is changed
+          data.file = file
+              
+      try {
+                    await scripts_mongoDB.updatePostData(randID, data); 
+      } catch (error) {
+        await throwNewError("updating the kraken file elements to the db", interaction, error)
+        
+      }
+        }
+
+
+
         const songName = interaction.fields.getTextInputValue("name")
           ? interaction.fields.getTextInputValue("name")
           : null;
@@ -1212,6 +1382,44 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
             value: `${era}`,
             inline: true,
           });
+          // add gif to embed thumbnail based on the era inputted
+
+          if (
+            era.toLowerCase() === "drfl" ||
+            era.toLowerCase() === "death race for love" ||
+            era.toLowerCase() === "death race"
+          ) {
+            embedObj.thumbnail = drflgif;
+          } else if (
+            era.toLowerCase() === "gbgr" ||
+            era.toLowerCase() === "goodbye and good riddance" ||
+            era.toLowerCase() === "goodbye & good riddance"
+          ) {
+            embedObj.thumbnail = gbgrgif;
+          } else if (
+            era.toLowerCase() === "jw3" ||
+            era.toLowerCase() === "tpne" ||
+            era.toLowerCase() === "outsider" ||
+            era.toLowerCase() === "outsiders" ||
+            era.toLowerCase() === "juice wrld 3" ||
+            era.toLowerCase() === "juice wrld three" ||
+            era.toLowerCase() === "lnd" ||
+            era.toLowerCase() === "the party never ends" ||
+            era.toLowerCase() === "legends never die" ||
+            era.toLowerCase() === "fd" ||
+            era.toLowerCase() === "fighting demons" ||
+            era.toLowerCase() === "post-homous" ||
+            era.toLowerCase() === "posthumous"
+          ) {
+            embedObj.thumbnail = jw3gif;
+          } else if (
+            era.toLowerCase() === "jtk" ||
+            era.toLowerCase() === "juice the kidd"
+          ) {
+            embedObj.thumbnail = jtkgif;
+          } else {
+            embedObj.thumbnail = interaction.guild.iconURL();
+          }
         }
         if (altname !== null) {
           fields.push({
@@ -1268,9 +1476,9 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
           emoji: "📁",
         });
 
-        const directMessageButton = await createBtn.createButton({
+                const directMessageButton = await createBtn.createButton({
           label: `Save via DM's`,
-          style: "secondary",
+          style: "success",
           customID: `direct_message_${randID}`,
           emoji: "📮",
         });
@@ -1280,42 +1488,26 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
         if (choice === "yes") {
           // attach the file to the message
           actionRow = await createActRow.createActionRow({
-            components: [
-              downloadButton,
-              krakenButton ? krakenButton : null,
-              
-            ],
+            components: [downloadButton, krakenButton ? krakenButton : null],
           });
-          console.log(`the action row is`, actionRow)
+          console.log(`the action row is`, actionRow);
 
           actionRow2 = await createActRow.createActionRow({
-            components: [
-              directMessageButton,
-              viewAttachmentButton,
-              ]});
-              console.log(`the action row 2 is`, actionRow2)
+            components: [directMessageButton, viewAttachmentButton],
+          });
+          console.log(`the action row 2 is`, actionRow2);
 
           try {
             interaction.channel.send({
-              content: `${
+              content: `${`|| ${
                 role.length > 1
-                  ? `|| ${scripts_djs.getAlertEmoji()} ${role}\n${
-                      file.name ? `Song Name : ${file.name}` : null
-                    }${
-                      altname !== null
-                        ? `\nAlternate Name(s) : ${altname}`
-                        : ""
-                    } ||`
-                  : `${
-                      file.name
-                        ? `|| Song Name : ${file.name}${
-                            altname !== null
-                              ? `\nAlternate Name(s) : ${altname}`
-                              : ""
-                          } ||`
-                        : null
-                    }`
-              }`,
+                  ? `${scripts_djs.getAlertEmoji()} ${role}\n`
+                  : ""
+              }${songName !== null ? `Song Name : ${songName}\n` : ""}${
+                file.name ? `File Name : ${file.name}\n` : ""
+              }${
+                altname !== null ? `Alternate Name(s) : ${altname}` : ""
+              } ||`}`,
               embeds: [embed],
               components: [actionRow, actionRow2],
               // files: [file],
@@ -1329,10 +1521,13 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
             });
           } catch (error) {
             console.log(`Leak Kraken (with attachment) Post error`, error);
-            await throwNewError(`Posting [ Leak Kraken (with attachment) : ${songName} ]`, interaction, error)
+            await throwNewError(
+              `Posting [ Leak Kraken (with attachment) : ${songName} ]`,
+              interaction,
+              error
+            );
           }
-        }
-        if (choice === "no") {
+        } else if (choice === "no") {
           // don't attach the file to the message
           actionRow = await createActRow.createActionRow({
             components: [
@@ -1342,25 +1537,15 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
           });
           try {
             interaction.channel.send({
-              content: `${
+              content: `${`|| ${
                 role.length > 1
-                  ? `|| ${scripts_djs.getAlertEmoji()} ${role}\n${
-                      file.name ? `Song Name : ${file.name}` : null
-                    }${
-                      altname !== null
-                        ? `\nAlternate Name(s) : ${altname}`
-                        : ""
-                    } ||`
-                  : `${
-                      file.name
-                        ? `|| Song Name : ${file.name}${
-                            altname !== null
-                              ? `\nAlternate Name(s) : ${altname}`
-                              : ""
-                          } ||`
-                        : null
-                    }`
-              }`,
+                  ? `${scripts_djs.getAlertEmoji()} ${role}\n`
+                  : ""
+              }${songName !== null ? `Song Name : ${songName}\n` : ""}${
+                file.name ? `File Name : ${file.name}\n` : ""
+              }${
+                altname !== null ? `Alternate Name(s) : ${altname}` : ""
+              } ||`}`,
               embeds: [embed],
               components: [actionRow],
             });
@@ -1373,47 +1558,35 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
             });
           } catch (error) {
             console.log(`Leak Kraken (no attachment) Post error`, error);
-            await throwNewError(`Posting [ Leak Kraken (with attachment) : ${songName} ]`, interaction, error)
+            await throwNewError(
+              `Posting [ Leak Kraken (with attachment) : ${songName} ]`,
+              interaction,
+              error
+            );
           }
         } else {
           // attach the file to the message
           actionRow = await createActRow.createActionRow({
-            components: [
-              downloadButton,
-              krakenButton ? krakenButton : null,
-              
-            ],
+            components: [downloadButton, krakenButton ? krakenButton : null],
           });
-          console.log(`the action row is`, actionRow)
-          
+          console.log(`the action row is`, actionRow);
+
           actionRow2 = await createActRow.createActionRow({
-            components: [
-              directMessageButton,
-              viewAttachmentButton,
-              ]});
-              console.log(`the action row 2 is`, actionRow2)
+            components: [directMessageButton, viewAttachmentButton],
+          });
+          console.log(`the action row 2 is`, actionRow2);
 
           try {
             interaction.channel.send({
-              content: `${
+              content: `${`|| ${
                 role.length > 1
-                  ? `|| ${scripts_djs.getAlertEmoji()} ${role}\n${
-                      file.name ? `Song Name : ${file.name}` : null
-                    }${
-                      altname !== null
-                        ? `\nAlternate Name(s) : ${altname}`
-                        : ""
-                    } ||`
-                  : `${
-                      file.name
-                        ? `|| Song Name : ${file.name}${
-                            altname !== null
-                              ? `\nAlternate Name(s) : ${altname}`
-                              : ""
-                          } ||`
-                        : null
-                    }`
-              }`,
+                  ? `${scripts_djs.getAlertEmoji()} ${role}\n`
+                  : ""
+              }${songName !== null ? `Song Name : ${songName}\n` : ""}${
+                file.name ? `File Name : ${file.name}\n` : ""
+              }${
+                altname !== null ? `Alternate Name(s) : ${altname}` : ""
+              } ||`}`,
               embeds: [embed],
               components: [actionRow, actionRow2],
               // files: [file],
@@ -1427,7 +1600,11 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
             });
           } catch (error) {
             console.log(`Leak Kraken (with attachment) Post error`, error);
-            await throwNewError(`Posting [ Leak Kraken (with attachment) : ${songName} ]`, interaction, error)
+            await throwNewError(
+              `Posting [ Leak Kraken (with attachment) : ${songName} ]`,
+              interaction,
+              error
+            );
           }
         }
       } else if (customID.includes(`post_ogfile_modal`)) {
@@ -1442,7 +1619,44 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
           //  interactionID,
           //  file_type,
           choice,
+          file_type,
         } = data;
+        if (file_type === "kraken-link") {
+          let krakLink = interaction.fields.getTextInputValue("kraken")
+            ? interaction.fields.getTextInputValue("kraken")
+            : null;
+          let theName = interaction.fields.getTextInputValue("name")
+            ? interaction.fields.getTextInputValue("name")
+            : "";
+          let krakFile;
+          try {
+            krakFile = await scripts_djs.krakenWebScraper(krakLink);
+          } catch (error) {
+            await throwNewError(
+              "getting file from kraken link",
+              interaction,
+              error
+            );
+          }
+          file = {
+            name: theName,
+            attachment: `${
+              krakFile
+                ? krakFile
+                : `https://media4.giphy.com/media/8L0Pky6C83SzkzU55a/giphy.gif?cid=ecf05e47mactcs5z03dril6i1ffrxb7tfkukvayujqxuql2i&rid=giphy.gif&ct=g`
+            }`,
+            url: `${krakLink ? krakLink : null}`,
+          };
+                  // update the data obj file if the file is changed
+          data.file = file
+              
+      try {
+                    await scripts_mongoDB.updatePostData(randID, data); 
+      } catch (error) {
+        await throwNewError("updating the kraken file elements to the db", interaction, error)
+        
+      }
+        }
         const songName = interaction.fields.getTextInputValue("name")
           ? interaction.fields.getTextInputValue("name")
           : null;
@@ -1478,6 +1692,44 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
             value: `${era}`,
             inline: true,
           });
+          // add gif to embed thumbnail based on the era inputted
+
+          if (
+            era.toLowerCase() === "drfl" ||
+            era.toLowerCase() === "death race for love" ||
+            era.toLowerCase() === "death race"
+          ) {
+            embedObj.thumbnail = drflgif;
+          } else if (
+            era.toLowerCase() === "gbgr" ||
+            era.toLowerCase() === "goodbye and good riddance" ||
+            era.toLowerCase() === "goodbye & good riddance"
+          ) {
+            embedObj.thumbnail = gbgrgif;
+          } else if (
+            era.toLowerCase() === "jw3" ||
+            era.toLowerCase() === "tpne" ||
+            era.toLowerCase() === "outsider" ||
+            era.toLowerCase() === "outsiders" ||
+            era.toLowerCase() === "juice wrld 3" ||
+            era.toLowerCase() === "juice wrld three" ||
+            era.toLowerCase() === "lnd" ||
+            era.toLowerCase() === "the party never ends" ||
+            era.toLowerCase() === "legends never die" ||
+            era.toLowerCase() === "fd" ||
+            era.toLowerCase() === "fighting demons" ||
+            era.toLowerCase() === "post-homous" ||
+            era.toLowerCase() === "posthumous"
+          ) {
+            embedObj.thumbnail = jw3gif;
+          } else if (
+            era.toLowerCase() === "jtk" ||
+            era.toLowerCase() === "juice the kidd"
+          ) {
+            embedObj.thumbnail = jtkgif;
+          } else {
+            embedObj.thumbnail = interaction.guild.iconURL();
+          }
         }
         if (altname !== null) {
           fields.push({
@@ -1536,49 +1788,33 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
 
         const directMessageButton = await createBtn.createButton({
           label: `Save via DM's`,
-          style: "secondary",
+          style: "success",
           customID: `direct_message_${randID}`,
           emoji: "📮",
         });
         // create a action row to hold the button
-        let actionRow,actionRow2;
+        let actionRow, actionRow2;
         if (choice === "yes") {
           // attach the file to the message
           actionRow = await createActRow.createActionRow({
-            components: [
-              downloadButton,
-              krakenButton ? krakenButton : null,
-              
-            ],
+            components: [downloadButton, krakenButton ? krakenButton : null],
           });
           actionRow2 = await createActRow.createActionRow({
-            components: [
-              directMessageButton,
-              viewAttachmentButton,
-              ]});
+            components: [directMessageButton, viewAttachmentButton],
+          });
           try {
             interaction.channel.send({
-              content: `${
+              content: `${`|| ${
                 role.length > 1
-                  ? `|| ${scripts_djs.getAlertEmoji()} ${role}\n${
-                      file.name ? `Song Name : ${file.name}` : null
-                    }${
-                      altname !== null
-                        ? `\nAlternate Name(s) : ${altname}`
-                        : ""
-                    } ||`
-                  : `${
-                      file.name
-                        ? `|| Song Name : ${file.name}${
-                            altname !== null
-                              ? `\nAlternate Name(s) : ${altname}`
-                              : ""
-                          } ||`
-                        : null
-                    }`
-              }`,
+                  ? `${scripts_djs.getAlertEmoji()} ${role}\n`
+                  : ""
+              }${songName !== null ? `Song Name : ${songName}\n` : ""}${
+                file.name ? `File Name : ${file.name}\n` : ""
+              }${
+                altname !== null ? `Alternate Name(s) : ${altname}` : ""
+              } ||`}`,
               embeds: [embed],
-              components: [actionRow,actionRow2],
+              components: [actionRow, actionRow2],
               // files: [file],
             });
             interaction.editReply({
@@ -1590,10 +1826,13 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
             });
           } catch (error) {
             console.log(`OG File Post error`, error);
-            await throwNewError(`Posting [ OG File : ${songName} ]`, interaction, error)
+            await throwNewError(
+              `Posting [ OG File : ${songName} ]`,
+              interaction,
+              error
+            );
           }
-        }
-        if (choice === "no") {
+        } else if (choice === "no") {
           // don't attach the file to the message
           actionRow = await createActRow.createActionRow({
             components: [
@@ -1603,25 +1842,15 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
           });
           try {
             interaction.channel.send({
-              content: `${
+              content: `${`|| ${
                 role.length > 1
-                  ? `|| ${scripts_djs.getAlertEmoji()} ${role}\n${
-                      file.name ? `Song Name : ${file.name}` : null
-                    }${
-                      altname !== null
-                        ? `\nAlternate Name(s) : ${altname}`
-                        : ""
-                    } ||`
-                  : `${
-                      file.name
-                        ? `|| Song Name : ${file.name}${
-                            altname !== null
-                              ? `\nAlternate Name(s) : ${altname}`
-                              : ""
-                          } ||`
-                        : null
-                    }`
-              }`,
+                  ? `${scripts_djs.getAlertEmoji()} ${role}\n`
+                  : ""
+              }${songName !== null ? `Song Name : ${songName}\n` : ""}${
+                file.name ? `File Name : ${file.name}\n` : ""
+              }${
+                altname !== null ? `Alternate Name(s) : ${altname}` : ""
+              } ||`}`,
               embeds: [embed],
               components: [actionRow],
             });
@@ -1634,43 +1863,31 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
             });
           } catch (error) {
             console.log(`OG File Post error`, error);
-            await throwNewError(`Posting [ OG File : ${songName} ]`, interaction, error)
+            await throwNewError(
+              `Posting [ OG File : ${songName} ]`,
+              interaction,
+              error
+            );
           }
         } else {
           // attach the file to the message
           actionRow = await createActRow.createActionRow({
-            components: [
-              downloadButton,
-              krakenButton ? krakenButton : null,
-              
-            ],
+            components: [downloadButton, krakenButton ? krakenButton : null],
           });
           actionRow2 = await createActRow.createActionRow({
-            components: [
-              directMessageButton,
-              viewAttachmentButton,
-              ]});
+            components: [directMessageButton, viewAttachmentButton],
+          });
           try {
             interaction.channel.send({
-              content: `${
+              content: `${`|| ${
                 role.length > 1
-                  ? `|| ${scripts_djs.getAlertEmoji()} ${role}\n${
-                      file.name ? `Song Name : ${file.name}` : null
-                    }${
-                      altname !== null
-                        ? `\nAlternate Name(s) : ${altname}`
-                        : ""
-                    } ||`
-                  : `${
-                      file.name
-                        ? `|| Song Name : ${file.name}${
-                            altname !== null
-                              ? `\nAlternate Name(s) : ${altname}`
-                              : ""
-                          } ||`
-                        : null
-                    }`
-              }`,
+                  ? `${scripts_djs.getAlertEmoji()} ${role}\n`
+                  : ""
+              }${songName !== null ? `Song Name : ${songName}\n` : ""}${
+                file.name ? `File Name : ${file.name}\n` : ""
+              }${
+                altname !== null ? `Alternate Name(s) : ${altname}` : ""
+              } ||`}`,
               embeds: [embed],
               components: [actionRow, actoinRow2],
               // files: [file],
@@ -1684,7 +1901,11 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
             });
           } catch (error) {
             console.log(`OG File Post error`, error);
-            await throwNewError(`Posting [ OG File : ${songName} ]`, interaction, error)
+            await throwNewError(
+              `Posting [ OG File : ${songName} ]`,
+              interaction,
+              error
+            );
           }
         }
       } else if (customID.includes(`post_studiosession_modal`)) {
@@ -1699,7 +1920,44 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
           //  interactionID,
           //  file_type,
           choice,
+          file_type,
         } = data;
+        if (file_type === "kraken-link") {
+          let krakLink = interaction.fields.getTextInputValue("kraken")
+            ? interaction.fields.getTextInputValue("kraken")
+            : null;
+          let theName = interaction.fields.getTextInputValue("name")
+            ? interaction.fields.getTextInputValue("name")
+            : "";
+          let krakFile;
+          try {
+            krakFile = await scripts_djs.krakenWebScraper(krakLink);
+          } catch (error) {
+            await throwNewError(
+              "getting file from kraken link",
+              interaction,
+              error
+            );
+          }
+          file = {
+            name: theName,
+            attachment: `${
+              krakFile
+                ? krakFile
+                : `https://media4.giphy.com/media/8L0Pky6C83SzkzU55a/giphy.gif?cid=ecf05e47mactcs5z03dril6i1ffrxb7tfkukvayujqxuql2i&rid=giphy.gif&ct=g`
+            }`,
+            url: `${krakLink ? krakLink : null}`,
+          };
+                  // update the data obj file if the file is changed
+          data.file = file
+              
+      try {
+                    await scripts_mongoDB.updatePostData(randID, data); 
+      } catch (error) {
+        await throwNewError("updating the kraken file elements to the db", interaction, error)
+        
+      }
+        }
         const songName = interaction.fields.getTextInputValue("name")
           ? interaction.fields.getTextInputValue("name")
           : null;
@@ -1735,6 +1993,44 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
             value: `${era}`,
             inline: true,
           });
+          // add gif to embed thumbnail based on the era inputted
+
+          if (
+            era.toLowerCase() === "drfl" ||
+            era.toLowerCase() === "death race for love" ||
+            era.toLowerCase() === "death race"
+          ) {
+            embedObj.thumbnail = drflgif;
+          } else if (
+            era.toLowerCase() === "gbgr" ||
+            era.toLowerCase() === "goodbye and good riddance" ||
+            era.toLowerCase() === "goodbye & good riddance"
+          ) {
+            embedObj.thumbnail = gbgrgif;
+          } else if (
+            era.toLowerCase() === "jw3" ||
+            era.toLowerCase() === "tpne" ||
+            era.toLowerCase() === "outsider" ||
+            era.toLowerCase() === "outsiders" ||
+            era.toLowerCase() === "juice wrld 3" ||
+            era.toLowerCase() === "juice wrld three" ||
+            era.toLowerCase() === "lnd" ||
+            era.toLowerCase() === "the party never ends" ||
+            era.toLowerCase() === "legends never die" ||
+            era.toLowerCase() === "fd" ||
+            era.toLowerCase() === "fighting demons" ||
+            era.toLowerCase() === "post-homous" ||
+            era.toLowerCase() === "posthumous"
+          ) {
+            embedObj.thumbnail = jw3gif;
+          } else if (
+            era.toLowerCase() === "jtk" ||
+            era.toLowerCase() === "juice the kidd"
+          ) {
+            embedObj.thumbnail = jtkgif;
+          } else {
+            embedObj.thumbnail = interaction.guild.iconURL();
+          }
         }
         if (altname !== null) {
           fields.push({
@@ -1791,9 +2087,9 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
           emoji: "📁",
         });
 
-        const directMessageButton = await createBtn.createButton({
+                const directMessageButton = await createBtn.createButton({
           label: `Save via DM's`,
-          style: "secondary",
+          style: "success",
           customID: `direct_message_${randID}`,
           emoji: "📮",
         });
@@ -1802,40 +2098,24 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
         if (choice === "yes") {
           // attach the file to the message
           actionRow = await createActRow.createActionRow({
-            components: [
-              downloadButton,
-              krakenButton ? krakenButton : null,
-              
-            ],
+            components: [downloadButton, krakenButton ? krakenButton : null],
           });
           actionRow2 = await createActRow.createActionRow({
-            components: [
-              directMessageButton,
-              viewAttachmentButton,
-              ]});
+            components: [directMessageButton, viewAttachmentButton],
+          });
           try {
             interaction.channel.send({
-              content: `${
+              content: `${`|| ${
                 role.length > 1
-                  ? `|| ${scripts_djs.getAlertEmoji()} ${role}\n${
-                      file.name ? `Song Name : ${file.name}` : null
-                    }${
-                      altname !== null
-                        ? `\nAlternate Name(s) : ${altname}`
-                        : ""
-                    } ||`
-                  : `${
-                      file.name
-                        ? `|| Song Name : ${file.name}${
-                            altname !== null
-                              ? `\nAlternate Name(s) : ${altname}`
-                              : ""
-                          } ||`
-                        : null
-                    }`
-              }`,
+                  ? `${scripts_djs.getAlertEmoji()} ${role}\n`
+                  : ""
+              }${songName !== null ? `Song Name : ${songName}\n` : ""}${
+                file.name ? `File Name : ${file.name}\n` : ""
+              }${
+                altname !== null ? `Alternate Name(s) : ${altname}` : ""
+              } ||`}`,
               embeds: [embed],
-              components: [actionRow,actionRow2],
+              components: [actionRow, actionRow2],
               // files: [file],
             });
             interaction.editReply({
@@ -1847,10 +2127,13 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
             });
           } catch (error) {
             console.log(`Studio Session Post error`, error);
-            await throwNewError(`Posting [ Studio Session : ${songName} ]`, interaction, error)
+            await throwNewError(
+              `Posting [ Studio Session : ${songName} ]`,
+              interaction,
+              error
+            );
           }
-        }
-        if (choice === "no") {
+        } else if (choice === "no") {
           // don't attach the file to the message
           actionRow = await createActRow.createActionRow({
             components: [
@@ -1860,25 +2143,15 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
           });
           try {
             interaction.channel.send({
-              content: `${
+              content: `${`|| ${
                 role.length > 1
-                  ? `|| ${scripts_djs.getAlertEmoji()} ${role}\n${
-                      file.name ? `Song Name : ${file.name}` : null
-                    }${
-                      altname !== null
-                        ? `\nAlternate Name(s) : ${altname}`
-                        : ""
-                    } ||`
-                  : `${
-                      file.name
-                        ? `|| Song Name : ${file.name}${
-                            altname !== null
-                              ? `\nAlternate Name(s) : ${altname}`
-                              : ""
-                          } ||`
-                        : null
-                    }`
-              }`,
+                  ? `${scripts_djs.getAlertEmoji()} ${role}\n`
+                  : ""
+              }${songName !== null ? `Song Name : ${songName}\n` : ""}${
+                file.name ? `File Name : ${file.name}\n` : ""
+              }${
+                altname !== null ? `Alternate Name(s) : ${altname}` : ""
+              } ||`}`,
               embeds: [embed],
               components: [actionRow],
             });
@@ -1891,45 +2164,33 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
             });
           } catch (error) {
             console.log(`Studio Session Post error`, error);
-            await throwNewError(`Posting [ Studio Session : ${songName} ]`, interaction, error)
+            await throwNewError(
+              `Posting [ Studio Session : ${songName} ]`,
+              interaction,
+              error
+            );
           }
         } else {
           // attach the file to the message
           actionRow = await createActRow.createActionRow({
-            components: [
-              downloadButton,
-              krakenButton ? krakenButton : null,
-              
-            ],
+            components: [downloadButton, krakenButton ? krakenButton : null],
           });
           actionRow2 = await createActRow.createActionRow({
-            components: [
-              directMessageButton,
-              viewAttachmentButton,
-              ]});
+            components: [directMessageButton, viewAttachmentButton],
+          });
           try {
             interaction.channel.send({
-              content: `${
+              content: `${`|| ${
                 role.length > 1
-                  ? `|| ${scripts_djs.getAlertEmoji()} ${role}\n${
-                      file.name ? `Song Name : ${file.name}` : null
-                    }${
-                      altname !== null
-                        ? `\nAlternate Name(s) : ${altname}`
-                        : ""
-                    } ||`
-                  : `${
-                      file.name
-                        ? `|| Song Name : ${file.name}${
-                            altname !== null
-                              ? `\nAlternate Name(s) : ${altname}`
-                              : ""
-                          } ||`
-                        : null
-                    }`
-              }`,
+                  ? `${scripts_djs.getAlertEmoji()} ${role}\n`
+                  : ""
+              }${songName !== null ? `Song Name : ${songName}\n` : ""}${
+                file.name ? `File Name : ${file.name}\n` : ""
+              }${
+                altname !== null ? `Alternate Name(s) : ${altname}` : ""
+              } ||`}`,
               embeds: [embed],
-              components: [actionRow,actionRow2],
+              components: [actionRow, actionRow2],
               // files: [file],
             });
             interaction.editReply({
@@ -1941,7 +2202,11 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
             });
           } catch (error) {
             console.log(`Studio Session Post error`, error);
-            await throwNewError(`Posting [ Studio Session : ${songName} ]`, interaction, error)
+            await throwNewError(
+              `Posting [ Studio Session : ${songName} ]`,
+              interaction,
+              error
+            );
           }
         }
       } else if (customID.includes(`post_instrumental_modal`)) {
@@ -1956,25 +2221,59 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
           //  interactionID,
           //  file_type,
           choice,
+          file_type,
         } = data;
+        if (file_type === "kraken-link") {
+          let krakLink = interaction.fields.getTextInputValue("kraken")
+            ? interaction.fields.getTextInputValue("kraken")
+            : null;
+          let theName = interaction.fields.getTextInputValue("name")
+            ? interaction.fields.getTextInputValue("name")
+            : "";
+          let krakFile;
+          try {
+            krakFile = await scripts_djs.krakenWebScraper(krakLink);
+          } catch (error) {
+            await throwNewError(
+              "getting file from kraken link",
+              interaction,
+              error
+            );
+          }
+          file = {
+            name: theName,
+            attachment: `${
+              krakFile
+                ? krakFile
+                : `https://media4.giphy.com/media/8L0Pky6C83SzkzU55a/giphy.gif?cid=ecf05e47mactcs5z03dril6i1ffrxb7tfkukvayujqxuql2i&rid=giphy.gif&ct=g`
+            }`,
+            url: `${krakLink ? krakLink : null}`,
+          };
+                  // update the data obj file if the file is changed
+          data.file = file
+              
+      try {
+                    await scripts_mongoDB.updatePostData(randID, data); 
+      } catch (error) {
+        await throwNewError("updating the kraken file elements to the db", interaction, error)
+        
+      }
+        }
         const songName = interaction.fields.getTextInputValue("name")
           ? interaction.fields.getTextInputValue("name")
           : null;
-          const text = interaction.fields.getTextInputValue("text")
+        const text = interaction.fields.getTextInputValue("text")
           ? interaction.fields.getTextInputValue("text")
           : null;
         const altname = interaction.fields.getTextInputValue("altname")
           ? interaction.fields.getTextInputValue("altname")
           : null;
-          const producer = interaction.fields.getTextInputValue("producer")
+        const producer = interaction.fields.getTextInputValue("producer")
           ? interaction.fields.getTextInputValue("producer")
           : null;
         const kraken = interaction.fields.getTextInputValue("kraken")
           ? interaction.fields.getTextInputValue("kraken")
           : null;
-
-          
-
 
         // const user = await client.users.fetch(userId);
         // const interaction = await client.rest.interactions(interactionID).get();
@@ -2045,51 +2344,35 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
           emoji: "📁",
         });
 
-        const directMessageButton = await createBtn.createButton({
+                const directMessageButton = await createBtn.createButton({
           label: `Save via DM's`,
-          style: "secondary",
+          style: "success",
           customID: `direct_message_${randID}`,
           emoji: "📮",
         });
         // create a action row to hold the button
-        let actionRow,actionRow2;
+        let actionRow, actionRow2;
         if (choice === "yes") {
           // attach the file to the message
           actionRow = await createActRow.createActionRow({
-            components: [
-              downloadButton,
-              krakenButton ? krakenButton : null,
-              
-            ],
+            components: [downloadButton, krakenButton ? krakenButton : null],
           });
           actionRow2 = await createActRow.createActionRow({
-            components: [
-              directMessageButton,
-              viewAttachmentButton,
-              ]});
+            components: [directMessageButton, viewAttachmentButton],
+          });
           try {
             interaction.channel.send({
-              content: `${
+              content: `${`|| ${
                 role.length > 1
-                  ? `|| ${scripts_djs.getAlertEmoji()} ${role}\n${
-                      file.name ? `Song Name : ${file.name}` : null
-                    }${
-                      altname !== null
-                        ? `\nAlternate Name(s) : ${altname}`
-                        : ""
-                    } ||`
-                  : `${
-                      file.name
-                        ? `|| Song Name : ${file.name}${
-                            altname !== null
-                              ? `\nAlternate Name(s) : ${altname}`
-                              : ""
-                          } ||`
-                        : null
-                    }`
-              }`,
+                  ? `${scripts_djs.getAlertEmoji()} ${role}\n`
+                  : ""
+              }${songName !== null ? `Song Name : ${songName}\n` : ""}${
+                file.name ? `File Name : ${file.name}\n` : ""
+              }${
+                altname !== null ? `Alternate Name(s) : ${altname}` : ""
+              } ||`}`,
               embeds: [embed],
-              components: [actionRow,actionRow2],
+              components: [actionRow, actionRow2],
               // files: [file],
             });
             interaction.editReply({
@@ -2101,10 +2384,13 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
             });
           } catch (error) {
             console.log(`Instrumental Post error`, error);
-            await throwNewError(`Posting [ Instrumental : ${songName} ]`, interaction, error)
+            await throwNewError(
+              `Posting [ Instrumental : ${songName} ]`,
+              interaction,
+              error
+            );
           }
-        }
-        if (choice === "no") {
+        } else if (choice === "no") {
           // don't attach the file to the message
           actionRow = await createActRow.createActionRow({
             components: [
@@ -2114,25 +2400,15 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
           });
           try {
             interaction.channel.send({
-              content: `${
+              content: `${`|| ${
                 role.length > 1
-                  ? `|| ${scripts_djs.getAlertEmoji()} ${role}\n${
-                      file.name ? `Song Name : ${file.name}` : null
-                    }${
-                      altname !== null
-                        ? `\nAlternate Name(s) : ${altname}`
-                        : ""
-                    } ||`
-                  : `${
-                      file.name
-                        ? `|| Song Name : ${file.name}${
-                            altname !== null
-                              ? `\nAlternate Name(s) : ${altname}`
-                              : ""
-                          } ||`
-                        : null
-                    }`
-              }`,
+                  ? `${scripts_djs.getAlertEmoji()} ${role}\n`
+                  : ""
+              }${songName !== null ? `Song Name : ${songName}\n` : ""}${
+                file.name ? `File Name : ${file.name}\n` : ""
+              }${
+                altname !== null ? `Alternate Name(s) : ${altname}` : ""
+              } ||`}`,
               embeds: [embed],
               components: [actionRow],
             });
@@ -2145,44 +2421,32 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
             });
           } catch (error) {
             console.log(`Instrumental Post error`, error);
-            await throwNewError(`Posting [ Instrumental : ${songName} ]`, interaction, error)
+            await throwNewError(
+              `Posting [ Instrumental : ${songName} ]`,
+              interaction,
+              error
+            );
           }
         } else {
           actionRow = await createActRow.createActionRow({
-            components: [
-              downloadButton,
-              krakenButton ? krakenButton : null,
-              
-            ],
+            components: [downloadButton, krakenButton ? krakenButton : null],
           });
           actionRow2 = await createActRow.createActionRow({
-            components: [
-              directMessageButton,
-              viewAttachmentButton,
-              ]});
+            components: [directMessageButton, viewAttachmentButton],
+          });
           try {
             interaction.channel.send({
-              content: `${
+              content: `${`|| ${
                 role.length > 1
-                  ? `|| ${scripts_djs.getAlertEmoji()} ${role}\n${
-                      file.name ? `Song Name : ${file.name}` : null
-                    }${
-                      altname !== null
-                        ? `\nAlternate Name(s) : ${altname}`
-                        : ""
-                    } ||`
-                  : `${
-                      file.name
-                        ? `|| Song Name : ${file.name}${
-                            altname !== null
-                              ? `\nAlternate Name(s) : ${altname}`
-                              : ""
-                          } ||`
-                        : null
-                    }`
-              }`,
+                  ? `${scripts_djs.getAlertEmoji()} ${role}\n`
+                  : ""
+              }${songName !== null ? `Song Name : ${songName}\n` : ""}${
+                file.name ? `File Name : ${file.name}\n` : ""
+              }${
+                altname !== null ? `Alternate Name(s) : ${altname}` : ""
+              } ||`}`,
               embeds: [embed],
-              components: [actionRow,actionRow2],
+              components: [actionRow, actionRow2],
               // files: [file],
             });
             interaction.editReply({
@@ -2194,10 +2458,14 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
             });
           } catch (error) {
             console.log(`Instrumental Post error`, error);
-            await throwNewError(`Posting [ Instrumental : ${songName} ]`, interaction, error)
+            await throwNewError(
+              `Posting [ Instrumental : ${songName} ]`,
+              interaction,
+              error
+            );
           }
         }
-      } else if (customID.includes(`post_acapella_modal`)) {
+      } else if (customID.includes(`post_accapella_modal`)) {
         let data = await scripts_mongoDB.getPostData(randID);
         // console.log(`the data is right here data`, data);
         let {
@@ -2209,23 +2477,60 @@ current = transformedCurrentMatches[0] ? transformedCurrentMatches[0] : current;
           //  interactionID,
           //  file_type,
           choice,
+          file_type,
         } = data;
+        if (file_type === "kraken-link") {
+          let krakLink = interaction.fields.getTextInputValue("kraken")
+            ? interaction.fields.getTextInputValue("kraken")
+            : null;
+          let theName = interaction.fields.getTextInputValue("name")
+            ? interaction.fields.getTextInputValue("name")
+            : "";
+          let krakFile;
+          try {
+            krakFile = await scripts_djs.krakenWebScraper(krakLink);
+          } catch (error) {
+            await throwNewError(
+              "getting file from kraken link",
+              interaction,
+              error
+            );
+          }
+          file = {
+            name: theName,
+            attachment: `${
+              krakFile
+                ? krakFile
+                : `https://media4.giphy.com/media/8L0Pky6C83SzkzU55a/giphy.gif?cid=ecf05e47mactcs5z03dril6i1ffrxb7tfkukvayujqxuql2i&rid=giphy.gif&ct=g`
+            }`,
+            url: `${krakLink ? krakLink : null}`,
+          };
+                  // update the data obj file if the file is changed
+          data.file = file
+              
+      try {
+                    await scripts_mongoDB.updatePostData(randID, data); 
+      } catch (error) {
+        await throwNewError("updating the kraken file elements to the db", interaction, error)
+        
+      }
+        }
         const songName = interaction.fields.getTextInputValue("name")
           ? interaction.fields.getTextInputValue("name")
           : null;
-          const text = interaction.fields.getTextInputValue("text")
+        const text = interaction.fields.getTextInputValue("text")
           ? interaction.fields.getTextInputValue("text")
           : null;
         const altname = interaction.fields.getTextInputValue("altname")
           ? interaction.fields.getTextInputValue("altname")
           : null;
-          const producer = interaction.fields.getTextInputValue("producer")
+        const producer = interaction.fields.getTextInputValue("producer")
           ? interaction.fields.getTextInputValue("producer")
           : null;
         const kraken = interaction.fields.getTextInputValue("kraken")
           ? interaction.fields.getTextInputValue("kraken")
           : null;
-const role = roleString(roles);
+        const role = roleString(roles);
         let embedObj = {
           title: `${songName}`,
           description: text ? text : null,
@@ -2237,7 +2542,7 @@ const role = roleString(roles);
         };
 
         let fields = [];
-    
+
         if (producer !== null) {
           fields.push({
             name: `Produced By:`,
@@ -2296,51 +2601,35 @@ const role = roleString(roles);
           emoji: "📁",
         });
 
-        const directMessageButton = await createBtn.createButton({
+                const directMessageButton = await createBtn.createButton({
           label: `Save via DM's`,
-          style: "secondary",
+          style: "success",
           customID: `direct_message_${randID}`,
           emoji: "📮",
         });
         // create a action row to hold the button
-        let actionRow,actionRow2;
+        let actionRow, actionRow2;
         if (choice === "yes") {
           // attach the file to the message
           actionRow = await createActRow.createActionRow({
-            components: [
-              downloadButton,
-              krakenButton ? krakenButton : null,
-              
-            ],
+            components: [downloadButton, krakenButton ? krakenButton : null],
           });
           actionRow2 = await createActRow.createActionRow({
-            components: [
-              directMessageButton,
-              viewAttachmentButton,
-              ]});
+            components: [directMessageButton, viewAttachmentButton],
+          });
           try {
             interaction.channel.send({
-              content: `${
+              content: `${`|| ${
                 role.length > 1
-                  ? `|| ${scripts_djs.getAlertEmoji()} ${role}\n${
-                      file.name ? `Song Name : ${file.name}` : null
-                    }${
-                      altname !== null
-                        ? `\nAlternate Name(s) : ${altname}`
-                        : ""
-                    } ||`
-                  : `${
-                      file.name
-                        ? `|| Song Name : ${file.name}${
-                            altname !== null
-                              ? `\nAlternate Name(s) : ${altname}`
-                              : ""
-                          } ||`
-                        : null
-                    }`
-              }`,
+                  ? `${scripts_djs.getAlertEmoji()} ${role}\n`
+                  : ""
+              }${songName !== null ? `Song Name : ${songName}\n` : ""}${
+                file.name ? `File Name : ${file.name}\n` : ""
+              }${
+                altname !== null ? `Alternate Name(s) : ${altname}` : ""
+              } ||`}`,
               embeds: [embed],
-              components: [actionRow,actionRow2],
+              components: [actionRow, actionRow2],
               // files: [file],
             });
             interaction.editReply({
@@ -2352,10 +2641,13 @@ const role = roleString(roles);
             });
           } catch (error) {
             console.log(`Accapella Post error`, error);
-            await throwNewError(`Posting [ Accapella : ${songName} ]`, interaction, error)
+            await throwNewError(
+              `Posting [ Accapella : ${songName} ]`,
+              interaction,
+              error
+            );
           }
-        }
-        if (choice === "no") {
+        } else if (choice === "no") {
           // don't attach the file to the message
           actionRow = await createActRow.createActionRow({
             components: [
@@ -2365,25 +2657,15 @@ const role = roleString(roles);
           });
           try {
             interaction.channel.send({
-              content: `${
+              content: `${`|| ${
                 role.length > 1
-                  ? `|| ${scripts_djs.getAlertEmoji()} ${role}\n${
-                      file.name ? `Song Name : ${file.name}` : null
-                    }${
-                      altname !== null
-                        ? `\nAlternate Name(s) : ${altname}`
-                        : ""
-                    } ||`
-                  : `${
-                      file.name
-                        ? `|| Song Name : ${file.name}${
-                            altname !== null
-                              ? `\nAlternate Name(s) : ${altname}`
-                              : ""
-                          } ||`
-                        : null
-                    }`
-              }`,
+                  ? `${scripts_djs.getAlertEmoji()} ${role}\n`
+                  : ""
+              }${songName !== null ? `Song Name : ${songName}\n` : ""}${
+                file.name ? `File Name : ${file.name}\n` : ""
+              }${
+                altname !== null ? `Alternate Name(s) : ${altname}` : ""
+              } ||`}`,
               embeds: [embed],
               components: [actionRow],
             });
@@ -2396,45 +2678,33 @@ const role = roleString(roles);
             });
           } catch (error) {
             console.log(`Accapella Post error`, error);
-            await throwNewError(`Posting [ Accapella : ${songName} ]`, interaction, error)
+            await throwNewError(
+              `Posting [ Accapella : ${songName} ]`,
+              interaction,
+              error
+            );
           }
         } else {
           // attach the file to the message
           actionRow = await createActRow.createActionRow({
-            components: [
-              downloadButton,
-              krakenButton ? krakenButton : null,
-              
-            ],
+            components: [downloadButton, krakenButton ? krakenButton : null],
           });
           actionRow2 = await createActRow.createActionRow({
-            components: [
-              directMessageButton,
-              viewAttachmentButton,
-              ]});
+            components: [directMessageButton, viewAttachmentButton],
+          });
           try {
             interaction.channel.send({
-              content: `${
+              content: `${`|| ${
                 role.length > 1
-                  ? `|| ${scripts_djs.getAlertEmoji()} ${role}\n${
-                      file.name ? `Song Name : ${file.name}` : null
-                    }${
-                      altname !== null
-                        ? `\nAlternate Name(s) : ${altname}`
-                        : ""
-                    } ||`
-                  : `${
-                      file.name
-                        ? `|| Song Name : ${file.name}${
-                            altname !== null
-                              ? `\nAlternate Name(s) : ${altname}`
-                              : ""
-                          } ||`
-                        : null
-                    }`
-              }`,
+                  ? `${scripts_djs.getAlertEmoji()} ${role}\n`
+                  : ""
+              }${songName !== null ? `Song Name : ${songName}\n` : ""}${
+                file.name ? `File Name : ${file.name}\n` : ""
+              }${
+                altname !== null ? `Alternate Name(s) : ${altname}` : ""
+              } ||`}`,
               embeds: [embed],
-              components: [actionRow,actionRow2],
+              components: [actionRow, actionRow2],
               // files: [file],
             });
             interaction.editReply({
@@ -2446,12 +2716,16 @@ const role = roleString(roles);
             });
           } catch (error) {
             console.log(`Accapella Post error`, error);
-            await throwNewError(`Posting [ Accapella : ${songName} ]`, interaction, error)
+            await throwNewError(
+              `Posting [ Accapella : ${songName} ]`,
+              interaction,
+              error
+            );
           }
         }
       } else if (customID.includes(`post_mixedsession_modal`)) {
         let data = await scripts_mongoDB.getPostData(randID);
-         console.log(`the data is right here data`, data);
+        console.log(`the data is right here data`, data);
         let {
           //  userId,
           roles,
@@ -2461,7 +2735,44 @@ const role = roleString(roles);
           //  interactionID,
           //  file_type,
           choice,
+          file_type,
         } = data;
+        if (file_type === "kraken-link") {
+          let krakLink = interaction.fields.getTextInputValue("kraken")
+            ? interaction.fields.getTextInputValue("kraken")
+            : null;
+          let theName = interaction.fields.getTextInputValue("name")
+            ? interaction.fields.getTextInputValue("name")
+            : "";
+          let krakFile;
+          try {
+            krakFile = await scripts_djs.krakenWebScraper(krakLink);
+          } catch (error) {
+            await throwNewError(
+              "getting file from kraken link",
+              interaction,
+              error
+            );
+          }
+          file = {
+            name: theName,
+            attachment: `${
+              krakFile
+                ? krakFile
+                : `https://media4.giphy.com/media/8L0Pky6C83SzkzU55a/giphy.gif?cid=ecf05e47mactcs5z03dril6i1ffrxb7tfkukvayujqxuql2i&rid=giphy.gif&ct=g`
+            }`,
+            url: `${krakLink ? krakLink : null}`,
+          };
+                  // update the data obj file if the file is changed
+          data.file = file
+              
+      try {
+                    await scripts_mongoDB.updatePostData(randID, data); 
+      } catch (error) {
+        await throwNewError("updating the kraken file elements to the db", interaction, error)
+        
+      }
+        }
         const songName = interaction.fields.getTextInputValue("name")
           ? interaction.fields.getTextInputValue("name")
           : null;
@@ -2497,6 +2808,44 @@ const role = roleString(roles);
             value: `${era}`,
             inline: true,
           });
+          // add gif to embed thumbnail based on the era inputted
+
+          if (
+            era.toLowerCase() === "drfl" ||
+            era.toLowerCase() === "death race for love" ||
+            era.toLowerCase() === "death race"
+          ) {
+            embedObj.thumbnail = drflgif;
+          } else if (
+            era.toLowerCase() === "gbgr" ||
+            era.toLowerCase() === "goodbye and good riddance" ||
+            era.toLowerCase() === "goodbye & good riddance"
+          ) {
+            embedObj.thumbnail = gbgrgif;
+          } else if (
+            era.toLowerCase() === "jw3" ||
+            era.toLowerCase() === "tpne" ||
+            era.toLowerCase() === "outsider" ||
+            era.toLowerCase() === "outsiders" ||
+            era.toLowerCase() === "juice wrld 3" ||
+            era.toLowerCase() === "juice wrld three" ||
+            era.toLowerCase() === "lnd" ||
+            era.toLowerCase() === "the party never ends" ||
+            era.toLowerCase() === "legends never die" ||
+            era.toLowerCase() === "fd" ||
+            era.toLowerCase() === "fighting demons" ||
+            era.toLowerCase() === "post-homous" ||
+            era.toLowerCase() === "posthumous"
+          ) {
+            embedObj.thumbnail = jw3gif;
+          } else if (
+            era.toLowerCase() === "jtk" ||
+            era.toLowerCase() === "juice the kidd"
+          ) {
+            embedObj.thumbnail = jtkgif;
+          } else {
+            embedObj.thumbnail = interaction.guild.iconURL();
+          }
         }
         if (altname !== null) {
           fields.push({
@@ -2553,51 +2902,35 @@ const role = roleString(roles);
           emoji: "📁",
         });
 
-        const directMessageButton = await createBtn.createButton({
+                const directMessageButton = await createBtn.createButton({
           label: `Save via DM's`,
-          style: "secondary",
+          style: "success",
           customID: `direct_message_${randID}`,
           emoji: "📮",
         });
         // create a action row to hold the button
-        let actionRow,actionRow2;
+        let actionRow, actionRow2;
         if (choice === "yes") {
           // attach the file to the message
           actionRow = await createActRow.createActionRow({
-            components: [
-              downloadButton,
-              krakenButton ? krakenButton : null,
-              
-            ],
+            components: [downloadButton, krakenButton ? krakenButton : null],
           });
           actionRow2 = await createActRow.createActionRow({
-            components: [
-              directMessageButton,
-              viewAttachmentButton,
-              ]});
+            components: [directMessageButton, viewAttachmentButton],
+          });
           try {
             interaction.channel.send({
-              content: `${
+              content: `${`|| ${
                 role.length > 1
-                  ? `|| ${scripts_djs.getAlertEmoji()} ${role}\n${
-                      file.name ? `Song Name : ${file.name}` : null
-                    }${
-                      altname !== null
-                        ? `\nAlternate Name(s) : ${altname}`
-                        : ""
-                    } ||`
-                  : `${
-                      file.name
-                        ? `|| Song Name : ${file.name}${
-                            altname !== null
-                              ? `\nAlternate Name(s) : ${altname}`
-                              : ""
-                          } ||`
-                        : null
-                    }`
-              }`,
+                  ? `${scripts_djs.getAlertEmoji()} ${role}\n`
+                  : ""
+              }${songName !== null ? `Song Name : ${songName}\n` : ""}${
+                file.name ? `File Name : ${file.name}\n` : ""
+              }${
+                altname !== null ? `Alternate Name(s) : ${altname}` : ""
+              } ||`}`,
               embeds: [embed],
-              components: [actionRow,actionRow2],
+              components: [actionRow, actionRow2],
               // files: [file],
             });
             interaction.editReply({
@@ -2609,10 +2942,13 @@ const role = roleString(roles);
             });
           } catch (error) {
             console.log(`Mixed Session Edit Post error`, error);
-            await throwNewError(`Posting [ Mixed Session Edit : ${songName} ]`, interaction, error)
+            await throwNewError(
+              `Posting [ Mixed Session Edit : ${songName} ]`,
+              interaction,
+              error
+            );
           }
-        }
-        if (choice === "no") {
+        } else if (choice === "no") {
           // don't attach the file to the message
           actionRow = await createActRow.createActionRow({
             components: [
@@ -2622,25 +2958,15 @@ const role = roleString(roles);
           });
           try {
             interaction.channel.send({
-              content: `${
+              content: `${`|| ${
                 role.length > 1
-                  ? `|| ${scripts_djs.getAlertEmoji()} ${role}\n${
-                      file.name ? `Song Name : ${file.name}` : null
-                    }${
-                      altname !== null
-                        ? `\nAlternate Name(s) : ${altname}`
-                        : ""
-                    } ||`
-                  : `${
-                      file.name
-                        ? `|| Song Name : ${file.name}${
-                            altname !== null
-                              ? `\nAlternate Name(s) : ${altname}`
-                              : ""
-                          } ||`
-                        : null
-                    }`
-              }`,
+                  ? `${scripts_djs.getAlertEmoji()} ${role}\n`
+                  : ""
+              }${songName !== null ? `Song Name : ${songName}\n` : ""}${
+                file.name ? `File Name : ${file.name}\n` : ""
+              }${
+                altname !== null ? `Alternate Name(s) : ${altname}` : ""
+              } ||`}`,
               embeds: [embed],
               components: [actionRow],
             });
@@ -2653,45 +2979,33 @@ const role = roleString(roles);
             });
           } catch (error) {
             console.log(`Mixed Session Edit Post error`, error);
-            await throwNewError(`Posting [ Mixed Session Edit : ${songName} ]`, interaction, error)
+            await throwNewError(
+              `Posting [ Mixed Session Edit : ${songName} ]`,
+              interaction,
+              error
+            );
           }
         } else {
           // attach the file to the message
           actionRow = await createActRow.createActionRow({
-            components: [
-              downloadButton,
-              krakenButton ? krakenButton : null,
-              
-            ],
+            components: [downloadButton, krakenButton ? krakenButton : null],
           });
           actionRow2 = await createActRow.createActionRow({
-            components: [
-              directMessageButton,
-              viewAttachmentButton,
-              ]});
+            components: [directMessageButton, viewAttachmentButton],
+          });
           try {
             interaction.channel.send({
-              content: `${
+              content: `${`|| ${
                 role.length > 1
-                  ? `|| ${scripts_djs.getAlertEmoji()} ${role}\n${
-                      file.name ? `Song Name : ${file.name}` : null
-                    }${
-                      altname !== null
-                        ? `\nAlternate Name(s) : ${altname}`
-                        : ""
-                    } ||`
-                  : `${
-                      file.name
-                        ? `|| Song Name : ${file.name}${
-                            altname !== null
-                              ? `\nAlternate Name(s) : ${altname}`
-                              : ""
-                          } ||`
-                        : null
-                    }`
-              }`,
+                  ? `${scripts_djs.getAlertEmoji()} ${role}\n`
+                  : ""
+              }${songName !== null ? `Song Name : ${songName}\n` : ""}${
+                file.name ? `File Name : ${file.name}\n` : ""
+              }${
+                altname !== null ? `Alternate Name(s) : ${altname}` : ""
+              } ||`}`,
               embeds: [embed],
-              components: [actionRow,actionRow2],
+              components: [actionRow, actionRow2],
               // files: [file],
             });
             interaction.editReply({
@@ -2703,7 +3017,11 @@ const role = roleString(roles);
             });
           } catch (error) {
             console.log(`Mixed Session Edit Post error`, error);
-            await throwNewError(`Posting [ Mixed Session Edit : ${songName} ]`, interaction, error)
+            await throwNewError(
+              `Posting [ Mixed Session Edit : ${songName} ]`,
+              interaction,
+              error
+            );
           }
         }
       } else if (customID.includes(`post_snippet_modal`)) {
@@ -2718,7 +3036,44 @@ const role = roleString(roles);
           //  interactionID,
           //  file_type,
           choice,
+          file_type,
         } = data;
+        if (file_type === "kraken-link") {
+          let krakLink = interaction.fields.getTextInputValue("kraken")
+            ? interaction.fields.getTextInputValue("kraken")
+            : null;
+          let theName = interaction.fields.getTextInputValue("name")
+            ? interaction.fields.getTextInputValue("name")
+            : "";
+          let krakFile;
+          try {
+            krakFile = await scripts_djs.krakenWebScraper(krakLink);
+          } catch (error) {
+            await throwNewError(
+              "getting file from kraken link",
+              interaction,
+              error
+            );
+          }
+          file = {
+            name: theName,
+            attachment: `${
+              krakFile
+                ? krakFile
+                : `https://media4.giphy.com/media/8L0Pky6C83SzkzU55a/giphy.gif?cid=ecf05e47mactcs5z03dril6i1ffrxb7tfkukvayujqxuql2i&rid=giphy.gif&ct=g`
+            }`,
+            url: `${krakLink ? krakLink : null}`,
+          };
+                  // update the data obj file if the file is changed
+          data.file = file
+              
+      try {
+                    await scripts_mongoDB.updatePostData(randID, data); 
+      } catch (error) {
+        await throwNewError("updating the kraken file elements to the db", interaction, error)
+        
+      }
+        }
         const songName = interaction.fields.getTextInputValue("name")
           ? interaction.fields.getTextInputValue("name")
           : null;
@@ -2754,6 +3109,44 @@ const role = roleString(roles);
             value: `${era}`,
             inline: true,
           });
+          // add gif to embed thumbnail based on the era inputted
+
+          if (
+            era.toLowerCase() === "drfl" ||
+            era.toLowerCase() === "death race for love" ||
+            era.toLowerCase() === "death race"
+          ) {
+            embedObj.thumbnail = drflgif;
+          } else if (
+            era.toLowerCase() === "gbgr" ||
+            era.toLowerCase() === "goodbye and good riddance" ||
+            era.toLowerCase() === "goodbye & good riddance"
+          ) {
+            embedObj.thumbnail = gbgrgif;
+          } else if (
+            era.toLowerCase() === "jw3" ||
+            era.toLowerCase() === "tpne" ||
+            era.toLowerCase() === "outsider" ||
+            era.toLowerCase() === "outsiders" ||
+            era.toLowerCase() === "juice wrld 3" ||
+            era.toLowerCase() === "juice wrld three" ||
+            era.toLowerCase() === "lnd" ||
+            era.toLowerCase() === "the party never ends" ||
+            era.toLowerCase() === "legends never die" ||
+            era.toLowerCase() === "fd" ||
+            era.toLowerCase() === "fighting demons" ||
+            era.toLowerCase() === "post-homous" ||
+            era.toLowerCase() === "posthumous"
+          ) {
+            embedObj.thumbnail = jw3gif;
+          } else if (
+            era.toLowerCase() === "jtk" ||
+            era.toLowerCase() === "juice the kidd"
+          ) {
+            embedObj.thumbnail = jtkgif;
+          } else {
+            embedObj.thumbnail = interaction.guild.iconURL();
+          }
         }
         if (altname !== null) {
           fields.push({
@@ -2810,14 +3203,14 @@ const role = roleString(roles);
           emoji: "📁",
         });
 
-        const directMessageButton = await createBtn.createButton({
+                const directMessageButton = await createBtn.createButton({
           label: `Save via DM's`,
-          style: "secondary",
+          style: "success",
           customID: `direct_message_${randID}`,
           emoji: "📮",
         });
         // create a action row to hold the button
-        let actionRow,actionRow2;
+        let actionRow, actionRow2;
         if (choice === "yes") {
           // attach the file to the message
           actionRow = await createActRow.createActionRow({
@@ -2830,25 +3223,15 @@ const role = roleString(roles);
           });
           try {
             interaction.channel.send({
-              content: `${
+              content: `${`|| ${
                 role.length > 1
-                  ? `|| ${scripts_djs.getAlertEmoji()} ${role}\n${
-                      file.name ? `Song Name : ${file.name}` : null
-                    }${
-                      altname !== null
-                        ? `\nAlternate Name(s) : ${altname}`
-                        : ""
-                    } ||`
-                  : `${
-                      file.name
-                        ? `|| Song Name : ${file.name}${
-                            altname !== null
-                              ? `\nAlternate Name(s) : ${altname}`
-                              : ""
-                          } ||`
-                        : null
-                    }`
-              }`,
+                  ? `${scripts_djs.getAlertEmoji()} ${role}\n`
+                  : ""
+              }${songName !== null ? `Song Name : ${songName}\n` : ""}${
+                file.name ? `File Name : ${file.name}\n` : ""
+              }${
+                altname !== null ? `Alternate Name(s) : ${altname}` : ""
+              } ||`}`,
               embeds: [embed],
               components: [actionRow],
               // files: [file],
@@ -2862,10 +3245,13 @@ const role = roleString(roles);
             });
           } catch (error) {
             console.log(`Snippet Post error`, error);
-            await throwNewError(`Posting [ Snippet : ${songName} ]`, interaction, error)
+            await throwNewError(
+              `Posting [ Snippet : ${songName} ]`,
+              interaction,
+              error
+            );
           }
-        }
-        if (choice === "no") {
+        } else if (choice === "no") {
           // don't attach the file to the message
           actionRow = await createActRow.createActionRow({
             components: [
@@ -2875,25 +3261,15 @@ const role = roleString(roles);
           });
           try {
             interaction.channel.send({
-              content: `${
+              content: `${`|| ${
                 role.length > 1
-                  ? `|| ${scripts_djs.getAlertEmoji()} ${role}\n${
-                      file.name ? `Song Name : ${file.name}` : null
-                    }${
-                      altname !== null
-                        ? `\nAlternate Name(s) : ${altname}`
-                        : ""
-                    } ||`
-                  : `${
-                      file.name
-                        ? `|| Song Name : ${file.name}${
-                            altname !== null
-                              ? `\nAlternate Name(s) : ${altname}`
-                              : ""
-                          } ||`
-                        : null
-                    }`
-              }`,
+                  ? `${scripts_djs.getAlertEmoji()} ${role}\n`
+                  : ""
+              }${songName !== null ? `Song Name : ${songName}\n` : ""}${
+                file.name ? `File Name : ${file.name}\n` : ""
+              }${
+                altname !== null ? `Alternate Name(s) : ${altname}` : ""
+              } ||`}`,
               embeds: [embed],
               components: [actionRow],
             });
@@ -2906,45 +3282,33 @@ const role = roleString(roles);
             });
           } catch (error) {
             console.log(`Snippet Post error`, error);
-            await throwNewError(`Posting [ Snippet : ${songName} ]`, interaction, error)
+            await throwNewError(
+              `Posting [ Snippet : ${songName} ]`,
+              interaction,
+              error
+            );
           }
         } else {
           // attach the file to the message
           actionRow = await createActRow.createActionRow({
-            components: [
-              downloadButton,
-              krakenButton ? krakenButton : null,
-              
-            ],
+            components: [downloadButton, krakenButton ? krakenButton : null],
           });
           actionRow2 = await createActRow.createActionRow({
-            components: [
-              directMessageButton,
-              viewAttachmentButton,
-              ]});
+            components: [directMessageButton, viewAttachmentButton],
+          });
           try {
             interaction.channel.send({
-              content: `${
+              content: `${`|| ${
                 role.length > 1
-                  ? `|| ${scripts_djs.getAlertEmoji()} ${role}\n${
-                      file.name ? `Song Name : ${file.name}` : null
-                    }${
-                      altname !== null
-                        ? `\nAlternate Name(s) : ${altname}`
-                        : ""
-                    } ||`
-                  : `${
-                      file.name
-                        ? `|| Song Name : ${file.name}${
-                            altname !== null
-                              ? `\nAlternate Name(s) : ${altname}`
-                              : ""
-                          } ||`
-                        : null
-                    }`
-              }`,
+                  ? `${scripts_djs.getAlertEmoji()} ${role}\n`
+                  : ""
+              }${songName !== null ? `Song Name : ${songName}\n` : ""}${
+                file.name ? `File Name : ${file.name}\n` : ""
+              }${
+                altname !== null ? `Alternate Name(s) : ${altname}` : ""
+              } ||`}`,
               embeds: [embed],
-              components: [actionRow,actionRow2],
+              components: [actionRow, actionRow2],
               // files: [file],
             });
             interaction.editReply({
@@ -2956,7 +3320,11 @@ const role = roleString(roles);
             });
           } catch (error) {
             console.log(`Snippet Post error`, error);
-            await throwNewError(`Posting [ Snippet : ${songName} ]`, interaction, error)
+            await throwNewError(
+              `Posting [ Snippet : ${songName} ]`,
+              interaction,
+              error
+            );
           }
         }
       } else if (customID.includes(`post_remaster_modal`)) {
@@ -2971,7 +3339,44 @@ const role = roleString(roles);
           //  interactionID,
           //  file_type,
           choice,
+          file_type,
         } = data;
+        if (file_type === "kraken-link") {
+          let krakLink = interaction.fields.getTextInputValue("kraken")
+            ? interaction.fields.getTextInputValue("kraken")
+            : null;
+          let theName = interaction.fields.getTextInputValue("name")
+            ? interaction.fields.getTextInputValue("name")
+            : "";
+          let krakFile;
+          try {
+            krakFile = await scripts_djs.krakenWebScraper(krakLink);
+          } catch (error) {
+            await throwNewError(
+              "getting file from kraken link",
+              interaction,
+              error
+            );
+          }
+          file = {
+            name: theName,
+            attachment: `${
+              krakFile
+                ? krakFile
+                : `https://media4.giphy.com/media/8L0Pky6C83SzkzU55a/giphy.gif?cid=ecf05e47mactcs5z03dril6i1ffrxb7tfkukvayujqxuql2i&rid=giphy.gif&ct=g`
+            }`,
+            url: `${krakLink ? krakLink : null}`,
+          };
+                  // update the data obj file if the file is changed
+          data.file = file
+              
+      try {
+                    await scripts_mongoDB.updatePostData(randID, data); 
+      } catch (error) {
+        await throwNewError("updating the kraken file elements to the db", interaction, error)
+        
+      }
+        }
         const songName = interaction.fields.getTextInputValue("name")
           ? interaction.fields.getTextInputValue("name")
           : null;
@@ -3057,9 +3462,9 @@ const role = roleString(roles);
           emoji: "📁",
         });
 
-        const directMessageButton = await createBtn.createButton({
+                const directMessageButton = await createBtn.createButton({
           label: `Save via DM's`,
-          style: "secondary",
+          style: "success",
           customID: `direct_message_${randID}`,
           emoji: "📮",
         });
@@ -3068,40 +3473,24 @@ const role = roleString(roles);
         if (choice === "yes") {
           // attach the file to the message
           actionRow = await createActRow.createActionRow({
-            components: [
-              downloadButton,
-              krakenButton ? krakenButton : null,
-              
-            ],
+            components: [downloadButton, krakenButton ? krakenButton : null],
           });
           actionRow2 = await createActRow.createActionRow({
-            components: [
-              directMessageButton,
-              viewAttachmentButton,
-              ]});
+            components: [directMessageButton, viewAttachmentButton],
+          });
           try {
             interaction.channel.send({
-              content: `${
+              content: `${`|| ${
                 role.length > 1
-                  ? `|| ${scripts_djs.getAlertEmoji()} ${role}\n${
-                      file.name ? `Song Name : ${file.name}` : null
-                    }${
-                      altname !== null
-                        ? `\nAlternate Name(s) : ${altname}`
-                        : ""
-                    } ||`
-                  : `${
-                      file.name
-                        ? `|| Song Name : ${file.name}${
-                            altname !== null
-                              ? `\nAlternate Name(s) : ${altname}`
-                              : ""
-                          } ||`
-                        : null
-                    }`
-              }`,
+                  ? `${scripts_djs.getAlertEmoji()} ${role}\n`
+                  : ""
+              }${songName !== null ? `Song Name : ${songName}\n` : ""}${
+                file.name ? `File Name : ${file.name}\n` : ""
+              }${
+                altname !== null ? `Alternate Name(s) : ${altname}` : ""
+              } ||`}`,
               embeds: [embed],
-              components: [actionRow,actionRow2],
+              components: [actionRow, actionRow2],
               // files: [file],
             });
             interaction.editReply({
@@ -3113,10 +3502,13 @@ const role = roleString(roles);
             });
           } catch (error) {
             console.log(`Remaster Post error`, error);
-            await throwNewError(`Posting [ Remaster : ${songName} ]`, interaction, error)
+            await throwNewError(
+              `Posting [ Remaster : ${songName} ]`,
+              interaction,
+              error
+            );
           }
-        }
-        if (choice === "no") {
+        } else if (choice === "no") {
           // don't attach the file to the message
           actionRow = await createActRow.createActionRow({
             components: [
@@ -3126,25 +3518,15 @@ const role = roleString(roles);
           });
           try {
             interaction.channel.send({
-              content: `${
+              content: `${`|| ${
                 role.length > 1
-                  ? `|| ${scripts_djs.getAlertEmoji()} ${role}\n${
-                      file.name ? `Song Name : ${file.name}` : null
-                    }${
-                      altname !== null
-                        ? `\nAlternate Name(s) : ${altname}`
-                        : ""
-                    } ||`
-                  : `${
-                      file.name
-                        ? `|| Song Name : ${file.name}${
-                            altname !== null
-                              ? `\nAlternate Name(s) : ${altname}`
-                              : ""
-                          } ||`
-                        : null
-                    }`
-              }`,
+                  ? `${scripts_djs.getAlertEmoji()} ${role}\n`
+                  : ""
+              }${songName !== null ? `Song Name : ${songName}\n` : ""}${
+                file.name ? `File Name : ${file.name}\n` : ""
+              }${
+                altname !== null ? `Alternate Name(s) : ${altname}` : ""
+              } ||`}`,
               embeds: [embed],
               components: [actionRow],
             });
@@ -3157,45 +3539,33 @@ const role = roleString(roles);
             });
           } catch (error) {
             console.log(`Remaster Post error`, error);
-            await throwNewError(`Posting [ Remaster : ${songName} ]`, interaction, error)
+            await throwNewError(
+              `Posting [ Remaster : ${songName} ]`,
+              interaction,
+              error
+            );
           }
         } else {
           // attach the file to the message
           actionRow = await createActRow.createActionRow({
-            components: [
-              downloadButton,
-              krakenButton ? krakenButton : null,
-              
-            ],
+            components: [downloadButton, krakenButton ? krakenButton : null],
           });
           actionRow2 = await createActRow.createActionRow({
-            components: [
-              directMessageButton,
-              viewAttachmentButton,
-              ]});
+            components: [directMessageButton, viewAttachmentButton],
+          });
           try {
             interaction.channel.send({
-              content: `${
+              content: `${`|| ${
                 role.length > 1
-                  ? `|| ${scripts_djs.getAlertEmoji()} ${role}\n${
-                      file.name ? `Song Name : ${file.name}` : null
-                    }${
-                      altname !== null
-                        ? `\nAlternate Name(s) : ${altname}`
-                        : ""
-                    } ||`
-                  : `${
-                      file.name
-                        ? `|| Song Name : ${file.name}${
-                            altname !== null
-                              ? `\nAlternate Name(s) : ${altname}`
-                              : ""
-                          } ||`
-                        : null
-                    }`
-              }`,
+                  ? `${scripts_djs.getAlertEmoji()} ${role}\n`
+                  : ""
+              }${songName !== null ? `Song Name : ${songName}\n` : ""}${
+                file.name ? `File Name : ${file.name}\n` : ""
+              }${
+                altname !== null ? `Alternate Name(s) : ${altname}` : ""
+              } ||`}`,
               embeds: [embed],
-              components: [actionRow,actionRow2],
+              components: [actionRow, actionRow2],
               // files: [file],
             });
             interaction.editReply({
@@ -3207,7 +3577,11 @@ const role = roleString(roles);
             });
           } catch (error) {
             console.log(`Remaster Post error`, error);
-            await throwNewError(`Posting [ Remaster : ${songName} ]`, interaction, error)
+            await throwNewError(
+              `Posting [ Remaster : ${songName} ]`,
+              interaction,
+              error
+            );
           }
         }
       } else if (customID.includes(`post_stemedit_modal`)) {
@@ -3222,7 +3596,44 @@ const role = roleString(roles);
           //  interactionID,
           //  file_type,
           choice,
+          file_type,
         } = data;
+        if (file_type === "kraken-link") {
+          let krakLink = interaction.fields.getTextInputValue("kraken")
+            ? interaction.fields.getTextInputValue("kraken")
+            : null;
+          let theName = interaction.fields.getTextInputValue("name")
+            ? interaction.fields.getTextInputValue("name")
+            : "";
+          let krakFile;
+          try {
+            krakFile = await scripts_djs.krakenWebScraper(krakLink);
+          } catch (error) {
+            await throwNewError(
+              "getting file from kraken link",
+              interaction,
+              error
+            );
+          }
+          file = {
+            name: theName,
+            attachment: `${
+              krakFile
+                ? krakFile
+                : `https://media4.giphy.com/media/8L0Pky6C83SzkzU55a/giphy.gif?cid=ecf05e47mactcs5z03dril6i1ffrxb7tfkukvayujqxuql2i&rid=giphy.gif&ct=g`
+            }`,
+            url: `${krakLink ? krakLink : null}`,
+          };
+                  // update the data obj file if the file is changed
+          data.file = file
+              
+      try {
+                    await scripts_mongoDB.updatePostData(randID, data); 
+      } catch (error) {
+        await throwNewError("updating the kraken file elements to the db", interaction, error)
+        
+      }
+        }
         const songName = interaction.fields.getTextInputValue("name")
           ? interaction.fields.getTextInputValue("name")
           : null;
@@ -3251,7 +3662,6 @@ const role = roleString(roles);
             icon_url: scripts.getJuice(),
           },
         };
-        
 
         let fields = [];
         if (producer !== null) {
@@ -3309,51 +3719,35 @@ const role = roleString(roles);
           emoji: "📁",
         });
 
-        const directMessageButton = await createBtn.createButton({
+                const directMessageButton = await createBtn.createButton({
           label: `Save via DM's`,
-          style: "secondary",
+          style: "success",
           customID: `direct_message_${randID}`,
           emoji: "📮",
         });
         // create a action row to hold the button
-        let actionRow,actionRow2;
+        let actionRow, actionRow2;
         if (choice === "yes") {
           // attach the file to the message
           actionRow = await createActRow.createActionRow({
-            components: [
-              downloadButton,
-              krakenButton ? krakenButton : null,
-              
-            ],
+            components: [downloadButton, krakenButton ? krakenButton : null],
           });
           actionRow2 = await createActRow.createActionRow({
-            components: [
-              directMessageButton,
-              viewAttachmentButton,
-              ]});
+            components: [directMessageButton, viewAttachmentButton],
+          });
           try {
             interaction.channel.send({
-              content: `${
+              content: `${`|| ${
                 role.length > 1
-                  ? `|| ${scripts_djs.getAlertEmoji()} ${role}\n${
-                      file.name ? `Song Name : ${file.name}` : null
-                    }${
-                      altname !== null
-                        ? `\nAlternate Name(s) : ${altname}`
-                        : ""
-                    } ||`
-                  : `${
-                      file.name
-                        ? `|| Song Name : ${file.name}${
-                            altname !== null
-                              ? `\nAlternate Name(s) : ${altname}`
-                              : ""
-                          } ||`
-                        : null
-                    }`
-              }`,
+                  ? `${scripts_djs.getAlertEmoji()} ${role}\n`
+                  : ""
+              }${songName !== null ? `Song Name : ${songName}\n` : ""}${
+                file.name ? `File Name : ${file.name}\n` : ""
+              }${
+                altname !== null ? `Alternate Name(s) : ${altname}` : ""
+              } ||`}`,
               embeds: [embed],
-              components: [actionRow,actionRow2],
+              components: [actionRow, actionRow2],
               // files: [file],
             });
             interaction.editReply({
@@ -3365,10 +3759,13 @@ const role = roleString(roles);
             });
           } catch (error) {
             console.log(`Stem Edit Post error`, error);
-            await throwNewError(`Posting [ Stem Edit: ${songName} ]`, interaction, error)
+            await throwNewError(
+              `Posting [ Stem Edit: ${songName} ]`,
+              interaction,
+              error
+            );
           }
-        }
-        if (choice === "no") {
+        } else if (choice === "no") {
           // don't attach the file to the message
           actionRow = await createActRow.createActionRow({
             components: [
@@ -3378,25 +3775,15 @@ const role = roleString(roles);
           });
           try {
             interaction.channel.send({
-              content: `${
+              content: `${`|| ${
                 role.length > 1
-                  ? `|| ${scripts_djs.getAlertEmoji()} ${role}\n${
-                      file.name ? `Song Name : ${file.name}` : null
-                    }${
-                      altname !== null
-                        ? `\nAlternate Name(s) : ${altname}`
-                        : ""
-                    } ||`
-                  : `${
-                      file.name
-                        ? `|| Song Name : ${file.name}${
-                            altname !== null
-                              ? `\nAlternate Name(s) : ${altname}`
-                              : ""
-                          } ||`
-                        : null
-                    }`
-              }`,
+                  ? `${scripts_djs.getAlertEmoji()} ${role}\n`
+                  : ""
+              }${songName !== null ? `Song Name : ${songName}\n` : ""}${
+                file.name ? `File Name : ${file.name}\n` : ""
+              }${
+                altname !== null ? `Alternate Name(s) : ${altname}` : ""
+              } ||`}`,
               embeds: [embed],
               components: [actionRow],
             });
@@ -3409,45 +3796,33 @@ const role = roleString(roles);
             });
           } catch (error) {
             console.log(`Remaster Post error`, error);
-            await throwNewError(`Posting [ Remaster: ${songName} ]`, interaction, error)
+            await throwNewError(
+              `Posting [ Remaster: ${songName} ]`,
+              interaction,
+              error
+            );
           }
         } else {
           // attach the file to the message
           actionRow = await createActRow.createActionRow({
-            components: [
-              downloadButton,
-              krakenButton ? krakenButton : null,
-              
-            ],
+            components: [downloadButton, krakenButton ? krakenButton : null],
           });
           actionRow2 = await createActRow.createActionRow({
-            components: [
-              directMessageButton,
-              viewAttachmentButton,
-              ]});
+            components: [directMessageButton, viewAttachmentButton],
+          });
           try {
             interaction.channel.send({
-              content: `${
+              content: `${`|| ${
                 role.length > 1
-                  ? `|| ${scripts_djs.getAlertEmoji()} ${role}\n${
-                      file.name ? `Song Name : ${file.name}` : null
-                    }${
-                      altname !== null
-                        ? `\nAlternate Name(s) : ${altname}`
-                        : ""
-                    } ||`
-                  : `${
-                      file.name
-                        ? `|| Song Name : ${file.name}${
-                            altname !== null
-                              ? `\nAlternate Name(s) : ${altname}`
-                              : ""
-                          } ||`
-                        : null
-                    }`
-              }`,
+                  ? `${scripts_djs.getAlertEmoji()} ${role}\n`
+                  : ""
+              }${songName !== null ? `Song Name : ${songName}\n` : ""}${
+                file.name ? `File Name : ${file.name}\n` : ""
+              }${
+                altname !== null ? `Alternate Name(s) : ${altname}` : ""
+              } ||`}`,
               embeds: [embed],
-              components: [actionRow,actionRow2],
+              components: [actionRow, actionRow2],
               // files: [file],
             });
             interaction.editReply({
@@ -3459,16 +3834,17 @@ const role = roleString(roles);
             });
           } catch (error) {
             console.log(`Remaster Post error`, error);
-            await throwNewError(`Posting [ Remaster: ${songName} ]`, interaction, error)
+            await throwNewError(
+              `Posting [ Remaster: ${songName} ]`,
+              interaction,
+              error
+            );
           }
         }
       } else if (customID.includes(`post_magicaledit_modal`)) {
-
-randID = scripts_djs.extractID(customID);
+        randID = scripts_djs.extractID(customID);
         let data = await scripts_mongoDB.getPostData(randID);
-        file = 
-
-         user = interaction.user;
+        file = user = interaction.user;
         // console.log(`the data is right here data`, data);
         let {
           //  userId,
@@ -3479,8 +3855,45 @@ randID = scripts_djs.extractID(customID);
           //  interactionID,
           //  file_type,
           choice,
+          file_type,
         } = data;
-        console.log(`the file is`, file)
+        if (file_type === "kraken-link") {
+          let krakLink = interaction.fields.getTextInputValue("kraken")
+            ? interaction.fields.getTextInputValue("kraken")
+            : null;
+          let theName = interaction.fields.getTextInputValue("name")
+            ? interaction.fields.getTextInputValue("name")
+            : "";
+          let krakFile;
+          try {
+            krakFile = await scripts_djs.krakenWebScraper(krakLink);
+          } catch (error) {
+            await throwNewError(
+              "getting file from kraken link",
+              interaction,
+              error
+            );
+          }
+          file = {
+            name: theName,
+            attachment: `${
+              krakFile
+                ? krakFile
+                : `https://media4.giphy.com/media/8L0Pky6C83SzkzU55a/giphy.gif?cid=ecf05e47mactcs5z03dril6i1ffrxb7tfkukvayujqxuql2i&rid=giphy.gif&ct=g`
+            }`,
+            url: `${krakLink ? krakLink : null}`,
+          };
+                  // update the data obj file if the file is changed
+          data.file = file
+              
+      try {
+                    await scripts_mongoDB.updatePostData(randID, data); 
+      } catch (error) {
+        await throwNewError("updating the kraken file elements to the db", interaction, error)
+        
+      }
+        }
+        console.log(`the file is`, file);
         const songName = interaction.fields.getTextInputValue("name")
           ? interaction.fields.getTextInputValue("name")
           : null;
@@ -3497,9 +3910,9 @@ randID = scripts_djs.extractID(customID);
           ? interaction.fields.getTextInputValue("kraken")
           : null;
         file = kraken ? await scripts_djs.krakenWebScraper(kraken) : null;
-        console.log(`the file is`, file)
-        let query = {file: file}
-        await scripts_mongoDB.updatePostData(randID, query)
+        console.log(`the file is`, file);
+        let query = { file: file };
+        await scripts_mongoDB.updatePostData(randID, query);
 
         // const user = await client.users.fetch(userId);
         // const interaction = await client.rest.interactions(interactionID).get();
@@ -3550,14 +3963,17 @@ randID = scripts_djs.extractID(customID);
         const embed = createEmb.createEmbed(embedObj);
 
         // create a button to download the image
-        console.log(`the kraken`, kraken)
-        console.log(`the file`, file)
-        console.log(`the decision`, kraken ? (file ? file : null) : (file ? file.attachment : null))
+        console.log(`the kraken`, kraken);
+        console.log(`the file`, file);
+        console.log(
+          `the decision`,
+          kraken ? (file ? file : null) : file ? file.attachment : null
+        );
 
         const downloadButton = await createBtn.createButton({
           label: `Download`,
           style: `link`,
-          link: kraken ? (file ? file : null) : (file ? file.attachment : null),
+          link: kraken ? (file ? file : null) : file ? file.attachment : null,
         });
         let krakenButton;
         if (kraken !== null) {
@@ -3574,28 +3990,22 @@ randID = scripts_djs.extractID(customID);
           emoji: "📁",
         });
 
-        const directMessageButton = await createBtn.createButton({
+                const directMessageButton = await createBtn.createButton({
           label: `Save via DM's`,
-          style: "secondary",
+          style: "success",
           customID: `direct_message_${randID}`,
           emoji: "📮",
         });
         // create a action row to hold the button
-        let actionRow,actionRow2;
+        let actionRow, actionRow2;
         if (choice === "yes") {
           // attach the file to the message
           actionRow = await createActRow.createActionRow({
-            components: [
-              downloadButton,
-              krakenButton ? krakenButton : null,
-              
-            ],
+            components: [downloadButton, krakenButton ? krakenButton : null],
           });
           actionRow2 = await createActRow.createActionRow({
-            components: [
-              directMessageButton,
-              viewAttachmentButton,
-              ]});
+            components: [directMessageButton, viewAttachmentButton],
+          });
           try {
             interaction.channel.send({
               content: `${
@@ -3603,9 +4013,7 @@ randID = scripts_djs.extractID(customID);
                   ? `|| ${scripts_djs.getAlertEmoji()} ${role}\n${
                       file.name ? `Song Name : ${file.name}` : ``
                     }${
-                      altname !== null
-                        ? `\nAlternate Name(s) : ${altname}`
-                        : ``
+                      altname !== null ? `\nAlternate Name(s) : ${altname}` : ``
                     } ||`
                   : `${
                       file.name
@@ -3618,7 +4026,7 @@ randID = scripts_djs.extractID(customID);
                     }`
               }`,
               embeds: [embed],
-              components: [actionRow,actionRow2],
+              components: [actionRow, actionRow2],
               // files: [file],
             });
             interaction.editReply({
@@ -3630,10 +4038,13 @@ randID = scripts_djs.extractID(customID);
             });
           } catch (error) {
             console.log(`Magical Edit Post error`, error);
-            await throwNewError(`Posting [ Magical Edit: ${songName} ]`, interaction, error)
+            await throwNewError(
+              `Posting [ Magical Edit: ${songName} ]`,
+              interaction,
+              error
+            );
           }
-        }
-        if (choice === "no") {
+        } else if (choice === "no") {
           // don't attach the file to the message
           actionRow = await createActRow.createActionRow({
             components: [
@@ -3643,25 +4054,15 @@ randID = scripts_djs.extractID(customID);
           });
           try {
             interaction.channel.send({
-              content: `${
+              content: `${`|| ${
                 role.length > 1
-                  ? `|| ${scripts_djs.getAlertEmoji()} ${role}\n${
-                      file.name ? `Song Name : ${file.name}` : null
-                    }${
-                      altname !== null
-                        ? `\nAlternate Name(s) : ${altname}`
-                        : ""
-                    } ||`
-                  : `${
-                      file.name
-                        ? `|| Song Name : ${file.name}${
-                            altname !== null
-                              ? `\nAlternate Name(s) : ${altname}`
-                              : ""
-                          } ||`
-                        : null
-                    }`
-              }`,
+                  ? `${scripts_djs.getAlertEmoji()} ${role}\n`
+                  : ""
+              }${songName !== null ? `Song Name : ${songName}\n` : ""}${
+                file.name ? `File Name : ${file.name}\n` : ""
+              }${
+                altname !== null ? `Alternate Name(s) : ${altname}` : ""
+              } ||`}`,
               embeds: [embed],
               components: [actionRow],
             });
@@ -3674,33 +4075,29 @@ randID = scripts_djs.extractID(customID);
             });
           } catch (error) {
             console.log(`Magical Edit Post error`, error);
-            await throwNewError(`Posting [ Magical Edit: ${songName} ]`, interaction, error)
+            await throwNewError(
+              `Posting [ Magical Edit: ${songName} ]`,
+              interaction,
+              error
+            );
           }
         } else {
           // attach the file to the message
           actionRow = await createActRow.createActionRow({
-            components: [
-              downloadButton,
-              krakenButton ? krakenButton : null,
-              
-            ],
+            components: [downloadButton, krakenButton ? krakenButton : null],
           });
           actionRow2 = await createActRow.createActionRow({
-            components: [
-              directMessageButton,
-              viewAttachmentButton,
-              ]});
+            components: [directMessageButton, viewAttachmentButton],
+          });
           try {
-            // let str2 = 
+            // let str2 =
             interaction.channel.send({
               content: `${
                 role.length > 1
                   ? `|| ${scripts_djs.getAlertEmoji()} ${role}\n${
                       file.name ? `Song Name : ${file.name}` : ``
                     }${
-                      altname !== null
-                        ? `\nAlternate Name(s) : ${altname}`
-                        : ``
+                      altname !== null ? `\nAlternate Name(s) : ${altname}` : ``
                     } ||`
                   : `${
                       file.name
@@ -3713,7 +4110,7 @@ randID = scripts_djs.extractID(customID);
                     }`
               }`,
               embeds: [embed],
-              components: [actionRow,actionRow2],
+              components: [actionRow, actionRow2],
               // files: [file],
             });
             interaction.editReply({
@@ -3725,7 +4122,11 @@ randID = scripts_djs.extractID(customID);
             });
           } catch (error) {
             console.log(`Magical Edit Post error`, error);
-            await throwNewError(`Posting [ Magical Edit: ${songName} ]`, interaction, error)
+            await throwNewError(
+              `Posting [ Magical Edit: ${songName} ]`,
+              interaction,
+              error
+            );
           }
         }
       } else if (customID.includes(`post_slowreverb_modal`)) {
@@ -3740,7 +4141,44 @@ randID = scripts_djs.extractID(customID);
           //  interactionID,
           //  file_type,
           choice,
+          file_type,
         } = data;
+        if (file_type === "kraken-link") {
+          let krakLink = interaction.fields.getTextInputValue("kraken")
+            ? interaction.fields.getTextInputValue("kraken")
+            : null;
+          let theName = interaction.fields.getTextInputValue("name")
+            ? interaction.fields.getTextInputValue("name")
+            : "";
+          let krakFile;
+          try {
+            krakFile = await scripts_djs.krakenWebScraper(krakLink);
+          } catch (error) {
+            await throwNewError(
+              "getting file from kraken link",
+              interaction,
+              error
+            );
+          }
+          file = {
+            name: theName,
+            attachment: `${
+              krakFile
+                ? krakFile
+                : `https://media4.giphy.com/media/8L0Pky6C83SzkzU55a/giphy.gif?cid=ecf05e47mactcs5z03dril6i1ffrxb7tfkukvayujqxuql2i&rid=giphy.gif&ct=g`
+            }`,
+            url: `${krakLink ? krakLink : null}`,
+          };
+                  // update the data obj file if the file is changed
+          data.file = file
+              
+      try {
+                    await scripts_mongoDB.updatePostData(randID, data); 
+      } catch (error) {
+        await throwNewError("updating the kraken file elements to the db", interaction, error)
+        
+      }
+        }
         const songName = interaction.fields.getTextInputValue("name")
           ? interaction.fields.getTextInputValue("name")
           : null;
@@ -3826,51 +4264,36 @@ randID = scripts_djs.extractID(customID);
           emoji: "📁",
         });
 
-        const directMessageButton = await createBtn.createButton({
+                const directMessageButton = await createBtn.createButton({
           label: `Save via DM's`,
-          style: "secondary",
+          style: "success",
           customID: `direct_message_${randID}`,
           emoji: "📮",
         });
         // create a action row to hold the button
-        let actionRow,actionRow2;
+        let actionRow, actionRow2;
         if (choice === "yes") {
           // attach the file to the message
           actionRow = await createActRow.createActionRow({
-            components: [
-              downloadButton,
-              krakenButton ? krakenButton : null,
-              
-            ],
+            components: [downloadButton, krakenButton ? krakenButton : null],
           });
           actionRow2 = await createActRow.createActionRow({
-            components: [
-              directMessageButton,
-              viewAttachmentButton,
-              ]});
+            components: [directMessageButton, viewAttachmentButton],
+          });
           try {
             interaction.channel.send({
-              content: `${
+              content: `${`|| ${
                 role.length > 1
-                  ? `|| ${scripts_djs.getAlertEmoji()} ${role}\n${
-                      file.name ? `Song Name : ${file.name}` : null
-                    }${
-                      altname !== null
-                        ? `\nAlternate Name(s) : ${altname}`
-                        : ""
-                    } ||`
-                  : `${
-                      file.name
-                        ? `|| Song Name : ${file.name}${
-                            altname !== null
-                              ? `\nAlternate Name(s) : ${altname}`
-                              : ""
-                          } ||`
-                        : null
-                    }`
-              }`,
+                  ? `${scripts_djs.getAlertEmoji()} ${role}\n`
+                  : ""
+              }${songName !== null ? `Song Name : ${songName}\n` : ""}${
+                file.name ? `File Name : ${file.name}\n` : ""
+              }${
+                altname !== null ? `Alternate Name(s) : ${altname}` : ""
+              } ||`}`,
               embeds: [embed],
-              components: [actionRow],actionRow2,
+              components: [actionRow],
+              actionRow2,
               // files: [file],
             });
             interaction.editReply({
@@ -3882,10 +4305,13 @@ randID = scripts_djs.extractID(customID);
             });
           } catch (error) {
             console.log(`Slowed & Reverb Post error`, error);
-            await throwNewError(`Posting [ Slowed & Reverb : ${songName} ]`, interaction, error)
+            await throwNewError(
+              `Posting [ Slowed & Reverb : ${songName} ]`,
+              interaction,
+              error
+            );
           }
-        }
-        if (choice === "no") {
+        } else if (choice === "no") {
           // don't attach the file to the message
           actionRow = await createActRow.createActionRow({
             components: [
@@ -3895,25 +4321,15 @@ randID = scripts_djs.extractID(customID);
           });
           try {
             interaction.channel.send({
-              content: `${
+              content: `${`|| ${
                 role.length > 1
-                  ? `|| ${scripts_djs.getAlertEmoji()} ${role}\n${
-                      file.name ? `Song Name : ${file.name}` : null
-                    }${
-                      altname !== null
-                        ? `\nAlternate Name(s) : ${altname}`
-                        : ""
-                    } ||`
-                  : `${
-                      file.name
-                        ? `|| Song Name : ${file.name}${
-                            altname !== null
-                              ? `\nAlternate Name(s) : ${altname}`
-                              : ""
-                          } ||`
-                        : null
-                    }`
-              }`,
+                  ? `${scripts_djs.getAlertEmoji()} ${role}\n`
+                  : ""
+              }${songName !== null ? `Song Name : ${songName}\n` : ""}${
+                file.name ? `File Name : ${file.name}\n` : ""
+              }${
+                altname !== null ? `Alternate Name(s) : ${altname}` : ""
+              } ||`}`,
               embeds: [embed],
               components: [actionRow],
             });
@@ -3926,45 +4342,33 @@ randID = scripts_djs.extractID(customID);
             });
           } catch (error) {
             console.log(`Slowed & Reverb Post error`, error);
-            await throwNewError(`Posting [ Slowed & Reverb : ${songName} ]`, interaction, error)
+            await throwNewError(
+              `Posting [ Slowed & Reverb : ${songName} ]`,
+              interaction,
+              error
+            );
           }
         } else {
           // attach the file to the message
           actionRow = await createActRow.createActionRow({
-            components: [
-              downloadButton,
-              krakenButton ? krakenButton : null,
-              
-            ],
+            components: [downloadButton, krakenButton ? krakenButton : null],
           });
           actionRow2 = await createActRow.createActionRow({
-            components: [
-              directMessageButton,
-              viewAttachmentButton,
-              ]});
+            components: [directMessageButton, viewAttachmentButton],
+          });
           try {
             interaction.channel.send({
-              content: `${
+              content: `${`|| ${
                 role.length > 1
-                  ? `|| ${scripts_djs.getAlertEmoji()} ${role}\n${
-                      file.name ? `Song Name : ${file.name}` : null
-                    }${
-                      altname !== null
-                        ? `\nAlternate Name(s) : ${altname}`
-                        : ""
-                    } ||`
-                  : `${
-                      file.name
-                        ? `|| Song Name : ${file.name}${
-                            altname !== null
-                              ? `\nAlternate Name(s) : ${altname}`
-                              : ""
-                          } ||`
-                        : null
-                    }`
-              }`,
+                  ? `${scripts_djs.getAlertEmoji()} ${role}\n`
+                  : ""
+              }${songName !== null ? `Song Name : ${songName}\n` : ""}${
+                file.name ? `File Name : ${file.name}\n` : ""
+              }${
+                altname !== null ? `Alternate Name(s) : ${altname}` : ""
+              } ||`}`,
               embeds: [embed],
-              components: [actionRow,actionRow2],
+              components: [actionRow, actionRow2],
               // files: [file],
             });
             interaction.editReply({
@@ -3976,7 +4380,11 @@ randID = scripts_djs.extractID(customID);
             });
           } catch (error) {
             console.log(`Slowed & Reverb Post error`, error);
-            await throwNewError(`Posting [ Slowed & Reverb : ${songName} ]`, interaction, error)
+            await throwNewError(
+              `Posting [ Slowed & Reverb : ${songName} ]`,
+              interaction,
+              error
+            );
           }
         }
       } else if (customID.includes(`post_rando_audio_modal`)) {
@@ -3991,7 +4399,44 @@ randID = scripts_djs.extractID(customID);
           //  interactionID,
           //  file_type,
           choice,
+          file_type,
         } = data;
+        if (file_type === "kraken-link") {
+          let krakLink = interaction.fields.getTextInputValue("kraken")
+            ? interaction.fields.getTextInputValue("kraken")
+            : null;
+          let theName = interaction.fields.getTextInputValue("title")
+            ? interaction.fields.getTextInputValue("title")
+            : "";
+          let krakFile;
+          try {
+            krakFile = await scripts_djs.krakenWebScraper(krakLink);
+          } catch (error) {
+            await throwNewError(
+              "getting file from kraken link",
+              interaction,
+              error
+            );
+          }
+          file = {
+            name: theName,
+            attachment: `${
+              krakFile
+                ? krakFile
+                : `https://media4.giphy.com/media/8L0Pky6C83SzkzU55a/giphy.gif?cid=ecf05e47mactcs5z03dril6i1ffrxb7tfkukvayujqxuql2i&rid=giphy.gif&ct=g`
+            }`,
+            url: `${krakLink ? krakLink : null}`,
+          };
+                  // update the data obj file if the file is changed
+          data.file = file
+              
+      try {
+                    await scripts_mongoDB.updatePostData(randID, data); 
+      } catch (error) {
+        await throwNewError("updating the kraken file elements to the db", interaction, error)
+        
+      }
+        }
         const songName = interaction.fields.getTextInputValue("title")
           ? interaction.fields.getTextInputValue("title")
           : null;
@@ -4051,39 +4496,35 @@ randID = scripts_djs.extractID(customID);
           emoji: "📁",
         });
 
-        const directMessageButton = await createBtn.createButton({
+                const directMessageButton = await createBtn.createButton({
           label: `Save via DM's`,
-          style: "secondary",
+          style: "success",
           customID: `direct_message_${randID}`,
           emoji: "📮",
         });
         // create a action row to hold the button
-        let actionRow,actionRow2;
+        let actionRow, actionRow2;
         if (choice === "yes") {
           // attach the file to the message
           actionRow = await createActRow.createActionRow({
-            components: [
-              downloadButton,
-              krakenButton ? krakenButton : null,
-              
-            ],
+            components: [downloadButton, krakenButton ? krakenButton : null],
           });
           actionRow2 = await createActRow.createActionRow({
-            components: [
-              directMessageButton,
-              viewAttachmentButton,
-              ]});
+            components: [directMessageButton, viewAttachmentButton],
+          });
           try {
             interaction.channel.send({
-              content: `${
+              content:`${`|| ${
                 role.length > 1
-                  ? `|| ${scripts_djs.getAlertEmoji()} ${role}\n${
-                      file.name ? `Song Name : ${file.name}` : null
-                    } ||`
-                  : `${file.name ? `|| Song Name : ${file.name} ||` : null}`
-              }`,
+                  ? `${scripts_djs.getAlertEmoji()} ${role}\n`
+                  : ""
+              }${songName !== null ? `Song Name : ${songName}\n` : ""}${
+                file.name !== '' ? `File Name : ${file.name}\n` : ""
+              }${
+                text !== null ? `More Info : ${text}` : ""
+              } ||`}`,
               embeds: [embed],
-              components: [actionRow,actionRow2],
+              components: [actionRow, actionRow2],
               // files: [file],
             });
             interaction.editReply({
@@ -4095,10 +4536,13 @@ randID = scripts_djs.extractID(customID);
             });
           } catch (error) {
             console.log(`Audio File Post error`, error);
-            await throwNewError(`Posting [ Audio File : ${songName} ]`, interaction, error)
+            await throwNewError(
+              `Posting [ Audio File : ${songName} ]`,
+              interaction,
+              error
+            );
           }
-        }
-        if (choice === "no") {
+        } else if (choice === "no") {
           // don't attach the file to the message
           actionRow = await createActRow.createActionRow({
             components: [
@@ -4111,8 +4555,8 @@ randID = scripts_djs.extractID(customID);
               content: `${
                 role.length > 1
                   ? `|| ${scripts_djs.getAlertEmoji()} ${role}\n${
-                      file.name ? `Song Name : ${file.name}` : null
-                    } ||`
+                      songName !== null ? `Song Name : ${songName}` : ""
+                    }\n${file.name ? `File Name : ${file.name}` : null} ||`
                   : `${file.name ? `|| Song Name : ${file.name} ||` : null}`
               }`,
               embeds: [embed],
@@ -4127,33 +4571,31 @@ randID = scripts_djs.extractID(customID);
             });
           } catch (error) {
             console.log(`Audio File Post error`, error);
-            await throwNewError(`Posting [ Audio File : ${songName} ]`, interaction, error)
+            await throwNewError(
+              `Posting [ Audio File : ${songName} ]`,
+              interaction,
+              error
+            );
           }
         } else {
           // attach the file to the message
           actionRow = await createActRow.createActionRow({
-            components: [
-              downloadButton,
-              krakenButton ? krakenButton : null,
-              
-            ],
+            components: [downloadButton, krakenButton ? krakenButton : null],
           });
           actionRow2 = await createActRow.createActionRow({
-            components: [
-              directMessageButton,
-              viewAttachmentButton,
-              ]});
+            components: [directMessageButton, viewAttachmentButton],
+          });
           try {
             interaction.channel.send({
               content: `${
                 role.length > 1
                   ? `|| ${scripts_djs.getAlertEmoji()} ${role}\n${
-                      file.name ? `Song Name : ${file.name}` : null
-                    } ||`
+                      songName !== null ? `Song Name : ${songName}` : ""
+                    }\n${file.name ? `File Name : ${file.name}` : null} ||`
                   : `${file.name ? `|| Song Name : ${file.name} ||` : null}`
               }`,
               embeds: [embed],
-              components: [actionRow,actionRow2],
+              components: [actionRow, actionRow2],
               // files: [file],
             });
             interaction.editReply({
@@ -4165,7 +4607,11 @@ randID = scripts_djs.extractID(customID);
             });
           } catch (error) {
             console.log(`Audio File Post error`, error);
-            await throwNewError(`Posting [ Audio File : ${songName} ]`, interaction, error)
+            await throwNewError(
+              `Posting [ Audio File : ${songName} ]`,
+              interaction,
+              error
+            );
           }
         }
       }
@@ -4182,6 +4628,4 @@ randID = scripts_djs.extractID(customID);
       // this the second listener but does nothing
     }
   });
-
-  
 }

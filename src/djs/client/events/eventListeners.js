@@ -717,7 +717,7 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
         } else {
           size = await scripts_djs.krakenFileSizeFinder(url, interaction);
           let isGB = size.includes("GB");
-          size = parseFloat(inputString);
+          size = parseFloat(size);
 
           if (isGB) {
             size *= 1024;
@@ -729,7 +729,14 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
         // convert size from bytes to mb
         let sizeMB = size / 1000000;
         let isFile = sizeMB > limit ? false : true;
-
+        if (size === 0) {
+          isFile = false;
+        }
+        if (typeof attachment === 'string') {
+          if (attachment.includes('https://krakenfiles.com/view/')) {
+            isFile = false;
+        }
+        }
         if (isFile === true) {
           user.send({ content: file.name, files: [file] });
           try {
@@ -801,7 +808,7 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
         } else {
           size = await scripts_djs.krakenFileSizeFinder(url, interaction);
           let isGB = size.includes("GB");
-          size = parseFloat(inputString);
+          size = parseFloat(size);
 
           if (isGB) {
             size *= 1024;
@@ -819,6 +826,14 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
         if (size === 0) {
           isFile = false;
         }
+
+        if (typeof attachment === 'string') {
+          if (attachment.includes('https://krakenfiles.com/view/')) {
+            isFile = false;
+        }
+        }
+
+
         if (isFile === true) {
           try {
             await interaction.editReply({
@@ -1565,10 +1580,10 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
                 role.length > 1
                   ? `${scripts_djs.getAlertEmoji()} ${role}\n`
                   : ""
-              }${songName !== null ? `Song Name : ${songName}\n` : ""}${
-                file.name ? `File Name : ${file.name}\n` : ""
+              }${songName !== null ? `Song Name : ${songName}` : ""}${
+                file.name && file.name !== songName? `\nFile Name : ${file.name}` : ""
               }${
-                altname !== null ? `Alternate Name(s) : ${altname}` : ""
+                altname !== null ? `\nAlternate Name(s) : ${altname}` : ""
               } ||`}`,
               embeds: [embed],
               components: [actionRow, actionRow2],
@@ -1603,10 +1618,10 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
                 role.length > 1
                   ? `${scripts_djs.getAlertEmoji()} ${role}\n`
                   : ""
-              }${songName !== null ? `Song Name : ${songName}\n` : ""}${
-                file.name ? `File Name : ${file.name}\n` : ""
+              }${songName !== null ? `Song Name : ${songName}` : ""}${
+                file.name && file.name !== songName? `\nFile Name : ${file.name}` : ""
               }${
-                altname !== null ? `Alternate Name(s) : ${altname}` : ""
+                altname !== null ? `\nAlternate Name(s) : ${altname}` : ""
               } ||`}`,
               embeds: [embed],
               components: [actionRow],
@@ -1644,10 +1659,10 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
                 role.length > 1
                   ? `${scripts_djs.getAlertEmoji()} ${role}\n`
                   : ""
-              }${songName !== null ? `Song Name : ${songName}\n` : ""}${
-                file.name ? `File Name : ${file.name}\n` : ""
+              }${songName !== null ? `Song Name : ${songName}` : ""}${
+                file.name && file.name !== songName? `\nFile Name : ${file.name}` : ""
               }${
-                altname !== null ? `Alternate Name(s) : ${altname}` : ""
+                altname !== null ? `\nAlternate Name(s) : ${altname}` : ""
               } ||`}`,
               embeds: [embed],
               components: [actionRow, actionRow2],
@@ -1870,10 +1885,10 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
                 role.length > 1
                   ? `${scripts_djs.getAlertEmoji()} ${role}\n`
                   : ""
-              }${songName !== null ? `Song Name : ${songName}\n` : ""}${
-                file.name ? `File Name : ${file.name}\n` : ""
+              }${songName !== null ? `Song Name : ${songName}` : ""}${
+                file.name && file.name !== songName? `\nFile Name : ${file.name}` : ""
               }${
-                altname !== null ? `Alternate Name(s) : ${altname}` : ""
+                altname !== null ? `\nAlternate Name(s) : ${altname}` : ""
               } ||`}`,
               embeds: [embed],
               components: [actionRow, actionRow2],
@@ -1908,10 +1923,10 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
                 role.length > 1
                   ? `${scripts_djs.getAlertEmoji()} ${role}\n`
                   : ""
-              }${songName !== null ? `Song Name : ${songName}\n` : ""}${
-                file.name ? `File Name : ${file.name}\n` : ""
+              }${songName !== null ? `Song Name : ${songName}` : ""}${
+                file.name && file.name !== songName? `\nFile Name : ${file.name}` : ""
               }${
-                altname !== null ? `Alternate Name(s) : ${altname}` : ""
+                altname !== null ? `\nAlternate Name(s) : ${altname}` : ""
               } ||`}`,
               embeds: [embed],
               components: [actionRow],
@@ -1945,10 +1960,10 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
                 role.length > 1
                   ? `${scripts_djs.getAlertEmoji()} ${role}\n`
                   : ""
-              }${songName !== null ? `Song Name : ${songName}\n` : ""}${
-                file.name ? `File Name : ${file.name}\n` : ""
+              }${songName !== null ? `Song Name : ${songName}` : ""}${
+                file.name && file.name !== songName? `\nFile Name : ${file.name}` : ""
               }${
-                altname !== null ? `Alternate Name(s) : ${altname}` : ""
+                altname !== null ? `\nAlternate Name(s) : ${altname}` : ""
               } ||`}`,
               embeds: [embed],
               components: [actionRow, actoinRow2],
@@ -2043,7 +2058,7 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
           title: `${songName}`,
           color: scripts.getColor(),
           author: {
-            name: `New Studio Session`,
+            name: `New Studio Files`,
             icon_url: scripts.getJuice(),
           },
         };
@@ -2171,10 +2186,10 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
                 role.length > 1
                   ? `${scripts_djs.getAlertEmoji()} ${role}\n`
                   : ""
-              }${songName !== null ? `Song Name : ${songName}\n` : ""}${
-                file.name ? `File Name : ${file.name}\n` : ""
+              }${songName !== null ? `Song Name : ${songName}` : ""}${
+                file.name && file.name !== songName? `\nFile Name : ${file.name}` : ""
               }${
-                altname !== null ? `Alternate Name(s) : ${altname}` : ""
+                altname !== null ? `\nAlternate Name(s) : ${altname}` : ""
               } ||`}`,
               embeds: [embed],
               components: [actionRow, actionRow2],
@@ -2209,10 +2224,10 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
                 role.length > 1
                   ? `${scripts_djs.getAlertEmoji()} ${role}\n`
                   : ""
-              }${songName !== null ? `Song Name : ${songName}\n` : ""}${
-                file.name ? `File Name : ${file.name}\n` : ""
+              }${songName !== null ? `Song Name : ${songName}` : ""}${
+                file.name && file.name !== songName? `\nFile Name : ${file.name}` : ""
               }${
-                altname !== null ? `Alternate Name(s) : ${altname}` : ""
+                altname !== null ? `\nAlternate Name(s) : ${altname}` : ""
               } ||`}`,
               embeds: [embed],
               components: [actionRow],
@@ -2246,10 +2261,10 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
                 role.length > 1
                   ? `${scripts_djs.getAlertEmoji()} ${role}\n`
                   : ""
-              }${songName !== null ? `Song Name : ${songName}\n` : ""}${
-                file.name ? `File Name : ${file.name}\n` : ""
+              }${songName !== null ? `Song Name : ${songName}` : ""}${
+                file.name && file.name !== songName? `\nFile Name : ${file.name}` : ""
               }${
-                altname !== null ? `Alternate Name(s) : ${altname}` : ""
+                altname !== null ? `\nAlternate Name(s) : ${altname}` : ""
               } ||`}`,
               embeds: [embed],
               components: [actionRow, actionRow2],
@@ -2428,10 +2443,10 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
                 role.length > 1
                   ? `${scripts_djs.getAlertEmoji()} ${role}\n`
                   : ""
-              }${songName !== null ? `Song Name : ${songName}\n` : ""}${
-                file.name ? `File Name : ${file.name}\n` : ""
+              }${songName !== null ? `Song Name : ${songName}` : ""}${
+                file.name && file.name !== songName? `\nFile Name : ${file.name}` : ""
               }${
-                altname !== null ? `Alternate Name(s) : ${altname}` : ""
+                altname !== null ? `\nAlternate Name(s) : ${altname}` : ""
               } ||`}`,
               embeds: [embed],
               components: [actionRow, actionRow2],
@@ -2466,10 +2481,10 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
                 role.length > 1
                   ? `${scripts_djs.getAlertEmoji()} ${role}\n`
                   : ""
-              }${songName !== null ? `Song Name : ${songName}\n` : ""}${
-                file.name ? `File Name : ${file.name}\n` : ""
+              }${songName !== null ? `Song Name : ${songName}` : ""}${
+                file.name && file.name !== songName? `\nFile Name : ${file.name}` : ""
               }${
-                altname !== null ? `Alternate Name(s) : ${altname}` : ""
+                altname !== null ? `\nAlternate Name(s) : ${altname}` : ""
               } ||`}`,
               embeds: [embed],
               components: [actionRow],
@@ -2502,10 +2517,10 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
                 role.length > 1
                   ? `${scripts_djs.getAlertEmoji()} ${role}\n`
                   : ""
-              }${songName !== null ? `Song Name : ${songName}\n` : ""}${
-                file.name ? `File Name : ${file.name}\n` : ""
+              }${songName !== null ? `Song Name : ${songName}` : ""}${
+                file.name && file.name !== songName? `\nFile Name : ${file.name}` : ""
               }${
-                altname !== null ? `Alternate Name(s) : ${altname}` : ""
+                altname !== null ? `\nAlternate Name(s) : ${altname}` : ""
               } ||`}`,
               embeds: [embed],
               components: [actionRow, actionRow2],
@@ -2685,10 +2700,10 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
                 role.length > 1
                   ? `${scripts_djs.getAlertEmoji()} ${role}\n`
                   : ""
-              }${songName !== null ? `Song Name : ${songName}\n` : ""}${
-                file.name ? `File Name : ${file.name}\n` : ""
+              }${songName !== null ? `Song Name : ${songName}` : ""}${
+                file.name && file.name !== songName? `\nFile Name : ${file.name}` : ""
               }${
-                altname !== null ? `Alternate Name(s) : ${altname}` : ""
+                altname !== null ? `\nAlternate Name(s) : ${altname}` : ""
               } ||`}`,
               embeds: [embed],
               components: [actionRow, actionRow2],
@@ -2723,10 +2738,10 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
                 role.length > 1
                   ? `${scripts_djs.getAlertEmoji()} ${role}\n`
                   : ""
-              }${songName !== null ? `Song Name : ${songName}\n` : ""}${
-                file.name ? `File Name : ${file.name}\n` : ""
+              }${songName !== null ? `Song Name : ${songName}` : ""}${
+                file.name && file.name !== songName? `\nFile Name : ${file.name}` : ""
               }${
-                altname !== null ? `Alternate Name(s) : ${altname}` : ""
+                altname !== null ? `\nAlternate Name(s) : ${altname}` : ""
               } ||`}`,
               embeds: [embed],
               components: [actionRow],
@@ -2760,10 +2775,10 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
                 role.length > 1
                   ? `${scripts_djs.getAlertEmoji()} ${role}\n`
                   : ""
-              }${songName !== null ? `Song Name : ${songName}\n` : ""}${
-                file.name ? `File Name : ${file.name}\n` : ""
+              }${songName !== null ? `Song Name : ${songName}` : ""}${
+                file.name && file.name !== songName? `\nFile Name : ${file.name}` : ""
               }${
-                altname !== null ? `Alternate Name(s) : ${altname}` : ""
+                altname !== null ? `\nAlternate Name(s) : ${altname}` : ""
               } ||`}`,
               embeds: [embed],
               components: [actionRow, actionRow2],
@@ -2986,10 +3001,10 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
                 role.length > 1
                   ? `${scripts_djs.getAlertEmoji()} ${role}\n`
                   : ""
-              }${songName !== null ? `Song Name : ${songName}\n` : ""}${
-                file.name ? `File Name : ${file.name}\n` : ""
+              }${songName !== null ? `Song Name : ${songName}` : ""}${
+                file.name && file.name !== songName? `\nFile Name : ${file.name}` : ""
               }${
-                altname !== null ? `Alternate Name(s) : ${altname}` : ""
+                altname !== null ? `\nAlternate Name(s) : ${altname}` : ""
               } ||`}`,
               embeds: [embed],
               components: [actionRow, actionRow2],
@@ -3024,10 +3039,10 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
                 role.length > 1
                   ? `${scripts_djs.getAlertEmoji()} ${role}\n`
                   : ""
-              }${songName !== null ? `Song Name : ${songName}\n` : ""}${
-                file.name ? `File Name : ${file.name}\n` : ""
+              }${songName !== null ? `Song Name : ${songName}` : ""}${
+                file.name && file.name !== songName? `\nFile Name : ${file.name}` : ""
               }${
-                altname !== null ? `Alternate Name(s) : ${altname}` : ""
+                altname !== null ? `\nAlternate Name(s) : ${altname}` : ""
               } ||`}`,
               embeds: [embed],
               components: [actionRow],
@@ -3061,10 +3076,10 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
                 role.length > 1
                   ? `${scripts_djs.getAlertEmoji()} ${role}\n`
                   : ""
-              }${songName !== null ? `Song Name : ${songName}\n` : ""}${
-                file.name ? `File Name : ${file.name}\n` : ""
+              }${songName !== null ? `Song Name : ${songName}` : ""}${
+                file.name && file.name !== songName? `\nFile Name : ${file.name}` : ""
               }${
-                altname !== null ? `Alternate Name(s) : ${altname}` : ""
+                altname !== null ? `\nAlternate Name(s) : ${altname}` : ""
               } ||`}`,
               embeds: [embed],
               components: [actionRow, actionRow2],
@@ -3289,10 +3304,10 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
                 role.length > 1
                   ? `${scripts_djs.getAlertEmoji()} ${role}\n`
                   : ""
-              }${songName !== null ? `Song Name : ${songName}\n` : ""}${
-                file.name ? `File Name : ${file.name}\n` : ""
+              }${songName !== null ? `Song Name : ${songName}` : ""}${
+                file.name && file.name !== songName? `\nFile Name : ${file.name}` : ""
               }${
-                altname !== null ? `Alternate Name(s) : ${altname}` : ""
+                altname !== null ? `\nAlternate Name(s) : ${altname}` : ""
               } ||`}`,
               embeds: [embed],
               components: [actionRow],
@@ -3327,10 +3342,10 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
                 role.length > 1
                   ? `${scripts_djs.getAlertEmoji()} ${role}\n`
                   : ""
-              }${songName !== null ? `Song Name : ${songName}\n` : ""}${
-                file.name ? `File Name : ${file.name}\n` : ""
+              }${songName !== null ? `Song Name : ${songName}` : ""}${
+                file.name && file.name !== songName? `\nFile Name : ${file.name}` : ""
               }${
-                altname !== null ? `Alternate Name(s) : ${altname}` : ""
+                altname !== null ? `\nAlternate Name(s) : ${altname}` : ""
               } ||`}`,
               embeds: [embed],
               components: [actionRow],
@@ -3364,10 +3379,10 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
                 role.length > 1
                   ? `${scripts_djs.getAlertEmoji()} ${role}\n`
                   : ""
-              }${songName !== null ? `Song Name : ${songName}\n` : ""}${
-                file.name ? `File Name : ${file.name}\n` : ""
+              }${songName !== null ? `Song Name : ${songName}` : ""}${
+                file.name && file.name !== songName? `\nFile Name : ${file.name}` : ""
               }${
-                altname !== null ? `Alternate Name(s) : ${altname}` : ""
+                altname !== null ? `\nAlternate Name(s) : ${altname}` : ""
               } ||`}`,
               embeds: [embed],
               components: [actionRow, actionRow2],
@@ -3546,10 +3561,10 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
                 role.length > 1
                   ? `${scripts_djs.getAlertEmoji()} ${role}\n`
                   : ""
-              }${songName !== null ? `Song Name : ${songName}\n` : ""}${
-                file.name ? `File Name : ${file.name}\n` : ""
+              }${songName !== null ? `Song Name : ${songName}` : ""}${
+                file.name && file.name !== songName? `\nFile Name : ${file.name}` : ""
               }${
-                altname !== null ? `Alternate Name(s) : ${altname}` : ""
+                altname !== null ? `\nAlternate Name(s) : ${altname}` : ""
               } ||`}`,
               embeds: [embed],
               components: [actionRow, actionRow2],
@@ -3584,10 +3599,10 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
                 role.length > 1
                   ? `${scripts_djs.getAlertEmoji()} ${role}\n`
                   : ""
-              }${songName !== null ? `Song Name : ${songName}\n` : ""}${
-                file.name ? `File Name : ${file.name}\n` : ""
+              }${songName !== null ? `Song Name : ${songName}` : ""}${
+                file.name && file.name !== songName? `\nFile Name : ${file.name}` : ""
               }${
-                altname !== null ? `Alternate Name(s) : ${altname}` : ""
+                altname !== null ? `\nAlternate Name(s) : ${altname}` : ""
               } ||`}`,
               embeds: [embed],
               components: [actionRow],
@@ -3621,10 +3636,10 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
                 role.length > 1
                   ? `${scripts_djs.getAlertEmoji()} ${role}\n`
                   : ""
-              }${songName !== null ? `Song Name : ${songName}\n` : ""}${
-                file.name ? `File Name : ${file.name}\n` : ""
+              }${songName !== null ? `Song Name : ${songName}` : ""}${
+                file.name && file.name !== songName? `\nFile Name : ${file.name}` : ""
               }${
-                altname !== null ? `Alternate Name(s) : ${altname}` : ""
+                altname !== null ? `\nAlternate Name(s) : ${altname}` : ""
               } ||`}`,
               embeds: [embed],
               components: [actionRow, actionRow2],
@@ -3803,10 +3818,10 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
                 role.length > 1
                   ? `${scripts_djs.getAlertEmoji()} ${role}\n`
                   : ""
-              }${songName !== null ? `Song Name : ${songName}\n` : ""}${
-                file.name ? `File Name : ${file.name}\n` : ""
+              }${songName !== null ? `Song Name : ${songName}` : ""}${
+                file.name && file.name !== songName? `\nFile Name : ${file.name}` : ""
               }${
-                altname !== null ? `Alternate Name(s) : ${altname}` : ""
+                altname !== null ? `\nAlternate Name(s) : ${altname}` : ""
               } ||`}`,
               embeds: [embed],
               components: [actionRow, actionRow2],
@@ -3841,10 +3856,10 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
                 role.length > 1
                   ? `${scripts_djs.getAlertEmoji()} ${role}\n`
                   : ""
-              }${songName !== null ? `Song Name : ${songName}\n` : ""}${
-                file.name ? `File Name : ${file.name}\n` : ""
+              }${songName !== null ? `Song Name : ${songName}` : ""}${
+                file.name && file.name !== songName? `\nFile Name : ${file.name}` : ""
               }${
-                altname !== null ? `Alternate Name(s) : ${altname}` : ""
+                altname !== null ? `\nAlternate Name(s) : ${altname}` : ""
               } ||`}`,
               embeds: [embed],
               components: [actionRow],
@@ -3878,10 +3893,10 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
                 role.length > 1
                   ? `${scripts_djs.getAlertEmoji()} ${role}\n`
                   : ""
-              }${songName !== null ? `Song Name : ${songName}\n` : ""}${
-                file.name ? `File Name : ${file.name}\n` : ""
+              }${songName !== null ? `Song Name : ${songName}` : ""}${
+                file.name && file.name !== songName? `\nFile Name : ${file.name}` : ""
               }${
-                altname !== null ? `Alternate Name(s) : ${altname}` : ""
+                altname !== null ? `\nAlternate Name(s) : ${altname}` : ""
               } ||`}`,
               embeds: [embed],
               components: [actionRow, actionRow2],
@@ -4120,10 +4135,10 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
                 role.length > 1
                   ? `${scripts_djs.getAlertEmoji()} ${role}\n`
                   : ""
-              }${songName !== null ? `Song Name : ${songName}\n` : ""}${
-                file.name ? `File Name : ${file.name}\n` : ""
+              }${songName !== null ? `Song Name : ${songName}` : ""}${
+                file.name && file.name !== songName? `\nFile Name : ${file.name}` : ""
               }${
-                altname !== null ? `Alternate Name(s) : ${altname}` : ""
+                altname !== null ? `\nAlternate Name(s) : ${altname}` : ""
               } ||`}`,
               embeds: [embed],
               components: [actionRow],
@@ -4348,10 +4363,10 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
                 role.length > 1
                   ? `${scripts_djs.getAlertEmoji()} ${role}\n`
                   : ""
-              }${songName !== null ? `Song Name : ${songName}\n` : ""}${
-                file.name ? `File Name : ${file.name}\n` : ""
+              }${songName !== null ? `Song Name : ${songName}` : ""}${
+                file.name && file.name !== songName? `\nFile Name : ${file.name}` : ""
               }${
-                altname !== null ? `Alternate Name(s) : ${altname}` : ""
+                altname !== null ? `\nAlternate Name(s) : ${altname}` : ""
               } ||`}`,
               embeds: [embed],
               components: [actionRow],
@@ -4387,10 +4402,10 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
                 role.length > 1
                   ? `${scripts_djs.getAlertEmoji()} ${role}\n`
                   : ""
-              }${songName !== null ? `Song Name : ${songName}\n` : ""}${
-                file.name ? `File Name : ${file.name}\n` : ""
+              }${songName !== null ? `Song Name : ${songName}` : ""}${
+                file.name && file.name !== songName? `\nFile Name : ${file.name}` : ""
               }${
-                altname !== null ? `Alternate Name(s) : ${altname}` : ""
+                altname !== null ? `\nAlternate Name(s) : ${altname}` : ""
               } ||`}`,
               embeds: [embed],
               components: [actionRow],
@@ -4424,10 +4439,10 @@ let leaksrole, ogfilesrole, snippetsrole, sessionsrole, compupdatesrole, newsrol
                 role.length > 1
                   ? `${scripts_djs.getAlertEmoji()} ${role}\n`
                   : ""
-              }${songName !== null ? `Song Name : ${songName}\n` : ""}${
-                file.name ? `File Name : ${file.name}\n` : ""
+              }${songName !== null ? `Song Name : ${songName}` : ""}${
+                file.name && file.name !== songName? `\nFile Name : ${file.name}` : ""
               }${
-                altname !== null ? `Alternate Name(s) : ${altname}` : ""
+                altname !== null ? `\nAlternate Name(s) : ${altname}` : ""
               } ||`}`,
               embeds: [embed],
               components: [actionRow, actionRow2],

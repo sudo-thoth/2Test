@@ -50,6 +50,33 @@ await throwNewError("", interaction, error)
   return fileSize;
 };
 
+async function krakenFileTypeFinder(url, interaction){
+  if (typeof url !== 'string') return;
+
+  let data;
+  try {
+    data = await (await fetch(url)).text();
+  } catch (error) {
+    await throwNewError(`there is no data to scrape at this url: ${url}`, interaction, error)
+    return;
+  }
+  const regex = /<div class="sub-text">Type<\/div>\n\s*<div class="lead-text">(.+)<\/div>/;
+const match = data.match(regex);
+let type;
+if (match) {
+  type = match[1];
+console.log(type);
+} else {
+try {
+throw new Error('Could not find kraken file type');
+} catch (error) {
+await throwNewError("file type retrieval", interaction, error)
+
+}
+}
+  return type;
+};
+
 async function krakenTitleFinder(url, interaction){
   if (typeof url !== 'string') return;
 
@@ -86,16 +113,25 @@ async function krakenWebScraper(url, batch_id, interaction){
     console.log(`error`, error)
     return;
   }
-  const tempLine = data.split("\n").filter((line) => line.includes("m4a:"))[0];
-  const titleLine = data.split("\n").filter((line) => line.includes(`<meta property="og:title" content=`))[0];
-  const matches = titleLine.match(/content="(.*)"/);
-  const fileName = matches[1];
-console.log(`the url line`, tempLine);
-let x = extractM4Aurl(tempLine);
-x = x.replace(/'/g, '').replace('//', '');
-// replace all spaces inthe string
-x = x.replace(/ /g, '');
-x= `https://` + x;
+  let fileName;
+  let type = await krakenFileTypeFinder(url, interaction);
+
+  if (type === 'mp3') {
+    
+    const tempLine = data.split("\n").filter((line) => line.includes("m4a:"))[0];
+    const titleLine = data.split("\n").filter((line) => line.includes(`<meta property="og:title" content=`))[0];
+    const matches = titleLine.match(/content="(.*)"/);
+    fileName = matches[1];
+  console.log(`the url line`, tempLine);
+  let x = extractM4Aurl(tempLine);
+  x = x.replace(/'/g, '').replace('//', '');
+  // replace all spaces inthe string
+  x = x.replace(/ /g, '');
+  x= `https://` + x;
+  } else if (type === 'zip') {
+    fileName = await krakenTitleFinder(url, interaction);
+    x= url;
+  }
 saveKrakenBatch(x, fileName, url, batch_id, interaction)
 
   return x;

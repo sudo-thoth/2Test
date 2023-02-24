@@ -214,7 +214,7 @@ if (file) {
     ephemeral: true,
       embeds: [createEmb.createEmbed({color: scripts.getErrorColor(),
         title: '⚠️ Error',
-      description: 'In Order to Send a **__.Zip__** file, you need to send the zip file via a kraken link, Not an attachment\nAfter creating the link, redo the command and select the kraken link option as apposed to the attachment option',
+      description: 'In Order to Send a **__.Zip__** file, you need to send the zip file via a **Kraken Link Only**, Not an attachment\nAfter creating the link, redo the command and select the kraken link option as apposed to the attachment option\n> Do Not Use A WeTranser Link b/c the Bot is only setup for Kraken File Links',
     timestamp: new Date(),})]
     })
       }

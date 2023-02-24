@@ -2082,6 +2082,7 @@ if (client) {
           }`,
 
           color: scripts.getColor(),
+          thumbnail: interaction.guild.iconURL(),
         });
         // create a button to download the image
         const downloadButton = await createBtn.createButton({
@@ -2163,6 +2164,7 @@ if (client) {
         let embedObj = {
           title: `${songName}`,
           color: scripts.getColor(),
+          thumbnail: interaction.guild.iconURL(),
           author: {
             name: `New Leak`,
             icon_url: scripts.getJuice(),
@@ -2535,6 +2537,7 @@ if (client) {
         let embedObj = {
           title: `${songName}`,
           color: scripts.getColor(),
+          thumbnail: interaction.guild.iconURL(),
           author: {
             name: `New OG File`,
             icon_url: scripts.getJuice(),
@@ -2891,6 +2894,7 @@ if (client) {
         let embedObj = {
           title: `${songName}`,
           color: scripts.getColor(),
+          thumbnail: interaction.guild.iconURL(),
           author: {
             name: `New Studio Files`,
             icon_url: scripts.getJuice(),
@@ -3248,6 +3252,7 @@ if (client) {
           title: `${songName}`,
           description: text ? text : null,
           color: scripts.getColor(),
+          thumbnail: interaction.guild.iconURL(),
           author: {
             name: `New Instrumental`,
             icon_url: scripts.getJuice(),
@@ -3555,6 +3560,7 @@ if (client) {
           title: `${songName}`,
           description: text ? text : null,
           color: scripts.getColor(),
+          thumbnail: interaction.guild.iconURL(),
           author: {
             name: `New Accapella`,
             icon_url: scripts.getJuice(),
@@ -3870,6 +3876,7 @@ if (client) {
         let embedObj = {
           title: `${songName}`,
           color: scripts.getColor(),
+          thumbnail: interaction.guild.iconURL(),
           author: {
             name: `New Mixed Session Edit`,
             icon_url: scripts.getJuice(),
@@ -4227,6 +4234,7 @@ if (client) {
         let embedObj = {
           title: `${songName}`,
           color: scripts.getColor(),
+          thumbnail: interaction.guild.iconURL(),
           author: {
             name: `New Snippet`,
             icon_url: scripts.getJuice(),
@@ -4585,6 +4593,7 @@ if (client) {
           title: `${songName}`,
           description: text ? text : null,
           color: scripts.getColor(),
+          thumbnail: interaction.guild.iconURL(),
           author: {
             name: `New Remaster`,
             icon_url: scripts.getJuice(),
@@ -4897,6 +4906,7 @@ if (client) {
           title: `${songName}`,
           description: text ? text : null,
           color: scripts.getColor(),
+          thumbnail: interaction.guild.iconURL(),
           author: {
             name: `New Stem Edit`,
             icon_url: scripts.getJuice(),
@@ -5211,6 +5221,7 @@ if (client) {
           title: `${songName}`,
           description: text ? text : null,
           color: scripts.getColor(),
+          thumbnail: interaction.guild.iconURL(),
           author: {
             name: `New Magical Edit`,
             icon_url: scripts.getJuice(),
@@ -5548,6 +5559,7 @@ if (client) {
           title: `${songName}`,
           description: text ? text : null,
           color: scripts.getColor(),
+          thumbnail: interaction.guild.iconURL(),
           author: {
             name: `New Slowed & Reverb`,
             icon_url: scripts.getJuice(),
@@ -5896,6 +5908,7 @@ if (client) {
         let embedObj = {
           title: `${songName}`,
           color: scripts.getColor(),
+          thumbnail: interaction.guild.iconURL(),
           description: text ? text : null,
           author: {
             name: `New Audio File`,

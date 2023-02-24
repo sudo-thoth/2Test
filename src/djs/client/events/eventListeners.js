@@ -935,11 +935,7 @@ if (client) {
         let file = data.file;
         let nameOfFile = file.attachment.split("/").pop();
         let embedObj = data.embed;
-        let era, producedby, dateleaked, alternatenames, otherinfo;
-        // await interaction.channel.send({content:`\`\`\`js
-        // \n${embedObj}\n\`\`\``})
-        let title, description, color, fields, thumbnail;
-
+        let era, producedby, dateleaked, alternatenames, otherinfo, title, description, color, fields, thumbnail;
         if (embedObj) {
           title = embedObj.title;
           description = embedObj.description;
@@ -947,17 +943,22 @@ if (client) {
           fields = embedObj.fields;
           thumbnail = embedObj.thumbnail;
           // for every field get the value and key
-          for (let i = 0; i < fields.length; i++) {
-            let field = fields[i];
-            let { name, value } = field;
-            if (name.toLowerCase() === "era") {
-              era = value;
-            } else if (name.toLowerCase() === "alternate name(s)") {
-              alternatenames = value;
-            } else if (name.toLowerCase() === "date leaked") {
-              dateleaked = value;
-            } else if (name.toLowerCase() === "produced by") {
-              producedby = value;
+          if (fields) {
+            for (let i = 0; i < fields.length; i++) {
+              let field = fields[i];
+              console.log(`the field # ${i}`, field);
+  
+              let { name, value } = field;
+  
+              if (name.toLowerCase() === "era") {
+                era = value;
+              } else if (name.toLowerCase() === "alternate name(s)") {
+                alternatenames = value;
+              } else if (name.toLowerCase() === "date leaked") {
+                dateleaked = value;
+              } else if (name.toLowerCase() === "produced by" || name.toLowerCase() === "mixed by") {
+                producedby = value;
+              }
             }
           }
           if (description) {
@@ -970,18 +971,18 @@ if (client) {
             }
           }
         }
-        let fileInfoString = `${era ? `**Era:** ${era}\n` : ""}${
-          producedby ? `**Produced By:** ${producedby}\n` : ""
-        }${dateleaked ? `**Date Leaked:** ${dateleaked}\n` : ""}${
-          alternatenames ? `**Alternate Name(s):** ${alternatenames}\n` : ""
-        }${otherinfo ? `**Other Info:** ${otherinfo}\n` : ""}`;
-        let fileTechnicalInfoString = `${`**File Name:** \`${nameOfFile}\``}${
-          file.contentType ? `**Content Type:** ${file.contentType}\n` : ""
+        let fileInfoString = `${era ? `**Era:** \`${era}\`\n` : ""}${
+          producedby ? `**Produced By:** \`${producedby}\`\n` : ""
+        }${dateleaked ? `**Date Leaked:** \`${dateleaked}\`\n` : ""}${
+          alternatenames ? `**Alternate Name(s):** \`${alternatenames}\`\n` : ""
+        }${otherinfo ? `**Other Info:** \`${otherinfo}\`\n` : ""}`;
+        let fileTechnicalInfoString = `${`**File Name:** \`${nameOfFile}\`\n`}${
+          file.contentType ? `**Content Type:** \`${file.contentType}\`\n` : ""
         }${
           (file.size ? (file.size
-            ? `**File Size:** ${(file.size / 1048576).toFixed(2)} Mb\n`
+            ? `**File Size:** \`${(file.size / 1048576).toFixed(2)} Mb\`\n`
             : "") === "NaN Mb\n" ? '' : (file.size
-              ? `**File Size:** ${(file.size / 1048576).toFixed(2)} Mb\n`
+              ? `**File Size:** \`${(file.size / 1048576).toFixed(2)} Mb\`\n`
               : "") : '')
         }`;
         let { name, url, attachment } = file;
@@ -1247,12 +1248,81 @@ if (client) {
           try {
             user.send({
               content: `__**Visit :**__ ${attachment}`,
-              embeds: [
-                createEmb.createEmbed({
-                  title: name,
-                  description: `the file is too big to be sent as an attachment, visit the link with your web browser to download the file`,
-                }),
-              ],
+              embeds: nameOfFile === `music.m4a`
+              ? [
+                  createEmb.createEmbed({
+                    title: `${
+                      (title ? title : `${name ? name : nameOfFile}`) ===
+                      nameOfFile
+                        ? ``
+                        : `${title ? title : `${name ? name : nameOfFile}`}`
+                    }`,
+                    description:
+                      `${`> the file is too big to be sent as an attachment, visit the link with your web browser to download the file`+ `\n\n` + (fileInfoString || fileTechnicalInfoString
+                        ? `**__File Information:__**\n\n${
+                            fileInfoString ? `${fileInfoString}` : ``
+                          }${
+                            fileTechnicalInfoString
+                              ? `${fileTechnicalInfoString}`
+                              : ``
+                          }`
+                        : "")}`,
+                    url: file.url ? file.url : null,
+                    color: scripts.getColor(),
+                    thumbnail: thumbnail ? thumbnail : null,
+                    footer: {
+                      text: `${
+                        file.url
+                          ? `this file was scraped from Kraken Files by Steve Jobs`
+                          : `Wok Bot provided by Steve Jobs`
+                      }`,
+                      iconURL: `https://a57.foxnews.com/static.foxnews.com/foxnews.com/content/uploads/2018/09/1200/675/youngstevo.jpg?ve=1&tl=1`,
+                    },
+                  }),
+                  createEmb.createEmbed({
+                    title: `:warning: caution`,
+                    description: `\`\`\`js\nVulnerability Status : true\n\`\`\`\nThis File Was Pulled From The Kraken Link Provided Causing Manipulation\n\n\n:warning:  **Possible Manipulation:**\n\n🤒 \`File Name Manipulation :\` \`file name changed to\` \`music\`\n🤢 \`File Type Manipulation :\` \`file type changed to\` \`.m4a\`\n🤮 \`File Degradation :\` \`quality reduced to\` \`64 kb/s\`\n\n\n👀 **What You Can Do:**\n> *IF you just want to* __**LISTEN**__ : This file is more than sufficient to have a quick listen
+                 \n
+                > *IF you would like to* ** __Retain the Highest Quality__** : I recommend viewing the link on Kraken and Downloading/Listening from there`,
+                    url: embedObj ? embedObj.url : null,
+                    color: "Yellow",
+                    footer: {
+                      text: `this file was scraped from Kraken Files by Steve Jobs`,
+                      iconURL: `https://a57.foxnews.com/static.foxnews.com/foxnews.com/content/uploads/2018/09/1200/675/youngstevo.jpg?ve=1&tl=1`,
+                    },
+                  }),
+                ]
+              : [
+                  createEmb.createEmbed({
+                    title: `${
+                      (title ? title : `${name ? name : nameOfFile}`) ===
+                      nameOfFile
+                        ? ``
+                        : `${title ? title : `${name ? name : nameOfFile}`}`
+                    }`,
+                    description:
+                      `${`> the file is too big to be sent as an attachment, visit the link with your web browser to download the file`+ `\n\n` + (fileInfoString || fileTechnicalInfoString
+                        ? `**__File Information:__**\n\n${
+                            fileInfoString ? `${fileInfoString}` : ``
+                          }${
+                            fileTechnicalInfoString
+                              ? `${fileTechnicalInfoString}`
+                              : ``
+                          }`
+                        : "")}`,
+                    url: file.url ? file.url : null,
+                    color: scripts.getColor(),
+                    thumbnail: thumbnail ? thumbnail : null,
+                    footer: {
+                      text: `${
+                        file.url
+                          ? `this file was scraped from Kraken Files by Steve Jobs`
+                          : `Wok Bot provided by Steve Jobs`
+                      }`,
+                      iconURL: `https://a57.foxnews.com/static.foxnews.com/foxnews.com/content/uploads/2018/09/1200/675/youngstevo.jpg?ve=1&tl=1`,
+                    },
+                  }),
+                ],
             });
           } catch (error) {
             try {
@@ -1384,12 +1454,12 @@ if (client) {
         }
         let file = data.file;
         let nameOfFile = file.attachment.split("/").pop();
-        let embedObj = data.embed;
-        let era, producedby, dateleaked, alternatenames, otherinfo;
+        
         // await interaction.channel.send({content:`\`\`\`js
         // \n${embedObj}\n\`\`\``})
-        let title, description, color, fields, thumbnail;
-
+        
+        let embedObj = data.embed;
+        let era, producedby, dateleaked, alternatenames, otherinfo, title, description, color, fields, thumbnail;
         if (embedObj) {
           title = embedObj.title;
           description = embedObj.description;
@@ -1397,7 +1467,7 @@ if (client) {
           fields = embedObj.fields;
           thumbnail = embedObj.thumbnail;
           // for every field get the value and key
-          for (let i = 0; i < fields.length; i++) {
+          if(fields) {for (let i = 0; i < fields.length; i++) {
             let field = fields[i];
             console.log(`the field # ${i}`, field);
 
@@ -1409,10 +1479,10 @@ if (client) {
               alternatenames = value;
             } else if (name.toLowerCase() === "date leaked") {
               dateleaked = value;
-            } else if (name.toLowerCase() === "produced by") {
+            } else if (name.toLowerCase() === "produced by" || name.toLowerCase() === "mixed by") {
               producedby = value;
             }
-          }
+          }}
           if (description) {
             if (description.includes("Cover Art:")) {
               title = title.replace("Cover Art: ", "");
@@ -1426,18 +1496,18 @@ if (client) {
 
         // interaction.channel.send({content:`the era : ${era}\nproducedby : ${producedby}\ndateleaked : ${dateleaked}\nalternatenames : ${alternatenames}\notherinfo : ${otherinfo}`})
         // console.log(`the embed obj`, embedObj)
-        let fileInfoString = `${era ? `**Era:** ${era}\n` : ""}${
-          producedby ? `**Produced By:** ${producedby}\n` : ""
-        }${dateleaked ? `**Date Leaked:** ${dateleaked}\n` : ""}${
-          alternatenames ? `**Alternate Name(s):** ${alternatenames}\n` : ""
-        }${otherinfo ? `**Other Info:** ${otherinfo}\n` : ""}`;
+        let fileInfoString = `${era ? `**Era:** \`${era}\`\n` : ""}${
+          producedby ? `**Produced By:** \`${producedby}\`\n` : ""
+        }${dateleaked ? `**Date Leaked:** \`${dateleaked}\`\n` : ""}${
+          alternatenames ? `**Alternate Name(s):** \`${alternatenames}\`\n` : ""
+        }${otherinfo ? `**Other Info:** \`${otherinfo}\`\n` : ""}`;
         let fileTechnicalInfoString = `${`**File Name:** \`${nameOfFile}\`\n`}${
-          file.contentType ? `**Content Type:** ${file.contentType}\n` : ""
+          file.contentType ? `**Content Type:** \`${file.contentType}\`\n` : ""
         }${
           (file.size ? (file.size
-            ? `**File Size:** ${(file.size / 1048576).toFixed(2)} Mb\n`
+            ? `**File Size:** \`${(file.size / 1048576).toFixed(2)} Mb\`\n`
             : "") === "NaN Mb\n" ? '' : (file.size
-              ? `**File Size:** ${(file.size / 1048576).toFixed(2)} Mb\n`
+              ? `**File Size:** \`${(file.size / 1048576).toFixed(2)} Mb\`\n`
               : "") : '')
         }`;
 
@@ -1596,12 +1666,81 @@ if (client) {
           try {
             await interaction.editReply({
               files: [],
-              embeds: [
-                createEmb.createEmbed({
-                  title: name,
-                  description: `the file is too big to be sent as an attachment, visit the link with your web browser to download the file`,
-                }),
-              ],
+              embeds: nameOfFile === `music.m4a`
+              ? [
+                  createEmb.createEmbed({
+                    title: `${
+                      (title ? title : `${name ? name : nameOfFile}`) ===
+                      nameOfFile
+                        ? ``
+                        : `${title ? title : `${name ? name : nameOfFile}`}`
+                    }`,
+                    description:
+                      `${`> the file is too big to be sent as an attachment, visit the link with your web browser to download the file`+ `\n\n` + (fileInfoString || fileTechnicalInfoString
+                        ? `**__File Information:__**\n\n${
+                            fileInfoString ? `${fileInfoString}` : ``
+                          }${
+                            fileTechnicalInfoString
+                              ? `${fileTechnicalInfoString}`
+                              : ``
+                          }`
+                        : "")}`,
+                    url: file.url ? file.url : null,
+                    color: scripts.getColor(),
+                    thumbnail: thumbnail ? thumbnail : null,
+                    footer: {
+                      text: `${
+                        file.url
+                          ? `this file was scraped from Kraken Files by Steve Jobs`
+                          : `Wok Bot provided by Steve Jobs`
+                      }`,
+                      iconURL: `https://a57.foxnews.com/static.foxnews.com/foxnews.com/content/uploads/2018/09/1200/675/youngstevo.jpg?ve=1&tl=1`,
+                    },
+                  }),
+                  createEmb.createEmbed({
+                    title: `:warning: caution`,
+                    description: `\`\`\`js\nVulnerability Status : true\n\`\`\`\nThis File Was Pulled From The Kraken Link Provided Causing Manipulation\n\n\n:warning:  **Possible Manipulation:**\n\n🤒 \`File Name Manipulation :\` \`file name changed to\` \`music\`\n🤢 \`File Type Manipulation :\` \`file type changed to\` \`.m4a\`\n🤮 \`File Degradation :\` \`quality reduced to\` \`64 kb/s\`\n\n\n👀 **What You Can Do:**\n> *IF you just want to* __**LISTEN**__ : This file is more than sufficient to have a quick listen
+                 \n
+                > *IF you would like to* ** __Retain the Highest Quality__** : I recommend viewing the link on Kraken and Downloading/Listening from there`,
+                    url: embedObj ? embedObj.url : null,
+                    color: "Yellow",
+                    footer: {
+                      text: `this file was scraped from Kraken Files by Steve Jobs`,
+                      iconURL: `https://a57.foxnews.com/static.foxnews.com/foxnews.com/content/uploads/2018/09/1200/675/youngstevo.jpg?ve=1&tl=1`,
+                    },
+                  }),
+                ]
+              : [
+                  createEmb.createEmbed({
+                    title: `${
+                      (title ? title : `${name ? name : nameOfFile}`) ===
+                      nameOfFile
+                        ? ``
+                        : `${title ? title : `${name ? name : nameOfFile}`}`
+                    }`,
+                    description:
+                      `${`> the file is too big to be sent as an attachment, visit the link with your web browser to download the file`+ `\n\n` + (fileInfoString || fileTechnicalInfoString
+                        ? `**__File Information:__**\n\n${
+                            fileInfoString ? `${fileInfoString}` : ``
+                          }${
+                            fileTechnicalInfoString
+                              ? `${fileTechnicalInfoString}`
+                              : ``
+                          }`
+                        : "")}`,
+                    url: file.url ? file.url : null,
+                    color: scripts.getColor(),
+                    thumbnail: thumbnail ? thumbnail : null,
+                    footer: {
+                      text: `${
+                        file.url
+                          ? `this file was scraped from Kraken Files by Steve Jobs`
+                          : `Wok Bot provided by Steve Jobs`
+                      }`,
+                      iconURL: `https://a57.foxnews.com/static.foxnews.com/foxnews.com/content/uploads/2018/09/1200/675/youngstevo.jpg?ve=1&tl=1`,
+                    },
+                  }),
+                ],
               content: `__**Visit :**__ ${url}`,
               components: [],
             });

@@ -14,6 +14,7 @@ const postData = new Schema(
     file_type: String,
     choice: String,
     kraken_url : String,
+    embed: Object,
   },
   { collection: "posts" } // the database default collection name the schema will be stored in
 );

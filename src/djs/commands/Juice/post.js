@@ -654,11 +654,11 @@ if (file_type === "attachment") {
                   required: false,
                 },
                 {
-                  customID: "date",
+                  customID: "producer",
                   label:
-                    "What date was the song leaked?",
+                    "Made By",
                   style: "TextInputStyle.Short",
-                  placeholder: "Oct 25, 2021",
+                  placeholder: "@stevejobs",
                   required: false,
                 },
                 {
@@ -1277,11 +1277,11 @@ if (file_type === "attachment") {
           required: false,
         },
         {
-          customID: "date",
+          customID: "producer",
           label:
-            "What date was the song leaked?",
+            "Made By",
           style: "TextInputStyle.Short",
-          placeholder: "Oct 25, 2021",
+          placeholder: "@stevejobs",
           required: false,
         },
       ],

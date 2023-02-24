@@ -136,19 +136,23 @@ function createAttachment(attachment) {
 
 
 async function getZIP(parsedData, interaction){
-  const capturedValues = parsedData.split(/\r\n/).filter(line => (/(?<=<)(input|form)/).test(line))[0]?.match(/(?<=(['"]))([\/\w]+)(?=(['"]))/g);
-  await interaction.channel.send({content: `<@873576476136575006>`, embeds: [createEmb.createEmbed({title: `The Captured Values are:`, description: `\`\`\`js\n${capturedValues}\n\`\`\``, color: `#00ff00`})]
-  });
-  return (await (await fetch(`https://krakenfiles.com${capturedValues[0]}`, {
-      method: capturedValues[1],
-      headers: {
-          "accept": "*/*",
-          "accept-encoding": "gzip, deflate, br",
-          "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
-          "hash": capturedValues[0].match(/(?<=\/)\w+$/).toString()
-      },
-      body: `${capturedValues[3]}=${capturedValues[4]}`
-  })).json()).url;
+  const capturedValues = parsedData.match(/<(?=form|input).+/g).flatMap(str => str.match(/(?<=["'])[\/\w]+(?=["'])/g));
+  // await interaction.channel.send({content: `<@873576476136575006>`, embeds: [createEmb.createEmbed({title: `The Captured Values are:`, description: `capturedValues[0].match(/(?<=\/)\w+$/):\`\`\`js\n${capturedValues[0].match(/(?<=\/)\w+$/)}\n\`\`\`\n\ncapturedValues[0:\`\`\`js\n${capturedValues[0]}\n\`\`\``, color: `#00ff00`})]
+  // });
+  let theURL = (await (await fetch(`https://krakenfiles.com${capturedValues[0]}`, {
+    method: capturedValues[1],
+    headers: {
+        "accept": "*/*",
+        "accept-encoding": "gzip, deflate, br",
+        "content-type": "application/x-www-form-urlencoded; charset=UTF-8",
+        "hash": capturedValues[0].match(/(?<=\/)\w+$/).toString()
+    },
+    body: `${capturedValues[3]}=${capturedValues[4]}`
+})).json()).url;
+console.log(`theURL`, theURL)
+
+  return theURL;
+
 }
 async function krakenZipFinder(url, interaction) {
   
@@ -204,6 +208,33 @@ await throwNewError("scraping kraken file size", interaction, error)
 };
 
 async function krakenFileTypeFinder(url, interaction){
+  if (typeof url !== 'string' || url.includes('cdn.discordapp.com')) return;
+  console.log(`the url passed in`, url)
+  let data;
+  try {
+    data = await (await fetch(url)).text();
+  } catch (error) {
+    await throwNewError(`there is no data to scrape at this url: ${url}`, interaction, error)
+    return;
+  }
+  const regex = /<div class="sub-text">Type<\/div>\n\s*<div class="lead-text">(.+)<\/div>/;
+const match = data.match(regex);
+let type;
+if (match) {
+  type = match[1];
+console.log(type);
+} else {
+try {
+throw new Error('Could not find kraken file type');
+} catch (error) {
+await throwNewError("file type retrieval", interaction, error)
+
+}
+}
+  return type;
+};
+
+async function krakenFileIsZip(url, interaction){
   if (typeof url !== 'string') return;
 
   let data;
@@ -284,7 +315,7 @@ async function krakenWebScraper(url, batch_id, interaction){
   } else if (type === 'zip') {
     fileName = await krakenTitleFinder(url, interaction);
     x = await krakenZipFinder(url, interaction)
-    x= url;
+    //x= url;
   }
 saveKrakenBatch(x, fileName, url, batch_id, interaction)
 
@@ -4316,5 +4347,6 @@ module.exports = {
   getAlertEmoji,
   krakenFileSizeFinder,
   krakenTitleFinder,
-  createAttachment
+  createAttachment,
+  krakenFileTypeFinder
 };

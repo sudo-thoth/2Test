@@ -971,11 +971,11 @@ if (client) {
             }
           }
         }
-        let fileInfoString = `${era ? `**Era:** ${era}\n` : ""}${
-          producedby ? `**Produced By:** ${producedby}\n` : ""
-        }${dateleaked ? `**Date Leaked:** ${dateleaked}\n` : ""}${
-          alternatenames ? `**Alternate Name(s):** ${alternatenames}\n` : ""
-        }${otherinfo ? `**Other Info:** ${otherinfo}\n` : ""}`;
+        let fileInfoString = `${era ? `**Era:** \`${era}\`\n` : ""}${
+          producedby ? `**Produced By:** \`${producedby}\`\n` : ""
+        }${dateleaked ? `**Date Leaked:** \`${dateleaked}\`\n` : ""}${
+          alternatenames ? `**Alternate Name(s):** \`${alternatenames}\`\n` : ""
+        }${otherinfo ? `**Other Info:** \`${otherinfo}\`\n` : ""}`;
         let fileTechnicalInfoString = `${`**File Name:** \`${nameOfFile}\`\n`}${
           file.contentType ? `**Content Type:** \`${file.contentType}\`\n` : ""
         }${
@@ -1496,11 +1496,11 @@ if (client) {
 
         // interaction.channel.send({content:`the era : ${era}\nproducedby : ${producedby}\ndateleaked : ${dateleaked}\nalternatenames : ${alternatenames}\notherinfo : ${otherinfo}`})
         // console.log(`the embed obj`, embedObj)
-        let fileInfoString = `${era ? `**Era:** ${era}\n` : ""}${
-          producedby ? `**Produced By:** ${producedby}\n` : ""
-        }${dateleaked ? `**Date Leaked:** ${dateleaked}\n` : ""}${
-          alternatenames ? `**Alternate Name(s):** ${alternatenames}\n` : ""
-        }${otherinfo ? `**Other Info:** ${otherinfo}\n` : ""}`;
+        let fileInfoString = `${era ? `**Era:** \`${era}\`\n` : ""}${
+          producedby ? `**Produced By:** \`${producedby}\`\n` : ""
+        }${dateleaked ? `**Date Leaked:** \`${dateleaked}\`\n` : ""}${
+          alternatenames ? `**Alternate Name(s):** \`${alternatenames}\`\n` : ""
+        }${otherinfo ? `**Other Info:** \`${otherinfo}\`\n` : ""}`;
         let fileTechnicalInfoString = `${`**File Name:** \`${nameOfFile}\`\n`}${
           file.contentType ? `**Content Type:** \`${file.contentType}\`\n` : ""
         }${

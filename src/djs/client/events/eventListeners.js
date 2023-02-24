@@ -1027,7 +1027,7 @@ let era, producedby, dateleaked, alternatenames, otherinfo;
                   description: `\`\`\`js\nVulnerability Status : true\n\`\`\`\nThis File Was Pulled From The Kraken Link Provided Causing Manipulation\n\n\n:warning:  **Possible Manipulation:**\n\n🤒 \`File Name Manipulation :\` \`file name changed to\` \`music\`\n🤢 \`File Type Manipulation :\` \`file type changed to\` \`.m4a\`\n🤮 \`File Degradation :\` \`quality reduced to\` \`64 kb/s\`\n\n\n👀 **What You Can Do:**\n> *IF you just want to* __**LISTEN**__ : This file is more than sufficient to have a quick listen
                    \n
                   > *IF you would like to* ** __Retain the Highest Quality__** : I recommend viewing the link on Kraken and Downloading/Listening from there`,
-                  url: embedObj.url ? embedObj.url : null,
+                 url: embedObj ? embedObj.url : null,
               color: "Yellow",
               footer: {
                 text: `this file was scraped from Kraken Files by Steve Jobs`,
@@ -1410,7 +1410,7 @@ let era, producedby, dateleaked, alternatenames, otherinfo;
                     description: `\`\`\`js\nVulnerability Status : true\n\`\`\`\nThis File Was Pulled From The Kraken Link Provided Causing Manipulation\n\n\n:warning:  **Possible Manipulation:**\n\n🤒 \`File Name Manipulation :\` \`file name changed to\` \`music\`\n🤢 \`File Type Manipulation :\` \`file type changed to\` \`.m4a\`\n🤮 \`File Degradation :\` \`quality reduced to\` \`64 kb/s\`\n\n\n👀 **What You Can Do:**\n> *IF you just want to* __**LISTEN**__ : This file is more than sufficient to have a quick listen
                      \n
                     > *IF you would like to* ** __Retain the Highest Quality__** : I recommend viewing the link on Kraken and Downloading/Listening from there`,
-                    url: embedObj.url ? embedObj.url : null,
+                   url: embedObj ? embedObj.url : null,
                 color: "Yellow",
                 footer: {
                   text: `this file was scraped from Kraken Files by Steve Jobs`,

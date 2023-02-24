@@ -60,6 +60,7 @@ module.exports = {
 
       try {
         await interaction.reply({
+ephemeral: true,
           embeds: [embed],
         });
       } catch (error) {

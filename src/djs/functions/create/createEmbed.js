@@ -78,6 +78,10 @@ const errEmbed = new EmbedBuilder()
 function createEmbed(obj) {
   // Check if the obj has a valid value in the title, description, image, or fields array
   // At least one of these properties must be present in the obj in order for the embed to be valid
+  if (obj === null){
+    // no embed will be produced, return a non error inducing product
+    return errEmbed;
+  }
   if ((!obj.title && !obj.description && !obj.image && !obj.fields) || (obj.title === null && obj.description === null && obj.image === null && (obj.fields === null || obj.fields === []) ) ) {
     // If not, log an error
     try {

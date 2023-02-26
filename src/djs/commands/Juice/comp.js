@@ -68,7 +68,7 @@ module.exports = {
           title: "❗️ Invalid Link Entered",
           description: "Please enter a valid Link & Try Again",
           footer: {
-            text: "If you think this is a mistake, please contact the Steve Jobs",
+            text: "If you think this is a mistake, please contact Steve Jobs",
           },
         })],
       });
@@ -213,7 +213,7 @@ try {
       description:
             `__While :__ \`Sharing Comp\`\n` +
             "```js\n" +
-            err +
+            error +
             "\n```\n" +
             `Error Report Summary:` +
             "\n```js\n" +

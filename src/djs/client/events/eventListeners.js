@@ -1752,6 +1752,50 @@ if (client) {
             await throwNewError("sending file attachment", interaction, error);
           }
         }
+      } else if (customID.includes("comp_key")){
+        await interaction.deferReply({ephemeral: true});
+        let data;
+        randID = scripts_djs.extractID(customID);
+        try {
+          data = await scripts_mongoDB.getCompData(randID);
+        } catch (error) {
+          await throwNewError("getting comp data", interaction, error);
+        }
+        if(!data){
+          return await interaction.editReply({
+            embeds: [createEmb.createEmbed({
+              title: `❗️ Error Occured - Share with Steve Jobs`,
+              description: "no key found",
+              color: scripts.getErrorColor()})]
+          })
+        }
+        
+        // get the comp key from the data then reply to the button interaction in an ephemeral editreply and send the key in a sleek format in an embed
+
+        let compKey = data.key;
+        let compKeyEmbed = createEmb.createEmbed({
+          author: {
+            iconURL: `https://icons.iconarchive.com/icons/webalys/kameleon.pics/128/Key-icon.png`,
+            name: `Decryption Key`,
+          },
+          description: `\`\`\`clj\n${compKey}\n\`\`\``,
+          color: scripts.getColor(),
+        }); 
+
+        try {
+          await interaction.editReply({
+            embeds: [compKeyEmbed],
+          });
+        } catch (error) {
+          await throwNewError("sending comp key", interaction, error);
+        }
+        // 6 seconds after the message is sent, delete it
+        await scripts.delay(6000);
+        try {
+          await interaction.deleteReply();
+        } catch (error) {
+          await throwNewError("deleting comp key", interaction, error);
+        }
       }
     }
     // MODALS

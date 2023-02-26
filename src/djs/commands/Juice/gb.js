@@ -33,7 +33,7 @@ async function throwNewError(interaction, err, i) {
       embeds: [
         createEmb.createEmbed({
           title:
-            "There was an Error , Share the Error w the Developer",
+            "❗️ There was an Error , Share the Error w the Developer",
           description:
           "```js\n" +
             err +

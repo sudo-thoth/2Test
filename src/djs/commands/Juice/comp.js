@@ -63,9 +63,8 @@ module.exports = {
      const domain = scripts.getDomain(comp);
      if (!domain) {
       await interaction.editReply({
-        content: "❗️ Invalid Link",
         embeds: [createEmbed.createEmbed({color: scripts.getErrorColor(),
-          title: "Invalid Link Inputted",
+          title: "❗️ Invalid Link Entered",
           description: "Please enter a valid Link & Try Again",
           footer: {
             text: "If you think this is a mistake, please contact the Steve Jobs",

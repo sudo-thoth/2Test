@@ -16,6 +16,7 @@ const { timestamp } = require("rxjs");
 
 module.exports = {
   data: new SlashCommandBuilder()
+  .setDefaultMemberPermissions(PermissionFlagsBits.ModerateMembers)
     .setName("comp")
     .setDescription("Files must be less than server mb limit or posted via Kraken Link")
     .addStringOption((option) =>

@@ -464,7 +464,11 @@ if (client) {
       randID: optionsObj.randID ? optionsObj.randID : null,
     };
 
-    scripts_mongoDB.savePostData(obj);
+    try {
+      scripts_mongoDB.savePostData(obj);
+    } catch (error) {
+      scripts.logError(error, "PostCommand")
+    }
   });
 
   client.on("interactionCreate", async (interaction) => {

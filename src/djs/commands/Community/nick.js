@@ -55,7 +55,7 @@ async function execute(interaction) {
       await interaction.reply({
         embeds: [createEmbed.createEmbed({
           title: "❗️ Error",
-          description: `The Bot does not have the permissions to change your nickname. Please contact an admin to fix this issue.\nThe bot must be higher or equal in hierarchy to <@${interaction.member.roles.highest.id}> in order to successfully change your nickname.`,
+          description: `The Bot does not have the permissions to change your nickname. Please contact an admin to fix this issue.\nThe bot must be higher or equal in hierarchy to <@&${interaction.member.roles.highest.id}> in order to successfully change your nickname.`,
           color: `${scripts.getErrorColor()}`,
           thumbnail: interaction.member.user.displayAvatarURL({ dynamic: true }),
 

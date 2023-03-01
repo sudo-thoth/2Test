@@ -37,7 +37,7 @@ async function throwNewError(
     await interaction.editReply({
       embeds: [
         createEmb.createEmbed({
-          title: "There was an Error , Share the Error w the Developer",
+          title: "❗️ There was an Error , Share the Error w the Developer",
           description:
             `__While :__ \`${action !== null ? action : "?"}\`\n` +
             "```js\n" +

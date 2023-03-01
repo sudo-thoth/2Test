@@ -202,6 +202,7 @@ async function savePostData(obj){
     choice: obj.choice,
     kraken_url: obj.kraken_url,
   }
+  console.log(`attempting to save this obj: `, obj1);
   try {
     console.log(`Saving a post from [ ${obj.user.username} ]`)
     await postData.create(obj1);

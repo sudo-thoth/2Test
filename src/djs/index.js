@@ -65,7 +65,10 @@ module.exports = client;
 handleEvents(client, mongoConfig, 2);
 const { MongoDB_Token_2Test_bot } = process.env;
 
-
+const options = {
+  maxPoolSize: 5, 
+socketTimeoutMS: 60000
+};
 (async () => {
     if (mongoose === undefined) {
       return;

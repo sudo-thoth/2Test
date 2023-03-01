@@ -228,7 +228,6 @@ try {
 throw new Error('Could not find kraken file type');
 } catch (error) {
 await throwNewError("file type retrieval", interaction, error)
-
 }
 }
   return type;
@@ -302,6 +301,17 @@ async function krakenWebScraper(url, batch_id, interaction){
   let x;
   if (type === 'mp3') {
     
+    const tempLine = data.split("\n").filter((line) => line.includes("m4a:"))[0];
+    const titleLine = data.split("\n").filter((line) => line.includes(`<meta property="og:title" content=`))[0];
+    const matches = titleLine.match(/content="(.*)"/);
+    fileName = matches[1];
+  console.log(`the url line`, tempLine);
+  x = extractM4Aurl(tempLine);
+  x = x.replace(/'/g, '').replace('//', '');
+  // replace all spaces inthe string
+  x = x.replace(/ /g, '');
+  x= `https://` + x;
+  } else if (type === 'wav') {
     const tempLine = data.split("\n").filter((line) => line.includes("m4a:"))[0];
     const titleLine = data.split("\n").filter((line) => line.includes(`<meta property="og:title" content=`))[0];
     const matches = titleLine.match(/content="(.*)"/);

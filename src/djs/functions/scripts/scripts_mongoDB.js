@@ -5,6 +5,7 @@ const index = require('../../index.js');
 const fetchedFiles = require("../../../MongoDB/db/schemas/schema_fetchedFiles.js");
 const fileBatchs = require("../../../MongoDB/db/schemas/schema_fileBatchs.js");
 const postData = require("../../../MongoDB/db/schemas/schema_post.js");
+const compData = require("../../../MongoDB/db/schemas/schema_comp.js");
 
 async function saveSlashCommandData(commandData) {
     console.log(`SAVING SLASH COMMAND DATA`)
@@ -186,6 +187,7 @@ async function saveBatchMessages(messages, batch_id){
 }
 
 async function savePostData(obj){
+
   let obj1 = {
     _id: new mongoose.Types.ObjectId(),
     userId: obj.userId,
@@ -203,6 +205,7 @@ async function savePostData(obj){
   try {
     console.log(`Saving a post from [ ${obj.user.username} ]`)
     await postData.create(obj1);
+    console.log(`✅ [ ${obj.user.username} ] Saved a post SUCCESSFULLY`)
     return; 
   } catch (error) {
     console.log(`Error while trying to save a post to the database: `, error);
@@ -273,6 +276,75 @@ async function deleteDuplicateDocs_Kraken(url, batch_id) {
   });
 }
 
-module.exports = {saveSlashCommandData, addModal_Embed, getData, saveFetchFile, getBatch, getFileBatch, saveBatchMessages, savePostData, getPostData, updatePostData, deleteDuplicateDocs_Kraken};
+async function saveCompData(obj){
+  let obj1 = {
+    _id: new mongoose.Types.ObjectId(),
+    comp: obj.comp,
+    title: obj.title,
+    info: obj.info,
+    key: obj.key,
+    userID: obj.userId,
+    username: obj.user.username,
+    randID: obj.randID,
+    buttonObj: obj.buttonObj,
+    embedObj: obj.embedObj,
+    compHost: obj.compHost,
+  }
+
+  try {
+    console.log(`Saving a post from [ ${obj.user.username} ]`)
+    await compData.create(obj1);
+    console.log(`✅ [ ${obj.user.username} ] Saved a post SUCCESSFULLY`)
+    return; 
+  } catch (error) {
+    console.log(`Error while trying to save a post to the database: `, error);
+    return;
+  }
+
+}
+
+async function getCompData(randID) {
+  console.log(`GETTING DATA`)
+  console.log(`randID: ${randID}`)
+  if (!randID) return;
+  let data;
+  
+  try {
+       data = await compData.findOne({ randID: randID }).exec();
+  } catch (error) {
+      console.log(`an error occurred while trying to get the data from the database: `, error);
+  }
+  if (data == null) {
+    // console.log(data)
+    console.log(`[ data ] NOT found in query`)
+    
+  } else {
+    // console.log(data)
+    console.log(`[ data ] found in query: `)
+  }
+  return data; // an array of docs found that matched the query 
+}
+
+async function updateCompData(randID, obj) {
+  console.log(`UPDATING DATA`)
+  console.log(`randID: ${randID}`)
+  if (!randID || !obj ) return;
+
+  const query = { randID: randID };
+  const update = { $set: obj };
+  console.log(`the query: `, query)
+  console.log(`the update: `, update)
+  try {
+    await compData.findOneAndUpdate(query, update, { upsert: true },(err, data) => (err ? console.log(`Ran into 
+    some Errors while trying to find and update: `, err) : console.log(`found it and updated it successfully`))
+    ).clone()
+    console.log(`updated the data to the database w the query: `, query)
+  } catch (error) {
+      console.log(`an error occurred while trying to update the data to the database: `, error);
+  }
+  return; 
+}
+
+module.exports = {saveSlashCommandData, addModal_Embed, getData, saveFetchFile, getBatch, getFileBatch, saveBatchMessages, savePostData, getPostData, updatePostData, deleteDuplicateDocs_Kraken, saveCompData, getCompData, updateCompData};
 
 

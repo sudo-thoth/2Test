@@ -24,7 +24,14 @@ const jtkgif =
 // const index = require(`src/djs/index.js`)
 // const client = index.getClient();
 // console.log(client);
-
+function isValidURL(string) {
+  try {
+    new URL(string);
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
 async function fileProcessing(interaction) {
   try {
     await interaction.editReply({
@@ -315,6 +322,8 @@ if (client) {
       groupbuysrole,
       chatreviverole,
       giveawaysrole,
+      stemeditsrole,
+      sessioneditsrole,
       songofthedayrole;
     switch (currentServer) {
       case "WRLD Updates":
@@ -382,7 +391,7 @@ if (client) {
         break;
       case "WOK WRLD":
         break;
-      case "999 News":
+      case "Grailed":
         leaksrole = await interaction.guild.roles.fetch("1078117434898268171");
         ogfilesrole = await interaction.guild.roles.fetch(
           "1078202186703585310"
@@ -406,6 +415,8 @@ if (client) {
         giveawaysrole = await interaction.guild.roles.fetch(
           "1078117442468982944"
         );
+        stemeditsrole = await interaction.guild.roles.fetch("1080258387339640936")
+        sessioneditsrole = await interaction.guild.roles.fetch("1080258549508219043")
         switch (roleName) {
           // WRLD Updates Roles
           case "leaks":
@@ -432,6 +443,12 @@ if (client) {
           case "chatrevive":
             await updateRole(interaction, chatreviverole);
             break;
+            case "stemedits":
+            await updateRole(interaction, stemeditsrole);
+            break;
+            case "sessionedits":
+            await updateRole(interaction, sessioneditsrole);
+            break;
           case "giveaways":
             await updateRole(interaction, giveawaysrole);
             break;
@@ -439,9 +456,75 @@ if (client) {
             break;
         }
         break;
-      default:
+        case "Vlone Thugs":
+        leaksrole = await interaction.guild.roles.fetch("1067192024937271337");
+        // ogfilesrole = await interaction.guild.roles.fetch(
+        //   "1078202186703585310"
+        // );
+        snippetsrole = await interaction.guild.roles.fetch(
+          "1067192024937271340"
+        );
+        // sessionsrole = await interaction.guild.roles.fetch(
+        //   "1078202260779171881"
+        // );
+        compupdatesrole = await interaction.guild.roles.fetch(
+          "1067192024907927563"
+        );
+        newsrole = await interaction.guild.roles.fetch("1067192024937271339");
+        groupbuysrole = await interaction.guild.roles.fetch(
+          "1067192024937271336"
+        );
+        chatreviverole = await interaction.guild.roles.fetch(
+          "1067192024920498350"
+        );
+        giveawaysrole = await interaction.guild.roles.fetch(
+          "1067192024907927571"
+        );
+        // stemeditsrole = await interaction.guild.roles.fetch("1080258387339640936")
+        // sessioneditsrole = await interaction.guild.roles.fetch("1080258549508219043")
+         switch (roleName) {
+          // WRLD Updates Roles
+          case "leaks":
+            await updateRole(interaction, leaksrole);
+            break;
+          case "ogfiles":
+            await updateRole(interaction, ogfilesrole);
+            break;
+          case "snippets":
+            await updateRole(interaction, snippetsrole);
+            break;
+          case "sessions":
+            await updateRole(interaction, sessionsrole);
+            break;
+          case "compupdates":
+            await updateRole(interaction, compupdatesrole);
+            break;
+          case "news":
+            await updateRole(interaction, newsrole);
+            break;
+          case "groupbuys":
+            await updateRole(interaction, groupbuysrole);
+            break;
+          case "chatrevive":
+            await updateRole(interaction, chatreviverole);
+            break;
+            case "stemedits":
+            await updateRole(interaction, stemeditsrole);
+            break;
+            case "sessionedits":
+            await updateRole(interaction, sessioneditsrole);
+            break;
+          case "giveaways":
+            await updateRole(interaction, giveawaysrole);
+            break;
+          default:
+            break;
+        }
+        break;
+      
+        default:
         await interaction.editReply({
-          content: `error happened here\n the server name is ${currentServer}\nthe role is ${role}\nthe role name is ${roleName}`,
+          content: `error happened here\n the server name is ${currentServer}\nthe role is ${role}\nthe role name is ${roleName}\nsend Steve Jobs the error report`,
         });
 
         break;
@@ -2486,13 +2569,19 @@ if (client) {
           link: file ? file.attachment : null,
         });
         let krakenButton;
-        if (kraken !== null) {
+                if (kraken !== null) {
+          // check if the krken is a link
+          if (isValidURL(kraken)) {
+
           krakenButton = await createBtn.createButton({
             label: `View on Kraken`,
             style: `link`,
             link: kraken,
           });
+        } else {
+          await throwNewError("The link sent with the command is not a valid URL", interaction, "invalid url")
         }
+      }
         const viewAttachmentButton = await createBtn.createButton({
           label: `View Attachment`,
           style: "primary",
@@ -2859,12 +2948,18 @@ if (client) {
         });
         let krakenButton;
         if (kraken !== null) {
+          // check if the krken is a link
+          if (isValidURL(kraken)) {
+
           krakenButton = await createBtn.createButton({
             label: `View on Kraken`,
             style: `link`,
             link: kraken,
           });
+        } else {
+          await throwNewError("The link sent with the command is not a valid URL", interaction, "invalid url")
         }
+      }
         const viewAttachmentButton = await createBtn.createButton({
           label: `View Attachment`,
           style: "primary",
@@ -3215,13 +3310,19 @@ if (client) {
           link: file ? file.attachment : null,
         });
         let krakenButton;
-        if (kraken !== null) {
+                if (kraken !== null) {
+          // check if the krken is a link
+          if (isValidURL(kraken)) {
+
           krakenButton = await createBtn.createButton({
             label: `View on Kraken`,
             style: `link`,
             link: kraken,
           });
+        } else {
+          await throwNewError("The link sent with the command is not a valid URL", interaction, "invalid url")
         }
+      }
         const viewAttachmentButton = await createBtn.createButton({
           label: `View Attachment`,
           style: "primary",
@@ -3528,13 +3629,19 @@ if (client) {
           link: file ? file.attachment : null,
         });
         let krakenButton;
-        if (kraken !== null) {
+                if (kraken !== null) {
+          // check if the krken is a link
+          if (isValidURL(kraken)) {
+
           krakenButton = await createBtn.createButton({
             label: `View on Kraken`,
             style: `link`,
             link: kraken,
           });
+        } else {
+          await throwNewError("The link sent with the command is not a valid URL", interaction, "invalid url")
         }
+      }
         const viewAttachmentButton = await createBtn.createButton({
           label: `View Attachment`,
           style: "primary",
@@ -3840,13 +3947,19 @@ if (client) {
           link: file ? file.attachment : null,
         });
         let krakenButton;
-        if (kraken !== null) {
+                if (kraken !== null) {
+          // check if the krken is a link
+          if (isValidURL(kraken)) {
+
           krakenButton = await createBtn.createButton({
             label: `View on Kraken`,
             style: `link`,
             link: kraken,
           });
+        } else {
+          await throwNewError("The link sent with the command is not a valid URL", interaction, "invalid url")
         }
+      }
         const viewAttachmentButton = await createBtn.createButton({
           label: `View Attachment`,
           style: "primary",
@@ -4197,13 +4310,19 @@ if (client) {
           link: file ? file.attachment : null,
         });
         let krakenButton;
-        if (kraken !== null) {
+                if (kraken !== null) {
+          // check if the krken is a link
+          if (isValidURL(kraken)) {
+
           krakenButton = await createBtn.createButton({
             label: `View on Kraken`,
             style: `link`,
             link: kraken,
           });
+        } else {
+          await throwNewError("The link sent with the command is not a valid URL", interaction, "invalid url")
         }
+      }
         const viewAttachmentButton = await createBtn.createButton({
           label: `View Attachment`,
           style: "primary",
@@ -4555,13 +4674,19 @@ if (client) {
           link: file ? file.attachment : null,
         });
         let krakenButton;
-        if (kraken !== null) {
+                if (kraken !== null) {
+          // check if the krken is a link
+          if (isValidURL(kraken)) {
+
           krakenButton = await createBtn.createButton({
             label: `View on Kraken`,
             style: `link`,
             link: kraken,
           });
+        } else {
+          await throwNewError("The link sent with the command is not a valid URL", interaction, "invalid url")
         }
+      }
         const viewAttachmentButton = await createBtn.createButton({
           label: `View Attachment`,
           style: "primary",
@@ -4869,13 +4994,19 @@ if (client) {
           link: file ? file.attachment : null,
         });
         let krakenButton;
-        if (kraken !== null) {
+                if (kraken !== null) {
+          // check if the krken is a link
+          if (isValidURL(kraken)) {
+
           krakenButton = await createBtn.createButton({
             label: `View on Kraken`,
             style: `link`,
             link: kraken,
           });
+        } else {
+          await throwNewError("The link sent with the command is not a valid URL", interaction, "invalid url")
         }
+      }
         const viewAttachmentButton = await createBtn.createButton({
           label: `View Attachment`,
           style: "primary",
@@ -5182,13 +5313,19 @@ if (client) {
           link: file ? file.attachment : null,
         });
         let krakenButton;
-        if (kraken !== null) {
+                if (kraken !== null) {
+          // check if the krken is a link
+          if (isValidURL(kraken)) {
+
           krakenButton = await createBtn.createButton({
             label: `View on Kraken`,
             style: `link`,
             link: kraken,
           });
+        } else {
+          await throwNewError("The link sent with the command is not a valid URL", interaction, "invalid url")
         }
+      }
         const viewAttachmentButton = await createBtn.createButton({
           label: `View Attachment`,
           style: "primary",
@@ -5504,13 +5641,19 @@ if (client) {
           link: kraken ? (file ? file : null) : file ? file.attachment : null,
         });
         let krakenButton;
-        if (kraken !== null) {
+                if (kraken !== null) {
+          // check if the krken is a link
+          if (isValidURL(kraken)) {
+
           krakenButton = await createBtn.createButton({
             label: `View on Kraken`,
             style: `link`,
             link: kraken,
           });
+        } else {
+          await throwNewError("The link sent with the command is not a valid URL", interaction, "invalid url")
         }
+      }
         const viewAttachmentButton = await createBtn.createButton({
           label: `View Attachment`,
           style: "primary",
@@ -5835,13 +5978,19 @@ if (client) {
           link: file ? file.attachment : null,
         });
         let krakenButton;
-        if (kraken !== null) {
+                if (kraken !== null) {
+          // check if the krken is a link
+          if (isValidURL(kraken)) {
+
           krakenButton = await createBtn.createButton({
             label: `View on Kraken`,
             style: `link`,
             link: kraken,
           });
+        } else {
+          await throwNewError("The link sent with the command is not a valid URL", interaction, "invalid url")
         }
+      }
         const viewAttachmentButton = await createBtn.createButton({
           label: `View Attachment`,
           style: "primary",
@@ -6166,13 +6315,19 @@ if (client) {
           link: file ? file.attachment : null,
         });
         let krakenButton;
-        if (kraken !== null) {
+                if (kraken !== null) {
+          // check if the krken is a link
+          if (isValidURL(kraken)) {
+
           krakenButton = await createBtn.createButton({
             label: `View on Kraken`,
             style: `link`,
             link: kraken,
           });
+        } else {
+          await throwNewError("The link sent with the command is not a valid URL", interaction, "invalid url")
         }
+      }
         const viewAttachmentButton = await createBtn.createButton({
           label: `View Attachment`,
           style: "primary",

@@ -83,7 +83,8 @@ module.exports = {
     .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
   async execute(interaction) {
     // await interaction.deferReply({ ephemeral: true });
-    const randID = scripts_djs.getRandID();
+     const randID = scripts_djs.getRandID(); // testing new randID below, this is old
+   // let randID = scripts_djs.extractID(customID);
     // upon execution of the command, the user is shown a modal that gathers the gb name, the total amount of price needed, the current amount of money raised
     // use #ffcb6b as the embed color
 
@@ -1503,7 +1504,11 @@ module.exports = {
     }
   },
   async gbconfirmdelete(interaction, randID) {
+
+    
     await interaction.deferReply({ ephemeral: true });
+
+   //  let randID = scripts_djs.extractID(customID);
     let oldI = client.gb_i.get(randID) 
     try { 
 
@@ -1591,6 +1596,8 @@ module.exports = {
   },
   // @binmalyi it goes from gbdelete(), where the button is displayed, to here where the button interaction causes this in gbcanceldelete()
   async gbcanceldelete(i) {
+
+
     let interaction = client.gb_i.get(randID) 
     // in here we delete the reply to the user and return the GB to the original state
     try {

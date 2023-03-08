@@ -434,7 +434,11 @@ module.exports = {
     //     .once('end', (collected) => console.log(collected));
   },
   async gbedit(interaction, randID) {
-    await interaction.deferReply({ ephemeral: true });
+    try {
+      await interaction.deferReply({ ephemeral: true });
+    } catch (error) {
+      await interaction.editReply({embeds:[createEmb.createEmbed({title:`Error - editing gb`,description:`\`\`\`js\n${error}\n\`\`\`\n__Share the Error with Steve Jobs__`,color:scripts.getErrorColor()})]})
+    }
     if (!interaction.memberPermissions.has("Administrator")) {
       console.log(
         `Edit Button Clicked by a non-admin user:\nusername: ${interaction.member.user.username}\nID: ${interaction.member.user.id}\nGuild: ${interaction.guild.name}\nGuild ID: ${interaction.guild.id}\nChannel: ${interaction.channel.name}\nChannel ID: ${interaction.channel.id}\nMessage ID: ${interaction.message.id}\nButton ID: ${interaction.customID}`
@@ -1595,7 +1599,7 @@ module.exports = {
     }
   },
   // @binmalyi it goes from gbdelete(), where the button is displayed, to here where the button interaction causes this in gbcanceldelete()
-  async gbcanceldelete(i) {
+  async gbcanceldelete(i, randID) {
 
 
     let interaction = client.gb_i.get(randID) 

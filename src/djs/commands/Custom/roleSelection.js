@@ -111,9 +111,9 @@ module.exports = {
     });
 
 
-1078060342439059476
 
-    if (interaction.guild.id === "1072596593313853570") { // WRLD Updates
+
+    if (interaction.guild.id === "1080667995287867484") { // NLMB
       const leaks = await createButtn.createButton({
         customID: `role_leaks_${interaction.guild.name}${randID}`,
         label: "Leaks",
@@ -185,15 +185,24 @@ module.exports = {
         emoji: "🎼",
       });
       const row1 = await createActRow.createActionRow({
-        components: [leaks, ogfiles, sessions, snippets, groupbuys],
+        components: [leaks, ogfiles],
       });
       const row2 = await createActRow.createActionRow({
-        components: [news, compupdates, chatrevive, giveaways, songoftheday],
+        components: [snippets, sessions],
+      });
+      const row5 = await createActRow.createActionRow({
+        components: [news, groupbuys],
+      });
+      const row3 = await createActRow.createActionRow({
+        components: [ compupdates , songoftheday],
+      });
+      const row4 = await createActRow.createActionRow({
+        components: [ giveaways, chatrevive],
       });
   
       const hub = {
         embeds: [roleHubEmbed],
-        components: [row1, row2],
+        components: [row4, row3, row5, row2, row1],
       };
     try {
       try {

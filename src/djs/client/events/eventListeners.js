@@ -326,32 +326,32 @@ if (client) {
       sessioneditsrole,
       songofthedayrole;
     switch (currentServer) {
-      case "WRLD Updates":
-        leaksrole = await interaction.guild.roles.fetch("1077656315331084338");
+      case "NLMB":
+        leaksrole = await interaction.guild.roles.fetch("1080671948335501372");
         ogfilesrole = await interaction.guild.roles.fetch(
-          "1077656318845919242"
+          "1080671951644803133"
         );
         snippetsrole = await interaction.guild.roles.fetch(
-          "1077656316396445847"
+          "1080671949371494440"
         );
         sessionsrole = await interaction.guild.roles.fetch(
-          "1077656317344366614"
+          "1080671950097096796"
         );
-        compupdatesrole = await interaction.guild.roles.fetch(
-          "1077785531645186088"
-        );
-        newsrole = await interaction.guild.roles.fetch("1077656323379961996");
+        // compupdatesrole = await interaction.guild.roles.fetch(
+        //   "1077785531645186088"
+        // );
+        newsrole = await interaction.guild.roles.fetch("1080671956279492679");
         groupbuysrole = await interaction.guild.roles.fetch(
-          "1077656322226536558"
+          "1080671955130261625"
         );
         chatreviverole = await interaction.guild.roles.fetch(
-          "1077656319642828802"
+          "1080671952731111425"
         );
         giveawaysrole = await interaction.guild.roles.fetch(
-          "1077656320980828220"
+          "1080671954165567568"
         );
         songofthedayrole = await interaction.guild.roles.fetch(
-          "1077656324726341662"
+          "1080671957407780884"
         );
         switch (roleName) {
           // WRLD Updates Roles
@@ -391,98 +391,34 @@ if (client) {
         break;
       case "WOK WRLD":
         break;
-      case "Grailed":
-        leaksrole = await interaction.guild.roles.fetch("1078117434898268171");
+      case "GRAILED":
+        leaksrole = await interaction.guild.roles.fetch("1081363248684728431");
         ogfilesrole = await interaction.guild.roles.fetch(
-          "1078202186703585310"
+          "1081394168632459384"
         );
         snippetsrole = await interaction.guild.roles.fetch(
-          "1078202074724040735"
+          "1081363245723570216"
         );
         sessionsrole = await interaction.guild.roles.fetch(
-          "1078202260779171881"
+          "1081363260177141891"
         );
         compupdatesrole = await interaction.guild.roles.fetch(
-          "1078117450060677300"
+          "1081363264895725669"
         );
-        newsrole = await interaction.guild.roles.fetch("1078117433145045072");
+        newsrole = await interaction.guild.roles.fetch("1081363246709223555");
         groupbuysrole = await interaction.guild.roles.fetch(
-          "1078117436521459722"
+          "1081363249737502760"
         );
         chatreviverole = await interaction.guild.roles.fetch(
-          "1078117440464093244"
+          "1081363253940199425"
         );
         giveawaysrole = await interaction.guild.roles.fetch(
-          "1078117442468982944"
+          "1081363256825892904"
         );
-        stemeditsrole = await interaction.guild.roles.fetch("1080258387339640936")
-        sessioneditsrole = await interaction.guild.roles.fetch("1080258549508219043")
+        stemeditsrole = await interaction.guild.roles.fetch("1081363261317984266")
+        sessioneditsrole = await interaction.guild.roles.fetch("1081363259237605406")
         switch (roleName) {
-          // WRLD Updates Roles
-          case "leaks":
-            await updateRole(interaction, leaksrole);
-            break;
-          case "ogfiles":
-            await updateRole(interaction, ogfilesrole);
-            break;
-          case "snippets":
-            await updateRole(interaction, snippetsrole);
-            break;
-          case "sessions":
-            await updateRole(interaction, sessionsrole);
-            break;
-          case "compupdates":
-            await updateRole(interaction, compupdatesrole);
-            break;
-          case "news":
-            await updateRole(interaction, newsrole);
-            break;
-          case "groupbuys":
-            await updateRole(interaction, groupbuysrole);
-            break;
-          case "chatrevive":
-            await updateRole(interaction, chatreviverole);
-            break;
-            case "stemedits":
-            await updateRole(interaction, stemeditsrole);
-            break;
-            case "sessionedits":
-            await updateRole(interaction, sessioneditsrole);
-            break;
-          case "giveaways":
-            await updateRole(interaction, giveawaysrole);
-            break;
-          default:
-            break;
-        }
-        break;
-        case "Vlone Thugs":
-        leaksrole = await interaction.guild.roles.fetch("1067192024937271337");
-        // ogfilesrole = await interaction.guild.roles.fetch(
-        //   "1078202186703585310"
-        // );
-        snippetsrole = await interaction.guild.roles.fetch(
-          "1067192024937271340"
-        );
-        // sessionsrole = await interaction.guild.roles.fetch(
-        //   "1078202260779171881"
-        // );
-        compupdatesrole = await interaction.guild.roles.fetch(
-          "1067192024907927563"
-        );
-        newsrole = await interaction.guild.roles.fetch("1067192024937271339");
-        groupbuysrole = await interaction.guild.roles.fetch(
-          "1067192024937271336"
-        );
-        chatreviverole = await interaction.guild.roles.fetch(
-          "1067192024920498350"
-        );
-        giveawaysrole = await interaction.guild.roles.fetch(
-          "1067192024907927571"
-        );
-        // stemeditsrole = await interaction.guild.roles.fetch("1080258387339640936")
-        // sessioneditsrole = await interaction.guild.roles.fetch("1080258549508219043")
-         switch (roleName) {
+
           // WRLD Updates Roles
           case "leaks":
             await updateRole(interaction, leaksrole);
@@ -611,7 +547,8 @@ if (client) {
             let randID = scripts_djs.extractID(customID);
             await gb.gbconfirmdelete(interaction, randID);
           } else if (customID.includes("gb_update_delete_cancel")) {
-            await gb.gbcanceldelete(interaction);
+            let randID = scripts_djs.extractID(customID);
+            await gb.gbcanceldelete(interaction,randID);
           } else {
             await gb.gbupdate(interaction, randID);
           }

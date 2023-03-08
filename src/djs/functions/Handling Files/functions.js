@@ -706,15 +706,16 @@ async function uploadMessageBatch(interaction, target, beforeID, afterID) {
   }
   function generatePossibleNames(fileName) {
     const nameWithoutUnderscores = fileName.replace(/_/g, ' ');
-    const trueTitle = nameWithoutUnderscores.replace(/v\d+/i, '').trim();
+    const trueTitle = nameWithoutUnderscores.replace(/\.\w+$/, '').trim();
     const possibleNames = [
       trueTitle,
       nameWithoutUnderscores,
       fileName,
-    ];
+    ].filter((name, index, arr) => arr.indexOf(name) === index);
     const output = `Name: \`${trueTitle}\`\nPossible Names: \`${possibleNames.join(', ')}\``;
     return output;
   }
+  
   
 
   function formatFileList(fileNames) {
@@ -723,27 +724,53 @@ async function uploadMessageBatch(interaction, target, beforeID, afterID) {
     const output = `${filteredNames}`;
     return output;
   }
-  function getValidAttachments(attachments, limit) {
-    let newAttachments = attachments.filter(builder => builder.attachment.size  <= Math.pow(1024, 2) * limit)
+  function getValidAttachments(attachments, limit, foundAttachments) {
+    let newAttachments = attachments.filter(builder =>{
+      let builderName = builder.name;
+      let foundAttachment = foundAttachments.find(attachment => attachment.name === builderName)
+      let size = foundAttachment.size;
+        // add current builder to the array
+      return (size  <= Math.pow(1024, 2) * limit)
+
+
+    })
     return newAttachments;
   }
-  function getInvalidAttachments(attachments, limit) {
-    let newAttachments = attachments.filter(builder => builder.attachment.size> Math.pow(1024, 2) * limit)
+  function getInvalidAttachments(attachments, limit, foundAttachments) {
+    let newAttachments = attachments.filter(builder =>{
+      let builderName = builder.name;
+      let foundAttachment = foundAttachments.find(attachment => attachment.name === builderName)
+      let size = foundAttachment.size;
+        // add current builder to the array
+      return !(size  <= Math.pow(1024, 2) * limit) 
+    })
     return newAttachments;
   }
   const linkButton = (label, url) => {
-    let button = createBtn.createButton({
-      link: url,
-      label: label,
-      style: "link",
-    });
+    let button;
+    try {
+      button = createBtn.createButton({
+        link: url,
+        label: label,
+        style: "link",
+      });
+    } catch (error) {
+      console.log(error);
+      return
+    }
     return button;
   };
 
   
   async function downloadMessageBatch(batch_id, targetChannel, interaction) {
-  
-
+    try {
+      await interaction.editReply({embeds:[createEmb.createEmbed({title:`Downloading Now`})]})
+    } catch (error) {
+     scripts.logError(error, `error editing reply`);
+    }
+    let channelID = targetChannel.id;
+      let guildID = targetChannel.guild.id;
+      let client = interaction.client;
     let messages = await getMessagesByBatchID(batch_id);
     // let message = messages[x]._doc;
     // let {attachments, batchID, content, embeds, index, messageAuthor, messageID, numOfAttachments, numOfEmbeds, timestamp} = message;
@@ -772,6 +799,7 @@ async function uploadMessageBatch(interaction, target, beforeID, afterID) {
       return;
     }
     let totalFilesFound = [];
+    let finalMessagesArray = [];
   messages.forEach(async message => {
     message = message._doc
    let foundEmbeds = message.embeds;
@@ -790,8 +818,8 @@ async function uploadMessageBatch(interaction, target, beforeID, afterID) {
         thumbnail: thumbnail !== ``?thumbnail.url:null,
         footer: footer
       })
-      if(!newEmbed.description && !newEmbed.title)newEmbed.title = `[ Brought to u by Steve Jobs ]`;
-      if(!newEmbed.description)newEmbed.description = `. . . `;
+      if(!newEmbed.data.description && !newEmbed.data.title)newEmbed.data.title = `[ Brought to u by Steve Jobs ]`;
+      if(!newEmbed.data.description)newEmbed.data.description = `. . . `;
       embeds.push(newEmbed)
     }
     let attachments = [];
@@ -842,23 +870,37 @@ async function uploadMessageBatch(interaction, target, beforeID, afterID) {
       } else if (level === "TIER_3" || level === 3) {
         limit = 100;
       }
-      let newAttachments = getValidAttachments(attachments, limit)
+      let newAttachments = getValidAttachments(attachments, limit, foundAttachments) 
 
-      let convertAttachments = getInvalidAttachments(attachments, limit)
+      let convertAttachments = getInvalidAttachments(attachments, limit, foundAttachments) 
       let buttons = [];
       for(let attach of convertAttachments){
         console.log(`the attach-->`, attach);
-        let button = await linkButton(`Download ${attach.attachment.name}`, attach.attachment.url)
-        buttons.push(button)
+        let button;
+       try {
+         button = await linkButton(`Download ${attach.name}`, attach.attachment)
+       } catch (error) {
+        console.log(error)
+        return
+       }
+        if(button)buttons.push(button)
       }
       let components = [];
       // for each button allow up to 5 buttons per action row, then make new action rows for any additional 5+ buttons, then return an array of the first 5 or less action rows
       for (let i = 0; i < buttons.length; i += 5) {
-        components.push(await createActRow.createActionRow(buttons.slice(i, i + 5)));
+        components.push(await createActRow.createActionRow({components: [buttons.slice(i, i + 5)]}));
       }
     try {
-      console.log(`the channel ${targetChannel.name} ==>`, targetChannel)
-      await targetChannel.send({content:`${foundContent?`> __Original Message Content__\n> ${foundContent}`:``}\n${foundAttachments.length>0?`Files:${fileNames}`:``}`, embeds: embeds, files: newAttachments, components: components})
+      console.log(`the channel ${targetChannel.name} attachments ==>`, newAttachments)
+      
+      async function getChannel(guildId, client, channelId) {
+        const guild = await client.guilds.fetch(guildId);
+        const channel = await guild.channels.fetch(channelId);
+        return channel;
+      }
+      let newChannel = await getChannel(guildID, client, channelID)
+      
+      await newChannel.send({content:`${foundContent?`> __Original Message Content__\n> ${foundContent}`:``}\n${foundAttachments.length>0?`File List:\n${fileNames}`:``}`, embeds: embeds, files: newAttachments, components: components})
       await scripts.delay(1333);
     } catch(error){
       console.log(`error message--->`, error.message)
@@ -875,38 +917,100 @@ async function uploadMessageBatch(interaction, target, beforeID, afterID) {
         } else if (level === "TIER_3" || level === 3) {
           limit = 100;
         }
-        let newAttachments = getValidAttachments(attachments, limit)
+        let newAttachments = getValidAttachments(attachments, limit, foundAttachments)
 
-        let convertAttachments = getInvalidAttachments(attachments, limit)
+        let convertAttachments = getInvalidAttachments(attachments, limit, foundAttachments)
         let buttons = [];
         for(let attach of convertAttachments){
           console.log(`the attach-->`, attach);
-          let button = await linkButton(`Download ${attach.attachment.name}`, attach.attachment.url)
-          buttons.push(button)
+          let button;
+         try {
+           button = await linkButton(`Download ${attach.name}`, attach.attachment)
+         } catch (error) {
+          console.log(error)
+          return
+         }
+          if(button)buttons.push(button)
         }
         let components = [];
         // for each button allow up to 5 buttons per action row, then make new action rows for any additional 5+ buttons, then return an array of the first 5 or less action rows
         for (let i = 0; i < buttons.length; i += 5) {
-          components.push(await createActRow.createActionRow(buttons.slice(i, i + 5)));
+          components.push(await createActRow.createActionRow({components: [buttons.slice(i, i + 5)]}));
         }
         try {
           console.log(`the channel ${targetChannel.name} ==>`, targetChannel)
-          await targetChannel.send({content:`${foundContent?`> __Original Message Content__\n> ${foundContent}`:``}\n${foundAttachments.length>0?`Files:${fileNames}`:``}`, embeds: embeds, files: newAttachments, components: components})
+          await targetChannel.send({content:`${foundContent?`> __Original Message Content__\n> ${foundContent}`:``}\n${foundAttachments.length>0?`File List:\n${fileNames}`:``}`, embeds: embeds, files: newAttachments, components: components})
           await scripts.delay(1333);
         } catch(errorr){
           
           console.log(`the erroir)`,error);
           console.log(`the errorr)`,errorr);
           
-          await throwErrorReply({error:error,interaction:interaction, action: `Sending the Message result that contained ${fileNames?`Files:${fileNames}`:foundContent!==``?foundContent:embeds.length>0?`an embed`:``}`})
+          await throwErrorReply({error:error,interaction:interaction, action: `Sending the Message result that contained ${fileNames?`File List:\n${fileNames}`:foundContent!==``?foundContent:embeds.length>0?`an embed`:``}`})
         }
+      }
+      if(error.message ===`terminated` || error.message === `Request aborted`){
+        
+        let limit = 8;
+        const guild = await client.guilds.fetch(guildID);
+        let level = guild.premiumTier;
+        if (level === "TIER_1" || level === 1) {
+          limit = 8;
+        } else if (level === "TIER_2" || level === 2) {
+          limit = 50;
+        } else if (level === "TIER_3" || level === 3) {
+          limit = 100;
+        }
+        let newAttachments = getValidAttachments(attachments, limit, foundAttachments)
+
+        let convertAttachments = getInvalidAttachments(attachments, limit, foundAttachments)
+        let buttons = [];
+        for(let attach of convertAttachments){
+          console.log(`the attach-->`, attach);
+          let button;
+         try {
+           button = await linkButton(`Download ${attach.name}`, attach.attachment)
+         } catch (error) {
+          console.log(error)
+          return
+         }
+          if(button)buttons.push(button)
+        }
+        let components = [];
+        // for each button allow up to 5 buttons per action row, then make new action rows for any additional 5+ buttons, then return an array of the first 5 or less action rows
+        for (let i = 0; i < buttons.length; i += 5) {
+          components.push(await createActRow.createActionRow({components: [buttons.slice(i, i + 5)]}));
+        }
+        finalMessagesArray.push({content:`${foundContent?`> __Original Message Content__\n> ${foundContent}`:``}\n${foundAttachments.length>0?`File List:\n${fileNames}`:``}`, embeds: embeds, files: newAttachments, components: components})
+        return;
       }
       console.log(`the embeds`, embeds); // TODO HERE
       console.log(`Embed 1 ===`, embeds[0]);
-      await throwErrorReply({error:error,interaction:interaction, action: `Sending the Message result that contained ${fileNames?`Files:${fileNames}`:foundContent!==``?foundContent:embeds.length>0?`an embed`:``}`})
+      
+      await throwErrorReply({error:error,interaction:interaction, action: `Sending the Message result that contained ${fileNames?`File List:\n${fileNames}`:foundContent!==``?foundContent:embeds.length>0?`an embed`:``}`})
     }
   
     });
+    if(finalMessagesArray.length>0){
+      async function getChannel(guildId, client, channelId) {
+        const guild = await client.guilds.fetch(guildId);
+        const channel = await guild.channels.fetch(channelId);
+        return channel;
+      }
+      let newChannel = await getChannel(guildID, client, channelID)
+      for(let message of finalMessagesArray){
+        
+        
+        try {
+          await newChannel.send(message)
+        } catch (error) {
+          console.log(`the error)`,error);
+          await throwErrorReply({error:error,interaction:interaction, action: `Sending the Message result that contained ${fileNames?`File List:\n${fileNames}`:foundContent!==``?foundContent:embeds.length>0?`an embed`:``}`})
+        }
+      }
+        await scripts.delay(1333);
+      }
+
   let lists = totalFilesFound.length>0?createNameLists(totalFilesFound):[`No Files, but links or embeds`];
   for (let i = 0; i < lists.length; i++) {
 
@@ -1002,15 +1106,43 @@ async function uploadMessageBatch(interaction, target, beforeID, afterID) {
   }
   
     try {
-      await interaction.editReply({
+      await interaction.followUp({
+        content: `Hey! It's Done <@${interaction.user.id}>`,
+        ephemeral: true,
         embeds: [
           createEmb.createEmbed({
-            title: `✅ Download 100% Complete!`,
+            title: `✅ Download 100% Complete! [ ${totalFilesFound.length} Files ]`,
+            color: scripts.getSuccessColor(),
+          }),
+        ],
+      });
+      await interaction.user.send({content: `Hey! It's Done <@${interaction.user.id}>`,
+        embeds: [
+          createEmb.createEmbed({
+            title: `✅ Download 100% Complete! [ ${totalFilesFound.length} Files ]`,
             color: scripts.getSuccessColor(),
           }),
         ],
       });
     } catch (error) {
+      try{
+        await interaction.user.send({content: `Hey! It's Done <@${interaction.user.id}>`,
+          embeds: [
+            createEmb.createEmbed({
+              title: `✅ Download 100% Complete!  [${totalFilesFound.length} Files ]`,
+              description: `But this error occurred trying to send this into the ${targetChannel.name} channel\n\`\`\`js\n${error}\n\`\`\``,
+              color: scripts.getSuccessColor(),
+            }),
+          ],
+        });
+        return;
+      } catch(err){
+        console.log(`ORIGINAL`)
+        scripts.logError(error, `error sending last reply`);
+        cosnole.log(`NEW Error Below`)
+        scripts.logError(err, `error Dming reply`);
+
+      }
       scripts.logError(error, `error editing last reply`);
     }
   

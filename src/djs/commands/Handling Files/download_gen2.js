@@ -50,7 +50,11 @@ module.exports = {
     } catch (error) {
       scripts.logError(error, `error deferring reply`);
     }
-    await interaction.editReply({embeds:[createEmb.createEmbed({title:`Downloading Now`})]})
+   try {
+     await interaction.editReply({embeds:[createEmb.createEmbed({title:`Downloading Now`})]})
+   } catch (error) {
+    scripts.logError(error, `error editing reply`);
+   }
     const { options } = interaction;
     const type = options.getSubcommand();
     const target = options.getChannel("target-channel");

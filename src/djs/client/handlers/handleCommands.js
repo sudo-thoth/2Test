@@ -4,6 +4,8 @@ const fs = require("fs");
 
 const clientId = "1055981172318019645";
 const guildId = "1004377294615351317";
+const dotenv = require("dotenv")
+dotenv.config({ path: "../../../../my.env" });
 
 module.exports = async (client, commandFolders, path) => {
   client.commandArray = [];

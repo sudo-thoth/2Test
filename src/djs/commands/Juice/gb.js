@@ -1590,7 +1590,7 @@ module.exports = {
     }
   },
   // @binmalyi it goes from gbdelete(), where the button is displayed, to here where the button interaction causes this in gbcanceldelete()
-  async gbcanceldelete(i) {
+  async gbcanceldelete(i, randID) {
     let interaction = client.gb_i.get(randID) 
     // in here we delete the reply to the user and return the GB to the original state
     try {

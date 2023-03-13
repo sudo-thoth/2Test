@@ -33,7 +33,7 @@ async function throwNewError(interaction, err, i) {
       embeds: [
         createEmb.createEmbed({
           title:
-            "❗️ There was an Error , Share the Error w the Developer",
+            "There was an Error , Share the Error w the Developer",
           description:
           "```js\n" +
             err +
@@ -83,7 +83,8 @@ module.exports = {
     .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
   async execute(interaction) {
     // await interaction.deferReply({ ephemeral: true });
-    const randID = scripts_djs.getRandID();
+     const randID = scripts_djs.getRandID(); // testing new randID below, this is old
+   // let randID = scripts_djs.extractID(customID);
     // upon execution of the command, the user is shown a modal that gathers the gb name, the total amount of price needed, the current amount of money raised
     // use #ffcb6b as the embed color
 
@@ -433,7 +434,11 @@ module.exports = {
     //     .once('end', (collected) => console.log(collected));
   },
   async gbedit(interaction, randID) {
-    await interaction.deferReply({ ephemeral: true });
+    try {
+      await interaction.deferReply({ ephemeral: true });
+    } catch (error) {
+      await interaction.editReply({embeds:[createEmb.createEmbed({title:`Error - editing gb`,description:`\`\`\`js\n${error}\n\`\`\`\n__Share the Error with Steve Jobs__`,color:scripts.getErrorColor()})]})
+    }
     if (!interaction.memberPermissions.has("Administrator")) {
       console.log(
         `Edit Button Clicked by a non-admin user:\nusername: ${interaction.member.user.username}\nID: ${interaction.member.user.id}\nGuild: ${interaction.guild.name}\nGuild ID: ${interaction.guild.id}\nChannel: ${interaction.channel.name}\nChannel ID: ${interaction.channel.id}\nMessage ID: ${interaction.message.id}\nButton ID: ${interaction.customID}`
@@ -1503,7 +1508,11 @@ module.exports = {
     }
   },
   async gbconfirmdelete(interaction, randID) {
+
+    
     await interaction.deferReply({ ephemeral: true });
+
+   //  let randID = scripts_djs.extractID(customID);
     let oldI = client.gb_i.get(randID) 
     try { 
 
@@ -1591,6 +1600,8 @@ module.exports = {
   },
   // @binmalyi it goes from gbdelete(), where the button is displayed, to here where the button interaction causes this in gbcanceldelete()
   async gbcanceldelete(i, randID) {
+
+
     let interaction = client.gb_i.get(randID) 
     // in here we delete the reply to the user and return the GB to the original state
     try {
@@ -1712,12 +1723,12 @@ module.exports = {
       fields: [
         {
           name: `__Amount Paid__`,
-          value: price == `` ? `\`$\` \`0\`` : `\`$\` \`${price}\``,
+          value: price == `` ? `\`$\` \`0\`` : `\`$\`  \`${priceNumber}\``,
           inline: false,
         },
         {
           name: `__Song Price__`,
-          value: price == `` ? `\`$\` \`0\`` : `\`$\` \`${price}\``,
+          value: price == `` ? `\`$\` \`0\`` : `\`$\`  \`${priceNumber}\``,
           inline: false,
         },
       ],
@@ -1905,7 +1916,7 @@ module.exports = {
         },
         {
           name: `__Song Price__`,
-          value: price == `` ? `\`$\` \`0\`` : `\`$\` \`${price}\``,
+          value: price == `` ? `\`$\` \`0\`` : `\`$\` \`${priceNumber}\``,
           inline: false,
         },
       ],
@@ -1998,7 +2009,7 @@ module.exports = {
         },
         {
           name: `__Song Price__`,
-          value: price == `` ? `\`$\` \`0\`` : `\`$\` \`${price}\``,
+          value: price == `` ? `\`$\` \`0\`` : `\`$\` \`${priceNumber}\``,
           inline: false,
         },
       ],

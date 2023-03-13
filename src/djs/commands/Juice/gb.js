@@ -1723,12 +1723,12 @@ module.exports = {
       fields: [
         {
           name: `__Amount Paid__`,
-          value: price == `` ? `\`$\` \`0\`` : `\`$\`  \`${price}\``,
+          value: price == `` ? `\`$\` \`0\`` : `\`$\`  \`${priceNumber}\``,
           inline: false,
         },
         {
           name: `__Song Price__`,
-          value: price == `` ? `\`$\` \`0\`` : `\`$\`  \`${price}\``,
+          value: price == `` ? `\`$\` \`0\`` : `\`$\`  \`${priceNumber}\``,
           inline: false,
         },
       ],
@@ -1916,7 +1916,7 @@ module.exports = {
         },
         {
           name: `__Song Price__`,
-          value: price == `` ? `\`$\` \`0\`` : `\`$\` \`${price}\``,
+          value: price == `` ? `\`$\` \`0\`` : `\`$\` \`${priceNumber}\``,
           inline: false,
         },
       ],
@@ -2009,7 +2009,7 @@ module.exports = {
         },
         {
           name: `__Song Price__`,
-          value: price == `` ? `\`$\` \`0\`` : `\`$\` \`${price}\``,
+          value: price == `` ? `\`$\` \`0\`` : `\`$\` \`${priceNumber}\``,
           inline: false,
         },
       ],

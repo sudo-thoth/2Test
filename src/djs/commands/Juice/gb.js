@@ -437,7 +437,7 @@ module.exports = {
     try {
       await interaction.deferReply({ ephemeral: true });
     } catch (error) {
-      await interaction.editReply({embeds:[createEmb.createEmbed({title:`Error - editing gb`,description:`\`\`\`js\n${error}\n\`\`\`\n__Share the Error with Steve Jobs__`,color:scripts.getErrorColor()})]})
+      await interaction.user.send({embeds:[createEmb.createEmbed({title:`Error - editing gb`,description:`\`\`\`js\n${error}\n\`\`\`\n__Share the Error with Steve Jobs__`,color:scripts.getErrorColor()})]})
     }
     if (!interaction.memberPermissions.has("Administrator")) {
       console.log(

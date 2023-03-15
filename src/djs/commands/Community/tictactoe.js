@@ -37,6 +37,88 @@ async function execute(interaction) {
     let ttt_31 = new ButtonBuilder().setCustomId("ttt_31").setLabel("‎").setStyle(ButtonStyle.Secondary)
     let ttt_32 = new ButtonBuilder().setCustomId("ttt_32").setLabel("‎").setStyle(ButtonStyle.Secondary)
     let ttt_33 = new ButtonBuilder().setCustomId("ttt_33").setLabel("‎").setStyle(ButtonStyle.Secondary)
+    const friendButton = async () => {
+        const button = await createBtn.createButton({
+            customID: "ttt_friend",
+            label: "Friend",
+            style: "primary",
+            disabled: false,
+        });
+        return button;
+    };
+
+    const computerButton = async () => {
+        const button = await createBtn.createButton({
+            customID: "ttt_computer",
+            label: "Computer",
+            style: "danger",
+            disabled: false,
+        });
+        return button;
+    };
+
+    const friendButtonDisabled = async () => {
+        const button = await createBtn.createButton({
+            customID: "ttt_friend",
+            label: "Friend",
+            style: "primary",
+            disabled: true,
+        });
+        return button;
+    };
+
+    const computerButtonDisabled = async () => {
+        const button = await createBtn.createButton({
+            customID: "ttt_computer",
+            label: "Computer",
+            style: "danger",
+            disabled: true,
+        });
+        return button;
+    };
+
+    const randomButton = async () => {
+        const button = await createBtn.createButton({
+            customID: "ttt_member",
+            label: "Random Opponent",
+            style: "secondary",
+            disabled: false,
+        });
+        return button;
+    };
+
+    const randomButtonDisabled = async () => {
+        const button = await createBtn.createButton({
+            customID: "ttt_member",
+            label: "Random Opponent",
+            style: "secondary",
+            disabled: true,
+        });
+        return button;
+    };
+
+
+    const selectionRow = async () => {
+        const friendBtn = await friendButton();
+        const computerBtn = await computerButton();
+        const randomBtn = await randomButton();
+        const row = await createActRow.createActionRow({ components: [friendBtn, computerBtn, randomBtn] });
+        return row;
+    };
+
+    const selectionRowDisabled = async () => {
+        const friendBtn = await friendButtonDisabled();
+        const computerBtn = await computerButtonDisabled();
+        const randomBtn = await randomButtonDisabled();
+        const row = await createActRow.createActionRow({ components: [friendBtn, computerBtn, randomBtn] });
+        return row;
+    };
+
+    const clarifyEmbed = {
+        title: `Player 2 was Never Selected`,
+        description: `Do you want to play against a Friend, Random Server Member, or vs <@${interaction.client.user.id}>?\nYou have ${timeLeft} to choose`,
+        color: scripts.getColor(),
+    }
     let row = async (left, middle, right) => await new ActionRowBuilder().setComponents(
         left, middle, right
     )
@@ -79,7 +161,7 @@ async function execute(interaction) {
                 buttoncolor = ButtonStyle.Success
             }
 
-            if (currentPlayersTurn !== interaction.client.user) {
+            if (!(currentPlayersTurn.bot)) {
                 gameBoard.awaitMessageComponent({ filter, componentType: ComponentType.Button, max: 1, time: 30000, errors: ["time"] }).then(async (interaction) => {
 
                     switch (interaction.customId) {
@@ -228,16 +310,19 @@ async function execute(interaction) {
                 const randomNumber = Math.floor(Math.random() * remainingButtons.length);
                 const nextMove = remainingButtons[randomNumber];
 
-                const [row, col] = nextMove.split('_').slice(1);
+                const [, rowStr, colStr] = nextMove.match(/ttt_(\d)(\d)/);
+                const row = parseInt(rowStr);
+                const col = parseInt(colStr);
 
 
                 const rowIndex = Number(row) - 1;
                 const colIndex = Number(col) - 1;
-
+                xo = "O"
+                buttoncolor = ButtonStyle.Success
                 const button = new ButtonBuilder()
-                    .setCustomId(`${interaction.customId}`)
+                    .setCustomId(nextMove)
                     .setLabel(xo)
-                    .setStyle(buttonColor)
+                    .setStyle(buttoncolor)
                     .setDisabled(true);
 
                 if (rowIndex === 0) {
@@ -247,6 +332,7 @@ async function execute(interaction) {
                 } else if (rowIndex === 2) {
                     row3[colIndex] = button;
                 }
+                console.log(row1, row2, row3)
 
                 components = await getComponents(row1, row2, row3);
 
@@ -295,76 +381,32 @@ async function execute(interaction) {
             }
         }
     }
-    let content = (player1, player2) => { 
-        return `||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||  \n<@${player1.id}>  ${player2 ? `<@${player2.id}>` : ``}` 
+    let content = (player1, player2) => {
+        return `||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||||​||  \n<@${player1.id}>  ${player2 ? `<@${player2.id}>` : ``}`
     }
     let currentPlayersTurn = player1;
     if (!player2) {
-        
+
         // the user has 10 seconds to click one of the two buttons shown with the reply, on the embed the <tr...> time with a countdown of 10 seconds is shown
         // if no button is clicked after 10 seconds, disable both buttons and update the embed message saying no actions were taken in enough time, if you still want to play try `/tictactoe` again
-        const friendButton = await createBtn.createButton({
-            customID: "ttt_friend",
-            label: "Friend",
-            style: "primary",
-            disabled: false,
-        });
 
-
-        const computerButton = await createBtn.createButton({
-            customID: "ttt_computer",
-            label: "Computer",
-            style: "danger",
-            disabled: false,
-        })
-
-        const friendButtonDisabled = await createBtn.createButton({
-            customID: "ttt_friend",
-            label: "Friend",
-            style: "primary",
-            disabled: true,
-        });
-
-
-        const computerButtonDisabled = await createBtn.createButton({
-            customID: "ttt_computer",
-            label: "Computer",
-            style: "danger",
-            disabled: true,
-        })
-
-        const randomButton = await createBtn.createButton({
-            customID: "ttt_member",
-            label: "Random Opponent",
-            style: "secondary",
-            disabled: false,
-        })
-
-        const randomButtonDisabled = await createBtn.createButton({
-            customID: "ttt_member",
-            label: "Random Opponent",
-            style: "secondary",
-            disabled: true,
-        });
-
-        const selectionRow = await createActRow.createActionRow({ components: [friendButton, computerButton, randomButton] })
-        const selectionRowDisabled = await createActRow.createActionRow({ components: [friendButtonDisabled, computerButtonDisabled, randomButtonDisabled] })
         maxTime = Date.now() + 10000;
         timeLeft = Math.floor(maxTime / 1000);
         timeLeft = `<t:${timeLeft}:R>`;
-        const clarifyEmbed = {
-            title: `Player 2 was Never Selected`,
-            description: `Do you want to play against a Friend, Random Server Member, or vs <@${interaction.client.user.id}>?\nYou have ${timeLeft} to choose`,
-            color: scripts.getColor(),
-        }
+        let row = await selectionRow()
         // start a timer in a variable named timer so that I can reference this variable again to see if 10 seconds have passed or not
-        await interaction.deferReply({ ephemeral: true })
+        try {
+            await interaction.deferReply({ ephemeral: true })
+        } catch (error) {
+            console.log(`Error HERE in TicTacToe`)
+        }
         const clarifyPlayer2 = await interaction.editReply({
-            content: content(player1), components: [selectionRow], embeds: [createEmb.createEmbed(clarifyEmbed)]
+            content: content(player1), components: [row], embeds: [createEmb.createEmbed(clarifyEmbed)]
         })
         let timer = setTimeout(async () => {
             // Disable the message buttons after 10 seconds
-            await interaction.editReply({ embeds: [createEmb.createEmbed({ title: `❗️ You took too long to decide`, description: `If you still wish to play, run \`/tictactoe\` again`, color: scripts.getErrorColor() })], components: [selectionRowDisabled] });
+            row = await selectionRowDisabled()
+            await interaction.editReply({ embeds: [createEmb.createEmbed({ title: `❗️ You took too long to decide`, description: `If you still wish to play, run \`/tictactoe\` again`, color: scripts.getErrorColor() })], components: [row] });
         }, 10000);
         let filter = i => {
             i.deferUpdate();
@@ -372,8 +414,8 @@ async function execute(interaction) {
         }
         clarifyPlayer2.awaitMessageComponent({ filter, componentType: ComponentType.Button, max: 1, time: 30000, errors: ["time"] }).then(async (interaction) => {
             console.log(`A ttt button was pressed by ${interaction.user.username}`)
-            if (interaction.user.id !== player1.id) { 
-                await interaction.reply({ embeds: [createEmb.createEmbed({ title: `❌ You are not the player who started this game`, color: scripts.getErrorColor() })], ephemeral: true, content: content(interaction.user) }); 
+            if (interaction.user.id !== player1.id) {
+                await interaction.reply({ embeds: [createEmb.createEmbed({ title: `❌ You are not the player who started this game`, color: scripts.getErrorColor() })], ephemeral: true, content: content(interaction.user) });
             }
 
             clearTimeout(timer);
@@ -381,21 +423,21 @@ async function execute(interaction) {
                 // run the game as the computer as player 2, meaning after eveyry turn of player 1 the computer will make a random move
                 await begin({ player1: player1, player2: interaction.client.user, interaction: interaction })
             } else if (interaction.customId === "ttt_friend") {
-                 try {
-                    await interaction.deferReply({ephemeral: true})
-                 } catch (error) {
+                try {
+                    await interaction.deferReply({ ephemeral: true })
+                } catch (error) {
                     console.log(`unable to defer here`)
-                 }
-                 maxTime = Date.now() + 30000;
-        timeLeft = Math.floor(maxTime / 1000);
-        timeLeft = `<t:${timeLeft}:R>`;
-        let replyMsg;
-        let replyInt = interaction;
-                 try {
-                    replyMsg = await interaction.editReply({content: `${content(player1)} `, embeds: [createEmb.createEmbed({ title: `❓ Who do you want to play against?`, description: `Please mention the user you want to play against\n\nYou have ${timeLeft} to send  a message in the channel with your opponent pinged`, color: scripts.getColor() })], components: []})
-                 } catch (error) {
+                }
+                maxTime = Date.now() + 30000;
+                timeLeft = Math.floor(maxTime / 1000);
+                timeLeft = `<t:${timeLeft}:R>`;
+                let replyMsg;
+                let replyInt = interaction;
+                try {
+                    replyMsg = await interaction.editReply({ content: `${content(player1)} `, embeds: [createEmb.createEmbed({ title: `❓ Who do you want to play against?`, description: `Please mention the user you want to play against\n\nYou have ${timeLeft} to send  a message in the channel with your opponent pinged`, color: scripts.getColor() })], components: [] })
+                } catch (error) {
                     console.log(`unable to send here`)
-                 }
+                }
                 let timer2 = setTimeout(async () => {
                     // Disable the message buttons after 10 seconds
                     await interaction.editReply({ embeds: [createEmb.createEmbed({ title: `❗️ You took too long to decide`, description: `If you still wish to play, run \`/tictactoe\` again`, color: scripts.getErrorColor() })], components: [] });
@@ -407,86 +449,104 @@ async function execute(interaction) {
                 const collector = interaction.channel.createMessageCollector({ filter, time: 30000, max: 1 });
                 const msgCollected = false;
                 collector.on('collect', async message => {
-                        let targetUser = message.mentions.members.first(); // The user you want to monitor
-                        let originalMessage = replyMsg; // The message you want to update later
+                    let targetUser = message.mentions.members.first().user; // The user you want to monitor
+                    let originalMessage = replyMsg; // The message you want to update later
+                    console.log(`the targetUser is`, targetUser)
+                    let filter = (msg) => {
+                        // Only listen to messages that mention the target user and were not sent by them
+                        return msg.author.id !== targetUser.id;
+                    };
 
-                        let filter = (msg) => {
-                            // Only listen to messages that mention the target user and were not sent by them
-                            return msg.author.id !== targetUser.id;
-                        };
+                    let msg = message;
 
-                        let msg = message;
+                    clearTimeout(timer2)
+                    // If a message is collected, update the original message and stop listening for more messages
+                    console.log(`The message content is ${message.content}\nthe mentioned user is ${targetUser}`, targetUser)
 
-                        clearTimeout(timer2)
-                        // If a message is collected, update the original message and stop listening for more messages
-                        console.log(`The message content is ${message.content}\nthe mentioned user is ${targetUser}`, targetUser)
+                    try {
+                        await originalMessage.edit(`The Request to play with user ${targetUser.username} was sent by ${msg.author.username}.`);
+                    } catch (error) {
+                        await replyInt.editReply({ content: `The Request to play with user ${targetUser.username} was sent by ${msg.author.username}.`, embeds: [], components: [] });
+                    }
+                    let acceptButton = await createBtn.createButton({
+                        customID: 'ttt_accept',
+                        style: `success`,
+                        label: 'Accept',
+                    })
+                    let acceptRow = await createActRow.createActionRow({ components: [acceptButton] })
 
+                    maxTime2 = Date.now() + 32000;
+                    timeLeft2 = Math.floor(maxTime2 / 1000);
+                    timeLeft2 = `<t:${timeLeft2}:R>`;
+                    console.log(`the targetUser`, targetUser)
+                    let requestMessage = await msg.channel.send({ content: content(player1, targetUser), embeds: [createEmb.createEmbed({ title: `❓ ${targetUser.tag} -> ${msg.author.username} wants to play Tic Tac Toe with you`, description: `Do you accept? You have ${timeLeft2} left to accept`, color: scripts.getColor() })], components: [acceptRow] })
+                    let timer3 = setTimeout(async () => {
+                        // Disable the message buttons after 30 seconds
+                        await requestMessage.edit({ content: content(player1, targetUser), embeds: [createEmb.createEmbed({ title: `❗️ You took too long to decide`, description: `If you still wish to play, run \`/tictactoe\` again`, color: scripts.getErrorColor() })], components: [] });
+                    }, 30000);
+                    filter = (i) => {
+                        // Only listen to messages that mention the target user and were not sent by them
+                        // if(!(i.user.id === targetUser.id)){
+                        //     await i.reply({ephemeral: true, embeds:[[createEmb.createEmbed({
+                        //         title: `${i.user.tag} You were not invited to play`,
+                        //         color: scripts.getErrorColor(),
+                        //         description: `If you want to play a game run \`/tictactoe\``,
+                        //         image: i.user.avatarURL()
+                        //     })]]})
+                        // }
+                        // return i.user.id === targetUser.id;
+                        return true;
+                    };
+                    requestMessage.awaitMessageComponent({ filter, componentType: ComponentType.Button, time: 30000, errors: ["time"] }).then(async (interaction) => {
+                        // update the request message to say user has accepted
+                        console.log(`The user ${interaction.user.tag} has accepted the request`)
                         try {
-                            await originalMessage.edit(`The Request to play with user ${targetUser.username} was sent by ${msg.author.username}.`);
+                            await interaction.deferReply({ ephemeral: true })
                         } catch (error) {
-                            await replyInt.editReply({content: `The Request to play with user ${targetUser.username} was sent by ${msg.author.username}.`, embeds: [], components: []});
+                            console.log(`unable to defer here`)
                         }
-                        let acceptButton = await createBtn.createButton({
-                            customID: 'ttt_accept',
-                            style: `success`,
-                            label: 'Accept',
-                        })
-                        let acceptRow = await createActRow.createActionRow({ components: [acceptButton] })
-                        
-                        maxTime2 = Date.now() + 32000;
-                        timeLeft2 = Math.floor(maxTime2 / 1000);
-                        timeLeft2 = `<t:${timeLeft2}:R>`;
-                        console.log(`the targetUser`, targetUser)
-                        let requestMessage = await msg.channel.send({ content: content(player1, targetUser), embeds: [createEmb.createEmbed({ title: `❓ ${targetUser.tag} -> ${msg.author.username} wants to play Tic Tac Toe with you`, description: `Do you accept? You have ${timeLeft2} left to accept`, color: scripts.getColor() })], components: [acceptRow] })
-                        let timer3 = setTimeout(async () => {
-                            // Disable the message buttons after 30 seconds
-                            await requestMessage.edit({ content: content(player1, targetUser), embeds: [createEmb.createEmbed({ title: `❗️ You took too long to decide`, description: `If you still wish to play, run \`/tictactoe\` again`, color: scripts.getErrorColor() })], components: [] });
-                        }, 30000);
-                        filter = (i) => {
-                            // Only listen to messages that mention the target user and were not sent by them
-                            // if(!(i.user.id === targetUser.id)){
-                            //     await i.reply({ephemeral: true, embeds:[[createEmb.createEmbed({
-                            //         title: `${i.user.tag} You were not invited to play`,
-                            //         color: scripts.getErrorColor(),
-                            //         description: `If you want to play a game run \`/tictactoe\``,
-                            //         image: i.user.avatarURL()
-                            //     })]]})
-                            // }
-                            // return i.user.id === targetUser.id;
-                            return true;
-                        };
-                        requestMessage.awaitMessageComponent({ filter, componentType: ComponentType.Button, time: 30000, errors: ["time"] }).then(async (interaction) => {
-                            // update the request message to say user has accepted
-                            console.log(`The user ${interaction.user.tag} has accepted the request`)
-                            if (interaction.user.id === targetUser.id) {
-                                clearTimeout(timer3)
-                                await interaction.reply({content:`accepted, starting soon`, ephemeral: true})
-                                await requestMessage.edit({ content: content(player1, targetUser), embeds: [createEmb.createEmbed({ title: `✅ ${targetUser.username} has accepted the request`, description: `The game will begin shortly`, color: scripts.getSuccessColor() })], components: [] });
-                                await begin({ player1: player1, player2: targetUser, interaction: interaction })
-                            } else {
-                                await interaction.reply({ephemeral: true, embeds:[[createEmb.createEmbed({
-                                    title: `${interaction.user.tag} You were not invited to play`,
-                                    color: scripts.getErrorColor(),
-                                    description: `If you want to play a game run \`/tictactoe\``,
-                                    image: interaction.user.avatarURL()
-                                })]]})
+                        if (interaction.user.id === targetUser.id) {
+                            clearTimeout(timer3)
+                            try {
+                                await interaction.editReply({ content: `accepted, starting soon` })
+                            } catch (error) {
+                                await scripts_djs.throwErrorReply({ interaction: interaction, error: error, action: `sending acceptance message for tic tac toe` })
                             }
-                        }).catch(async (err) => {
-                            console.log("An Error Occurred", err);
-                        });
-                   
+                            await requestMessage.edit({ content: content(player1, targetUser), embeds: [createEmb.createEmbed({ title: `✅ ${targetUser.username} has accepted the request`, description: `The game will begin shortly`, color: scripts.getSuccessColor() })], components: [] });
+                            await begin({ player1: player1, player2: targetUser, interaction: interaction })
+                        } else {
+                            try {
+                                // await interaction.editReply({
+                                //     embeds: [[
+                                //         createEmb.createEmbed(
+                                //             {
+                                //                 title: `${interaction.user.tag} You were not invited to play`,
+                                //                 color: scripts.getErrorColor(),
+                                //                 description: `If you want to play a game run \`/tictactoe\``,
+                                //                 thumbnail: interaction.user.avatarURL()
+                                //             })]]
+                                // })
+                                await interaction.editReply({ content: `You were not invited to play`, embeds: [] })
+                            } catch (error) {
+                                await scripts_djs.throwErrorReply({ interaction: interaction, error: error, action: `sending rejection message for tic tac toe` })
+                            }
+                        }
+                    }).catch(async (err) => {
+                        console.log("An Error Occurred", err);
+                    });
+
                 });
-                
+
                 collector.on('end', collected => {
                     console.log(`Collected ${collected.size} items`);
-                    if(msgCollected !== true){
+                    if (msgCollected !== true) {
                         // idek bc the message alr gets updated if no timeout cancel in time
                     }
                 });
                 client.on('message', async (message) => {
                     if (message.author.bot) return; // Ignore messages sent by bots
 
-                   
+
 
 
                 });
@@ -502,7 +562,7 @@ async function execute(interaction) {
                 })
                 let acceptRow = await createActRow.createActionRow({ components: [acceptButton] })
                 let timer3 = setTimeout(async () => {
-                    await interaction.deferReply({ephemeral: true})
+                    await interaction.deferReply({ ephemeral: true })
                     // Disable the message buttons after 30 seconds
                     await interaction.editReply({ content: content(player1), embeds: [createEmb.createEmbed({ title: `❗️ Potential Opponents took too long to decide`, description: `If you still wish to play, run \`/tictactoe\` again`, color: scripts.getErrorColor() })], components: [] });
                 }, 30000);

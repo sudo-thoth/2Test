@@ -61,16 +61,62 @@ module.exports = {
     const batchID = options.getString("batch-id");
     const user = interaction.user;
     // this the first listener, that calls function
+let startTime = performance.now();
+function formatElapsedTime(startTime) {
+  const elapsedTime = performance.now() - startTime;
+  const msPerSecond = 1000;
+  const msPerMinute = msPerSecond * 60;
+  const msPerHour = msPerMinute * 60;
+  const msPerDay = msPerHour * 24;
 
-    if (type === "download-to-dms") {
+  const days = Math.floor(elapsedTime / msPerDay);
+  const hours = Math.floor((elapsedTime % msPerDay) / msPerHour);
+  const minutes = Math.floor((elapsedTime % msPerHour) / msPerMinute);
+  const seconds = Math.floor((elapsedTime % msPerMinute) / msPerSecond);
 
-        await get.downloadMessageBatch(batchID, user, interaction)
+  let timeString = "";
+  if (days > 0) {
+    timeString += `${days} Day${days > 1 ? "s" : ""} : `;
+  }
+  if (hours > 0 || days > 0) {
+    timeString += `${hours} Hour${hours > 1 ? "s" : ""} : `;
+  }
+  if (minutes > 0 || hours > 0 || days > 0) {
+    timeString += `${minutes} Minute${minutes > 1 ? "s" : ""} : `;
+  }
+  timeString += `${seconds} Second${seconds > 1 ? "s" : ""}`;
 
-    }
-    if (type === "download-to-channel") {
+  return timeString;
+}
+try {
+  const promises = [];
 
-        await get.downloadMessageBatch(batchID, target, interaction)
+  if (type === "download-to-dms") {
+    promises.push(get.downloadMessageBatch(batchID, user, interaction));
+  }
+  if (type === "download-to-channel") {
+    promises.push(get.downloadMessageBatch(batchID, target, interaction));
+  }
 
-    }
+  await Promise.all(promises);
+
+} catch (error) {
+  try {
+    // send error embed
+    await interaction.user.send({embeds:[createEmb.createEmbed({title:`**__L__** | Error Downloading Files`,description:`\`\`\`js\n${error}\n\`\`\``})]})
+  } catch (errr) {
+    console.log(`Original Error getting downloads`)
+    console.log(error)
+    console.log(`Error sending download error to user`)
+    console.log(errr)
+  }
+} finally {
+  try {
+    await interaction.user.send({embeds:[createEmb.createEmbed({title:`**__W__** | Downloaded in ${formatElapsedTime(startTime)}`})]})
+  } catch (error) {
+    console.log(`Error sending download time to user`)
+    console.log(error)
+  }
+}
   },
 };

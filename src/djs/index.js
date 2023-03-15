@@ -31,7 +31,7 @@ const djsEventFiles = fs
   const mongoConfig = fs.readdirSync("./src/MongoDB/db/config");
 
 
-const { token } = process.env;
+const { token, Wok_Beta_token } = process.env;
 
 client.commands = new Collection();
 
@@ -63,14 +63,14 @@ client.on("ready", () => {
 });
 module.exports = client;
 handleEvents(client, mongoConfig, 2);
-const { MongoDB_Token_2Test_bot } = process.env;
+const { MongoDB_Token_Wok_Beta } = process.env;
 
 
 (async () => {
     if (mongoose === undefined) {
       return;
     } else {
-      await mongoose.connect(MongoDB_Token_2Test_bot).catch(console.error);
+      await mongoose.connect(MongoDB_Token_Wok_Beta).catch(console.error);
       console.log(`---------- >> MongoDB is Online << ----------`)
     }
   })();
@@ -84,6 +84,6 @@ handleFunctions(djsFunctionFolders, "./src/djs/functions");
 handleEvents(client, djsEventFiles, 1);
 handleCommands(client, djsCommandFolders, "./src/djs/commands");  
 
-client.login(token);
+client.login(Wok_Beta_token);
 
 

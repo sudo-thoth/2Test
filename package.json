@@ -5,7 +5,8 @@
   "main": "./src/djs/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon index.js"
+    "start": "npm run check-deps && nodemon index.js", 
+    "check-deps": "for dep in axios axios-observable chalk cli-box discord.js dotenv moment mongoose rxjs; do if [ ! -d \"node_modules/$dep\" ]; then npm install $dep; fi; done"
   },
   "author": "LT",
   "license": "ISC",
@@ -18,6 +19,7 @@
     "dotenv": "^16.0.3",
     "moment": "^2.29.4",
     "mongoose": "^6.9.0",
+    "nodemon": "^2.0.21",
     "rxjs": "^7.8.0"
   }
 }

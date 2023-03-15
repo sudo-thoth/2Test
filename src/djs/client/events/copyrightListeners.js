@@ -187,307 +187,44 @@ if (client) {
   // IF the message inlcudes an audio or video file(s) attachment -> First the message is saved to a variable then is deleted from the channel,then the File(s) will be extracted from the message object, the file(s) & original message data will be saved to the database under a unique id to access later, A button will be created with a title `DM Content`, secondary type, and a custom id that ends in the same unique id from the file, when this button is pressed it triggers an event that dm's the user who pressed it the file associated with the custom ID ending along with the original message content, author, etc., The original message content  will be placed into an embed's description with a title of `Copyright Control` with an author being the original message's user info and avatarURL and with a footer being the og channel name, server name, & time stamp of the original messages time sent into the channel, then a message is sent into the same channel where the original message was pulled from, this message object is composed of the `Copyright Control` embed and the `DM Content` button, then the filter continues to listen for more messages
   // IF the message inlcudes BOTH an audio or video file(s) attachment && a link(s) -> First the message is saved to a variable then is deleted from the channel,then the File(s) && Link(s) will be extracted from the message object and message content respectively, the file(s), link(s), & original message data will be saved to the database under a unique id to access later, A button will be created with a title `DM Content`, secondary type, and a custom id that ends in the same unique id from the file, when this button is pressed it triggers an event that dm's the user who pressed it the file(s) & link(s) associated with the custom ID ending along with the original message content, author, etc., The original message content  will be placed into an embed's description with a title of `Copyright Control` with an author being the original message's user info and avatarURL and with a footer being the og channel name, server name, & time stamp of the original messages time sent into the channel, then a message is sent into the same channel where the original message was pulled from, this message object is composed of the `Copyright Control` embed and the `DM Content` button, then the filter continues to listen for more messages
 
-  client.on("messageCreate", async (i) => {
-    const interactionObj = scripts_djs.getInteractionObj(interaction);
-    const { id, channel, guild, userInfo, customID } = interactionObj;
-    const { name, displayName, userId, avatar, role, roleID, roleName } =
-      userInfo;
-      randID = scripts_djs.extractID(customID);
-  });
+  client.on("messageCreate", async (m) => {
+    
+    // run checks to see if the feature is on in the database for the messages channel & server
+    const channel = m.channel;
+    const guild = m.guild;
+    // run function that takes in the channel and guild as parameters and returns a boolean
+    const filterOn = filterOnChannel(channel, guild); // this is a temp uncomplete function // TODO: complete this function
+    if (filterOn) {
+      // pass the message to the filter function that checks if the message contains a link or an audio/video file attachment and returns an object with the properties being {media: boolean, links: array, files: array, message: object}
+      const filter = filterMessage(m); // this is a temp uncomplete function // TODO: complete this function
+      if (filter.media) {
+        // if the message contains a link or an audio/video file attachment, then the message is deleted from the channel, the link(s) or file(s) are extracted from the message content and the message object, then the data is saved to the database under a unique id to access later, A button will be created with a title `DM Content`, secondary type, and a custom id that ends in the same unique id from the link or file, when this button is pressed it triggers an event that dm's the user who pressed it the link or file associated with the custom ID ending along with the original message content, author, etc., The original message content minus the link(s) or file(s) that was extracted will be placed into an embed's description with a title of `Copyright Control` with an author being the original message's user info and avatarURL and with a footer being the og channel name, server name, & time stamp of the original messages time sent into the channel, then a message is sent into the same channel where the original message was pulled from, this message object is composed of the `Copyright Control` embed and the `DM Content` button, then the filter continues to listen for more messages
+let author = m.author;
+let randID = scripts_djs.getRandID();
+        // delete the message from the channel
+        m.delete();
 
-  
-  let typeOfFile;
-  client.on("role", async (interaction, customID) => {
-    console.log(`emit recieved`);
-    console.log(`original role is ${customID}`);
-    let r = customID.split("role_")[1];
-    //separate the custom id from teh rand id at the #
-    r = r.split("#")[0];
-    console.log(`the r is ${r}`);
-    let roleName = r.split("_")[0];
-    let currentServer = r.split("_")[1];
-    const role = r;
-    console.log(
-      `the role name is ${roleName}\nthe current server is ${currentServer}`
-    );
+        // save the message & links & files to the db
+        await saveCopyrightContent(filter, randID);
 
-    console.log(`the role is ${role}`);
-    // WRLD Updates Roles
-
-    const updateRole = async (interaction, role) => {
-      if (role) {
-        const member = interaction.guild.members.cache.get(interaction.user.id);
-        // get an array of the role names the user has
-        const roleNames = member.roles.cache.map((role) => role.name);
-        // if rolenames includes the role.name set toggle to true
-        let toggle = false;
-        if (roleNames.includes(role.name)) {
-          toggle = true;
-        }
-        if (toggle) {
-          try {
-            try {
-              member.roles.remove(role);
-            } catch (error) {
-              await throwNewError("removing leaks role", interaction, error);
-            }
-            await interaction.editReply({
-              embeds: [
-                createEmb.createEmbed({
-                  title: `${role.name} Role Removed`,
-                  description: "role status updated successfully",
-                  color: scripts.getErrorColor(),
-                  author: {
-                    name: member.user.tag,
-                  },
-                  thumbnail: member.user.displayAvatarURL({ dynamic: true }),
-                }),
-              ],
-            });
-
-            await scripts.delay(4444);
-            await interaction.deleteReply();
-          } catch (error) {
-            await throwNewError(
-              `sending updated role status for ${role.name} role`,
-              interaction,
-              error
-            );
-          }
-        } else {
-          try {
-            try {
-              member.roles.add(role);
-            } catch (error) {
-              await throwNewError("adding leaks role", interaction, error);
-            }
-            await interaction.editReply({
-              embeds: [
-                createEmb.createEmbed({
-                  title: `${role.name} Role Added`,
-                  description: "role status updated successfully",
-                  color: scripts.getSuccessColor(),
-                  author: {
-                    name: member.user.tag,
-                  },
-                  thumbnail: member.user.displayAvatarURL({ dynamic: true }),
-                }),
-              ],
-            });
-
-            await scripts.delay(4444);
-            await interaction.deleteReply();
-          } catch (error) {
-            await throwNewError(
-              `sending updated role status for ${role.name} role`,
-              interaction,
-              error
-            );
-          }
-        }
-      } else {
-        try {
-          try {
-            await interaction.editReply({
-              embeds: [
-                createEmb.createEmbed({
-                  title: `🚫 Role Not Found`,
-                  description:
-                    "The Requested Role Was Not Found In The Current Server\nFailed to add role to user",
-                  color: scripts.getErrorColor(),
-                  author: {
-                    name: interaction.user.tag,
-                  },
-                  thumbnail: interaction.user.displayAvatarURL({
-                    dynamic: true,
-                  }),
-                }),
-              ],
-            });
-          } catch (error) {
-            await throwNewError(
-              "sending error message for role not found",
-              interaction,
-              error
-            );
-          }
-        } catch (error) {
-          await throwNewError("executing roles command", interaction, error);
-        }
+        // send a replacement message with the `Copyright Control` embed and the `DM Content` button
+        const message = await scripts_djs.sendCopyrightControlMessage(m, randID);
+       } else {
+        // if the message does not contain a link or an audio/video file attachment, then nothing happens the message and the filter keeps listening for more messages
+        return;
       }
-    };
-    // set a servername variable to the role sliced at the '_' and everything after it is the server name
-    let leaksrole,
-      ogfilesrole,
-      snippetsrole,
-      sessionsrole,
-      compupdatesrole,
-      newsrole,
-      groupbuysrole,
-      chatreviverole,
-      giveawaysrole,
-      stemeditsrole,
-      sessioneditsrole,
-      songofthedayrole;
-    switch (currentServer) {
-      case "NLMB":
-        leaksrole = await interaction.guild.roles.fetch("1080671948335501372");
-        ogfilesrole = await interaction.guild.roles.fetch(
-          "1080671951644803133"
-        );
-        snippetsrole = await interaction.guild.roles.fetch(
-          "1080671949371494440"
-        );
-        sessionsrole = await interaction.guild.roles.fetch(
-          "1080671950097096796"
-        );
-        // compupdatesrole = await interaction.guild.roles.fetch(
-        //   "1077785531645186088"
-        // );
-        newsrole = await interaction.guild.roles.fetch("1080671956279492679");
-        groupbuysrole = await interaction.guild.roles.fetch(
-          "1080671955130261625"
-        );
-        chatreviverole = await interaction.guild.roles.fetch(
-          "1080671952731111425"
-        );
-        giveawaysrole = await interaction.guild.roles.fetch(
-          "1080671954165567568"
-        );
-        songofthedayrole = await interaction.guild.roles.fetch(
-          "1080671957407780884"
-        );
-        switch (roleName) {
-          // WRLD Updates Roles
-          case "leaks":
-            await updateRole(interaction, leaksrole);
-            break;
-          case "ogfiles":
-            await updateRole(interaction, ogfilesrole);
-            break;
-          case "snippets":
-            await updateRole(interaction, snippetsrole);
-            break;
-          case "sessions":
-            await updateRole(interaction, sessionsrole);
-            break;
-          case "compupdates":
-            await updateRole(interaction, compupdatesrole);
-            break;
-          case "news":
-            await updateRole(interaction, newsrole);
-            break;
-          case "groupbuys":
-            await updateRole(interaction, groupbuysrole);
-            break;
-          case "chatrevive":
-            await updateRole(interaction, chatreviverole);
-            break;
-          case "giveaways":
-            await updateRole(interaction, giveawaysrole);
-            break;
-          case "songoftheday":
-            await updateRole(interaction, songofthedayrole);
-            break;
-          default:
-            break;
-        }
-        break;
-      case "WOK WRLD":
-        break;
-      case "Grailed":
-        leaksrole = await interaction.guild.roles.fetch("1078117434898268171");
-        ogfilesrole = await interaction.guild.roles.fetch(
-          "1078202186703585310"
-        );
-        snippetsrole = await interaction.guild.roles.fetch(
-          "1078202074724040735"
-        );
-        sessionsrole = await interaction.guild.roles.fetch(
-          "1078202260779171881"
-        );
-        compupdatesrole = await interaction.guild.roles.fetch(
-          "1078117450060677300"
-        );
-        newsrole = await interaction.guild.roles.fetch("1078117433145045072");
-        groupbuysrole = await interaction.guild.roles.fetch(
-          "1078117436521459722"
-        );
-        chatreviverole = await interaction.guild.roles.fetch(
-          "1078117440464093244"
-        );
-        giveawaysrole = await interaction.guild.roles.fetch(
-          "1078117442468982944"
-        );
-        stemeditsrole = await interaction.guild.roles.fetch("1080258387339640936")
-        sessioneditsrole = await interaction.guild.roles.fetch("1080258549508219043")
-        switch (roleName) {
-          // WRLD Updates Roles
-          case "leaks":
-            await updateRole(interaction, leaksrole);
-            break;
-          case "ogfiles":
-            await updateRole(interaction, ogfilesrole);
-            break;
-          case "snippets":
-            await updateRole(interaction, snippetsrole);
-            break;
-          case "sessions":
-            await updateRole(interaction, sessionsrole);
-            break;
-          case "compupdates":
-            await updateRole(interaction, compupdatesrole);
-            break;
-          case "news":
-            await updateRole(interaction, newsrole);
-            break;
-          case "groupbuys":
-            await updateRole(interaction, groupbuysrole);
-            break;
-          case "chatrevive":
-            await updateRole(interaction, chatreviverole);
-            break;
-            case "stemedits":
-            await updateRole(interaction, stemeditsrole);
-            break;
-            case "sessionedits":
-            await updateRole(interaction, sessioneditsrole);
-            break;
-          case "giveaways":
-            await updateRole(interaction, giveawaysrole);
-            break;
-          default:
-            break;
-        }
-        break;
-      
-        default:
-        await interaction.editReply({
-          content: `error happened here\n the server name is ${currentServer}\nthe role is ${role}\nthe role name is ${roleName}\nsend Steve Jobs the error report`,
-        });
-
-        break;
+    } else {
+      // if the feature is not on in the database for the messages channel & server, then nothing happens the message and the filter keeps listening for more messages
+      return;
     }
-  });
-  // console.log(`The Client`, client);
-  client.on("PostCommand", (optionsObj) => {
-    // code to execute when the emit is triggered
-    // save the data to db
-    let obj = {
-      file: optionsObj.file ? optionsObj.file : null,
-      userId: optionsObj.userId ? optionsObj.userId : null,
-      user: optionsObj.user ? optionsObj.user : null,
-      type: optionsObj.type ? optionsObj.type : null,
-      format: optionsObj.format ? optionsObj.format : null,
-      file_type: optionsObj.file_type ? optionsObj.file_type : null,
-      interactionID: optionsObj.interaction ? optionsObj.interaction : null,
-      choice: optionsObj.choice ? optionsObj.choice : null,
-      roles: optionsObj.roles ? optionsObj.roles : null,
-      randID: optionsObj.randID ? optionsObj.randID : null,
-    };
+        
+        
 
-    scripts_mongoDB.savePostData(obj);
+
+
   });
+
+
 
   client.on("interactionCreate", async (interaction) => {
     // console.log(`the interaction`, interaction);

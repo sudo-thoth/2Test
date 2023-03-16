@@ -5,56 +5,25 @@ const scripts_mongoDB = require(`../../functions/scripts/scripts_mongoDB.js`);
 const createEmb = require(`../../functions/create/createEmbed.js`);
 const createBtn = require(`../../functions/create/createButton.js`);
 const createActRow = require(`../../functions/create/createActionRow.js`);
+const channelsDB = require(`../../../MongoDB/db/schemas/schema_channels.js`);
+const copyrightContentDB = require(`../../../MongoDB/db/schemas/schema_copyrightContent.js`);
+const mongoose = require("mongoose");
 
-async function filterOnChannel(channel, guild) { // TODO: complete database aspect of the function
-  await channelsDB.findOne({channelID: channel.id, guildID: guild.id}, (err, doc) => {
-    if (err) {
-      console.error(err);
-    } else {
-      if (doc?.copyright_filterOn) {
-        return true;
-      } else {
-        return false;
-      }
-    }
-    });
-      
-}
-// const index = require(`src/djs/index.js`)
-// const client = index.getClient();
-// console.log(client);
-function isValidURL(string) {
-  try {
-    new URL(string);
+async function filterOnChannel(channel, guild) { 
+  try{
+  let doc = await channelsDB.findOne({ channelID: channel.id, guildID: guild.id }) 
+  if (doc?.copyright_filterOn) {
     return true;
-  } catch (error) {
+  } else {
     return false;
   }
-}
-async function fileProcessing(interaction) {
-  try {
-    await interaction.editReply({
-      embeds: [
-        createEmb.createEmbed({
-          title: "File Being Processed",
-          description: "Please wait...",
-          color: 0x00ff00,
-        }),
-      ],
-      components: [],
-    });
-  } catch (error) {
-    await throwNewError("Sending File Processing Update", interaction, error);
+  } catch (err) {
+      console.error(err);
+      await channel.send({embeds:[createEmb.createEmbed({description:`ERROR:\n\`\`\`js\n${err}\`\`\``,color:scripts.getErrorColor()})]})
+    } 
   }
-}
-const roleString = (roles) => {
-  // for every role in the array, add it to the string
-  let string = ``;
-  roles.forEach((role) => {
-    string += `${role && role !== null ? `${role}\n` : ``}`;
-  });
-  return string;
-};
+
+
 let sentEmojis = [
   "📨",
   "📩",
@@ -83,9 +52,8 @@ let labelText = [
   "Forwarded!",
   "Mailed!",
 ];
-let labelT = `${emoji} ${
-  labelText[Math.floor(Math.random() * labelText.length)]
-}`;
+let labelT = `${emoji} ${labelText[Math.floor(Math.random() * labelText.length)]
+  }`;
 async function throwNewError(
   action = action && typeof action === "string" ? action : null,
   interaction,
@@ -152,30 +120,24 @@ async function throwNewError(
           createEmb.createEmbed({
             title: "There was an Error, Share the Error w the Developer",
             description:
-              `${
-                interaction.commandName
-                  ? `Command: \`${interaction.commandName}\`\n`
-                  : ""
+              `${interaction.commandName
+                ? `Command: \`${interaction.commandName}\`\n`
+                : ""
               }` +
               "```js\n" +
               err +
               "\n```\n" +
               `Error occurred for admin user:` +
               "\n```js\n" +
-              `username: ${interaction.member.user.username}\nID: ${
-                interaction.member.user.id
-              }\nGuild: ${interaction.guild.name}\nGuild ID: ${
-                interaction.guild.id
-              }\nChannel: ${interaction.channel.name}\nChannel ID: ${
-                interaction.channel.id
-              }${
-                interaction.message
-                  ? `\nMessage ID: ${interaction.message.id}`
-                  : ""
-              }${
-                interaction.customID
-                  ? `\nCustom ID: ${interaction.customID}`
-                  : ""
+              `username: ${interaction.member.user.username}\nID: ${interaction.member.user.id
+              }\nGuild: ${interaction.guild.name}\nGuild ID: ${interaction.guild.id
+              }\nChannel: ${interaction.channel.name}\nChannel ID: ${interaction.channel.id
+              }${interaction.message
+                ? `\nMessage ID: ${interaction.message.id}`
+                : ""
+              }${interaction.customID
+                ? `\nCustom ID: ${interaction.customID}`
+                : ""
               }` +
               "\n```",
             color: scripts.getErrorColor(),
@@ -189,7 +151,171 @@ async function throwNewError(
     }
   }
 }
+function filterMessage(m) {
+  let obj = {
+    media: false,
+    links: [],
+    files: [],
+    message: m,
+    link: false,
+    file: false,
+    filteredMessage: m.content,
+  };
+  // check message content for links
+  if (m.content.includes("https://") || m.content.includes("http://")) {
+    const regex = /https?:\/\/[^\s]+/g;  // regular expression to match URLs
+    const links = [];  // array to store the found links
+    const newStr = m.content.replace(regex, (match) => {
+      links.push(match);  // push the matched link to the array
+      return '`[*]`';  // replace the link in the string with `[*]`
+    });
+    obj.filteredMessage = newStr;
+    obj.media = true;
+    obj.links = links;
+    obj.link = true;
+  }
+  // check message object for files
+  if (m.attachments.size > 0) {
+    obj.media = true;
+    // for every file attachment in the message object, push the file to the files array
+    for (const file of m.attachments.values()) {
+      obj.files.push(file);
+    }
+    obj.file = true;
+  }
+  return obj;
+  // check message object for files
+}
+async function saveCopyrightContent(data, randID) {
+  // save the message & links & files to the db
+  const author = data.message.author;
+  const user = await client.users.fetch(id)
+  let obj = {
+    _id: `${new mongoose.Types.ObjectId()}`,
+    randID: randID,
+    hasLink: data.link,
+    hasFile: data.file,
+    links: data.links,
+    files: data.files,
+    message: {
+      ogContent: data.message.content,
+      filteredContent: data.filteredMessage,
+      id: data.message.id,
+      createdAt: data.message.createdAt,
+      createdTimestamp: data.message.createdTimestamp,
+    },
+    author: {
+      id: author.id,
+      username: author.username,
+      discriminator: author.discriminator,
+      avatarURL: user.displayAvatarURL(),
+    },
+  }
+  try {
+    await copyrightContentDB.create(obj);
+    console.log(`saved to db`);
+  } catch (error) {
 
+    scripts.logError(error)
+    console.log(`copyright content not saved`);
+  }
+
+}
+async function getCopyrightContent(randID) {
+  let data;
+
+  try {
+    data = await copyrightContentDB.findOne({ randID: randID})
+  } catch (error) {
+    console.log(`an error occurred while trying to get the data from the database: `, error);
+  }
+  if (data == null) {
+    // console.log(data)
+    console.log(`[ data ] NOT found in query`)
+
+    return false;
+
+  } else {
+    // console.log(data)
+    console.log(`[ data ] found in query: `)
+    return data;
+  }
+
+}
+          async function sendCopyrightContent(interaction, data) {
+            let user = interaction.user;
+            let embed;
+            let files, overSize, buttons, rows = [];
+            if (data.hasFile) {
+              // send a dm to the user with the original content and files attached(only if the file is under 8mb), and an embed saying from server name, channel name, og author username & timestamp
+              embed = createEmb.createEmbed({
+                title: `*© copyright control*`,
+                description: `> ${data.message.content}`,
+                color: scripts.getColor(),
+                author: {
+                  name: data.author.username,
+                  icon_url: data.author.avatarURL(),
+                },
+                footer: {
+                  text: `From ${data.channel.name} in ${data.guild.name} ${data.message.createdAt}`
+                }
+              })
+              // for every file in the data.files check the size, if its under 8mb add it to the files array other wise add it to the over size array 
+              files = data.files.filter(file => file.size < 8000000);
+              overSize = data.files.filter(file => file.size >= 8000000);
+              // create a new button for each file in the overSize array and ad the button to the buttons array
+              buttons = overSize.map(async file => await createBtn.createButton({
+                style: `link`,
+                link: file.url,
+                label: `🛰️ ${file.name}`
+              }));
+              // for every button, no more than 5 though at a time, in buttons arary, create a new row, then after going thorugh every button and making all possinble rows, MAX 5 buttons each, add each row to the rows array
+              const maxButtonsPerRow = 5;
+              const rows = [];
+              let currentRowButtons = [];
+
+              for (let i = 0; i < buttons.length; i++) {
+                const button = buttons[i];
+
+                // If we've reached the maximum number of buttons per row, start a new row
+                if (currentRowButtons.length >= maxButtonsPerRow) {
+                  const actionRow = await createActRow.createActionRow({ components: currentRowButtons });
+                  rows.push(actionRow);
+                  currentRowButtons = [];
+                }
+
+                // Add the current button to the current row
+                currentRowButtons.push(button);
+              }
+
+              // Add any remaining buttons to the last row
+              if (currentRowButtons.length > 0) {
+                const actionRow = await createActRow.createActionRow({ components: currentRowButtons });
+                rows.push(actionRow);
+              }
+              if (rows.length > 5) {
+                rows = rows.slice(0, 5);
+              }
+
+
+              await user.send({ embeds: [embed], files: files, components: rows })
+            } else {
+              embed = createEmb.createEmbed({
+                title: `*© copyright control*`,
+                description: `> ${data.message.content}`,
+                color: scripts.getColor(),
+                author: {
+                  name: data.author.username,
+                  icon_url: data.author.avatarURL(),
+                },
+                footer: {
+                  text: `From ${data.channel.name} in ${data.guild.name} ${data.message.createdAt}`
+                }
+              })
+              await user.send({ embeds: [embed]})
+            }
+
+          }
 if (client) {
 
   // we are going to any message in a channel if that channel is listed in the database as having the feature turned on
@@ -202,64 +328,79 @@ if (client) {
   // IF the message inlcudes BOTH an audio or video file(s) attachment && a link(s) -> First the message is saved to a variable then is deleted from the channel,then the File(s) && Link(s) will be extracted from the message object and message content respectively, the file(s), link(s), & original message data will be saved to the database under a unique id to access later, A button will be created with a title `DM Content`, secondary type, and a custom id that ends in the same unique id from the file, when this button is pressed it triggers an event that dm's the user who pressed it the file(s) & link(s) associated with the custom ID ending along with the original message content, author, etc., The original message content  will be placed into an embed's description with a title of `Copyright Control` with an author being the original message's user info and avatarURL and with a footer being the og channel name, server name, & time stamp of the original messages time sent into the channel, then a message is sent into the same channel where the original message was pulled from, this message object is composed of the `Copyright Control` embed and the `DM Content` button, then the filter continues to listen for more messages
 
   client.on("messageCreate", async (m) => {
-    
+
     // run checks to see if the feature is on in the database for the messages channel & server
     const channel = m.channel;
     const guild = m.guild;
     // run function that takes in the channel and guild as parameters and returns a boolean
-    const filterOn = await filterOnChannel(channel, guild); 
+    const filterOn = await filterOnChannel(channel, guild);
 
     if (filterOn) {
       // pass the message to the filter function that checks if the message contains a link or an audio/video file attachment and returns an object with the properties being {media: boolean, links: array, files: array, message: object}
-      const filter = filterMessage(m); // this is a temp uncomplete function // TODO: complete this function
-      function filterMessage(m) {
-        let obj = {
-          media: false,
-          links: [],
-          files: [],
-          message: m,
-          link: false,
-          file: false,
-          filteredMessage: ``,
-        };
-        // check message content for links
-        if (m.content.includes("https://") || m.content.includes("http://")) {
-          const regex = /https?:\/\/[^\s]+/g;  // regular expression to match URLs
-          const links = [];  // array to store the found links
-          const newStr = str.replace(regex, (match) => {
-            links.push(match);  // push the matched link to the array
-            return '`[*]`';  // replace the link in the string with `[*]`
-          });
-          obj.filteredMessage = newStr;
-          obj.media = true;
-          obj.links = links;
-          obj.link = true;
-        }
-        // check message object for files
-        if (m.attachments.size > 0) {
-          obj.media = true;
-          // for every file attachment in the message object, push the file to the files array
-          for (const file of m.attachments.values()) {
-            obj.files.push(file);
-          }
-          obj.file = true;
-        }
-        return obj;
-        // check message object for files
-      }
+      const filter = filterMessage(m); // this is a temp uncomplete function 
+
       if (filter.media) {
         // if the message contains a link or an audio/video file attachment, then the message is deleted from the channel, the link(s) or file(s) are extracted from the message content and the message object, then the data is saved to the database under a unique id to access later, A button will be created with a title `DM Content`, secondary type, and a custom id that ends in the same unique id from the link or file, when this button is pressed it triggers an event that dm's the user who pressed it the link or file associated with the custom ID ending along with the original message content, author, etc., The original message content minus the link(s) or file(s) that was extracted will be placed into an embed's description with a title of `Copyright Control` with an author being the original message's user info and avatarURL and with a footer being the og channel name, server name, & time stamp of the original messages time sent into the channel, then a message is sent into the same channel where the original message was pulled from, this message object is composed of the `Copyright Control` embed and the `DM Content` button, then the filter continues to listen for more messages
-let author = m.author;
-let randID = scripts_djs.getRandID();
+        let author = m.author;
+        let randID = scripts_djs.getRandID();
         // delete the message from the channel
         m.delete();
 
         // save the message & links & files to the db
-        await saveCopyrightContent(filter, randID); // this is a temp uncomplete function // TODO: complete this function
+        await saveCopyrightContent(filter, randID); // this is a temp uncomplete function 
+
+
 
         // send a replacement message with the `Copyright Control` embed and the `DM Content` button
-        const message = await scripts_djs.sendCopyrightControlMessage(m, randID); // this is a temp uncomplete function // TODO: complete this function
-       } else {
+
+        let buttonObj = {
+          customID: `copyright_content_${randID}`,
+          label: `🧐`,
+          type: 'SECONDARY'
+        }
+        let embedObj = {
+          color: 'FFB700',
+          title: `⚠️ message filtered`,
+          footer: {
+            text: `© copyright control`
+          },
+          author: {
+            name: author.username,
+            icon_url: author.displayAvatarURL({ dynamic: true }),
+          },
+          description: `\`Redacted Message\`\n> ${filter.filteredMessage}`
+        };
+        let button = await createBtn.createButton(buttonObj)
+        let row = await createActRow.createActionRow({ components: [button] })
+        let embed = createEmb.createEmbed(embedObj)
+        let warningMessage;
+        try {
+          warningMessage = await filter.message.channel.send({ embeds: [embed], components: [row] })
+        } catch (error) {
+          await scripts_djs.throwErrorReply(error, message);
+        }
+        if (warningMessage) {
+          // save the warning message to the copyright content data in db
+          const query = { randID: randID };
+          const update = {
+            $set: {
+              warningMessage: {
+                embed: embed.Obj,
+                url: warningMessage.url,
+                button: buttonObj,
+                id: warningMessage.id
+              }
+            }
+          };
+          try {
+            const result = await copyrightContentDB.findOneAndUpdate(query, update, { upsert: true });
+            console.log(`found it and updated it successfully: `, result);
+          } catch (error) {
+            console.log(`an error occurred while trying to update the data to the database: `, error);
+          }
+
+        }
+      } else {
         // if the message does not contain a link or an audio/video file attachment, then nothing happens the message and the filter keeps listening for more messages
         return;
       }
@@ -267,8 +408,8 @@ let randID = scripts_djs.getRandID();
       // if the feature is not on in the database for the messages channel & server, then nothing happens the message and the filter keeps listening for more messages
       return;
     }
-        
-        
+
+
 
 
 
@@ -280,35 +421,44 @@ let randID = scripts_djs.getRandID();
     // BUTTONS
     if (interaction.isButton()) {
       console.log(`Button Clicked`);
+      const interactionObj = scripts_djs.getInteractionObj(interaction);
+    const { customID } = interactionObj;
 
-      if (customID.includes("copyright_content")) {
+      if (customID.includes("copyright_content_")) {
         await interaction.deferReply({ ephemeral: true });
         // when this button is clicked extract the data from the database and dm the user who pressed it the link or file associated with the custom ID ending along with the original message content, author, etc.
-        let randID = scripts_djs.extractID(interaction.customID);
-        let data = await getCopyrightContent(randID); // this is a temp uncomplete function // TODO: complete this function
+        let randID = scripts_djs.extractID(customID);
+        let data = await getCopyrightContent(randID);
+
         // if theres not data found then send a reply message to the user with an embed saying `No data found`
         if (data) {
-          
-          await interaction.editReply({ embeds: [createEmb.createEmbed({
-            title: " loading data... ",
-          })] });
-          sendCopyrightContent(interaction, data) // this is a temp uncomplete function // TODO: complete this function
-          .then(() => {
-            return interaction.editReply({ embeds: [createEmb.createEmbed({
-              title: labelT,
-            })] });
-          })
-          .catch(async (error) => {
-            await scripts_djs.throwErrorReply({interaction, error});
+
+          await interaction.editReply({
+            embeds: [createEmb.createEmbed({
+              title: " loading data... ",
+            })]
           });
-        
+          sendCopyrightContent(interaction, data) 
+          .then(() => {
+            return interaction.editReply({
+              embeds: [createEmb.createEmbed({
+                title: labelT,
+              })]
+            });
+          })
+            .catch(async (error) => {
+              await scripts_djs.throwErrorReply({ interaction, error });
+            });
+
         } else {
-          await interaction.editReply({embeds: [createEmb.createEmbed({
-            title: "No data found",
-          })]})
+          await interaction.editReply({
+            embeds: [createEmb.createEmbed({
+              title: "No data found",
+            })]
+          })
         }
         // client.emit("GroupBuyButton", interaction);
-      } 
+      }
     }
 
   });

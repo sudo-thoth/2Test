@@ -1,22 +1,21 @@
 const { Schema, model } = require("mongoose");
 
-const postData = new Schema(
+const channelData = new Schema(
   {
     _id: Schema.Types.ObjectId,
-    channelID: String,
+    channelID: { type: String, required: true },
     channelName: String,
     createdAt: String,
     serverName: String,
-    serverID: String,
-    managable: Boolean,
+    serverID: { type: String, required: true },
+    manageable: Boolean,
     viewable: Boolean,
     parentCategoryName: String,
     parentCategoryID: String,
-
-    randID: { type: String, required: true },
+    url: String,
     copyright_filterOn: Boolean
   },
-  { collection: "posts" } // the database default collection name the schema will be stored in
+  { collection: "channels" } // the database default collection name the schema will be stored in
 );
 
 // >> Parameters <<
@@ -24,4 +23,4 @@ const postData = new Schema(
 // 2. Schema of the model
 // 3. Name of the collection
 
-module.exports = model("postCommand", postData, "posts");
+module.exports = model("channelData", channelData, "channels");

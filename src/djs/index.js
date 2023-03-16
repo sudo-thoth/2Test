@@ -31,7 +31,7 @@ const djsEventFiles = fs
   const mongoConfig = fs.readdirSync("./src/MongoDB/db/config");
 
 
-const { token, Wok_Beta_token } = process.env;
+const {Wok_Beta_Bot_token } = process.env;
 
 client.commands = new Collection();
 
@@ -84,6 +84,6 @@ handleFunctions(djsFunctionFolders, "./src/djs/functions");
 handleEvents(client, djsEventFiles, 1);
 handleCommands(client, djsCommandFolders, "./src/djs/commands");  
 
-client.login(Wok_Beta_token);
+client.login(Wok_Beta_Bot_token);
 
 

@@ -2,20 +2,10 @@ const { REST } = require("@discordjs/rest");
 const { Routes } = require("discord-api-types/v9");
 const fs = require("fs");
 const client = require("../../index.js");
-const dotenv = require("dotenv");
-dotenv.config();
-let clientId = process.env.clientId;
-// clientId = `${clientId}`;
-
-// const clientId = "1055981172318019645";
-
-
-// get the client id from the client object
-
-// get the current guild id 
-// const guild = client.user.guild.id;
-
- // const guildId = client.user.guild.id;
+const dotenv = require("dotenv")
+dotenv.config({ path: "../../../../my.env" });
+const { Wok_Beta_Bot_token, Wok_Beta_Bot_clientId } = process.env;
+const clientId = Wok_Beta_Bot_clientId;
 
 module.exports = async (client, commandFolders, path) => {
   client.commandArray = [];
@@ -33,7 +23,7 @@ module.exports = async (client, commandFolders, path) => {
 
   const rest = new REST({
     version: "9",
-  }).setToken(process.env.token);
+  }).setToken(Wok_Beta_Bot_token);
 
   (async () => {
     try {

@@ -1204,7 +1204,7 @@ module.exports = {
       const percentRegex = /-?\d+(?=%)/;
 
       const dollarAmount = Number(
-        gbEmbedFooterText.match(dollarRegex)[0]
+        gbEmbedFooterText.match(dollarRegex)[0] // ERROR Occurs when going from Postponed to back to active gb w edit button
       ).toFixed(2);
       const percentComplete = Number(
         gbEmbedFooterText.match(percentRegex)[0]

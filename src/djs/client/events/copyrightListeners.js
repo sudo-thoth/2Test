@@ -6,6 +6,20 @@ const createEmb = require(`../../functions/create/createEmbed.js`);
 const createBtn = require(`../../functions/create/createButton.js`);
 const createActRow = require(`../../functions/create/createActionRow.js`);
 
+async function filterOnChannel(channel, guild) { // TODO: complete database aspect of the function
+  await channelsDB.findOne({channelID: channel.id, guildID: guild.id}, (err, doc) => {
+    if (err) {
+      console.error(err);
+    } else {
+      if (doc?.copyright_filterOn) {
+        return true;
+      } else {
+        return false;
+      }
+    }
+    });
+      
+}
 // const index = require(`src/djs/index.js`)
 // const client = index.getClient();
 // console.log(client);
@@ -193,10 +207,46 @@ if (client) {
     const channel = m.channel;
     const guild = m.guild;
     // run function that takes in the channel and guild as parameters and returns a boolean
-    const filterOn = filterOnChannel(channel, guild); // this is a temp uncomplete function // TODO: complete this function
+    const filterOn = await filterOnChannel(channel, guild); 
+
     if (filterOn) {
       // pass the message to the filter function that checks if the message contains a link or an audio/video file attachment and returns an object with the properties being {media: boolean, links: array, files: array, message: object}
       const filter = filterMessage(m); // this is a temp uncomplete function // TODO: complete this function
+      function filterMessage(m) {
+        let obj = {
+          media: false,
+          links: [],
+          files: [],
+          message: m,
+          link: false,
+          file: false,
+          filteredMessage: ``,
+        };
+        // check message content for links
+        if (m.content.includes("https://") || m.content.includes("http://")) {
+          const regex = /https?:\/\/[^\s]+/g;  // regular expression to match URLs
+          const links = [];  // array to store the found links
+          const newStr = str.replace(regex, (match) => {
+            links.push(match);  // push the matched link to the array
+            return '`[*]`';  // replace the link in the string with `[*]`
+          });
+          obj.filteredMessage = newStr;
+          obj.media = true;
+          obj.links = links;
+          obj.link = true;
+        }
+        // check message object for files
+        if (m.attachments.size > 0) {
+          obj.media = true;
+          // for every file attachment in the message object, push the file to the files array
+          for (const file of m.attachments.values()) {
+            obj.files.push(file);
+          }
+          obj.file = true;
+        }
+        return obj;
+        // check message object for files
+      }
       if (filter.media) {
         // if the message contains a link or an audio/video file attachment, then the message is deleted from the channel, the link(s) or file(s) are extracted from the message content and the message object, then the data is saved to the database under a unique id to access later, A button will be created with a title `DM Content`, secondary type, and a custom id that ends in the same unique id from the link or file, when this button is pressed it triggers an event that dm's the user who pressed it the link or file associated with the custom ID ending along with the original message content, author, etc., The original message content minus the link(s) or file(s) that was extracted will be placed into an embed's description with a title of `Copyright Control` with an author being the original message's user info and avatarURL and with a footer being the og channel name, server name, & time stamp of the original messages time sent into the channel, then a message is sent into the same channel where the original message was pulled from, this message object is composed of the `Copyright Control` embed and the `DM Content` button, then the filter continues to listen for more messages
 let author = m.author;
@@ -205,10 +255,10 @@ let randID = scripts_djs.getRandID();
         m.delete();
 
         // save the message & links & files to the db
-        await saveCopyrightContent(filter, randID);
+        await saveCopyrightContent(filter, randID); // this is a temp uncomplete function // TODO: complete this function
 
         // send a replacement message with the `Copyright Control` embed and the `DM Content` button
-        const message = await scripts_djs.sendCopyrightControlMessage(m, randID);
+        const message = await scripts_djs.sendCopyrightControlMessage(m, randID); // this is a temp uncomplete function // TODO: complete this function
        } else {
         // if the message does not contain a link or an audio/video file attachment, then nothing happens the message and the filter keeps listening for more messages
         return;
@@ -227,22 +277,36 @@ let randID = scripts_djs.getRandID();
 
 
   client.on("interactionCreate", async (interaction) => {
-    // console.log(`the interaction`, interaction);
-    const interactionObj = scripts_djs.getInteractionObj(interaction);
-    const { id, channel, guild, userInfo, customID } = interactionObj;
-    const { name, displayName, userId, avatar, role, roleID, roleName } =
-      userInfo;
-    const originChannel = channel;
-    let randID = 0;
-    let doc;
-
-
     // BUTTONS
     if (interaction.isButton()) {
       console.log(`Button Clicked`);
 
       if (customID.includes("copyright_content")) {
+        await interaction.deferReply({ ephemeral: true });
+        // when this button is clicked extract the data from the database and dm the user who pressed it the link or file associated with the custom ID ending along with the original message content, author, etc.
+        let randID = scripts_djs.extractID(interaction.customID);
+        let data = await getCopyrightContent(randID); // this is a temp uncomplete function // TODO: complete this function
+        // if theres not data found then send a reply message to the user with an embed saying `No data found`
+        if (data) {
+          
+          await interaction.editReply({ embeds: [createEmb.createEmbed({
+            title: " loading data... ",
+          })] });
+          sendCopyrightContent(interaction, data) // this is a temp uncomplete function // TODO: complete this function
+          .then(() => {
+            return interaction.editReply({ embeds: [createEmb.createEmbed({
+              title: labelT,
+            })] });
+          })
+          .catch(async (error) => {
+            await scripts_djs.throwErrorReply({interaction, error});
+          });
         
+        } else {
+          await interaction.editReply({embeds: [createEmb.createEmbed({
+            title: "No data found",
+          })]})
+        }
         // client.emit("GroupBuyButton", interaction);
       } 
     }

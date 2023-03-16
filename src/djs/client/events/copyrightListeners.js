@@ -189,7 +189,7 @@ function filterMessage(m) {
 async function saveCopyrightContent(data, randID) {
   // save the message & links & files to the db
   const author = data.message.author;
-  const user = await client.users.fetch(id)
+  const user = await client.users.fetch(author.id)
   let obj = {
     _id: `${new mongoose.Types.ObjectId()}`,
     randID: randID,
@@ -246,6 +246,8 @@ async function getCopyrightContent(randID) {
             let user = interaction.user;
             let embed;
             let files, overSize, buttons, rows = [];
+            const channel = client.channels.cache.get(data.channelID);
+ const guild = channel.guild;
             if (data.hasFile) {
               // send a dm to the user with the original content and files attached(only if the file is under 8mb), and an embed saying from server name, channel name, og author username & timestamp
               embed = createEmb.createEmbed({
@@ -254,10 +256,10 @@ async function getCopyrightContent(randID) {
                 color: scripts.getColor(),
                 author: {
                   name: data.author.username,
-                  icon_url: data.author.avatarURL(),
+                  icon_url: data.author.avatar,
                 },
                 footer: {
-                  text: `From ${data.channel.name} in ${data.guild.name} ${data.message.createdAt}`
+                  text: `From ${channel.name} in ${guild.name} ${data.message.createdAt}`
                 }
               })
               // for every file in the data.files check the size, if its under 8mb add it to the files array other wise add it to the over size array 
@@ -271,7 +273,7 @@ async function getCopyrightContent(randID) {
               }));
               // for every button, no more than 5 though at a time, in buttons arary, create a new row, then after going thorugh every button and making all possinble rows, MAX 5 buttons each, add each row to the rows array
               const maxButtonsPerRow = 5;
-              const rows = [];
+              
               let currentRowButtons = [];
 
               for (let i = 0; i < buttons.length; i++) {
@@ -306,10 +308,10 @@ async function getCopyrightContent(randID) {
                 color: scripts.getColor(),
                 author: {
                   name: data.author.username,
-                  icon_url: data.author.avatarURL(),
+                  icon_url: data.author.avatar,
                 },
                 footer: {
-                  text: `From ${data.channel.name} in ${data.guild.name} ${data.message.createdAt}`
+                  text: `From ${channel.name} in ${guild.name} ${data.message.createdAt}`
                 }
               })
               await user.send({ embeds: [embed]})
@@ -355,12 +357,12 @@ if (client) {
 
         let buttonObj = {
           customID: `copyright_content_${randID}`,
-          label: `🧐`,
-          type: 'SECONDARY'
+          label: `🫴🏿`,
+          type: 'PRIMARY'
         }
         let embedObj = {
           color: 'FFB700',
-          title: `⚠️ message filtered`,
+          // title: ` message filtered`,
           footer: {
             text: `© copyright control`
           },
@@ -368,7 +370,7 @@ if (client) {
             name: author.username,
             icon_url: author.displayAvatarURL({ dynamic: true }),
           },
-          description: `\`Redacted Message\`\n> ${filter.filteredMessage}`
+          description: `⚠️ \`Redacted Message\`\n> ${filter.filteredMessage}`
         };
         let button = await createBtn.createButton(buttonObj)
         let row = await createActRow.createActionRow({ components: [button] })
@@ -385,7 +387,7 @@ if (client) {
           const update = {
             $set: {
               warningMessage: {
-                embed: embed.Obj,
+                embed: embedObj,
                 url: warningMessage.url,
                 button: buttonObj,
                 id: warningMessage.id

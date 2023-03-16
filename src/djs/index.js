@@ -1,4 +1,4 @@
-require("dotenv").config();
+require("dotenv").config({ path: "./my.env" });
 const fs = require("fs");
 
 const {
@@ -31,7 +31,7 @@ const djsEventFiles = fs
   const mongoConfig = fs.readdirSync("./src/MongoDB/db/config");
 
 
-const { token } = process.env;
+const { token, Wok_Beta_token } = process.env;
 
 client.commands = new Collection();
 
@@ -63,7 +63,7 @@ client.on("ready", () => {
 });
 module.exports = client;
 handleEvents(client, mongoConfig, 2);
-const { MongoDB_Token_2Test_bot, MongoDB_Token_Wok_Beta } = process.env;
+const { MongoDB_Token_Wok_Beta } = process.env;
 
 
 (async () => {
@@ -84,6 +84,6 @@ handleFunctions(djsFunctionFolders, "./src/djs/functions");
 handleEvents(client, djsEventFiles, 1);
 handleCommands(client, djsCommandFolders, "./src/djs/commands");  
 
-client.login(token);
+client.login(Wok_Beta_token);
 
 

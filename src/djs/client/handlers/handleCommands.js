@@ -2,10 +2,11 @@ const { REST } = require("@discordjs/rest");
 const { Routes } = require("discord-api-types/v9");
 const fs = require("fs");
 
-const clientId = "1055981172318019645";
-const guildId = "1004377294615351317";
+
 const dotenv = require("dotenv")
 dotenv.config({ path: "../../../../my.env" });
+const { Wok_Beta_Bot_token, Wok_Beta_Bot_clientId } = process.env;
+const clientId = Wok_Beta_Bot_clientId;
 
 module.exports = async (client, commandFolders, path) => {
   client.commandArray = [];
@@ -23,7 +24,7 @@ module.exports = async (client, commandFolders, path) => {
 
   const rest = new REST({
     version: "9",
-  }).setToken(process.env.token);
+  }).setToken( Wok_Beta_Bot_token);
 
   (async () => {
     try {

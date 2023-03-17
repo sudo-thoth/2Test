@@ -33,6 +33,11 @@ const djsEventFiles = fs
 
 const { Test_Bot_token } = process.env;
 
+
+
+
+
+
 client.commands = new Collection();
 
 client.on("ready", () => {
@@ -62,18 +67,11 @@ client.on("ready", () => {
   }, 5000);
 });
 module.exports = client;
-handleEvents(client, mongoConfig, 2);
+
 const { MongoDB_Token_2Test_bot } = process.env;
 
 
-(async () => {
-    if (mongoose === undefined) {
-      return;
-    } else {
-      await mongoose.connect(MongoDB_Token_2Test_bot).catch(console.error);
-      console.log(`---------- >> MongoDB is Online << ----------`)
-    }
-  })();
+
   const db = mongoose.connection;
 db.on("error", () => {
   client.connectedToMongoose = false;
@@ -85,12 +83,28 @@ db.once("open", () => {
   client.connectedToMongoose = true;
 });
 
-
-
-handleFunctions(djsFunctionFolders, "./src/djs/functions");
 handleEvents(client, djsEventFiles, 1);
-handleCommands(client, djsCommandFolders, "./src/djs/commands");  
+handleEvents(client, mongoConfig, 2);
+handleFunctions(djsFunctionFolders, "./src/djs/functions");
 
-client.login(Test_Bot_token);
+
+(async () => {
+
+  if (mongoose === undefined) {
+    return;
+  } else {
+    try{
+    await mongoose.connect(MongoDB_Token_2Test_bot)
+    console.log(`---------- >> MongoDB is Online << ----------`)
+    
+  }catch(error){
+      console.error
+    } finally {
+      handleCommands(client, djsCommandFolders, "./src/djs/commands").then( 
+      client.login(Test_Bot_token))
+    }
+    
+  }
+})()
 
 

@@ -261,7 +261,7 @@ async function getCopyrightContent(randID) {
               // send a dm to the user with the original content and files attached(only if the file is under 8mb), and an embed saying from server name, channel name, og author username & timestamp
               embed = createEmb.createEmbed({
                 title: `*© copyright control*`,
-                description: data.message.content ? `> ${data.message.content}`:``,
+                description: data.message.ogContent ? `> ${data.message.ogContent}`:``,
                 color: scripts.getColor(),
                 author: {
                   name: author.name,
@@ -313,7 +313,7 @@ async function getCopyrightContent(randID) {
             } else {
               embed = createEmb.createEmbed({
                 title: `*© copyright control*`,
-                description: `> ${data.message.content}`,
+                description: `> ${data.message.ogContent}`,
                 color: scripts.getColor(),
                 author: {
                   name: author.name,
@@ -338,7 +338,7 @@ async function getCopyrightContent(randID) {
               // send a dm to the user with the original content and files attached(only if the file is under 8mb), and an embed saying from server name, channel name, og author username & timestamp
               embed = createEmb.createEmbed({
                 title: `*© copyright control*`,
-                description: data.message.content ? `> ${data.message.content}`:``,
+                description: data.message.ogContent ? `> ${data.message.ogContent}`:``,
                 color: scripts.getColor(),
                 author: {
                   name: author.name,
@@ -390,7 +390,7 @@ async function getCopyrightContent(randID) {
             } else {
               embed = createEmb.createEmbed({
                 title: `*© copyright control*`,
-                description: `> ${data.message.content}`,
+                description: `> ${data.message.ogContent}`,
                 color: scripts.getColor(),
                 author: {
                   name: author.name,

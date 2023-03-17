@@ -179,7 +179,7 @@ function filterMessage(m) {
     let hasMedia = false;
   
     for (const file of m.attachments.values()) {
-      if (file.contentType === 'audio/mpeg' || file.contentType.startsWith('video/')) {
+      if (file.contentType.startsWith('audio/') || file.contentType.startsWith('video/')) {
         // if the file is of type audio/mpeg or video, add it to the files array and mark the obj.media as true
         obj.files.push(file);
         hasMedia = true;
@@ -427,6 +427,7 @@ if (client) {
  
      if (filterOn) {
        // pass the message to the filter function that checks if the message contains a link or an audio/video file attachment and returns an object with the properties being {media: boolean, links: array, files: array, message: object}
+       console.log(`filterOn is true and here is the message: ${m.content}`, m.attachments)
        const filter = filterMessage(m); // this is a temp uncomplete function 
  
        if (filter.media) {

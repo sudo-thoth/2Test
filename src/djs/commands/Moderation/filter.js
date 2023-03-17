@@ -7,6 +7,7 @@ const scripts = require("../../functions/scripts/scripts.js");
 const channelsDB = require("../../../MongoDB/db/schemas/schema_channels.js");
 const createEmb = require("../../functions/create/createEmbed.js")
 const mongoose = require("mongoose");
+const client = require("../../index.js");
 async function throwNewError(
   action = action && typeof action === "string" ? action : null,
   interaction,

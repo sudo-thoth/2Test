@@ -8,7 +8,7 @@ const copyrightContent = new Schema(
     hasLink: Boolean,
     hasFile: Boolean,
     links: [String],
-    files: [String],
+    files: [Object],
     message: {
       ogContent: String,
       filteredContent: String,
@@ -27,6 +27,7 @@ const copyrightContent = new Schema(
       url: String,
       button: Object,
       id: String,
+      channelID: String,
     }
   },
   { collection: "channels" } // the database default collection name the schema will be stored in

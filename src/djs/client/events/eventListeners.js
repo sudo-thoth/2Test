@@ -1455,7 +1455,16 @@ if (client) {
           }
         }
       } else if (customID.includes("view_attachment_")) {
-        await interaction.deferReply({ ephemeral: true });
+        try {
+          await interaction.deferReply({ ephemeral: true });
+        } catch (error) {
+          try {
+            await interaction.reply({embeds: [createEmb.createEmbed({title: "There was an error, send it to **Steve Jobs** and please try again later",description: `\`\`\`js\n${error}\`\`\``, color: scripts.getErrorColor()})]})
+          } catch (error) {
+            console.log(error)
+          }
+          return
+        }
         randID = scripts_djs.extractID(customID);
         let data = await scripts_mongoDB.getPostData(randID);
         // await interaction.channel.send({content:`\`\`\`js

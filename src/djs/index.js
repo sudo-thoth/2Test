@@ -75,8 +75,15 @@ const { MongoDB_Token_2Test_bot } = process.env;
     }
   })();
   const db = mongoose.connection;
-db.on("error", console.error.bind(console, "connection error:"));
-db.once("open", () => console.log("Connected to MongoDB"));
+db.on("error", () => {
+  client.connectedToMongoose = false;
+  console.error.bind(console, "connection error:")
+  
+});
+db.once("open", () => {
+  console.log("Connected to MongoDB")
+  client.connectedToMongoose = true;
+});
 
 
 

@@ -199,48 +199,52 @@ module.exports = {
       : "No type provided.";
     await interaction.deferReply({ ephemeral: true });
 
-    //first see if the current channel is in teh db or not, if it is not creata an obj and upload it to the db
-    let data =  await setupChannel(interaction.channel)
-
-    // use a switch tree to dtermine the type (options being `type` ) 
-    switch (type) {
-      case `copyright`:
-        // 
-        // let data = await getChannel(interaction.channel)
-        if (data) {
-          let state = data?.copyright_filterOn;
-          if (state == true) {
-            // toggle the filter to OFF and send a message saying filters been turned OFF
-
-              toggleCopyrightFilter(interaction.channel, false).then(async () => {
-                await interaction.editReply({embeds: [createEmb.createEmbed({description: `🔴 \`© copyright filter\` has been turned \`OFF\``})]})
-                await scripts.delay(3000)
-                await interaction.deleteReply()
-              }).catch(async (error) => {            
-              await throwNewError({interaction:interaction, error:error, action: `toggle copyright filter`})
-            })
-            
-            } else {
-              toggleCopyrightFilter(interaction.channel, true).then(async () => {
-                await interaction.editReply({embeds: [createEmb.createEmbed({description: `🟢 \`© copyright filter\` has been turned \`ON\``})]})
-                await scripts.delay(3000)
-                await interaction.deleteReply()
-              }).catch(async (error) => {            
-              await throwNewError({interaction:interaction, error:error, action: `toggle copyright filter`})
-            })
+  if (client.connectedToMongoose) {
+      //first see if the current channel is in teh db or not, if it is not creata an obj and upload it to the db
+      let data =  await setupChannel(interaction.channel)
+  
+      // use a switch tree to dtermine the type (options being `type` ) 
+      switch (type) {
+        case `copyright`:
+          // 
+          // let data = await getChannel(interaction.channel)
+          if (data) {
+            let state = data?.copyright_filterOn;
+            if (state == true) {
+              // toggle the filter to OFF and send a message saying filters been turned OFF
+  
+                toggleCopyrightFilter(interaction.channel, false).then(async () => {
+                  await interaction.editReply({embeds: [createEmb.createEmbed({description: `🔴 \`© copyright filter\` has been turned \`OFF\``})]})
+                  await scripts.delay(3000)
+                  await interaction.deleteReply()
+                }).catch(async (error) => {            
+                await throwNewError({interaction:interaction, error:error, action: `toggle copyright filter`})
+              })
+              
+              } else {
+                toggleCopyrightFilter(interaction.channel, true).then(async () => {
+                  await interaction.editReply({embeds: [createEmb.createEmbed({description: `🟢 \`© copyright filter\` has been turned \`ON\``})]})
+                  await scripts.delay(3000)
+                  await interaction.deleteReply()
+                }).catch(async (error) => {            
+                await throwNewError({interaction:interaction, error:error, action: `toggle copyright filter`})
+              })
+              }
+  
+            } else{
+              await interaction.editReply({embeds:[createEmb.createEmbed({color: scripts.getErrorColor(),
+              description: `An Error Occurred when Finding out if the Channel is already filtered or not\nContact Steve Jobs`})]})
             }
-
-          } else{
-            await interaction.editReply({embeds:[createEmb.createEmbed({color: scripts.getErrorColor(),
-            description: `An Error Occurred when Finding out if the Channel is already filtered or not\nContact Steve Jobs`})]})
-          }
-          break;
-
-      default:
-        await interaction.editReply({embeds: [createEmb.createEmbed({description: `🔴 an error occured`})]})
-      break;
-
-    }
+            break;
+  
+        default:
+          await interaction.editReply({embeds: [createEmb.createEmbed({color: scripts.getErrorColor(), description: `🔴 an error occurred, please finish specifying the \`type\` of filter to apply\n\`type\` active options: \`copyright\``})]})
+        break;
+  
+      }
+  } else {
+    await interaction.editReply({embeds: [createEmb.createEmbed({description: `🔴 \`© copyright filter\` has been turned \`OFF\` Due to a disconnect to the Database Server\n\nRequest Steve Jobs Restart the Bot for filter abilities`})]})
+  }
 
     console.log(`Filter Command Complete: ✅`);
   }

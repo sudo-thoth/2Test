@@ -1,5 +1,6 @@
 const { Interaction } = require("discord.js");
-const scripts_djs = require("../../functions/scripts/scripts_djs.js");
+const scripts = require("../../functions/scripts/scripts.js");
+const createEmb = require("../../functions/create/createEmbed.js");
 
 module.exports = {
     name: 'interactionCreate',
@@ -18,11 +19,7 @@ console.log(`the command`, command)
 	            await command.execute(interaction, client);
 	        } catch (error) {
 	            console.log(error);
-	            await interaction.channel.send({
-	                content: 'There was an error while executing this command!\n' + "```js\n" + error + "\n```",
- 
-	                
-	            });
+	            await interaction.user.send({embeds: [createEmb.createEmbed({title: `There was an error while executing this command! - \`${interaction.command.data.name}\``, description: `> When? \`${new Date()}\`\n> Server: \` ${interaction.guild.name} - \`||${interaction.guild.id}||\n> Channel: \`${interaction.channel.name} - \`||${interaction.channel.id}||\n${interaction.options ? (interaction.options.length > 0 ? `> Options: \`${interaction.options}\`\n` : ``):``}\`\`\`js\n${error}\n\`\`\``, color: scripts.getErrorColor})]});
 	        } 
 } else {
 

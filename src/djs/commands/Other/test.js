@@ -37,7 +37,13 @@ module.exports = {
     let result, testResultEmbed;
 
     const interactionObj = scripts_djs.getInteractionObj(interaction);
-    await interaction.deferReply({ ephemeral: true })
+    try {
+      await interaction.deferReply({ ephemeral: true })
+    } catch (error) {
+      if(error.message.includes(`Unknown interaction`)){return;} else{console.log(error)}
+      
+      
+    }
     try {
 
       // Test Code Here
@@ -48,7 +54,7 @@ module.exports = {
 
       // // Testing beginFileFetch()
       //  scripts_djs.beginFileFetch(interaction);
-
+      await interaction.editReply({content: `Hi go cry like a  <:android:1083158839957921882>`})
 
       // // Testing createFolders()
       // scripts.createFolders(scripts.songs, `/Users/logantucker/Desktop/Juice Song Layout`);

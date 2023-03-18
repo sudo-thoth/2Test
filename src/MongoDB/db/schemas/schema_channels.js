@@ -14,6 +14,8 @@ const channelData = new Schema(
     parentCategoryID: String,
     url: String,
     copyright_filterOn: Boolean
+    attachments_filterOn: Boolean,
+    links_filterOn: Boolean,
   },
   { collection: "channels" } // the database default collection name the schema will be stored in
 );

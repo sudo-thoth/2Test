@@ -602,7 +602,7 @@ async function uploadMessageBatch(interaction, target, beforeID, afterID) {
     await interaction.editReply({
       embeds: [
         createEmb.createEmbed({
-          title: `❌ No Files or Messages with Content Found!`,
+          title: `<:no:1086779697154760777> No Files or Messages with Content Found!`,
         })]}); return;
   }
    names = names.attachments
@@ -637,7 +637,7 @@ async function uploadMessageBatch(interaction, target, beforeID, afterID) {
           timeoutMessage = await targetChannel.send({content:`<@${interaction.user.id}>`,embeds: [
            createEmb.createEmbed({
                title: `${numSaved} Results Were Sent To Your DMs`,
-               description: `Due to: ❌ Invalid Webhook Token\nThere were so many messages to be saved, the original Results Message Timed Out`,
+               description: `Due to: <:no:1086779697154760777> Invalid Webhook Token\nThere were so many messages to be saved, the original Results Message Timed Out`,
                color: scripts.getErrorColor(),
              }),
            ]})
@@ -817,7 +817,7 @@ const timeLeft = `<t:${Math.floor(Date.now() / 1000)}:R>`; // format elapsed tim
         await interaction.editReply({
           embeds: [
             createEmb.createEmbed({
-              title: `❌ No Files Found!`,
+              title: `<:no:1086779697154760777> No Files Found!`,
               content: `\`no files found for batch id: ${batch_id}\``,
               color: scripts.getErrorColor(),
             }),
@@ -1036,7 +1036,7 @@ try {
     try {
       await interaction.channel.send({content:`<@${interaction.user.id}>`,embeds: [
         createEmb.createEmbed({
-            title: `❌ This Didn't Go According To Plan`,
+            title: `<:no:1086779697154760777> This Didn't Go According To Plan`,
             description: `There was an error sending the results list` + `\n\`\`\`js\n` + `${error}` + `\n\`\`\``,
             color: scripts.getErrorColor(),
           }),

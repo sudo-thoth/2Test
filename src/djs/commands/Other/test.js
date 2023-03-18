@@ -25,7 +25,7 @@ module.exports = {
     // Change the content into embeds
     const success = `✅ The Test was a Success!`;
 
-    const fail = `❌ The Test Failed!`;
+    const fail = `<:no:1086779697154760777> The Test Failed!`;
     const description = `\`Tested : ${testing}\``
 
 

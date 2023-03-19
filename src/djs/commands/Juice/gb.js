@@ -1723,12 +1723,12 @@ module.exports = {
       fields: [
         {
           name: `__Amount Paid__`,
-          value: price == `` ? `\`$\` \`0\`` : `\`$\`  \`${priceNumber}\``,
+          value: `\`$\`  \`${priceNumber}\``,
           inline: false,
         },
         {
           name: `__Song Price__`,
-          value: price == `` ? `\`$\` \`0\`` : `\`$\`  \`${priceNumber}\``,
+          value: `\`$\`  \`${priceNumber}\``,
           inline: false,
         },
       ],

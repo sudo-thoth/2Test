@@ -19,6 +19,15 @@ module.exports = {
     .setName(`${commandName}`)
     .setDescription(`${commandDescription}}`),
   async execute(interaction) {
+    const nodemon = require('nodemon');
+    nodemon.once('exit', () => { // This will run when nodemon has finished
+      console.log('nodemon has stopped');
+    });
+    
+    nodemon.emit('quit');
+    
+      process.kill(process.pid, 'SIGINT');
+   
     let testing = 'nothing';
 
     // Success and Fail Messages
@@ -44,6 +53,7 @@ module.exports = {
       
       
     }
+    // throw new Error('Test Error');
     try {
 
       // Test Code Here
@@ -54,7 +64,8 @@ module.exports = {
 
       // // Testing beginFileFetch()
       //  scripts_djs.beginFileFetch(interaction);
-      await interaction.editReply({content: `Hi go cry like a  <:android:1083158839957921882>`})
+      await interaction.editReply({content: `Hi test go cry like a  <:android:1083158839957921882>`})
+      
 
       // // Testing createFolders()
       // scripts.createFolders(scripts.songs, `/Users/logantucker/Desktop/Juice Song Layout`);

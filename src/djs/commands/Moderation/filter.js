@@ -228,19 +228,19 @@ module.exports = {
 
     let filters = {
       attachments: {
-        on: `🟢 \`💽 Attachments filter\``,
-        off: `🔴 \`💽 Attachments filter\``,
-        string: `💽 Attachments`
+        on: `<:Online:1068901648296063047> <:10671434201602907700128:1086967254773678172> \`Attachments filter\``,
+        off: `<:Offline:1068901698388623360> <:10671434201602907700128:1086967254773678172> \`Attachments filter\``,
+        string: `<:10671434201602907700128:1086967254773678172> Attachments`
       },
       links: {
-        on: `🟢 \`🔗 Links filter\``,
-        off: `🔴 \`🔗 Links filter\``,
-        string: `🔗 Links`
+        on: `<:Online:1068901648296063047> <:IconStatusWebOnline:884924726814867457>\`Links filter\``,
+        off: `<:Offline:1068901698388623360> <:IconStatusWebOnline:884924726814867457>\`Links filter\``,
+        string: `<:IconStatusWebOnline:884924726814867457> Links`
       },
       copyrightControl: {
-        on: `🟢 \`© Copyright filter\``,
-        off: `🔴 \`© Copyright filter\``,
-        string: `© Copyright`
+        on: `<:Dot3:1075069088969265152> <:No_Copyright_Icon:1086833404227616788> \`Copyright filter\``,
+    off: `<:1486moderationvhighest:1086718105042034880> <:No_Copyright_Icon:1086833404227616788> \`Copyright filter\``,
+        string: `<:No_Copyright_Icon:1086833404227616788> Copyright`
       }
       }
 
@@ -373,7 +373,8 @@ module.exports = {
             link: data?.links_filterOn ? filters.links.on : filters.links.off,
             }
 
-                await interaction.editReply({embeds: [createEmb.createEmbed({title: `Filter Status`, description: `Channel Affected: <#${interaction.channel.id}>\n\n---------------------------\n${states.copyright}\n${states.attachment}\n${states.link}`, author:{name: `To toggle a Filter run /filter <filter_type>`}})]})
+                await interaction.editReply({embeds: [createEmb.createEmbed({title: `<:I_Filter:923312623288741949> Filter Status`, description: `Channel Affected: <#${interaction.channel.id}>\n---------------------------\n${states.copyright}\n╰<a:Arrow_right:1022976841444769823>${states.attachment}\n╰<a:Arrow_right:1022976841444769823>${states.link}`, author:{name: `To toggle a Filter run /filter <filter_type>`, icon_url: `https://media.discordapp.net/attachments/1085659086646943806/1086852443607945276/output-onlinepngtools.PNG?width=493&height=465`
+              }})]})
                 await scripts.delay(9000)
                 try {
                   await interaction.deleteReply()
@@ -392,7 +393,7 @@ module.exports = {
   
       }
   } else {
-    await interaction.editReply({embeds: [createEmb.createEmbed({description: `Filters have been turned \`OFF\` Due to a disconnect with the Database Server\n\n${filters.attachments.off}\n${filters.links.off}\n${filters.copyrightControl.off}\n\n\nRequest Steve Jobs Restart the Bot for filtration abilities`})]})
+    await interaction.editReply({embeds: [createEmb.createEmbed({description: `Filters have been turned \`OFF\` Due to a disconnect with the Database Server\n\n\n${filters.copyrightControl.off}\n╰<a:Arrow_right:1022976841444769823>${filters.attachments.off}\n╰<a:Arrow_right:1022976841444769823>${filters.links.off}\n\n\n**Run \`/reconnect\` to force a reconnection to the database**\nIf no luck after multiple attempts, Request Steve Jobs Restart the Bot to restore filtration abilities`})]})
   }
 
     console.log(`Filter Command Complete: ✅`);

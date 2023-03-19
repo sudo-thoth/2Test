@@ -7,9 +7,7 @@ const {
   TextInputBuilder,
   TextInputStyle,
   Collection,
-  Permissions,
 } = require("discord.js");
-
 const createModal = require("../../functions/create/createModal.js");
 const client = require(`../../index.js`);
 const saveInteraction = require("../../functions/groupbuy/saveInteraction.js");
@@ -81,18 +79,10 @@ async function throwNewError(interaction, err, i) {
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("gb")
-    .setDescription("post group buy"),
-    
+    .setDescription("post group buy")
+    .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
   async execute(interaction) {
     // await interaction.deferReply({ ephemeral: true });
-    const member = interaction.member;
-const hasRequiredRole = member.roles.cache.some(role => ["admin", "manager", "mod", "moderator", "higher-ups", "administrator", "owner" ].includes(role.name.toLowerCase()));
-if (!(member.permissions.has('Administrator') || hasRequiredRole)  ) {
-  await interaction.reply({embeds: [createEmb.createEmbed({title: "⚠️ You do not have permission to use this command", color: scripts.getErrorColor()})]});
-  return;
-} else {
-  
-
      const randID = scripts_djs.getRandID(); // testing new randID below, this is old
    // let randID = scripts_djs.extractID(customID);
     // upon execution of the command, the user is shown a modal that gathers the gb name, the total amount of price needed, the current amount of money raised
@@ -175,7 +165,16 @@ if (!(member.permissions.has('Administrator') || hasRequiredRole)  ) {
     // Show the Modal to the user
     await interaction.showModal(modal2);
 
-}
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // Second step is receive the client emitted event along with the data payload
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    // @binmalyi these are all the button and modal interactions that need to be taken out of the events and into the component collector
+    // but in the gb-post part where the message is created, how do I format everything within the message.component collector so that the user can still go back and click on the button and have the interaction work even if I restart the since creation?
+    // Receive Button Interactions
   },
   async runGB(obj, interaction) {
     const {
@@ -438,12 +437,9 @@ if (!(member.permissions.has('Administrator') || hasRequiredRole)  ) {
     try {
       await interaction.deferReply({ ephemeral: true });
     } catch (error) {
-      await interaction.user.send({embeds:[createEmb.createEmbed({title:`Error - editing gb`,description:`\`\`\`js\n${error}\n\`\`\`\n__Share the Error with Steve Jobs__`,color:scripts.getErrorColor()})]}) // HERE IS THE ERROR update to send to developers
+      await interaction.editReply({embeds:[createEmb.createEmbed({title:`Error - editing gb`,description:`\`\`\`js\n${error}\n\`\`\`\n__Share the Error with Steve Jobs__`,color:scripts.getErrorColor()})]})
     }
-    const member = interaction.member;
-const hasRequiredRole = member.roles.cache.some(role => ["admin", "manager", "mod", "moderator", "higher-ups", "administrator", "owner" ].includes(role.name.toLowerCase()));
-// interaction.memberPermissions.has("Administrator")
-    if (!(member.permissions.has('Administrator') || hasRequiredRole) ) {
+    if (!interaction.memberPermissions.has("Administrator")) {
       console.log(
         `Edit Button Clicked by a non-admin user:\nusername: ${interaction.member.user.username}\nID: ${interaction.member.user.id}\nGuild: ${interaction.guild.name}\nGuild ID: ${interaction.guild.id}\nChannel: ${interaction.channel.name}\nChannel ID: ${interaction.channel.id}\nMessage ID: ${interaction.message.id}\nButton ID: ${interaction.customID}`
       );
@@ -1208,7 +1204,7 @@ const hasRequiredRole = member.roles.cache.some(role => ["admin", "manager", "mo
       const percentRegex = /-?\d+(?=%)/;
 
       const dollarAmount = Number(
-        gbEmbedFooterText.match(dollarRegex)[0] // ERROR Occurs when going from Postponed to back to active gb w edit button
+        gbEmbedFooterText.match(dollarRegex)[0]
       ).toFixed(2);
       const percentComplete = Number(
         gbEmbedFooterText.match(percentRegex)[0]
@@ -1727,12 +1723,12 @@ const hasRequiredRole = member.roles.cache.some(role => ["admin", "manager", "mo
       fields: [
         {
           name: `__Amount Paid__`,
-          value: price == `` ? `\`$\` \`0\`` : `\`$\`  \`${priceNumber}\``,
+          value: `\`$\`  \`${priceNumber}\``,
           inline: false,
         },
         {
           name: `__Song Price__`,
-          value: price == `` ? `\`$\` \`0\`` : `\`$\`  \`${priceNumber}\``,
+          value: `\`$\`  \`${priceNumber}\``,
           inline: false,
         },
       ],

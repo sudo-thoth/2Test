@@ -452,7 +452,7 @@ if (client) {
  
          let buttonObj = {
            customID: `copyright_content_${randID}`,
-           label: `👻`,
+           emoji: `<:Aired:1086617278839279666>`,
            style: 'secondary'
          }
          let embedObj = {

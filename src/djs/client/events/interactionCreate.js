@@ -19,7 +19,8 @@ console.log(`the command`, command)
 	            await command.execute(interaction, client);
 	        } catch (error) {
 	            console.log(error);
-	            await interaction.user.send({embeds: [createEmb.createEmbed({title: `There was an error while executing this command! - \`${interaction.command.data.name}\``, description: `> When? \`${new Date()}\`\n> Server: \` ${interaction.guild.name} - \`||${interaction.guild.id}||\n> Channel: \`${interaction.channel.name} - \`||${interaction.channel.id}||\n${interaction.options ? (interaction.options.length > 0 ? `> Options: \`${interaction.options}\`\n` : ``):``}\`\`\`js\n${error}\n\`\`\``, color: scripts.getErrorColor})]});
+	            await interaction.user.send({embeds: [createEmb.createEmbed({title: `There was an error while executing this command! - \`${interaction.command?.data?.name}\``, 
+                description: `> When? \`${new Date()}\`\n> Server: \` ${interaction.guild.name} - \`||${interaction.guild.id}||\n> Channel: \`${interaction.channel.name} - \`||${interaction.channel.id}||\n${interaction.options ? (interaction.options?.length > 0 ? `> Options: \`${interaction.options}\`\n` : ``):``}\`\`\`js\n${error}\n\`\`\``, color: scripts.getErrorColor()})]});
 	        } 
 } else {
 

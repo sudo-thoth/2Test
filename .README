@@ -8,3 +8,6 @@ Required Projects to Install Before use
 - dotenv >> npm i dotenv
 
 
+Adjust bot token in index.js
+
+Adjust MongoDB token in index.js & reconnect.js

@@ -1092,7 +1092,100 @@ async function getGroupbuyCount() {
 // function to retrieve all groupbuys created by a specific user
 async function getMessagesByBatchID(batchID) {
   let messages = await messagesdb.find({ "batchID": batchID });
+  console.log(messages)
+  // figuring out a way to only return messages that contain either a link in the message content, an embed in the message object, or at least 1 attachment of type audio or video (ignore image files and dont include in the returned messages)
+  // messages is an array of models
+  // a model is {
+//   _doc: {
+//     _id: {
+//     },
+//     attachments: [
+//       {
+//         name: "Crystal_140BPM.wav",
+//         url: "https://cdn.discordapp.com/attachments/742516493702397952/1081953538034380980/Crystal_140BPM.wav",
+//         id: "1081953538034380980",
+//         size: 52663002,
+//         messageID: "1081953538759991377",
+//         batchID: "202326195349850",
+//         messageAuthor: "my way home v2",
+//         timestamp: "3/5/2023, 9:57:05 AM",
+//         metaData: {
+//           requestedBy: "ꜱᴛᴇᴠᴇ ᴊᴏʙꜱ",
+//           requestedByID: "975944168373370940",
+//           dateRequested: "2023-03-07T00:53:55.618Z",
+//           originServer: "Central Place For Creativity",
+//           originServerID: "742515836870459535",
+//           originChannelID: "742516493702397952",
+//           originChannel: "instrumentals",
+//         },
+//       },
+//       {
+//         name: "145_bpm.mp3",
+//         url: "https://cdn.discordapp.com/attachments/742516493702397952/1081953538449625088/145_bpm.mp3",
+//         id: "1081953538449625088",
+//         size: 6900293,
+//         messageID: "1081953538759991377",
+//         batchID: "202326195349850",
+//         messageAuthor: "my way home v2",
+//         timestamp: "3/5/2023, 9:57:05 AM",
+//         metaData: {
+//           requestedBy: "ꜱᴛᴇᴠᴇ ᴊᴏʙꜱ",
+//           requestedByID: "975944168373370940",
+//           dateRequested: "2023-03-07T00:53:55.618Z",
+//           originServer: "Central Place For Creativity",
+//           originServerID: "742515836870459535",
+//           originChannelID: "742516493702397952",
+//           originChannel: "instrumentals",
+//         },
+//       },
+//     ],
+//     embeds: [
+//     ],
+//     batchID: "202326195349850",
+//     messageAuthor: "my way home v2",
+//     content: "Crystal and Love Tucked instrumental (repost)",
+//     messageID: "1081953538759991377",
+//     numOfAttachments: 2,
+//     numOfEmbeds: 0,
+//     timestamp: "3/5/2023, 9:57:05 AM",
+//     index: 1,
+//     __v: 0,
+//   },
+// }
+// model contains a _doc aka the message object saved the the database\
+// _doc has an array of objects called attachments where each object is an attachment 
+// d_doc also has content, embeds, batchID, messageAuthor, messageID, numOfAttachments, numOfEmbeds, timestamp, index
+
+
+let validMessages = [];
+for (let i = 0; i < messages.length; i++) {
+  let message = messages[i]?._doc;
+  if (message.embeds?.length > 0) {
+    validMessages.push(message);
+  } else if(message.content.includes("https://") || message.content.includes("http://")){
+    validMessages.push(message);
+  } else if(message.attachments?.length > 0){
+
+      let hasMedia = false;
+  
+      for (const file of m.attachments.values()) {
+        if (file.name.endsWith('.mp3') || file.name.endsWith('.wav') || file.name.endsWith('.m4a') || file.name.endsWith('.mp4') || file.name.endsWith('.aiff') || file.name.endsWith('.alac') || file.name.endsWith('.flac') || file.name.endsWith('.m4p') || file.name.endsWith('.ogg') || file.name.endsWith('.oga') || file.name.endsWith('.raw') || file.name.endsWith('.vox') || file.name.endsWith('.webm')) {
+          hasMedia = true;
+        }
+      }
+  
+      if(hasMedia){
+        validMessages.push(message)
+      }
+
+  }
+  messages = validMessages.length > 0 ? validMessages : messages;
+  // format the array of messages so the first message in the array is the oldest according to the message timestamp, sort oldest to newest
+  messages.sort((a, b) => new Date(a._doc.timestamp) - new Date(b._doc.timestamp));
+
+
   return messages;
+}
 }
 // function to retrieve all groupbuys created by a specific user in a specific guild
 async function getGroupbuysByUserAndGuild(userID, guildID) {

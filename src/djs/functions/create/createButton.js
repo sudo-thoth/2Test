@@ -88,11 +88,11 @@ async function createButton(buttonObj, randID) {
           }
         } else {
 
-          try {
-            throw new Error("customID is not defined");
-          } catch (error) {
-            scripts.logError(error, "customID is not defined");
-          }
+          // try {
+          //   throw new Error("customID is not defined");
+          // } catch (error) {
+          //   scripts.logError(error, "customID is not defined");
+          // }
         }
       } catch (error) {
         scripts.logError(error, "err trying to get data in button create");

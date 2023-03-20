@@ -108,7 +108,7 @@ async function throwNewError(
 async function getChannel(channel) {
   
   let data;
-
+  // searching channels db for the channel
   try {
     data = await channelsDB.findOne({ channelID: `${channel.id}`, serverID: `${channel.guild.id}` })
   } catch (error) {
@@ -153,6 +153,8 @@ async function setupChannel(channel) {
       parentCategoryID: `${channel.parentId}`,
       url: `${channel.url}`,
       copyright_filterOn: false,
+      attachments_filterOn: false,
+      links_filterOn: false,
     }
     try {
       await channelsDB.create(obj);
@@ -175,21 +177,37 @@ async function setupChannel(channel) {
   }
 
 }
-
+async function toggleAttachmentsFilter(channel, state) {
+  await channelsDB.updateOne({ channelID: `${channel.id}`, serverID: `${channel.guild.id}` }, { $set: { attachments_filterOn: state } }).exec();
+  if (state === false){
+    await channelsDB.updateOne({ channelID: `${channel.id}`, serverID: `${channel.guild.id}` }, { $set: { copyright_filterOn: state } }).exec();
+  }
+}
+async function toggleLinksFilter(channel, state) {
+  await channelsDB.updateOne({ channelID: `${channel.id}`, serverID: `${channel.guild.id}` }, { $set: { links_filterOn: state } }).exec();
+  if (state === false){
+    await channelsDB.updateOne({ channelID: `${channel.id}`, serverID: `${channel.guild.id}` }, { $set: { copyright_filterOn: state } }).exec();
+  }
+}
 async function toggleCopyrightFilter(channel, state) {
-              await channelsDB.updateOne({ channelID: `${channel.id}`, serverID: `${channel.guild.id}` }, { $set: { copyright_filterOn: state } }).exec();
-            }
+  await channelsDB.updateOne({ channelID: `${channel.id}`, serverID: `${channel.guild.id}` }, { $set: { copyright_filterOn: state } }).exec();
+  await toggleAttachmentsFilter(channel, state)
+  await toggleLinksFilter(channel, state)
+}
+
 
 
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("filter")
-    .setDescription("select a filter to apply to the current channel")
+    .setDescription("TOGGLE What You Want To Filter?")
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageChannels)
     .addStringOption((option) =>
-      option.setName("type").setDescription("type of filter to apply.")
+      option.setName("type").setDescription("leave blank for ALL Filter Status's")
         .addChoices(
-          { name: "© copyright control", value: "copyright" },
+          { name: "© Copyright Control", value: "copyright" },
+          { name: "💽 Attachments", value: "attachment" },
+          { name: "🔗 Links", value: "link" },
         )
     ),
 
@@ -197,8 +215,34 @@ module.exports = {
     const { options } = interaction;
     const type = options.getString("type")
       ? options.getString("type")
-      : "No type provided.";
-    await interaction.deferReply({ ephemeral: true });
+      : "list";
+    try {
+      await interaction.deferReply({ ephemeral: true });
+    } catch (error) {
+      if(error.message.includes(`Unknown interaction`)){console.log(`An unknown Interaction was Logged\nInteraction User ${interaction.user.username}`) // <:android:1083158839957921882>
+        return;
+      } else{
+        await throwNewError({ action: `deferring filter command input`, interaction: interaction, error: error });
+      }
+    }
+
+    let filters = {
+      attachments: {
+        on: `<:Online:1068901648296063047> <:10671434201602907700128:1086967254773678172> \`Attachments filter\``,
+        off: `<:Offline:1068901698388623360> <:10671434201602907700128:1086967254773678172> \`Attachments filter\``,
+        string: `<:10671434201602907700128:1086967254773678172> Attachments`
+      },
+      links: {
+        on: `<:Online:1068901648296063047> <:IconStatusWebOnline:884924726814867457>\`Links filter\``,
+        off: `<:Offline:1068901698388623360> <:IconStatusWebOnline:884924726814867457>\`Links filter\``,
+        string: `<:IconStatusWebOnline:884924726814867457> Links`
+      },
+      copyrightControl: {
+        on: `<:Dot3:1075069088969265152> <:No_Copyright_Icon:1086833404227616788> \`Copyright filter\``,
+    off: `<:1486moderationvhighest:1086718105042034880> <:No_Copyright_Icon:1086833404227616788> \`Copyright filter\``,
+        string: `<:No_Copyright_Icon:1086833404227616788> Copyright`
+      }
+      }
 
   if (client.connectedToMongoose) {
       //first see if the current channel is in teh db or not, if it is not creata an obj and upload it to the db
@@ -207,15 +251,14 @@ module.exports = {
       // use a switch tree to dtermine the type (options being `type` ) 
       switch (type) {
         case `copyright`:
-          // 
-          // let data = await getChannel(interaction.channel)
+
           if (data) {
             let state = data?.copyright_filterOn;
             if (state == true) {
               // toggle the filter to OFF and send a message saying filters been turned OFF
   
                 toggleCopyrightFilter(interaction.channel, false).then(async () => {
-                  await interaction.editReply({embeds: [createEmb.createEmbed({description: `🔴 \`© copyright filter\` has been turned \`OFF\``})]})
+                  await interaction.editReply({embeds: [createEmb.createEmbed({description: `${filters.copyrightControl.off} has been turned \`OFF\``})]})
                   await scripts.delay(3000)
                   await interaction.deleteReply()
                 }).catch(async (error) => {            
@@ -224,7 +267,7 @@ module.exports = {
               
               } else {
                 toggleCopyrightFilter(interaction.channel, true).then(async () => {
-                  await interaction.editReply({embeds: [createEmb.createEmbed({description: `🟢 \`© copyright filter\` has been turned \`ON\``})]})
+                  await interaction.editReply({embeds: [createEmb.createEmbed({description: `${filters.copyrightControl.on} has been turned \`ON\``})]})
                   await scripts.delay(3000)
                   await interaction.deleteReply()
                 }).catch(async (error) => {            
@@ -234,17 +277,123 @@ module.exports = {
   
             } else{
               await interaction.editReply({embeds:[createEmb.createEmbed({color: scripts.getErrorColor(),
-              description: `An Error Occurred when Finding out if the Channel is already filtered or not\nContact Steve Jobs`})]})
+                description: `An Error Occurred when Finding out if the Channel is already filtered or not - case: \`${type}\nContact Steve Jobs`})]})
             }
             break;
   
+        case `attachment`:
+        if (data) {
+          let state = data?.attachments_filterOn;
+          if (state == true) {
+            // toggle the filter to OFF and send a message saying filters been turned OFF
+
+              toggleAttachmentsFilter(interaction.channel, false).then(async () => {
+                await interaction.editReply({embeds: [createEmb.createEmbed({description: `${filters.attachments.off} has been turned \`OFF\``})]})
+                await scripts.delay(3000)
+                await interaction.deleteReply()
+              }).catch(async (error) => {            
+              await throwNewError({interaction:interaction, error:error, action: `toggle attachments filter`})
+            })
+            
+            } else {
+              if(data?.links_filterOn === true){
+              toggleCopyrightFilter(interaction.channel, true).then(async () => {
+                await interaction.editReply({embeds: [createEmb.createEmbed({description: `${filters.attachments.on} has been turned \`ON\``})]})
+                await scripts.delay(3000)
+                await interaction.deleteReply()
+              }).catch(async (error) => {            
+              await throwNewError({interaction:interaction, error:error, action: `toggle attachments filter`})
+            })
+            } else {
+              toggleAttachmentsFilter(interaction.channel, true).then(async () => {
+                await interaction.editReply({embeds: [createEmb.createEmbed({description: `${filters.attachments.on} has been turned \`ON\``})]})
+                await scripts.delay(3000)
+                await interaction.deleteReply()
+              }).catch(async (error) => {            
+              await throwNewError({interaction:interaction, error:error, action: `toggle attachments filter`})
+            })
+            }
+            }
+
+          } else{
+            await interaction.editReply({embeds:[createEmb.createEmbed({color: scripts.getErrorColor(),
+            description: `An Error Occurred when Finding out if the Channel is already filtered or not - case: \`${type}\nContact Steve Jobs`})]})
+          }
+
+        break;
+
+        case `link`:
+        if (data) {
+          let state = data?.links_filterOn;
+          if (state == true) {
+            // toggle the filter to OFF and send a message saying filters been turned OFF
+
+              toggleLinksFilter(interaction.channel, false).then(async () => {
+                await interaction.editReply({embeds: [createEmb.createEmbed({description: `${filters.links.off} has been turned \`OFF\``})]})
+                await scripts.delay(3000)
+                await interaction.deleteReply()
+              }).catch(async (error) => {            
+              await throwNewError({interaction:interaction, error:error, action: `toggle links filter`})
+            })
+            
+            } else {
+              if(data?.attachments_filterOn === true){
+              toggleCopyrightFilter(interaction.channel, true).then(async () => {
+                await interaction.editReply({embeds: [createEmb.createEmbed({description: `${filters.links.on} has been turned \`ON\``})]})
+                await scripts.delay(3000)
+                await interaction.deleteReply()
+              }).catch(async (error) => {            
+              await throwNewError({interaction:interaction, error:error, action: `toggle links filter`})
+            })
+          } else {
+            toggleLinksFilter(interaction.channel, true).then(async () => {
+              await interaction.editReply({embeds: [createEmb.createEmbed({description: `${filters.links.on} has been turned \`ON\``})]})
+              await scripts.delay(3000)
+              await interaction.deleteReply()
+            }).catch(async (error) => {            
+            await throwNewError({interaction:interaction, error:error, action: `toggle links filter`})
+          })
+          }
+            }
+
+          } else{
+            await interaction.editReply({embeds:[createEmb.createEmbed({color: scripts.getErrorColor(),
+            description: `An Error Occurred when Finding out if the Channel is already filtered or not - case: \`${type}\nContact Steve Jobs`})]})
+          }
+
+        break;
+          
+        case `list`:
+        // send an embed response that lists the current status of every filter avaiable in a list
+
+        if (data) {
+          let states = {
+            copyright: data?.copyright_filterOn ? filters.copyrightControl.on : filters.copyrightControl.off,
+            attachment: data?.attachments_filterOn ? filters.attachments.on : filters.attachments.off,
+            link: data?.links_filterOn ? filters.links.on : filters.links.off,
+            }
+
+                await interaction.editReply({embeds: [createEmb.createEmbed({title: `<:I_Filter:923312623288741949> Filter Status`, description: `Channel Affected: <#${interaction.channel.id}>\n---------------------------\n${states.copyright}\n╰<a:Arrow_right:1022976841444769823>${states.attachment}\n╰<a:Arrow_right:1022976841444769823>${states.link}`, author:{name: `To toggle a Filter run /filter <filter_type>`, icon_url: `https://media.discordapp.net/attachments/1085659086646943806/1086852443607945276/output-onlinepngtools.PNG?width=493&height=465`
+              }})]})
+                await scripts.delay(9000)
+                try {
+                  await interaction.deleteReply()
+                } catch (error) {
+                  console.log(error, `The user just deleted the reply before the bot could`)
+                }
+              
+          } else{
+            await interaction.editReply({embeds:[createEmb.createEmbed({color: scripts.getErrorColor(),
+              description: `An Error Occurred when Finding the Channel Filter Status List -  case: \`${type}\nContact Steve Jobs`})]})
+          }
+          break;
         default:
           await interaction.editReply({embeds: [createEmb.createEmbed({color: scripts.getErrorColor(), description: `🔴 an error occurred, please finish specifying the \`type\` of filter to apply\n\`type\` active options: \`copyright\``})]})
         break;
   
       }
   } else {
-    await interaction.editReply({embeds: [createEmb.createEmbed({description: `🔴 \`© copyright filter\` has been turned \`OFF\` Due to a disconnect to the Database Server\n\nRequest Steve Jobs Restart the Bot for filter abilities`})]})
+    await interaction.editReply({embeds: [createEmb.createEmbed({description: `Filters have been turned \`OFF\` Due to a disconnect with the Database Server\n\n\n${filters.copyrightControl.off}\n╰<a:Arrow_right:1022976841444769823>${filters.attachments.off}\n╰<a:Arrow_right:1022976841444769823>${filters.links.off}\n\n\n**Run \`/reconnect\` to force a reconnection to the database**\nIf no luck after multiple attempts, Request Steve Jobs Restart the Bot to restore filtration abilities`})]})
   }
 
     console.log(`Filter Command Complete: ✅`);

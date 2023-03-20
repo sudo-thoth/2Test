@@ -96,8 +96,9 @@ handleFunctions(djsFunctionFolders, "./src/djs/functions");
     try{
     await mongoose.connect(MongoDB_Token_2Test_bot)
     console.log(`---------- >> MongoDB is Online << ----------`)
-    
+    client.connectedToMongoose = true;
   }catch(error){
+    client.connectedToMongoose = false;
       console.error
     } finally {
       handleCommands(client, djsCommandFolders, "./src/djs/commands").then( 

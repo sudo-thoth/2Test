@@ -51,7 +51,7 @@ module.exports = {
       scripts.logError(error, `error deferring reply`);
     }
    try {
-     await interaction.editReply({embeds:[createEmb.createEmbed({title:`Downloading Now`})]})
+     await interaction.editReply({embeds:[createEmb.createEmbed({title:`Downloading Now`, description: `<a:T_Google_AI:932060562668544000>`})]})
    } catch (error) {
     scripts.logError(error, `error editing reply`);
    }

@@ -6,6 +6,7 @@ const createEmb = require(`../../functions/create/createEmbed.js`);
 const createBtn = require(`../../functions/create/createButton.js`);
 const createActRow = require(`../../functions/create/createActionRow.js`);
 const gb = require(`../../commands/Juice/gb.js`);
+const handleFileFunctions = require("../../functions/Handling Files/functions.js")
 const drflgif =
   "https://media.discordapp.net/attachments/981241396608532534/1078161086794174464/ezgif.com-gif-maker_4.gif";
 const gbgrgif =
@@ -521,6 +522,36 @@ if (client) {
     // BUTTONS
     if (interaction.isButton()) {
       console.log(`Button Clicked`);
+
+      if (customID.includes("download_dump")){
+        let randID = scripts_djs.extractID(customID);
+        try {
+          await interaction.deferReply({ ephemeral: true });
+        } catch (error) {
+          console.log(error)
+        }
+        // get data from download dump button db
+        let data = await  handleFileFunctions.getDownloadDumpData(randID);
+        // send the attachment to the interaction.user along wiht an embed with teh file(s) name(s) and in the footer the channel  & server names where the interaction was initiated, the footer icon is the server icon   
+        try{
+          await interaction.user.send({embeds: [createEmb.createEmbed({description: `${data.attachment.name}`, footer: {text:`Requested from ${interaction.guild.name} in ${interaction.channel.name}`,iconURL: interaction.guild.iconURL({dynamic: true})}, color: scripts.getColor(), })], files: data.attachment.size <= 8000 ?[data.attachment.url] : [], components: data.attachment.size <= 8000 ? [] : [await createActRow.createActionRow({components: [await createBtn.createButton({label: data.label ? data.label : `Download`, style: `link`, link: data.attachment.url})]})]})
+          try {
+            
+            await interaction.editReply({content: `sent`})
+            
+          } catch (error) {
+            console.log(error)
+          }
+        } catch (error) {
+          try {
+            console.log(error)
+            await interaction.editReply({content: `an error occured \n\n\`\`\`js\n${error}\`\`\``})
+            
+          } catch (error) {
+            console.log(error)
+          }
+        }
+      }
 
       if (customID.includes("groupbuy_")) {
         console.log(`Group Buy Button Clicked`);

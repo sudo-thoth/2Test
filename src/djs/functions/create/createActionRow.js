@@ -30,7 +30,7 @@ const {
     
     const { components } = actionRowObj;
     // make sure each property is defined with isDefined(), which returns true if the property is defined
-    if (!scripts.isDefined(components)) {
+    if (!scripts.isDefined(components) || !components || components === []) {
       scripts.logError(
         new Error("Components property is not defined"),
         `Error Creating Action Row`

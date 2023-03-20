@@ -117,92 +117,86 @@ module.exports = {
       const leaks = await createButtn.createButton({
         customID: `role_leaks_${interaction.guild.name}${randID}`,
         label: "Leaks",
-        style: "primary",
+        style: "danger",
         disabled: false,
         emoji: "🎶",
       });
       const ogfiles = await createButtn.createButton({
         customID: `role_ogfiles_${interaction.guild.name}${randID}`,
         label: "OG Files",
-        style: "primary",
+        style: "danger",
         disabled: false,
         emoji: "🎵",
       });
       const snippets = await createButtn.createButton({
         customID: `role_snippets_${interaction.guild.name}${randID}`,
         label: "Snippets",
-        style: "primary",
+        style: "success",
         disabled: false,
         emoji: "🎞️",
       });
       const sessions = await createButtn.createButton({
         customID: `role_sessions_${interaction.guild.name}${randID}`,
         label: "Sessions",
-        style: "primary",
+        style: "danger",
         disabled: false,
         emoji: "💽",
       });
-      const compupdates = await createButtn.createButton({
-        customID: `role_compupdates_${interaction.guild.name}${randID}`,
-        label: "Comp",
-        style: "primary",
-        disabled: false,
-        emoji: "📁",
-      });
+      // const compupdates = await createButtn.createButton({
+      //   customID: `role_compupdates_${interaction.guild.name}${randID}`,
+      //   label: "Comp",
+      //   style: "primary",
+      //   disabled: false,
+      //   emoji: "📁",
+      // });
       const news = await createButtn.createButton({
         customID: `role_news_${interaction.guild.name}${randID}`,
         label: "News",
-        style: "primary",
+        style: "success",
         disabled: false,
         emoji: "📰",
       });
       const groupbuys = await createButtn.createButton({
         customID: `role_groupbuys_${interaction.guild.name}${randID}`,
         label: "Group Buys",
-        style: "primary",
+        style: "success",
         disabled: false,
         emoji: "💰",
       });
       const chatrevive = await createButtn.createButton({
         customID: `role_chatrevive_${interaction.guild.name}${randID}`,
         label: "Chat Revive",
-        style: "primary",
+        style: "secondary",
         disabled: false,
         emoji: "🫂",
       });
       const giveaways = await createButtn.createButton({
         customID: `role_giveaways_${interaction.guild.name}${randID}`,
         label: "Giveaways",
-        style: "primary",
+        style: "secondary",
         disabled: false,
         emoji: "🎉",
       });
       const songoftheday = await createButtn.createButton({
         customID: `role_songoftheday_${interaction.guild.name}${randID}`,
         label: "Song Of The Day",
-        style: "primary",
+        style: "secondary",
         disabled: false,
         emoji: "🎼",
       });
       const row1 = await createActRow.createActionRow({
-        components: [leaks, ogfiles],
+        components: [leaks, ogfiles, sessions],
       });
       const row2 = await createActRow.createActionRow({
-        components: [snippets, sessions],
-      });
-      const row5 = await createActRow.createActionRow({
-        components: [news, groupbuys],
+        components: [snippets, groupbuys, news],
       });
       const row3 = await createActRow.createActionRow({
-        components: [ compupdates , songoftheday],
-      });
-      const row4 = await createActRow.createActionRow({
-        components: [ giveaways, chatrevive],
+        components: [ giveaways, chatrevive, songoftheday],
       });
   
       const hub = {
         embeds: [roleHubEmbed],
-        components: [row4, row3, row5, row2, row1],
+        components: [row1, row2, row3],
       };
     try {
       try {

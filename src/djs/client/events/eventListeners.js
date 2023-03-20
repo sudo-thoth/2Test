@@ -391,34 +391,33 @@ if (client) {
         break;
       case "WOK WRLD":
         break;
-      case "GRAILED":
-        leaksrole = await interaction.guild.roles.fetch("1081363248684728431");
+      case "Grailed":
+        leaksrole = await interaction.guild.roles.fetch("1078117434898268171");
         ogfilesrole = await interaction.guild.roles.fetch(
-          "1081394168632459384"
+          "1078202186703585310"
         );
         snippetsrole = await interaction.guild.roles.fetch(
-          "1081363245723570216"
+          "1078202074724040735"
         );
         sessionsrole = await interaction.guild.roles.fetch(
-          "1081363260177141891"
+          "1078202260779171881"
         );
         compupdatesrole = await interaction.guild.roles.fetch(
-          "1081363264895725669"
+          "1078117450060677300"
         );
-        newsrole = await interaction.guild.roles.fetch("1081363246709223555");
+        newsrole = await interaction.guild.roles.fetch("1078117433145045072");
         groupbuysrole = await interaction.guild.roles.fetch(
-          "1081363249737502760"
+          "1078117436521459722"
         );
         chatreviverole = await interaction.guild.roles.fetch(
-          "1081363253940199425"
+          "1078117440464093244"
         );
         giveawaysrole = await interaction.guild.roles.fetch(
-          "1081363256825892904"
+          "1078117442468982944"
         );
-        stemeditsrole = await interaction.guild.roles.fetch("1081363261317984266")
-        sessioneditsrole = await interaction.guild.roles.fetch("1081363259237605406")
+        stemeditsrole = await interaction.guild.roles.fetch("1080258387339640936")
+        sessioneditsrole = await interaction.guild.roles.fetch("1080258549508219043")
         switch (roleName) {
-
           // WRLD Updates Roles
           case "leaks":
             await updateRole(interaction, leaksrole);
@@ -1456,7 +1455,16 @@ if (client) {
           }
         }
       } else if (customID.includes("view_attachment_")) {
-        await interaction.deferReply({ ephemeral: true });
+        try {
+          await interaction.deferReply({ ephemeral: true });
+        } catch (error) {
+          try {
+            await interaction.reply({embeds: [createEmb.createEmbed({title: "There was an error, send it to **Steve Jobs** and please try again later",description: `\`\`\`js\n${error}\`\`\``, color: scripts.getErrorColor()})]})
+          } catch (error) {
+            console.log(error)
+          }
+          return
+        }
         randID = scripts_djs.extractID(customID);
         let data = await scripts_mongoDB.getPostData(randID);
         // await interaction.channel.send({content:`\`\`\`js

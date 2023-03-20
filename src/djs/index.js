@@ -31,7 +31,12 @@ const djsEventFiles = fs
   const mongoConfig = fs.readdirSync("./src/MongoDB/db/config");
 
 
-const {Wok_Beta_Bot_token } = process.env;
+const { Wok_Beta_Bot_token } = process.env;
+
+
+
+
+
 
 client.commands = new Collection();
 
@@ -62,28 +67,45 @@ client.on("ready", () => {
   }, 5000);
 });
 module.exports = client;
-handleEvents(client, mongoConfig, 2);
+
 const { MongoDB_Token_Wok_Beta } = process.env;
 
 
-(async () => {
-    if (mongoose === undefined) {
-      return;
-    } else {
-      await mongoose.connect(MongoDB_Token_Wok_Beta).catch(console.error);
-      console.log(`---------- >> MongoDB is Online << ----------`)
-    }
-  })();
+
   const db = mongoose.connection;
-db.on("error", console.error.bind(console, "connection error:"));
-db.once("open", () => console.log("Connected to MongoDB"));
+db.on("error", () => {
+  client.connectedToMongoose = false;
+  console.error.bind(console, "connection error:")
+  
+});
+db.once("open", () => {
+  console.log("Connected to MongoDB")
+  client.connectedToMongoose = true;
+});
 
-
-
-handleFunctions(djsFunctionFolders, "./src/djs/functions");
 handleEvents(client, djsEventFiles, 1);
-handleCommands(client, djsCommandFolders, "./src/djs/commands");  
+handleEvents(client, mongoConfig, 2);
+handleFunctions(djsFunctionFolders, "./src/djs/functions");
 
-client.login(Wok_Beta_Bot_token);
+
+(async () => {
+
+  if (mongoose === undefined) {
+    return;
+  } else {
+    try{
+    await mongoose.connect(MongoDB_Token_Wok_Beta)
+    console.log(`---------- >> MongoDB is Online << ----------`)
+    client.connectedToMongoose = true;
+  }catch(error){
+    client.connectedToMongoose = false;
+      console.error
+    } finally {
+      handleCommands(client, djsCommandFolders, "./src/djs/commands").then( 
+      client.login(Wok_Beta_Bot_token))
+    }
+    
+  }
+})()
 
 

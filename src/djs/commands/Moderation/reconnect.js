@@ -8,7 +8,7 @@ const {
   PermissionFlagsBits,
 } = require('discord.js');
 const { MongoDB_Token_2Test_bot } = process.env;
-
+let token = MongoDB_Token_2Test_bot;
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('reconnect')
@@ -73,7 +73,7 @@ module.exports = {
       return;
     } else {
       try{
-      await mongoose.connect(MongoDB_Token_2Test_bot)
+      await mongoose.connect(token)
       console.log(`---------- >> MongoDB is Online << ----------`)
       client.connectedToMongoose = true;
     }catch(error){

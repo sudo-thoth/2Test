@@ -1,5 +1,6 @@
 const messagesdb = require("../../../MongoDB/db/schemas/schema_messages_djs.js");
 const attachmentsdb = require("../../../MongoDB/db/schemas/schema_attachmentNames.js");
+const downloadButtondb = require("../../../MongoDB/db/schemas/schema_downloadDumpButton.js");
 const createEmb = require("../create/createEmbed.js");
 const createModal = require("../create/createModal.js");
 const scripts_djs = require("../scripts/scripts_djs.js");
@@ -761,6 +762,55 @@ async function uploadMessageBatch(interaction, target, beforeID, afterID) {
     return button;
   };
 
+
+let getDownloadDumpData = async (randID) => {
+  let data = await downloadButtondb.findOne({ randID: randID }).exec();
+  return data
+}
+  const dmButton = async (label, attachment) => {
+    let button;
+    let style = `primary`;
+    let customID = `download_dump_${randID}`;
+    // create randID
+    
+    let randID = scripts_djs.getRandID();
+    // save new obj to db with the randID and associated data
+    let obj = {
+      _id: `${new mongoose.Types.ObjectId()}`,
+      randID : randID,
+      label:label,
+      style: style,
+      customID: customID, 
+      attachment: {batchID: attachment.batchID, name: attachment.name, url: attachment.url, id: attachment.id, size: attachment.size, messageID: attachment.messageID, metaData: {
+        dateRequested: `${attachment.metaData.dateRequested}`,
+        originChannel: attachment.metaData.originChannel,
+        originChannelID: attachment.metaData.originChannelID,
+        originServer: attachment.metaData.originServer,
+        originServerID: attachment.metaData.originServerID,
+        requestedBy: attachment.metaData.requestedBy,requestedByID: attachment.metaData.requestedByID,
+      }},
+    }
+    try {
+      await downloadButtondb.create(obj);
+      console.log(`saved to db`);
+    } catch (error) {
+      
+      scripts.logError(error)
+      console.log(`not saved`);
+    }
+    try {
+      button = createBtn.createButton({
+        customID: customID,
+        label: label,
+        style: style,
+      });
+    } catch (error) {
+      console.log(error);
+      return
+    }
+    return button;
+  };
+
   function formatElapsedTime(startTime) {
     const elapsedTime = performance.now() - startTime;
     const msPerSecond = 1000;
@@ -794,7 +844,7 @@ async function uploadMessageBatch(interaction, target, beforeID, afterID) {
 const timeLeft = `<t:${Math.floor(Date.now() / 1000)}:R>`; // format elapsed time as a Discord timestamp
 
     try {
-      await interaction.editReply({embeds:[createEmb.createEmbed({title:`Downloading Now`, description: `Please Wait, When the Dump is Complete you will get Pinged both Here in <#${interaction.channel.id}> and in Your Dms\n\nElapsed Time : ${timeLeft}`, color:scripts.getSuccessColor()})]})
+      await interaction.editReply({embeds:[createEmb.createEmbed({title:`Downloading Now`, description: `Please Wait, When the Dump is Complete you will get Pinged both Here in <#${interaction.channel.id}> and in Your Dms\n<a:T_Google_AI:932060562668544000>\nElapsed Time : ${timeLeft}`, color:scripts.getSuccessColor()})]})
     } catch (error) {
      scripts.logError(error, `error editing reply`);
     }
@@ -833,13 +883,13 @@ const timeLeft = `<t:${Math.floor(Date.now() / 1000)}:R>`; // format elapsed tim
   messages.forEach(async message => {
     // edit the current edit reply embed to change it color to red
     // try {
-    //   await interaction.editReply({embeds:[createEmb.createEmbed({title:`Downloading Now`, description: `Please Wait, When the Dump is Complete you will get Pinged both Here in <#${interaction.channel.id}> and in Your Dms\n\nElapsed Time : ${timeLeft}`, color:scripts.getSuccessColor()})]})
+    //   await interaction.editReply({embeds:[createEmb.createEmbed({title:`Downloading Now`, description: `Please Wait, When the Dump is Complete you will get Pinged both Here in <#${interaction.channel.id}> and in Your Dms\n<a:T_Google_AI:932060562668544000>\nElapsed Time : ${timeLeft}`, color:scripts.getSuccessColor()})]})
     // } catch (error) {
     //   scripts.logError(error, `error editing reply`);
     // }
 
-    message = message._doc
-   let foundEmbeds = message.embeds;
+    message = message
+   let foundEmbeds = message?.embeds;
     let embeds = [];
     for(let embed of foundEmbeds){
       let { title, description, url, color, author, fields, timestamp, image, thumbnail, footer } = embed;
@@ -899,23 +949,28 @@ const timeLeft = `<t:${Math.floor(Date.now() / 1000)}:R>`; // format elapsed tim
       fileNames = attachmentNames.length>0?formatFileList(attachmentNames):fileNames;
       let limit = 8;
 
-      let level = interaction.guild.premiumTier;
-      if (level === "TIER_1" || level === 1) {
-        limit = 8;
-      } else if (level === "TIER_2" || level === 2) {
-        limit = 50;
-      } else if (level === "TIER_3" || level === 3) {
-        limit = 100;
-      }
-      let newAttachments = getValidAttachments(attachments, limit, foundAttachments) 
+      // let level = interaction.guild.premiumTier;
+      // if (level === "TIER_1" || level === 1) {
+      //   limit = 8;
+      // } else if (level === "TIER_2" || level === 2) {
+      //   limit = 50;
+      // } else if (level === "TIER_3" || level === 3) {
+      //   limit = 100;
+      // }
 
+      // let newAttachments = getValidAttachments(attachments, limit, foundAttachments)
+      limit = 0; 
+      let newAttachments = [];
       let convertAttachments = getInvalidAttachments(attachments, limit, foundAttachments) 
       let buttons = [];
-      for(let attach of convertAttachments){
+      for(let i = 0; i++; i< convertAttachments.length){
+        let attach = convertAttachments[i]
+        let attachmentObj = foundAttachments[i]
         console.log(`the attach-->`, attach);
         let button;
        try {
-         button = await linkButton(`Download ${attach.name}`, attach.attachment)
+        //  button = await linkButton(`Download ${attach.name}`, attach.attachment)
+        button = await dmButton(`Download ${attach.name}`, attachmentObj)
        } catch (error) {
         console.log(error)
         return
@@ -1092,7 +1147,101 @@ async function getGroupbuyCount() {
 // function to retrieve all groupbuys created by a specific user
 async function getMessagesByBatchID(batchID) {
   let messages = await messagesdb.find({ "batchID": batchID });
-  return messages;
+  // console.log(messages)
+  // figuring out a way to only return messages that contain either a link in the message content, an embed in the message object, or at least 1 attachment of type audio or video (ignore image files and dont include in the returned messages)
+  // messages is an array of models
+  // a model is {
+//   _doc: {
+//     _id: {
+//     },
+//     attachments: [
+//       {
+//         name: "Crystal_140BPM.wav",
+//         url: "https://cdn.discordapp.com/attachments/742516493702397952/1081953538034380980/Crystal_140BPM.wav",
+//         id: "1081953538034380980",
+//         size: 52663002,
+//         messageID: "1081953538759991377",
+//         batchID: "202326195349850",
+//         messageAuthor: "my way home v2",
+//         timestamp: "3/5/2023, 9:57:05 AM",
+//         metaData: {
+//           requestedBy: "ꜱᴛᴇᴠᴇ ᴊᴏʙꜱ",
+//           requestedByID: "975944168373370940",
+//           dateRequested: "2023-03-07T00:53:55.618Z",
+//           originServer: "Central Place For Creativity",
+//           originServerID: "742515836870459535",
+//           originChannelID: "742516493702397952",
+//           originChannel: "instrumentals",
+//         },
+//       },
+//       {
+//         name: "145_bpm.mp3",
+//         url: "https://cdn.discordapp.com/attachments/742516493702397952/1081953538449625088/145_bpm.mp3",
+//         id: "1081953538449625088",
+//         size: 6900293,
+//         messageID: "1081953538759991377",
+//         batchID: "202326195349850",
+//         messageAuthor: "my way home v2",
+//         timestamp: "3/5/2023, 9:57:05 AM",
+//         metaData: {
+//           requestedBy: "ꜱᴛᴇᴠᴇ ᴊᴏʙꜱ",
+//           requestedByID: "975944168373370940",
+//           dateRequested: "2023-03-07T00:53:55.618Z",
+//           originServer: "Central Place For Creativity",
+//           originServerID: "742515836870459535",
+//           originChannelID: "742516493702397952",
+//           originChannel: "instrumentals",
+//         },
+//       },
+//     ],
+//     embeds: [
+//     ],
+//     batchID: "202326195349850",
+//     messageAuthor: "my way home v2",
+//     content: "Crystal and Love Tucked instrumental (repost)",
+//     messageID: "1081953538759991377",
+//     numOfAttachments: 2,
+//     numOfEmbeds: 0,
+//     timestamp: "3/5/2023, 9:57:05 AM",
+//     index: 1,
+//     __v: 0,
+//   },
+// }
+// model contains a _doc aka the message object saved the the database\
+// _doc has an array of objects called attachments where each object is an attachment 
+// d_doc also has content, embeds, batchID, messageAuthor, messageID, numOfAttachments, numOfEmbeds, timestamp, index
+
+
+let validMessages = [];
+for (let i = 0; i < messages.length; i++) {
+  let message = messages[i]?._doc;
+  if (message.embeds?.length > 0) {
+    validMessages.push(message);
+  } else if(message.content.includes("https://") || message.content.includes("http://")){
+    validMessages.push(message);
+  } else if(message.attachments?.length > 0){
+
+      let hasMedia = false;
+  
+      for (const file of message.attachments.values()) {
+        if (file.name.endsWith('.mp3') || file.name.endsWith('.wav') || file.name.endsWith('.m4a') || file.name.endsWith('.mp4') || file.name.endsWith('.aiff') || file.name.endsWith('.alac') || file.name.endsWith('.flac') || file.name.endsWith('.m4p') || file.name.endsWith('.ogg') || file.name.endsWith('.oga') || file.name.endsWith('.raw') || file.name.endsWith('.vox') || file.name.endsWith('.webm')) {
+          hasMedia = true;
+        }
+      }
+  
+      if(hasMedia){
+        validMessages.push(message)
+      }
+
+  }
+
+}
+messages = validMessages.length > 0 ? validMessages : messages;
+// format the array of messages so the first message in the array is the oldest according to the message timestamp, sort oldest to newest
+messages.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+
+
+return messages;
 }
 // function to retrieve all groupbuys created by a specific user in a specific guild
 async function getGroupbuysByUserAndGuild(userID, guildID) {
@@ -1447,4 +1596,6 @@ module.exports = {
   downloadMessageBatch,
   throwErrorReply,
   getMessageObj,
+
+  getDownloadDumpData
 };

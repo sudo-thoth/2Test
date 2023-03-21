@@ -452,7 +452,20 @@ module.exports = {
     try {
       await interaction.deferReply({ ephemeral: true });
     } catch (error) {
-      await interaction.editReply({embeds:[createEmb.createEmbed({title:`Error - editing gb`,description:`\`\`\`js\n${error}\n\`\`\`\n__Share the Error with Steve Jobs__`,color:scripts.getErrorColor()})]})
+      try {
+        await interaction.editReply({embeds:[createEmb.createEmbed({title:`Error - editing gb`,description:`\`\`\`js\n${error}\n\`\`\`\n__Share the Error with Steve Jobs__`,color:scripts.getErrorColor()})]})
+      } catch (error) {
+        try {
+          await interaction.reply({ephemeral: true, embeds:[createEmb.createEmbed({title:`Error - editing gb`,description:`\`\`\`js\n${error}\n\`\`\`\n__Share the Error with Steve Jobs__`,color:scripts.getErrorColor()})]})
+        } catch (error) {
+          try {
+            await interaction.user.send({embeds:[createEmb.createEmbed({title:`Error - editing gb`,description:`\`\`\`js\n${error}\n\`\`\`\n__Share the Error with Steve Jobs__`,color:scripts.getErrorColor()})]})
+          } catch (error) {
+            console.log(error)
+          }
+        }
+      }
+      return;
     }
     if (!interaction.memberPermissions.has("Administrator")) {
       console.log(

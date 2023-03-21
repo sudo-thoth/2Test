@@ -582,7 +582,11 @@ if (client) {
       } else if (customID.includes("gb_")) {
         if (customID.includes("gb_edit")) {
           let randID = scripts_djs.extractID(customID);
-          await gb.gbedit(interaction, randID);
+          try {
+            await gb.gbedit(interaction, randID);
+          } catch (error) {
+            return console.log(error)
+          }
         } else if (customID.includes("gb_update")) {
           let randID = scripts_djs.extractID(customID);
           if (customID.includes("add")) {

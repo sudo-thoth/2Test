@@ -6,6 +6,7 @@ const createEmb = require(`../../functions/create/createEmbed.js`);
 const createBtn = require(`../../functions/create/createButton.js`);
 const createActRow = require(`../../functions/create/createActionRow.js`);
 const gb = require(`../../commands/Juice/gb.js`);
+const handleFileFunctions = require("../../functions/Handling Files/functions.js")
 const drflgif =
   "https://media.discordapp.net/attachments/981241396608532534/1078161086794174464/ezgif.com-gif-maker_4.gif";
 const gbgrgif =
@@ -38,7 +39,7 @@ async function fileProcessing(interaction) {
       embeds: [
         createEmb.createEmbed({
           title: "File Being Processed",
-          description: "Please wait...",
+          description: "<a:loadingGreen:984682889625108520> Please wait...",
           color: 0x00ff00,
         }),
       ],
@@ -522,12 +523,60 @@ if (client) {
     if (interaction.isButton()) {
       console.log(`Button Clicked`);
 
+      if (customID.includes("download_dump")){
+        let randID = scripts_djs.extractID(customID);
+        try {
+          await interaction.deferReply({ ephemeral: true });
+        } catch (error) {
+          if (error.message.includes(`Unknown interaction`)) {
+            console.log(
+              `An unknown Interaction was Logged\nInteraction User ${interaction?.user?.username}`       
+            ); // <:android:1083158839957921882>
+            return;
+          } else {
+            return console.log(error);
+          }
+        }
+        // get data from download dump button db
+        let data = await  handleFileFunctions.getDownloadDumpData(randID);
+        // send the attachment to the interaction.user along wiht an embed with teh file(s) name(s) and in the footer the channel  & server names where the interaction was initiated, the footer icon is the server icon   
+        try{
+          await interaction.user.send({embeds: [createEmb.createEmbed({description: `${data.attachment.name}`, footer: {text:`Requested from ${interaction.guild.name} in ${interaction.channel.name}`,iconURL: interaction.guild.iconURL({dynamic: true})}, color: scripts.getColor(), })], files: data.attachment.size <= 8000 ?[data.attachment.url] : [], components: data.attachment.size <= 8000 ? [] : [await createActRow.createActionRow({components: [await createBtn.createButton({label: data.label ? data.label : `Download`, style: `link`, link: data.attachment.url})]})]})
+          try {
+            
+            await interaction.editReply({content: `sent`})
+            
+          } catch (error) {
+            console.log(error)
+          }
+        } catch (error) {
+          try {
+            console.log(error)
+            await interaction.editReply({content: `an error occured \n\n\`\`\`js\n${error}\`\`\``})
+            
+          } catch (error) {
+            console.log(error)
+          }
+        }
+      }
+
       if (customID.includes("groupbuy_")) {
         console.log(`Group Buy Button Clicked`);
         client.emit("GroupBuyButton", interaction);
       } else if (customID.includes("role_")) {
         console.log(`a role selection Button Clicked`);
+         try {
         await interaction.deferReply({ ephemeral: true });
+      } catch (error) {
+        if (error.message.includes(`Unknown interaction`)) {
+          console.log(
+            `An unknown Interaction was Logged\nInteraction User ${interaction?.user?.username}`
+          ); // <:android:1083158839957921882>
+          return;
+        } else {
+          return console.log(error);
+        }
+      }
         client.emit("role", interaction, customID);
         console.log(`after role emit`);
       } else if (customID.includes("gb_")) {
@@ -667,7 +716,18 @@ if (client) {
         });
       } else if (customID.includes("view__")) {
         console.log(`interaction reply 3`);
-        await interaction.deferReply({ ephemeral: true });
+        try {
+          await interaction.deferReply({ ephemeral: true });
+        } catch (error) {
+          if (error.message.includes(`Unknown interaction`)) {
+            console.log(
+              `An unknown Interaction was Logged\nInteraction User ${interaction?.user?.username}`       
+            ); // <:android:1083158839957921882>
+            return;
+          } else {
+            return console.log(error);
+          }
+        }
         // TODO:
 
         let attachmentURL = doc.attachmentURL;
@@ -933,7 +993,18 @@ if (client) {
           await interaction.update(obj);
         }
       } else if (customID.includes("direct_message_")) {
+         try {
         await interaction.deferReply({ ephemeral: true });
+      } catch (error) {
+        if (error.message.includes(`Unknown interaction`)) {
+          console.log(
+            `An unknown Interaction was Logged\nInteraction User ${interaction?.user?.username}`
+          ); // <:android:1083158839957921882>
+          return;
+        } else {
+          return console.log(error);
+        }
+      }
 
         // determine what boost tier the server is to determine how big the file can be sent
 
@@ -1073,7 +1144,7 @@ if (client) {
 
         await fileProcessing(interaction);
         if (isFile === true) {
-          try {
+
             user.send({
               embeds:
                 nameOfFile === `music.m4a`
@@ -1152,92 +1223,35 @@ if (client) {
                       }),
                     ],
               files: [file],
-            });
-          } catch (error) {
-            try {
-              await user.send({
-                embeds: [
-                  createEmb.createEmbed({
-                    title:
-                      "There was an Error , Share the Error w the Developer",
-                    description:
-                      `__While :__ \`Dm'ing File\`\n` +
-                      "```js\n" +
-                      err +
-                      "\n```\n" +
-                      `Error Report Summary:` +
-                      "\n```js\n" +
-                      `username: ${interaction.member.user.username}\nID: ${interaction.member.user.id}\nGuild: ${interaction.guild.name}\nGuild ID: ${interaction.guild.id}\nChannel: ${interaction.channel.name}\nChannel ID: ${interaction.channel.id}\nMessage ID: ${interaction.message.id}\nButton ID: ${interaction.customID}` +
-                      "\n```",
-                    color: scripts.getErrorColor(),
-                    footer: {
-                      text: "Contact STEVE JOBS and Send the Error",
-                      iconURL: interaction.user.avatarURL(),
-                    },
-                  }),
-                ],
-              });
-            } catch (error) {
-              if (i) {
-                try {
-                  await i.editReply({
-                    embeds: [
-                      createEmb.createEmbed({
-                        title:
-                          "There was an Error , Share the Error w the Developer",
-                        description:
-                          "```js\n" +
-                          err +
-                          "\n```\n" +
-                          `Error Report Summary:` +
-                          "\n```js\n" +
-                          `username: ${i.member.user.username}\nID: ${i.member.user.id}\nGuild: ${i.guild.name}\nGuild ID: ${i.guild.id}\nChannel: ${i.channel.name}\nChannel ID: ${i.channel.id}\nMessage ID: ${i.message.id}\nButton ID: ${i.customID}` +
-                          "\n```",
-                        color: scripts.getErrorColor(),
-                        footer: {
-                          text: "Contact STEVE JOBS and Send the Error",
-                          iconURL: i.user.avatarURL(),
-                        },
-                      }),
-                    ],
-                  });
-                } catch (errr) {
-                  console.log(
-                    `error occurred when trying to send the user this-> Error: ${err}\n\n\nThe error that occurred when trying to send the user the 2nd time -> error is: ${error}\n\n\nThe error that occurred when trying to send the user the 3rd time -> error is: ${errr}`
-                  );
-                }
-              } else {
+            }).then( async () => {
+              try {
                 await interaction.editReply({
+                  embeds: [createEmb.createEmbed({ title: labelT })],
+                  content: "",
+                  files: [],
+                  components: [],
+                });
+              } catch (error) {
+                console.log(
+                  `An Error occured when trying to reply to a DM Button Request`,
+                  error
+                );
+              }
+            }).catch(async (error) => {
+              try {
+                await user.send({
                   embeds: [
                     createEmb.createEmbed({
                       title:
-                        "There was an Error, Share the Error w the Developer",
+                        "There was an Error , Share the Error w the Developer",
                       description:
-                        `${
-                          interaction.commandName
-                            ? `Command: \`${interaction.commandName}\`\n`
-                            : ""
-                        }` +
+                        `__While :__ \`Dm'ing File\`\n` +
                         "```js\n" +
-                        err +
+                        error +
                         "\n```\n" +
-                        `Error occurred for admin user:` +
+                        `Error Report Summary:` +
                         "\n```js\n" +
-                        `username: ${interaction.member.user.username}\nID: ${
-                          interaction.member.user.id
-                        }\nGuild: ${interaction.guild.name}\nGuild ID: ${
-                          interaction.guild.id
-                        }\nChannel: ${interaction.channel.name}\nChannel ID: ${
-                          interaction.channel.id
-                        }${
-                          interaction.message
-                            ? `\nMessage ID: ${interaction.message.id}`
-                            : ""
-                        }${
-                          interaction.customID
-                            ? `\nCustom ID: ${interaction.customID}`
-                            : ""
-                        }` +
+                        `username: ${interaction.member.user.username}\nID: ${interaction.member.user.id}\nGuild: ${interaction.guild.name}\nGuild ID: ${interaction.guild.id}\nChannel: ${interaction.channel.name}\nChannel ID: ${interaction.channel.id}\nMessage ID: ${interaction.message.id}\nButton ID: ${interaction.customID}` +
                         "\n```",
                       color: scripts.getErrorColor(),
                       footer: {
@@ -1247,24 +1261,83 @@ if (client) {
                     }),
                   ],
                 });
+              } catch (error) {
+                if (i) {
+                  try {
+                    await i.editReply({
+                      embeds: [
+                        createEmb.createEmbed({
+                          title:
+                            "There was an Error , Share the Error w the Developer",
+                          description:
+                            "```js\n" +
+                            err +
+                            "\n```\n" +
+                            `Error Report Summary:` +
+                            "\n```js\n" +
+                            `username: ${i.member.user.username}\nID: ${i.member.user.id}\nGuild: ${i.guild.name}\nGuild ID: ${i.guild.id}\nChannel: ${i.channel.name}\nChannel ID: ${i.channel.id}\nMessage ID: ${i.message.id}\nButton ID: ${i.customID}` +
+                            "\n```",
+                          color: scripts.getErrorColor(),
+                          footer: {
+                            text: "Contact STEVE JOBS and Send the Error",
+                            iconURL: i.user.avatarURL(),
+                          },
+                        }),
+                      ],
+                    });
+                  } catch (errr) {
+                    console.log(
+                      `error occurred when trying to send the user this-> Error: ${err}\n\n\nThe error that occurred when trying to send the user the 2nd time -> error is: ${error}\n\n\nThe error that occurred when trying to send the user the 3rd time -> error is: ${errr}`
+                    );
+                  }
+                } else {
+                  await interaction.editReply({
+                    embeds: [
+                      createEmb.createEmbed({
+                        title:
+                          "There was an Error, Share the Error w the Developer",
+                        description:
+                          `${
+                            interaction.commandName
+                              ? `Command: \`${interaction.commandName}\`\n`
+                              : ""
+                          }` +
+                          "```js\n" +
+                          err +
+                          "\n```\n" +
+                          `Error occurred for admin user:` +
+                          "\n```js\n" +
+                          `username: ${interaction.member.user.username}\nID: ${
+                            interaction.member.user.id
+                          }\nGuild: ${interaction.guild.name}\nGuild ID: ${
+                            interaction.guild.id
+                          }\nChannel: ${interaction.channel.name}\nChannel ID: ${
+                            interaction.channel.id
+                          }${
+                            interaction.message
+                              ? `\nMessage ID: ${interaction.message.id}`
+                              : ""
+                          }${
+                            interaction.customID
+                              ? `\nCustom ID: ${interaction.customID}`
+                              : ""
+                          }` +
+                          "\n```",
+                        color: scripts.getErrorColor(),
+                        footer: {
+                          text: "Contact STEVE JOBS and Send the Error",
+                          iconURL: interaction.user.avatarURL(),
+                        },
+                      }),
+                    ],
+                  });
+                }
               }
-            }
-          }
-          try {
-            await interaction.editReply({
-              embeds: [createEmb.createEmbed({ title: labelT })],
-              content: "",
-              files: [],
-              components: [],
             });
-          } catch (error) {
-            console.log(
-              `An Error occured when trying to reply to a DM Button Request`,
-              error
-            );
-          }
+
+
         } else if (isFile === false) {
-          try {
+
             user.send({
               content: `__**Visit :**__ ${attachment}`,
               embeds: nameOfFile === `music.m4a`
@@ -1342,8 +1415,21 @@ if (client) {
                     },
                   }),
                 ],
+            }).then(async () => {
+                        try {
+            await interaction.editReply({
+              embeds: [createEmb.createEmbed({ title: labelT })],
+              content: "",
+              files: [],
+              components: [],
             });
           } catch (error) {
+            console.log(
+              `An Error occured when trying to reply to a DM Button Request`,
+              error
+            );
+          }
+            }).catch( async (error)=> {
             try {
               await user.send({
                 embeds: [
@@ -1353,7 +1439,7 @@ if (client) {
                     description:
                       `__While :__ \`Dm'ing File\`\n` +
                       "```js\n" +
-                      err +
+                      error +
                       "\n```\n" +
                       `Error Report Summary:` +
                       "\n```js\n" +
@@ -1439,31 +1525,22 @@ if (client) {
                 });
               }
             }
-          }
-          try {
-            await interaction.editReply({
-              embeds: [createEmb.createEmbed({ title: labelT })],
-              content: "",
-              files: [],
-              components: [],
-            });
-          } catch (error) {
-            console.log(
-              `An Error occured when trying to reply to a DM Button Request`,
-              error
-            );
-          }
+          })
+
+
         }
       } else if (customID.includes("view_attachment_")) {
         try {
           await interaction.deferReply({ ephemeral: true });
         } catch (error) {
-          try {
-            await interaction.reply({embeds: [createEmb.createEmbed({title: "There was an error, send it to **Steve Jobs** and please try again later",description: `\`\`\`js\n${error}\`\`\``, color: scripts.getErrorColor()})]})
-          } catch (error) {
-            console.log(error)
+          if (error.message.includes(`Unknown interaction`)) {
+            console.log(
+              `An unknown Interaction was Logged\nInteraction User ${interaction?.user?.username}`       
+            ); // <:android:1083158839957921882>
+            return;
+          } else {
+            return console.log(error);
           }
-          return
         }
         randID = scripts_djs.extractID(customID);
         let data = await scripts_mongoDB.getPostData(randID);
@@ -1831,32 +1908,34 @@ if (client) {
       console.log(`Modal Submitted`);
       // defer the interaction
       console.log(`interaction reply 8`);
-      try {
-        await interaction.deferReply({
-          ephemeral: true,
-        });
-      } catch (error) {
+if (!customID.includes("post_new_")) {
         try {
-          await interaction.reply({
-            embeds: [
-              createEmb.createEmbed({
-                title: "Error",
-                description:
-                  `An Error occurred when trying to reply to a Modal Button Request\n**Please Contact Steve Jobs and allow him to look into the error below**\n*Do Not Forget To Tell Him What Your Actions That Were Taken Were*\n__Error Explained:__` +
-                  "```js" +
-                  `\n${error}\n` +
-                  "```",
-                color: scripts.getErrorColor(),
-              }),
-            ],
+          await interaction.deferReply({
+            ephemeral: true,
           });
-        } catch (errr) {
-          console.log(
-            `The Original Error has something to do w the interaction`,
-            error
-          );
+        } catch (error) {
+          try {
+            await interaction.reply({
+              embeds: [
+                createEmb.createEmbed({
+                  title: "Error",
+                  description:
+                    `An Error occurred when trying to reply to a Modal Button Request\n**Please Contact Steve Jobs and allow him to look into the error below**\n*Do Not Forget To Tell Him What Your Actions That Were Taken Were*\n__Error Explained:__` +
+                    "```js" +
+                    `\n${error}\n` +
+                    "```",
+                  color: scripts.getErrorColor(),
+                }),
+              ],
+            });
+          } catch (errr) {
+            console.log(
+              `The Original Error has something to do w the interaction`,
+              error
+            );
+          }
         }
-      }
+}
 
       let modalInput = null;
       let embed = null;

@@ -46,6 +46,7 @@ module.exports = {
       return;
     }
     if (client.connectedToMongoose){
+      console.log(`Alr connected to DB`)
       return await interaction.editReply({embeds: [new EmbedBuilder()
         .setDescription(
           '<a:Giveaways:1052611718519459850> The bot is already connected to the database, no need to reconnect\n> \`status\` <:7688moderationvlow:1086718114802176172>'

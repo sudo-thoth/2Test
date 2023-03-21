@@ -1,6 +1,7 @@
 require("dotenv").config({ path: "../../../../my.env" });
 const client = require("../../index.js");
 const mongoose = require('mongoose');
+const scripts = require('../../functions/scripts/scripts.js');
 const {
   SlashCommandBuilder,
   EmbedBuilder,

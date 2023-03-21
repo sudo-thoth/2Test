@@ -17,7 +17,7 @@ const drflgif =
   "https://media.discordapp.net/attachments/981241396608532534/1078161086794174464/ezgif.com-gif-maker_4.gif";
 const gbgrgif =
   "https://media.discordapp.net/attachments/981241396608532534/1078159688983654441/ezgif.com-optimize.gif";
-
+const wodgif = "https://i.imgur.com/5kI4Zt4.gif"
 const jw3gif = () => {
   let gifs = [
     "https://media.discordapp.net/attachments/981241396608532534/1078163296412246016/ezgif.com-optimize_2.gif",
@@ -614,6 +614,8 @@ client.on("interactionCreate", async (interaction) => {
           era.toLowerCase() === "juice the kidd"
         ) {
           embedObj.thumbnail = jtkgif;
+        } else if(era.toLowerCase() === "wod" || era.toLowerCase() === "wrld on drugs"){
+          embedObj.thumbnail = wodgif;
         } else {
           embedObj.thumbnail = interaction.guild.iconURL();
         }
@@ -789,6 +791,8 @@ client.on("interactionCreate", async (interaction) => {
           era.toLowerCase() === "juice the kidd"
         ) {
           embedObj.thumbnail = jtkgif;
+        } else if(era.toLowerCase() === "wod" || era.toLowerCase() === "wrld on drugs"){
+          embedObj.thumbnail = wodgif;
         } else {
           embedObj.thumbnail = interaction.guild.iconURL();
         }
@@ -965,6 +969,8 @@ client.on("interactionCreate", async (interaction) => {
           era.toLowerCase() === "juice the kidd"
         ) {
           embedObj.thumbnail = jtkgif;
+        } else if(era.toLowerCase() === "wod" || era.toLowerCase() === "wrld on drugs"){
+          embedObj.thumbnail = wodgif;
         } else {
           embedObj.thumbnail = interaction.guild.iconURL();
         }
@@ -1505,6 +1511,8 @@ client.on("interactionCreate", async (interaction) => {
           era.toLowerCase() === "juice the kidd"
         ) {
           embedObj.thumbnail = jtkgif;
+        } else if(era.toLowerCase() === "wod" || era.toLowerCase() === "wrld on drugs"){
+          embedObj.thumbnail = wodgif;
         } else {
           embedObj.thumbnail = interaction.guild.iconURL();
         }
@@ -1689,6 +1697,8 @@ client.on("interactionCreate", async (interaction) => {
           era.toLowerCase() === "juice the kidd"
         ) {
           embedObj.thumbnail = jtkgif;
+        } else if(era.toLowerCase() === "wod" || era.toLowerCase() === "wrld on drugs"){
+          embedObj.thumbnail = wodgif;
         } else {
           embedObj.thumbnail = interaction.guild.iconURL();
         }

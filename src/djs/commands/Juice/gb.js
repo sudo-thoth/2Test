@@ -27,6 +27,8 @@ const dbVars = require("../../functions/groupbuy/databaseVariables.js");
 const mongoose = require("mongoose");
 const gbdb = require("../../../MongoDB/db/schemas/schema_gb.js");
 let modal;
+const allowedRoles = ["manager", "moderator", "mod", "admin", "administrator", "co owner", "co owners", "co-owner", ".", "co-owners", "ceo", "higher up", "higher ups", "higher-up", "higher-ups", "staff", "gb manager", "gb-manager"];
+
 async function throwNewError(interaction, err, i) {
   try {
     await interaction.editReply({
@@ -80,8 +82,9 @@ module.exports = {
   data: new SlashCommandBuilder()
     .setName("gb")
     .setDescription("post group buy")
-    .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
+    .setDefaultMemberPermissions(PermissionFlagsBits.MuteMembers),
   async execute(interaction) {
+    if (interaction.memberPermissions.has("ADMINISTRATOR") || interaction.member.roles.cache.some(role => allowedRoles.includes(role.name.toLowerCase()))) {
     if (client.connectedToMongoose) {
       // await interaction.deferReply({ ephemeral: true });
        const randID = scripts_djs.getRandID(); // testing new randID below, this is old
@@ -179,6 +182,19 @@ module.exports = {
         console.log(error)
       }
     }
+  } else {
+    await interaction.reply({ephemeral: true, embeds: [createEmb.createEmbed({
+      title: `you do not have permission to use this command`,
+      description: `you need to be an admin or have the \`GB Manager\` role to use this command`,
+      color: `#10B479`
+    })]}).then(async ()=>{
+      await scripts.delay(6000);
+      await interaction.deleteReply()
+      return
+    }).catch(error=>{
+      return console.log(error)
+    })
+  }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -452,9 +468,14 @@ module.exports = {
     try {
       await interaction.deferReply({ ephemeral: true });
     } catch (error) {
-      await interaction.editReply({embeds:[createEmb.createEmbed({title:`Error - editing gb`,description:`\`\`\`js\n${error}\n\`\`\`\n__Share the Error with Steve Jobs__`,color:scripts.getErrorColor()})]})
+      try {
+        return await interaction.editReply({embeds:[createEmb.createEmbed({title:`Error - editing gb`,description:`\`\`\`js\n${error}\n\`\`\`\n__Share the Error with Steve Jobs__`,color:scripts.getErrorColor()})]})
+      } catch (error) {
+        return console.log(error)
+      }
     }
-    if (!interaction.memberPermissions.has("Administrator")) {
+    
+    if (!interaction.memberPermissions.has("ADMINISTRATOR") && !interaction.member.roles.cache.some(role => allowedRoles.includes(role.name.toLowerCase()))) {
       console.log(
         `Edit Button Clicked by a non-admin user:\nusername: ${interaction.member.user.username}\nID: ${interaction.member.user.id}\nGuild: ${interaction.guild.name}\nGuild ID: ${interaction.guild.id}\nChannel: ${interaction.channel.name}\nChannel ID: ${interaction.channel.id}\nMessage ID: ${interaction.message.id}\nButton ID: ${interaction.customID}`
       );

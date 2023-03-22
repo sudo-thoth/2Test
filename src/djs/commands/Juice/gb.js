@@ -84,7 +84,7 @@ module.exports = {
     .setDescription("post group buy")
     .setDefaultMemberPermissions(PermissionFlagsBits.MuteMembers),
   async execute(interaction) {
-    if (interaction.memberPermissions.has("ADMINISTRATOR") || interaction.member.roles.cache.some(role => allowedRoles.includes(role.name.toLowerCase()))) {
+    if (interaction.memberPermissions.has("Administrator") || interaction.member.roles.cache.some(role => allowedRoles.includes(role.name.toLowerCase()))) {
     if (client.connectedToMongoose) {
       // await interaction.deferReply({ ephemeral: true });
        const randID = scripts_djs.getRandID(); // testing new randID below, this is old
@@ -475,7 +475,7 @@ module.exports = {
       }
     }
     
-    if (!interaction.memberPermissions.has("ADMINISTRATOR") && !interaction.member.roles.cache.some(role => allowedRoles.includes(role.name.toLowerCase()))) {
+    if (!interaction.memberPermissions.has("Administrator") && !interaction.member.roles.cache.some(role => allowedRoles.includes(role.name.toLowerCase()))) {
       console.log(
         `Edit Button Clicked by a non-admin user:\nusername: ${interaction.member.user.username}\nID: ${interaction.member.user.id}\nGuild: ${interaction.guild.name}\nGuild ID: ${interaction.guild.id}\nChannel: ${interaction.channel.name}\nChannel ID: ${interaction.channel.id}\nMessage ID: ${interaction.message.id}\nButton ID: ${interaction.customID}`
       );

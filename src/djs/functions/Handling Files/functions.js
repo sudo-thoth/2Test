@@ -767,49 +767,60 @@ let getDownloadDumpData = async (randID) => {
   let data = await downloadButtondb.findOne({ randID: randID }).exec();
   return data
 }
-  const dmButton = async (label, attachment) => {
-    let button;
-    let style = `primary`;
-    let customID = `download_dump_${randID}`;
-    // create randID
-    
-    let randID = scripts_djs.getRandID();
-    // save new obj to db with the randID and associated data
-    let obj = {
-      _id: `${new mongoose.Types.ObjectId()}`,
-      randID : randID,
-      label:label,
-      style: style,
-      customID: customID, 
-      attachment: {batchID: attachment.batchID, name: attachment.name, url: attachment.url, id: attachment.id, size: attachment.size, messageID: attachment.messageID, metaData: {
+const dmButton = async (label, attachment) => {
+  let button;
+  let style = `primary`;
+  label = label.length >= 80 ?  label.slice(0, 79) : label;
+
+  let randID = scripts_djs.getRandID();
+  let customID = `download_dump_${randID}`;
+  let obj = {
+    _id: `${new mongoose.Types.ObjectId()}`,
+    randID : randID,
+    label:label,
+    style: style,
+    customID: customID, 
+    attachment: {
+      batchID: attachment.batchID, 
+      name: attachment.name, 
+      url: attachment.url, 
+      id: attachment.id, 
+      size: attachment.size, 
+      messageID: attachment.messageID, 
+      messageAuthor: attachment.messageAuthor,
+      metaData: {
         dateRequested: `${attachment.metaData.dateRequested}`,
         originChannel: attachment.metaData.originChannel,
         originChannelID: attachment.metaData.originChannelID,
         originServer: attachment.metaData.originServer,
         originServerID: attachment.metaData.originServerID,
-        requestedBy: attachment.metaData.requestedBy,requestedByID: attachment.metaData.requestedByID,
-      }},
-    }
-    try {
-      await downloadButtondb.create(obj);
-      console.log(`saved to db`);
-    } catch (error) {
-      
-      scripts.logError(error)
-      console.log(`not saved`);
-    }
-    try {
-      button = createBtn.createButton({
+        requestedBy: attachment.metaData.requestedBy,
+        requestedByID: attachment.metaData.requestedByID,
+      }
+    },
+  };
+
+  try {
+    await Promise.all([
+      downloadButtondb.create(obj), // ERROR HERE, skips the following lines of code
+      createBtn.createButton({
         customID: customID,
         label: label,
         style: style,
-      });
-    } catch (error) {
-      console.log(error);
-      return
-    }
-    return button;
-  };
+      }),
+    ]);
+    console.log(`saved to db and created button`);
+  } catch (error) {
+    scripts.logError(error)
+    console.log(`not saved or created`);
+    return null;
+  }
+
+  console.log(button)
+  return button;
+};
+
+
 
   function formatElapsedTime(startTime) {
     const elapsedTime = performance.now() - startTime;
@@ -844,7 +855,7 @@ let getDownloadDumpData = async (randID) => {
 const timeLeft = `<t:${Math.floor(Date.now() / 1000)}:R>`; // format elapsed time as a Discord timestamp
 
     try {
-      await interaction.editReply({embeds:[createEmb.createEmbed({title:`Downloading Now`, description: `Please Wait, When the Dump is Complete you will get Pinged both Here in <#${interaction.channel.id}> and in Your Dms\n<a:T_Google_AI:932060562668544000>\nElapsed Time : ${timeLeft}`, color:scripts.getSuccessColor()})]})
+      await interaction.editReply({embeds:[createEmb.createEmbed({title:`Downloading Now`, description: `Please Wait, When the Dump is Complete you will get Pinged both Here in <#${interaction.channel.id}> and in Your Dms\n> <a:T_Google_AI:932060562668544000>\nElapsed Time : ${timeLeft}`, color:scripts.getSuccessColor()})]})
     } catch (error) {
      scripts.logError(error, `error editing reply`);
     }
@@ -963,16 +974,19 @@ const timeLeft = `<t:${Math.floor(Date.now() / 1000)}:R>`; // format elapsed tim
       let newAttachments = [];
       let convertAttachments = getInvalidAttachments(attachments, limit, foundAttachments) 
       let buttons = [];
-      for(let i = 0; i++; i< convertAttachments.length){
+      for(let i = 0;  i<= convertAttachments.length; i++){
         let attach = convertAttachments[i]
         let attachmentObj = foundAttachments[i]
+        if (!attach){return}
         console.log(`the attach-->`, attach);
         let button;
        try {
         //  button = await linkButton(`Download ${attach.name}`, attach.attachment)
-        button = await dmButton(`Download ${attach.name}`, attachmentObj)
+        button = await dmButton(`Download ${attach?.name}`, attachmentObj)
+        console.log(`button made for attachment`)
        } catch (error) {
         console.log(error)
+        console.log(`button not pushed to message`)
         return
        }
         if(button)buttons.push(button)
@@ -1009,9 +1023,10 @@ const timeLeft = `<t:${Math.floor(Date.now() / 1000)}:R>`; // format elapsed tim
           console.log(`the error)`,error);
           await throwErrorReply({error:error,interaction:interaction, action: `Sending the Message result that contained ${fileNames?`File List:\n${fileNames}`:foundContent!==``?foundContent:embeds.length>0?`an embed`:``}`})
         }
+        await scripts.delay(1333);
       }));
       
-        await scripts.delay(1333);
+        
       }
 
   let lists = totalFilesFound.length>0?createNameLists(totalFilesFound):[`No Files, but links or embeds`];

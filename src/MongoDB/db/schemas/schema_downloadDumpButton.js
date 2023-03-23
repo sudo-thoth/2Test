@@ -5,10 +5,25 @@ const dumpDownloadButtons = new Schema(
     _id: Schema.Types.ObjectId,
     label: String,
     style: String,
-    emoji: String,
     customID: String,
     randID: { type: String, required: true },
-    attachment: {batchID: String, name: String, url: String, id: String, size: Number, messageID: String, messageAuthor: String, metaData: {requestedBy: String, requestedByID: String, dateRequested: String, originServer: String, originServerID: String, originChannel: String, OriginChannelID: String}}
+    attachment: {
+      batchID: String, 
+      name: String, 
+      url: String, 
+      id: String, 
+      size: Number, 
+      messageID: String, 
+      messageAuthor: String, 
+      metaData: {
+      requestedBy: String, 
+      requestedByID: String, 
+      dateRequested: String, originServer: String, 
+      originServerID: String, 
+      originChannel: String, 
+  originChannelID: String
+    }
+  }
   },
   { collection: "dumpDownloadButtons" } // the database default collection name the schema will be stored in
 );

@@ -94,7 +94,7 @@ if (i) {
 }
 module.exports = {
   data: new SlashCommandBuilder()
-    .setName("roles")
+    .setName("role-selection")
     .setDescription("role selection buttons")
     .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
   async execute(interaction) {
@@ -105,15 +105,197 @@ module.exports = {
     // use #ffcb6b as the embed color
 
     const roleHubEmbed = createEmb.createEmbed({
-      title: `${interaction.guild.name} Role Selection`,
-      color: scripts.getColor(),
+      title: `Juice WRLD Role Selection`,
+      color: `#7d1702`,
+      image: `https://media.tenor.com/7a89EbuwecMAAAAC/juice-wrld-ewaste999.gif`
+      // ...
+    });    
+    const zzzroleHubEmbed = createEmb.createEmbed({
+      title: `Zzz. Role Selection`,
+      color: `#8034eb`,
+      image: `https://media.discordapp.net/attachments/1088348924575744060/1088665026421854228/ezgif.com-video-to-gif.gif`
       // ...
     });
 
 
 
 
-    if (interaction.guild.id === "1080667995287867484") { // NLMB
+    if (interaction.guild.id === "1074125896698581104") { // Biscotti
+      const leaks = await createButtn.createButton({ // 
+        customID: `role_999leaks_${interaction.guild.name}${randID}`,
+        label: "Leaks",
+        style: "secondary",
+        disabled: false,
+        emoji: "<a:yyhooddiscordmusic:1005733546608046140>",
+      });
+      const ogfiles = await createButtn.createButton({
+        customID: `role_999ogfiles_${interaction.guild.name}${randID}`,
+        label: "OG Files",
+        style: "secondary",
+        disabled: false,
+        emoji: "<:12413807531579155689128:1086967253368586300> ",
+      });
+      const snippets = await createButtn.createButton({
+        customID: `role_999snippets_${interaction.guild.name}${randID}`,
+        label: "Snippets",
+        style: "secondary",
+        disabled: false,
+        emoji: "<:999snips:1088658998892449873> ",
+      });
+      const sessions = await createButtn.createButton({
+        customID: `role_999sessions_${interaction.guild.name}${randID}`,
+        label: "Sessions",
+        style: "secondary",
+        disabled: false,
+        emoji: "<:999sessions:1088658303975952534>",
+      });
+      const compupdates = await createButtn.createButton({
+        customID: `role_999compupdates_${interaction.guild.name}${randID}`,
+        label: "Comp",
+        style: "secondary",
+        disabled: false,
+        emoji: "<:999comp:1088656060568588378>",
+      });
+      const news = await createButtn.createButton({
+        customID: `role_999news_${interaction.guild.name}${randID}`,
+        label: "News",
+        style: "secondary",
+        disabled: false,
+        emoji: "<:news:1088654777702961213>",
+      });
+      const groupbuys = await createButtn.createButton({
+        customID: `role_gbupdates_${interaction.guild.name}${randID}`,
+        label: "Group Buys",
+        style: "secondary",
+        disabled: false,
+        emoji: "<:MoneyBag:1056781474516455504>",
+      });
+      const releases = await createButtn.createButton({
+        customID: `role_999officialreleases_${interaction.guild.name}${randID}`,
+        label: "Official Releases",
+        style: "secondary",
+        disabled: false,
+        emoji: "<:IconAppleMusic:1072792802250985522> ",
+      });
+      const chatrevive = await createButtn.createButton({
+        customID: `role_chatrevive_${interaction.guild.name}${randID}`,
+        label: "Chat Revive",
+        style: "secondary",
+        disabled: false,
+        emoji: "<:ppl:1088655139495231568>",
+      });
+      const giveaways = await createButtn.createButton({
+        customID: `role_giveaways_${interaction.guild.name}${randID}`,
+        label: "Giveaways",
+        style: "secondary",
+        disabled: false,
+        emoji: "<a:Giveaways:1052611718519459850>",
+      });
+
+
+      // Zzz. /////////////////////////////////////////////
+      const z_leaks = await createButtn.createButton({ // 
+        customID: `role_zzzleaks_z_${interaction.guild.name}${randID}`,
+        label: "Leaks",
+        style: "secondary",
+        disabled: false,
+        emoji: "<:music:1070063741913276447> ",
+      });
+      const z_snippets = await createButtn.createButton({
+        customID: `role_zzzsnippets_z_${interaction.guild.name}${randID}`,
+        label: "Snippets",
+        style: "secondary",
+        disabled: false,
+        emoji: "<:zzzsnips:1088658993028792360>",
+      });
+      const z_sessions = await createButtn.createButton({
+        customID: `role_zzzsessions_z_${interaction.guild.name}${randID}`,
+        label: "Sessions",
+        style: "secondary",
+        disabled: false,
+        emoji: "<:zzzsessions:1088658302918983701> ",
+      });
+      const z_compupdates = await createButtn.createButton({
+        customID: `role_zzzcompupdates_z_${interaction.guild.name}${randID}`,
+        label: "Comp",
+        style: "secondary",
+        disabled: false,
+        emoji: "<:zzzcomp:1088656058261721261>",
+      });
+      const z_news = await createButtn.createButton({
+        customID: `role_zzznews_z_${interaction.guild.name}${randID}`,
+        label: "News",
+        style: "secondary",
+        disabled: false,
+        emoji: "<:news:1088654777702961213>",
+      });
+      const z_releases = await createButtn.createButton({
+        customID: `role_zzzofficialreleases_z_${interaction.guild.name}${randID}`,
+        label: "Official Releases",
+        style: "secondary",
+        disabled: false,
+        emoji: "<:Spotify:1074720594182025216>",
+      });
+
+      /////////////////////////////////////////////
+      const row1 = await createActRow.createActionRow({
+        components: [leaks, ogfiles, sessions, snippets],
+      });
+      const row2 = await createActRow.createActionRow({
+        components: [compupdates, releases, groupbuys, news],
+      });
+      const row3 = await createActRow.createActionRow({
+        components: [ giveaways, chatrevive],
+      });
+  
+      const hub = {
+        embeds: [roleHubEmbed],
+        components: [row1, row2],
+      };
+      const serverhub = {
+        embeds: [],
+        components: [row3],
+      };
+      const z_row1 = await createActRow.createActionRow({
+        components: [z_leaks,z_snippets, z_sessions],
+      });
+      const z_row2 = await createActRow.createActionRow({
+        components: [z_compupdates, z_releases, z_news],
+      });
+
+  
+      const z_hub = {
+        embeds: [zzzroleHubEmbed],
+        components: [z_row1, z_row2],
+      };
+    try {
+
+        await interaction.channel.send(z_hub);
+      } catch (error) {
+        await throwNewError("sending role selection Zzz. hub", interaction, error);
+      }
+
+      try {
+        await interaction.channel.send(hub);
+      } catch (error) {
+        await throwNewError("sending role selection hub", interaction, error);
+      }
+      try {
+
+          await interaction.channel.send(serverhub);
+        } catch (error) {
+          await throwNewError("sending role selection hub", interaction, error);
+        }
+      await interaction.editReply({
+        embeds: [
+          createEmb.createEmbed({
+            title: "Success",
+            description: "Role Selection Hub Posted",
+            color: scripts.getSuccessColor(),
+          }),
+        ],
+      });
+      } else if (interaction.guild.id === "1080667995287867484") { // NLMB
       const leaks = await createButtn.createButton({
         customID: `role_leaks_${interaction.guild.name}${randID}`,
         label: "Leaks",

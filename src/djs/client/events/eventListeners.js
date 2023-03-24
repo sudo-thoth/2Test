@@ -231,7 +231,7 @@ if (client) {
             await interaction.editReply({
               embeds: [
                 createEmb.createEmbed({
-                  title: `${role.name} Role Removed`,
+                  title: `<@${role.id}> Role Removed`,
                   description: "role status updated successfully",
                   color: scripts.getErrorColor(),
                   author: {
@@ -261,7 +261,7 @@ if (client) {
             await interaction.editReply({
               embeds: [
                 createEmb.createEmbed({
-                  title: `${role.name} Role Added`,
+                  title: `<@${role.id}> Role Added`,
                   description: "role status updated successfully",
                   color: scripts.getSuccessColor(),
                   author: {
@@ -327,6 +327,113 @@ if (client) {
       sessioneditsrole,
       songofthedayrole;
     switch (currentServer) {
+      case "Biscotti":
+      _999_leaksrole = await interaction.guild.roles.fetch("1088637680662892644");
+      _999_ogfilesrole = await interaction.guild.roles.fetch(
+        "1088637988818403478"
+      );
+      _999_snippetsrole = await interaction.guild.roles.fetch(
+        "1088641233297088562"
+      );
+      _999_sessionsrole = await interaction.guild.roles.fetch(
+        "1088641500868517888"
+      );
+      _999_compupdatesrole = await interaction.guild.roles.fetch(
+        "1088641708222316655"
+      );
+      _999_newsrole = await interaction.guild.roles.fetch("1088641831690055701");
+      _999_groupbuysrole = await interaction.guild.roles.fetch(
+        "1088641891337261096"
+      );
+      _999_releasesrole = await interaction.guild.roles.fetch(
+        "1088645332675600504"
+      );
+      giveawaysrole = await interaction.guild.roles.fetch(
+        "1088642040058875954"
+      );
+      chatreviverole = await interaction.guild.roles.fetch(
+        "1088642359182512218"
+      );
+
+        zzz_leaksrole = await interaction.guild.roles.fetch("1088640983748595732");
+        zzz_ogfilesrole = await interaction.guild.roles.fetch(
+          "1088637988818403478"
+        );
+        zzz_snippetsrole = await interaction.guild.roles.fetch(
+          "1088641233297088562"
+        );
+        zzz_sessionsrole = await interaction.guild.roles.fetch(
+          "1088641269342949376"
+        );
+        zzz_compupdatesrole = await interaction.guild.roles.fetch(
+          "1088641437475803156"
+        );
+        zzz_newsrole = await interaction.guild.roles.fetch("1088641754091241532");
+        zzz_releasesrole = await interaction.guild.roles.fetch(
+          "1088645211640565810"
+        );
+        switch (roleName) {
+          
+          // Zzz. Biscotti Roles
+          case "zzzleaks":
+            await updateRole(interaction, zzz_leaksrole);
+            break;
+          case "zzzogfiles":
+            await updateRole(interaction, zzz_ogfilesrole);
+            break;
+          case "zzzsnippets":
+            await updateRole(interaction, zzz_snippetsrole);
+            break;
+          case "zzzsessions":
+            await updateRole(interaction, zzz_sessionsrole);
+            break;
+          case "zzzcompupdates":
+            await updateRole(interaction, zzz_compupdatesrole);
+            break;
+          case "zzznews":
+            await updateRole(interaction, zzz_newsrole);
+            break;
+          case "zzzofficialreleases":
+            await updateRole(interaction, zzz_releasesrole);
+            break;
+
+           // 999 Biscotti Roles
+        case "999leaks":
+        await updateRole(interaction, _999_leaksrole);
+        break;
+      case "999ogfiles":
+        await updateRole(interaction, _999_ogfilesrole);
+        break;
+      case "999snippets":
+        await updateRole(interaction, _999_snippetsrole);
+        break;
+      case "999sessions":
+        await updateRole(interaction, _999_sessionsrole);
+        break;
+      case "999compupdates":
+        await updateRole(interaction, _999_compupdatesrole);
+        break;
+      case "999news":
+        await updateRole(interaction, _999_newsrole);
+        break;
+      case "gbupdates":
+        await updateRole(interaction, _999_groupbuysrole);
+        break;
+      case "999officialreleases":
+        await updateRole(interaction, _999_releasesrole);
+        break;
+      case "giveaways":
+        await updateRole(interaction, giveawaysrole);
+        break;
+      case "chatrevive":
+        await updateRole(interaction, chatreviverole);
+        break;
+      default:
+        break;
+    }
+
+      break;
+    
       case "NLMB":
         leaksrole = await interaction.guild.roles.fetch("1080671948335501372");
         ogfilesrole = await interaction.guild.roles.fetch(
@@ -582,11 +689,7 @@ if (client) {
       } else if (customID.includes("gb_")) {
         if (customID.includes("gb_edit")) {
           let randID = scripts_djs.extractID(customID);
-          try {
-            await gb.gbedit(interaction, randID);
-          } catch (error) {
-            return console.log(error)
-          }
+          await gb.gbedit(interaction, randID);
         } else if (customID.includes("gb_update")) {
           let randID = scripts_djs.extractID(customID);
           if (customID.includes("add")) {

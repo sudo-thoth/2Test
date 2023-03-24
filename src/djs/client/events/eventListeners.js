@@ -231,7 +231,7 @@ if (client) {
             await interaction.editReply({
               embeds: [
                 createEmb.createEmbed({
-                  title: `<@${role.id}> Role Removed`,
+                  title: `**${role.name}** Role Removed`,
                   description: "role status updated successfully",
                   color: scripts.getErrorColor(),
                   author: {
@@ -261,7 +261,7 @@ if (client) {
             await interaction.editReply({
               embeds: [
                 createEmb.createEmbed({
-                  title: `<@${role.id}> Role Added`,
+                  title: `**${role.name}** Role Added`,
                   description: "role status updated successfully",
                   color: scripts.getSuccessColor(),
                   author: {
@@ -326,52 +326,54 @@ if (client) {
       stemeditsrole,
       sessioneditsrole,
       songofthedayrole;
+      console.log(`logged ------------->`, roleName)
     switch (currentServer) {
       case "Biscotti":
-      _999_leaksrole = await interaction.guild.roles.fetch("1088637680662892644");
-      _999_ogfilesrole = await interaction.guild.roles.fetch(
+      let _999_leaksrole = await interaction.guild.roles.fetch("1088637680662892644");
+      let _999_ogfilesrole = await interaction.guild.roles.fetch(
         "1088637988818403478"
       );
-      _999_snippetsrole = await interaction.guild.roles.fetch(
+      let _999_snippetsrole = await interaction.guild.roles.fetch(
         "1088641233297088562"
       );
-      _999_sessionsrole = await interaction.guild.roles.fetch(
+      let _999_sessionsrole = await interaction.guild.roles.fetch(
         "1088641500868517888"
       );
-      _999_compupdatesrole = await interaction.guild.roles.fetch(
+      let _999_compupdatesrole = await interaction.guild.roles.fetch(
         "1088641708222316655"
       );
-      _999_newsrole = await interaction.guild.roles.fetch("1088641831690055701");
-      _999_groupbuysrole = await interaction.guild.roles.fetch(
+      let _999_newsrole = await interaction.guild.roles.fetch("1088641831690055701");
+      let _999_groupbuysrole = await interaction.guild.roles.fetch(
         "1088641891337261096"
       );
-      _999_releasesrole = await interaction.guild.roles.fetch(
+      let _999_releasesrole = await interaction.guild.roles.fetch(
         "1088645332675600504"
       );
-      giveawaysrole = await interaction.guild.roles.fetch(
+       giveawaysrole = await interaction.guild.roles.fetch(
         "1088642040058875954"
       );
-      chatreviverole = await interaction.guild.roles.fetch(
+       chatreviverole = await interaction.guild.roles.fetch(
         "1088642359182512218"
       );
 
-        zzz_leaksrole = await interaction.guild.roles.fetch("1088640983748595732");
-        zzz_ogfilesrole = await interaction.guild.roles.fetch(
+        let zzz_leaksrole = await interaction.guild.roles.fetch("1088640983748595732");
+        let zzz_ogfilesrole = await interaction.guild.roles.fetch(
           "1088637988818403478"
         );
-        zzz_snippetsrole = await interaction.guild.roles.fetch(
+        let zzz_snippetsrole = await interaction.guild.roles.fetch(
           "1088641233297088562"
         );
-        zzz_sessionsrole = await interaction.guild.roles.fetch(
+        let zzz_sessionsrole = await interaction.guild.roles.fetch(
           "1088641269342949376"
         );
-        zzz_compupdatesrole = await interaction.guild.roles.fetch(
+        let zzz_compupdatesrole = await interaction.guild.roles.fetch(
           "1088641437475803156"
         );
-        zzz_newsrole = await interaction.guild.roles.fetch("1088641754091241532");
-        zzz_releasesrole = await interaction.guild.roles.fetch(
+        let zzz_newsrole = await interaction.guild.roles.fetch("1088641754091241532");
+        let zzz_releasesrole = await interaction.guild.roles.fetch(
           "1088645211640565810"
         );
+
         switch (roleName) {
           
           // Zzz. Biscotti Roles
@@ -566,6 +568,7 @@ if (client) {
         break;
       
         default:
+        console.log(`logged`, roleName)
         await interaction.editReply({
           content: `error happened here\n the server name is ${currentServer}\nthe role is ${role}\nthe role name is ${roleName}\nsend Steve Jobs the error report`,
         });
@@ -676,9 +679,16 @@ if (client) {
         await interaction.deferReply({ ephemeral: true });
       } catch (error) {
         if (error.message.includes(`Unknown interaction`)) {
+          console.log(`logged custom ID-----------> `, customID)
+          // console.log(`logged inter -----------> `, interaction)
           console.log(
             `An unknown Interaction was Logged\nInteraction User ${interaction?.user?.username}`
           ); // <:android:1083158839957921882>
+          // try{
+          //   client.emit("role", interaction, customID);
+          // } catch (error) {
+          //   console.log(error)
+          // }
           return;
         } else {
           return console.log(error);

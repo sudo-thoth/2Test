@@ -195,42 +195,42 @@ module.exports = {
 
       // Zzz. /////////////////////////////////////////////
       const z_leaks = await createButtn.createButton({ // 
-        customID: `role_zzzleaks_z_${interaction.guild.name}${randID}`,
+        customID: `role_zzzleaks_${interaction.guild.name}${randID}`,
         label: "Leaks",
         style: "secondary",
         disabled: false,
         emoji: "<:music:1070063741913276447> ",
       });
       const z_snippets = await createButtn.createButton({
-        customID: `role_zzzsnippets_z_${interaction.guild.name}${randID}`,
+        customID: `role_zzzsnippets_${interaction.guild.name}${randID}`,
         label: "Snippets",
         style: "secondary",
         disabled: false,
         emoji: "<:zzzsnips:1088658993028792360>",
       });
       const z_sessions = await createButtn.createButton({
-        customID: `role_zzzsessions_z_${interaction.guild.name}${randID}`,
+        customID: `role_zzzsessions_${interaction.guild.name}${randID}`,
         label: "Sessions",
         style: "secondary",
         disabled: false,
         emoji: "<:zzzsessions:1088658302918983701> ",
       });
       const z_compupdates = await createButtn.createButton({
-        customID: `role_zzzcompupdates_z_${interaction.guild.name}${randID}`,
+        customID: `role_zzzcompupdates_${interaction.guild.name}${randID}`,
         label: "Comp",
         style: "secondary",
         disabled: false,
         emoji: "<:zzzcomp:1088656058261721261>",
       });
       const z_news = await createButtn.createButton({
-        customID: `role_zzznews_z_${interaction.guild.name}${randID}`,
+        customID: `role_zzznews_${interaction.guild.name}${randID}`,
         label: "News",
         style: "secondary",
         disabled: false,
         emoji: "<:news:1088654777702961213>",
       });
       const z_releases = await createButtn.createButton({
-        customID: `role_zzzofficialreleases_z_${interaction.guild.name}${randID}`,
+        customID: `role_zzzofficialreleases_${interaction.guild.name}${randID}`,
         label: "Official Releases",
         style: "secondary",
         disabled: false,

@@ -92,10 +92,10 @@ try {
   const promises = [];
 
   if (type === "download-to-dms") {
-    promises.push(get.downloadMessageBatch(batchID, user, interaction));
+    promises.push(get.downloadMessageBatch(batchID, user, interaction, startTime));
   }
   if (type === "download-to-channel") {
-    promises.push(get.downloadMessageBatch(batchID, target, interaction));
+    promises.push(get.downloadMessageBatch(batchID, target, interaction, startTime));
   }
 
   await Promise.all(promises);
@@ -110,13 +110,14 @@ try {
     console.log(`Error sending download error to user`)
     console.log(errr)
   }
-} finally {
-  try {
-    await interaction.user.send({embeds:[createEmb.createEmbed({title:`**__W__** | Downloaded in ${formatElapsedTime(startTime)}`})]})
-  } catch (error) {
-    console.log(`Error sending download time to user`)
-    console.log(error)
-  }
-}
+} 
+// finally {
+//   try {
+//     await interaction.user.send({embeds:[createEmb.createEmbed({title:`**FINAL __W__** | Downloaded in ${formatElapsedTime(startTime)}`})]})
+//   } catch (error) {
+//     console.log(`Error sending download time to user`)
+//     console.log(error)
+//   }
+// }
   },
 };

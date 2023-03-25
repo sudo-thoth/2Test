@@ -801,20 +801,22 @@ const dmButton = async (label, attachment) => {
   };
 
   try {
-    await Promise.all([
-      downloadButtondb.create(obj), // ERROR HERE, skips the following lines of code
+    let [, createdButton] = await Promise.all([
+      downloadButtondb.create(obj),
       createBtn.createButton({
         customID: customID,
         label: label,
         style: style,
       }),
     ]);
+    button = createdButton;
     console.log(`saved to db and created button`);
   } catch (error) {
     scripts.logError(error)
     console.log(`not saved or created`);
     return null;
   }
+  
 
   console.log(button)
   return button;
@@ -850,12 +852,13 @@ const dmButton = async (label, attachment) => {
   }
   
   
-  async function downloadMessageBatch(batch_id, targetChannel, interaction) {
-    const startTime = performance.now();
+  async function downloadMessageBatch(batch_id, targetChannel, interaction, startTime) {
+
 const timeLeft = `<t:${Math.floor(Date.now() / 1000)}:R>`; // format elapsed time as a Discord timestamp
 
     try {
-      await interaction.editReply({embeds:[createEmb.createEmbed({title:`Downloading Now`, description: `Please Wait, When the Dump is Complete you will get Pinged both Here in <#${interaction.channel.id}> and in Your Dms\n> <a:T_Google_AI:932060562668544000>\nElapsed Time : ${timeLeft}`, color:scripts.getSuccessColor()})]})
+      await scripts.delay(2000)
+      await interaction.editReply({embeds:[createEmb.createEmbed({title:`Downloading Now`, description: `Please Wait, When the Dump is Complete you will get Pinged both Here in <#${interaction.channel.id}> and in Your Dms\n >  <a:T_Google_AI:932060562668544000> \nElapsed Time : ${timeLeft}`, color:scripts.getSuccessColor()})]})
     } catch (error) {
      scripts.logError(error, `error editing reply`);
     }
@@ -891,15 +894,15 @@ const timeLeft = `<t:${Math.floor(Date.now() / 1000)}:R>`; // format elapsed tim
     }
     let totalFilesFound = [];
     let finalMessagesArray = [];
-  messages.forEach(async message => {
+    for (const message of messages) {
     // edit the current edit reply embed to change it color to red
-    // try {
-    //   await interaction.editReply({embeds:[createEmb.createEmbed({title:`Downloading Now`, description: `Please Wait, When the Dump is Complete you will get Pinged both Here in <#${interaction.channel.id}> and in Your Dms\n<a:T_Google_AI:932060562668544000>\nElapsed Time : ${timeLeft}`, color:scripts.getSuccessColor()})]})
-    // } catch (error) {
-    //   scripts.logError(error, `error editing reply`);
-    // }
+    try {
+      await interaction.editReply({embeds:[createEmb.createEmbed({title:`Downloading Now`, description: `Please Wait, When the Dump is Complete you will get Pinged both Here in <#${interaction.channel.id}> and in Your Dms\n <a:T_Google_AI:932060562668544000> \nElapsed Time : ${timeLeft}`, color:scripts.getColor()})]})
+    } catch (error) {
+      scripts.logError(error, `error editing reply`);
+    }
 
-    message = message
+    // message = message
    let foundEmbeds = message?.embeds;
     let embeds = [];
     for(let embed of foundEmbeds){
@@ -928,7 +931,7 @@ const timeLeft = `<t:${Math.floor(Date.now() / 1000)}:R>`; // format elapsed tim
       }
     for(let attachment of foundAttachments){
       let newAttachment = scripts_djs.createAttachment({
-        filename: attachment.name, url: attachment.url, description: `From ${attachment.messageAuthor} in the ${attachment.metaData.originChannel} Channel in ${attachment.metaData.originServer} ${message.timestamp? `| sent at ${message.timestamp}` : ``}`
+        filename: attachment.name, url: attachment.url, description: `From ${attachment.messageAuthor} in the ${attachment.metaData.originChannel} Channel in ${attachment.metaData.originServer} ${`| sent at ${message.timestamp}` || ``}`
       })
       attachments.push(newAttachment)
       if (toggle){
@@ -974,23 +977,31 @@ const timeLeft = `<t:${Math.floor(Date.now() / 1000)}:R>`; // format elapsed tim
       let newAttachments = [];
       let convertAttachments = getInvalidAttachments(attachments, limit, foundAttachments) 
       let buttons = [];
-      for(let i = 0;  i<= convertAttachments.length; i++){
-        let attach = convertAttachments[i]
-        let attachmentObj = foundAttachments[i]
-        if (!attach){return}
+      for (let i = 0; i <= convertAttachments.length; i++) {
+        let attach = convertAttachments[i];
+        let attachmentObj = foundAttachments[i];
+        if (!attach) {
+          continue;
+        }
         console.log(`the attach-->`, attach);
         let button;
-       try {
-        //  button = await linkButton(`Download ${attach.name}`, attach.attachment)
-        button = await dmButton(`Download ${attach?.name}`, attachmentObj)
-        console.log(`button made for attachment`)
-       } catch (error) {
-        console.log(error)
-        console.log(`button not pushed to message`)
-        return
-       }
-        if(button)buttons.push(button)
+        try {
+          console.log(`Hi`);
+          //  button = await linkButton(`Download ${attach.name}`, attach.attachment)
+          button = await dmButton(`Download ${attach?.name}`, attachmentObj);
+          console.log(`button made for attachment`);
+        } catch (error) {
+          console.log(error);
+          console.log(`button not pushed to message`);
+          continue;
+        }
+        if (button) {
+          console.log(`new button `);
+          buttons.push(button);
+          console.log(`new button*********** `);
+        }
       }
+      
       let components = [];
       // for each button allow up to 5 buttons per action row, then make new action rows for any additional 5+ buttons, then return an array of the first 5 or less action rows
       for (let i = 0; i < buttons.length; i += 5) {
@@ -999,7 +1010,7 @@ const timeLeft = `<t:${Math.floor(Date.now() / 1000)}:R>`; // format elapsed tim
     try {
 
       finalMessagesArray.push({content:`${foundContent?`> __Original Message Content__\n> ${foundContent}`:``}\n${foundAttachments.length>0?`File List:\n${fileNames}`:``}`, embeds: embeds, files: newAttachments, components: components})
-      return;
+      continue;
     } catch(error){
       console.log(`error message--->`, error.message)
       console.log(`the erroir)`,error);
@@ -1008,7 +1019,7 @@ const timeLeft = `<t:${Math.floor(Date.now() / 1000)}:R>`; // format elapsed tim
       await throwErrorReply({error:error,interaction:interaction, action: `Sending the Message result that contained ${fileNames?`File List:\n${fileNames}`:foundContent!==``?foundContent:embeds.length>0?`an embed`:``}`})
     }
   
-    });
+    }
     if(finalMessagesArray.length>0){
       async function getChannel(guildId, client, channelId) {
         const guild = await client.guilds.fetch(guildId);
@@ -1016,17 +1027,34 @@ const timeLeft = `<t:${Math.floor(Date.now() / 1000)}:R>`; // format elapsed tim
         return channel;
       }
       let newChannel = await getChannel(guildID, client, channelID)
-      await Promise.all(finalMessagesArray.map(async (message) => {
-        try {
-          await newChannel.send(message);
-        } catch (error) {
-          console.log(`the error)`,error);
-          await throwErrorReply({error:error,interaction:interaction, action: `Sending the Message result that contained ${fileNames?`File List:\n${fileNames}`:foundContent!==``?foundContent:embeds.length>0?`an embed`:``}`})
+      async function sendMessages(finalMessagesArray, newChannel) {
+        for (const message of finalMessagesArray) {
+          try {
+            await newChannel.send(message);
+            await scripts.delay(1333);
+          } catch (error) {
+            console.log(`the error)`, error);
+            await throwErrorReply({
+              error: error,
+              interaction: interaction,
+              action: `Sending the Message result that contained ${
+                fileNames
+                  ? `File List:\n${fileNames}`
+                  : foundContent !== ""
+                  ? foundContent
+                  : embeds.length > 0
+                  ? `an embed`
+                  : ``
+              }`,
+            });
+          }
         }
-        await scripts.delay(1333);
-      }));
+      }
       
-        
+      sendMessages(finalMessagesArray, newChannel).catch((error) =>
+        console.error(`Error sending messages: ${error}`)
+      );
+      
       }
 
   let lists = totalFilesFound.length>0?createNameLists(totalFilesFound):[`No Files, but links or embeds`];
@@ -1079,28 +1107,28 @@ for (let i = 0; i < lists.length; i++) {
     //   await throwErrorReply({error:error,interaction:interaction,action:'sending follow up file downloaded results'})
 
     // }
-    const followUpPromise = interaction.user.send({
-      embeds: [
-        createEmb.createEmbed({
-          title: `More Results`,
-          description: `Files Downloaded:\n${lists[i]}`,
-          color: scripts.getSuccessColor(),
-        }),
-      ],
-      content: `||\`batch id:\` \`${batch_id}\`||`,
-    }).catch(error => {
-      console.log(`error sending follow up file downloaded results to user via [ DM ]`, error);
-    });
+    // const followUpPromise = interaction.user.send({
+    //   embeds: [
+    //     createEmb.createEmbed({
+    //       title: `More Results`,
+    //       description: `Files Downloaded:\n${lists[i]}`,
+    //       color: scripts.getSuccessColor(),
+    //     }),
+    //   ],
+    //   content: `||\`batch id:\` \`${batch_id}\`||`,
+    // }).catch(error => {
+    //   console.log(`error sending follow up file downloaded results to user via [ DM ]`, error);
+    // });
 
-    promises.push(followUpPromise);
+    // promises.push(followUpPromise);
   }
 }
 
-try {
-  await Promise.all(promises);
-} catch (error) {
-  await throwErrorReply({ error: error.error, interaction: interaction, action: error.action });
-}
+// try {
+//   await Promise.all(promises);
+// } catch (error) {
+//   await throwErrorReply({ error: error.error, interaction: interaction, action: error.action });
+// }
 
   } catch (error) {
     try {

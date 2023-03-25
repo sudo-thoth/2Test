@@ -1260,85 +1260,96 @@ if (client) {
         console.log(`the file`, file); // the file AttachmentBuilder {attachment: 'https://s9download.krakenfiles.com/force-do…Rg6SPL1IHN94GKCqVcjN3ZEFDv7egua/qVDaXdn7lX', name: undefined, description: undefined}
 
         await fileProcessing(interaction);
+        let embeds = [];
         if (isFile === true) {
+          
+if (nameOfFile === `music.m4a`){
+  embeds.push(
+    createEmb.createEmbed({
+    title: `${
+      (title ? title : `${name ? name : nameOfFile}`) ===
+      nameOfFile
+        ? ``
+        : `${title ? title : `${name ? name : nameOfFile}`}`
+    }`,
+    description:
+      fileInfoString || fileTechnicalInfoString
+        ? `**__File Information:__**\n\n${
+            fileInfoString ? `${fileInfoString}` : ``
+          }${
+            fileTechnicalInfoString
+              ? `${fileTechnicalInfoString}`
+              : ``
+          }`
+        : "",
+    url: file.url ? file.url : null,
+    color: scripts.getColor(),
+    thumbnail: thumbnail ? thumbnail : null,
+    footer: {
+      text: `${
+        file.url
+          ? `this file was scraped from Kraken Files by Steve Jobs`
+          : `Wok Bot provided by Steve Jobs`
+      }`,
+      iconURL: `https://a57.foxnews.com/static.foxnews.com/foxnews.com/content/uploads/2018/09/1200/675/youngstevo.jpg?ve=1&tl=1`,
+    },
+  })
+)
+embeds.push(  
+  createEmb.createEmbed({
+  title: `:warning: caution`,
+  description: `\`\`\`js\nVulnerability Status : true\n\`\`\`\nThis File Was Pulled From The Kraken Link Provided Causing Manipulation\n\n\n:warning:  **Possible Manipulation:**\n\n🤒 \`File Name Manipulation :\` \`file name changed to\` \`music\`\n🤢 \`File Type Manipulation :\` \`file type changed to\` \`.m4a\`\n🤮 \`File Degradation :\` \`quality reduced to\` \`64 kb/s\`\n\n\n👀 **What You Can Do:**\n> *IF you just want to* __**LISTEN**__ : This file is more than sufficient to have a quick listen
+\n
+> *IF you would like to* ** __Retain the Highest Quality__** : I recommend viewing the link on Kraken and Downloading/Listening from there`,
+  url: embedObj ? embedObj.url : null,
+  color: "Yellow",
+  footer: {
+    text: `this file was scraped from Kraken Files by Steve Jobs`,
+    iconURL: `https://a57.foxnews.com/static.foxnews.com/foxnews.com/content/uploads/2018/09/1200/675/youngstevo.jpg?ve=1&tl=1`,
+  },
+}))
+} else {
+  embeds.push(createEmb.createEmbed({
+    title: `${
+      (title ? title : `${name ? name : nameOfFile}`) ===
+      nameOfFile
+        ? ``
+        : `${title ? title : `${name ? name : nameOfFile}`}`
+    }`,
+    description:
+      fileInfoString || fileTechnicalInfoString
+        ? `**__File Information:__**\n\n${
+            fileInfoString ? `${fileInfoString}` : ``
+          }${
+            fileTechnicalInfoString
+              ? `${fileTechnicalInfoString}`
+              : ``
+          }`
+        : "",
+    url: file.url ? file.url : null,
+    color: scripts.getColor(),
+    thumbnail: thumbnail ? thumbnail : null,
+    footer: {
+      text: `${
+        file.url
+          ? `this file was scraped from Kraken Files by Steve Jobs`
+          : `Wok Bot provided by Steve Jobs`
+      }`,
+      iconURL: `https://a57.foxnews.com/static.foxnews.com/foxnews.com/content/uploads/2018/09/1200/675/youngstevo.jpg?ve=1&tl=1`,
+    },
+  }))
+} 
+if (data.file_type === 'kraken-link') {
+  let obj = {
+  description: `:saluting_face: **__For the Best Quality__ [Visit the Kraken Here](${data.file.url}) -->  [${data.file.name}](${data.file.url})**`,
+ color: "BLUE",
+ }
 
+  embeds.push(createEmb.createEmbed(obj))
+}
             user.send({
               embeds:
-                nameOfFile === `music.m4a`
-                  ? [
-                      createEmb.createEmbed({
-                        title: `${
-                          (title ? title : `${name ? name : nameOfFile}`) ===
-                          nameOfFile
-                            ? ``
-                            : `${title ? title : `${name ? name : nameOfFile}`}`
-                        }`,
-                        description:
-                          fileInfoString || fileTechnicalInfoString
-                            ? `**__File Information:__**\n\n${
-                                fileInfoString ? `${fileInfoString}` : ``
-                              }${
-                                fileTechnicalInfoString
-                                  ? `${fileTechnicalInfoString}`
-                                  : ``
-                              }`
-                            : "",
-                        url: file.url ? file.url : null,
-                        color: scripts.getColor(),
-                        thumbnail: thumbnail ? thumbnail : null,
-                        footer: {
-                          text: `${
-                            file.url
-                              ? `this file was scraped from Kraken Files by Steve Jobs`
-                              : `Wok Bot provided by Steve Jobs`
-                          }`,
-                          iconURL: `https://a57.foxnews.com/static.foxnews.com/foxnews.com/content/uploads/2018/09/1200/675/youngstevo.jpg?ve=1&tl=1`,
-                        },
-                      }),
-                      createEmb.createEmbed({
-                        title: `:warning: caution`,
-                        description: `\`\`\`js\nVulnerability Status : true\n\`\`\`\nThis File Was Pulled From The Kraken Link Provided Causing Manipulation\n\n\n:warning:  **Possible Manipulation:**\n\n🤒 \`File Name Manipulation :\` \`file name changed to\` \`music\`\n🤢 \`File Type Manipulation :\` \`file type changed to\` \`.m4a\`\n🤮 \`File Degradation :\` \`quality reduced to\` \`64 kb/s\`\n\n\n👀 **What You Can Do:**\n> *IF you just want to* __**LISTEN**__ : This file is more than sufficient to have a quick listen
-                   \n
-                  > *IF you would like to* ** __Retain the Highest Quality__** : I recommend viewing the link on Kraken and Downloading/Listening from there`,
-                        url: embedObj ? embedObj.url : null,
-                        color: "Yellow",
-                        footer: {
-                          text: `this file was scraped from Kraken Files by Steve Jobs`,
-                          iconURL: `https://a57.foxnews.com/static.foxnews.com/foxnews.com/content/uploads/2018/09/1200/675/youngstevo.jpg?ve=1&tl=1`,
-                        },
-                      }),
-                    ]
-                  : [
-                      createEmb.createEmbed({
-                        title: `${
-                          (title ? title : `${name ? name : nameOfFile}`) ===
-                          nameOfFile
-                            ? ``
-                            : `${title ? title : `${name ? name : nameOfFile}`}`
-                        }`,
-                        description:
-                          fileInfoString || fileTechnicalInfoString
-                            ? `**__File Information:__**\n\n${
-                                fileInfoString ? `${fileInfoString}` : ``
-                              }${
-                                fileTechnicalInfoString
-                                  ? `${fileTechnicalInfoString}`
-                                  : ``
-                              }`
-                            : "",
-                        url: file.url ? file.url : null,
-                        color: scripts.getColor(),
-                        thumbnail: thumbnail ? thumbnail : null,
-                        footer: {
-                          text: `${
-                            file.url
-                              ? `this file was scraped from Kraken Files by Steve Jobs`
-                              : `Wok Bot provided by Steve Jobs`
-                          }`,
-                          iconURL: `https://a57.foxnews.com/static.foxnews.com/foxnews.com/content/uploads/2018/09/1200/675/youngstevo.jpg?ve=1&tl=1`,
-                        },
-                      }),
-                    ],
+                embeds,
               files: [file],
             }).then( async () => {
               try {

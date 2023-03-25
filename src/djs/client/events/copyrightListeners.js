@@ -40,7 +40,9 @@ async function filterOnChannel(channel, guild) {
   }
 }
 
-let buttonEmojis = ["<a:suslook:929525675721895976>", "<a:loading:999005098153877616>", "<a:Dance:1027086599646871622>", "<a:ablobwave:607305059482468400>", "<a:999:1086670800704249919>", "<a:heartpoof:825065061617893376>", "<:chase_tele:1084267460930314341>", "<a:hmmthonk:812320213701754940>", "<a:hmm:962804016667050014>", "<a:neonthink:831210917772394546>", "<:musicfolder:1082336013201965137>", "<a:dumbpepetyping:1058900589225975898>", "<a:cuteblink:825285228112904192>", "<a:Skype_Thinking:870179836151337001>", "<a:emoji_500:988061635446997024>", "<a:happydance:1083256426249601084>", "<a:blobdance:1082904217586520144>", "<a:gonewhendemoted:1085693296996794398>", "<a:BlobBongoSpam:893861113861644328>", "<a:youtried:893859967470280734>", "<a:gx_Gunhands:817821051731443792>", "<a:announcements:1052611391858684015>", "<a:Notifbell:1052611366688669746>", "<a:Giveaways:1052611718519459850>", "<a:DiscordLoading:1075796965515853955>", "<:upscale_1:940147353879478324>", "<a:gx_MulticolorDustbin:747403256832983123>", "<a:KkirbyChillin:1033609090477334580>", "<a:YESSS:954133570010624030> ", "<a:schemein:958492006634618890>", "<a:lostwrld:1074769198670155806>", "<a:dance_monke:859562058097754133>", "<a:ahhh_vcy:1005725140274913291>", "<a:giftblob:960372456026165338>", "<a:M_OhShit:772700613670469642>", "<a:T_Google_AI:932060562668544000>", "<a:bananadance:837036207967436830>", "<a:thinkfast:811123249722818560>", "<a:blue_ribbon:1076384301232431115>", "<a:a_tada:740559067591737364>", "<a:tryitandsee:917474057048432680>", "<a:exiting:1022977820055580723>", "<a:egirls:961281622735487006>"]
+let buttonEmojis = [
+  "<a:suslook:929525675721895976>", "<a:loading:999005098153877616>", "<a:Dance:1027086599646871622>", "<a:ablobwave:607305059482468400>", "<a:999:1086670800704249919>", "<a:heartpoof:825065061617893376>", "<:chase_tele:1084267460930314341>", "<a:hmmthonk:812320213701754940>", "<a:hmm:962804016667050014>", "<a:neonthink:831210917772394546>", "<:musicfolder:1082336013201965137>", "<a:dumbpepetyping:1058900589225975898>", "<a:cuteblink:825285228112904192>", "<a:Skype_Thinking:870179836151337001>", "<a:emoji_500:988061635446997024>", "<a:happydance:1083256426249601084>", "<a:blobdance:1082904217586520144>", "<a:gonewhendemoted:1085693296996794398>", "<a:BlobBongoSpam:893861113861644328>", "<a:youtried:893859967470280734>", "<a:gx_Gunhands:817821051731443792>", "<a:announcements:1052611391858684015>", "<a:Notifbell:1052611366688669746>", "<a:Giveaways:1052611718519459850>", "<a:DiscordLoading:1075796965515853955>", "<:upscale_1:940147353879478324>", "<a:gx_MulticolorDustbin:747403256832983123>", "<a:KkirbyChillin:1033609090477334580>", "<a:YESSS:954133570010624030> ", "<a:schemein:958492006634618890>", "<a:lostwrld:1074769198670155806>", "<a:dance_monke:859562058097754133>", "<a:ahhh_vcy:1005725140274913291>", "<a:giftblob:960372456026165338>", "<a:M_OhShit:772700613670469642>", "<a:T_Google_AI:932060562668544000>", "<a:bananadance:837036207967436830>", "<a:thinkfast:811123249722818560>", "<a:blue_ribbon:1076384301232431115>", "<a:a_tada:740559067591737364>", "<a:tryitandsee:917474057048432680>", "<a:exiting:1022977820055580723>", "<a:egirls:961281622735487006>"
+]
 function getButtonEmoji() {
   let emoji = buttonEmojis[Math.floor(Math.random() * buttonEmojis.length)];
   return emoji
@@ -267,16 +269,47 @@ function filterMessage(m) {
   };
   // check message content for links
   if (m.content.includes("https://") || m.content.includes("http://")) {
-    const regex = /https?:\/\/[^\s]+/g;  // regular expression to match URLs
-    const links = [];  // array to store the found links
-    const newStr = m.content.replace(regex, (match) => {
-      links.push(match);  // push the matched link to the array
-      return '`[*]`';  // replace the link in the string with `[*]`
-    });
-    obj.filteredMessage = newStr;
-    obj.media = true;
-    obj.links = links;
-    obj.link = true;
+    // extract the every link in the message content, format them in an array, then check if any of the links are from the domain twitter, youtube, imgur, tenor, instagram, soundcloud, spotify, apple music, OR if the link includes '.gif' (basically if the link is a gif link), if at least one of the links are not under these terms cause certain code to run
+  const urlRegex = /(https?:\/\/[^\s]+)/g;
+  const discordInviteRegex = /https?:\/\/(www\.)?discord(\.gg|app\.com\/invite)\/([\w-]{2,255})/g;
+  let validURLs = m.content.match(urlRegex) || [];
+
+  let discordInviteFound = false;
+  let invalidURLFound = false;
+
+  validURLs.forEach(url => {
+    if (discordInviteRegex.test(url)) {
+      discordInviteFound = true;
+    } else if (!url.includes('tiktok.com') &&
+      !url.includes('twitter.com') &&
+      !url.includes('youtube.com') &&
+      !url.includes('soundcloud.com') &&
+      !url.includes('spotify.com') &&
+      !url.includes('music.apple.com') &&
+      !url.includes('tenor.com') &&
+      !url.includes('instagram.com') &&
+      !url.includes('imgur.com') &&
+      !url.includes('.gif')
+    ) {
+      invalidURLFound = true;
+    }
+  });
+
+  if (discordInviteFound && validURLs.length === 1) {
+    // Code for discord invite link found
+    // ...
+  } else if (invalidURLFound) {
+      const regex = /https?:\/\/[^\s]+/g;  // regular expression to match URLs
+      const links = [];  // array to store the found links
+      const newStr = m.content.replace(regex, (match) => {
+        links.push(match);  // push the matched link to the array
+        return '\`[*]\`';  // replace the link in the string with `[*]`
+      });
+      obj.filteredMessage = newStr;
+      obj.media = true;
+      obj.links = links;
+      obj.link = true;
+    }
   }
   // check message object for files
   if (m.attachments.size > 0) {
@@ -393,6 +426,7 @@ async function sendCopyrightContent(interaction, data, string) {
     if(string === `link`) { embed = createEmb.createEmbed({
       title: filters.links.string,
       description: data.message.ogContent ? `> ${data.message.ogContent}` : ``,
+      url: data.links[0] || ``,
       color: scripts.getColor(),
       author: {
         name: author.username,

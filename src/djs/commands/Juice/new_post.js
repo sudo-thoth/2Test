@@ -1329,7 +1329,7 @@ client.on("interactionCreate", async (interaction) => {
       let data = await getPostData(randID);
       let { roles, file, file_type } = data;
       const songName = interaction.fields.getTextInputValue("name") || null;
-      const text = interaction.fields.getTextInputValue("text") || null;
+      const era = interaction.fields.getTextInputValue("era") || null;
       const altname = interaction.fields.getTextInputValue("altname") || null;
       const producer = interaction.fields.getTextInputValue("producer") || null;
       const kraken = interaction.fields.getTextInputValue("kraken") || null;
@@ -1337,7 +1337,7 @@ client.on("interactionCreate", async (interaction) => {
       const role = roleString(roles);
       let embedObj = {
         title: `${songName}`,
-        description: text || null,
+        // description: text || null,
         color: scripts.getColor(),
         thumbnail: interaction.guild.iconURL(),
         author: {
@@ -1347,6 +1347,51 @@ client.on("interactionCreate", async (interaction) => {
       };
 
       let fields = [];
+      if (era !== null) {
+        fields.push({
+          name: `Era`,
+          value: `${era}`,
+          inline: true,
+        });
+        if (
+          era.toLowerCase() === "drfl" ||
+          era.toLowerCase() === "death race for love" ||
+          era.toLowerCase() === "death race"
+        ) {
+          embedObj.thumbnail = drflgif;
+        } else if (
+          era.toLowerCase() === "gbgr" ||
+          era.toLowerCase() === "goodbye and good riddance" ||
+          era.toLowerCase() === "goodbye & good riddance"
+        ) {
+          embedObj.thumbnail = gbgrgif;
+        } else if (
+          era.toLowerCase() === "jw3" ||
+          era.toLowerCase() === "tpne" ||
+          era.toLowerCase() === "outsider" ||
+          era.toLowerCase() === "outsiders" ||
+          era.toLowerCase() === "juice wrld 3" ||
+          era.toLowerCase() === "juice wrld three" ||
+          era.toLowerCase() === "lnd" ||
+          era.toLowerCase() === "the party never ends" ||
+          era.toLowerCase() === "legends never die" ||
+          era.toLowerCase() === "fd" ||
+          era.toLowerCase() === "fighting demons" ||
+          era.toLowerCase() === "post-homous" ||
+          era.toLowerCase() === "posthumous"
+        ) {
+          embedObj.thumbnail = jw3gif();
+        } else if (
+          era.toLowerCase() === "jtk" ||
+          era.toLowerCase() === "juice the kidd"
+        ) {
+          embedObj.thumbnail = jtkgif;
+        } else if(era.toLowerCase() === "wod" || era.toLowerCase() === "wrld on drugs"){
+          embedObj.thumbnail = wodgif;
+        } else {
+          embedObj.thumbnail = interaction.guild.iconURL();
+        }
+      }
       if (producer !== null) {
         fields.push({
           name: `Produced By:`,

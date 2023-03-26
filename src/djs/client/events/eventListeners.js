@@ -394,7 +394,9 @@ if (client) {
         case "magicaledits":
           await updateRole(interaction, magicaleditsrole);
           break;
-        case "edits":
+          case "stemedits":
+          await updateRole(interaction, stemeditsrole);
+          case "edits":
           await updateRole(interaction, editsrole);
           break;
         default:

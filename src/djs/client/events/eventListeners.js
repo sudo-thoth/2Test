@@ -325,9 +325,83 @@ if (client) {
       giveawaysrole,
       stemeditsrole,
       sessioneditsrole,
+      mastersrole,
+      instrumentalsrole, 
+      acapellasrole,
+      slowreverbrole,
+      magicaleditsrole,
+      editsrole,
+      axscompupdatesrole,
       songofthedayrole;
       console.log(`logged ------------->`, roleName)
     switch (currentServer) {
+      case "Creative Hub":
+      mastersrole = await interaction.guild.roles.fetch("1089359313887301652");
+      instrumentalsrole = await interaction.guild.roles.fetch(
+        "1089359178050584687"
+      );
+      acapellasrole = await interaction.guild.roles.fetch(
+        "1089359583056769135"
+      );
+      remastersrole = await interaction.guild.roles.fetch(
+        "1089359778284843120"
+      );
+      axscompupdatesrole = await interaction.guild.roles.fetch(
+        "1089361350171562074"
+      );
+      slowreverbrole = await interaction.guild.roles.fetch("1089359849726410812");
+      stemeditsrole = await interaction.guild.roles.fetch(
+        "1089359350402912256"
+      );
+      chatreviverole = await interaction.guild.roles.fetch(
+        "1085666065918459985"
+      );
+      sessioneditsrole = await interaction.guild.roles.fetch(
+        "1089359434746187837"
+      );
+      magicaleditsrole = await interaction.guild.roles.fetch(
+        "1089359639239475302"
+      );
+      editsrole = await interaction.guild.roles.fetch(
+        "1089359739680469022"
+      );
+      switch (roleName) {
+        // WRLD Updates Roles
+        case "masters":
+          await updateRole(interaction, mastersrole);
+          break;
+        case "instrumentals":
+          await updateRole(interaction, instrumentalsrole);
+          break;
+        case "acapellas":
+          await updateRole(interaction, acapellasrole);
+          break;
+        case "sessionedits":
+          await updateRole(interaction, sessioneditsrole);
+          break;
+        case "axscompupdates":
+          await updateRole(interaction, axscompupdatesrole);
+          break;
+        case "remasters":
+          await updateRole(interaction, remastersrole);
+          break;
+        case "slowreverb":
+          await updateRole(interaction, slowreverbrole);
+          break;
+        case "chatrevive":
+          await updateRole(interaction, chatreviverole);
+          break;
+        case "magicaledits":
+          await updateRole(interaction, magicaleditsrole);
+          break;
+        case "edits":
+          await updateRole(interaction, editsrole);
+          break;
+        default:
+          break;
+      }
+      break;
+    
       case "Biscotti":
       let _999_leaksrole = await interaction.guild.roles.fetch("1088637680662892644");
       let _999_ogfilesrole = await interaction.guild.roles.fetch(
@@ -1262,8 +1336,6 @@ if (client) {
 
         await fileProcessing(interaction);
         let embeds = [];
-<<<<<<< HEAD
-=======
         if (data.file_type === 'kraken-link') {
           let obj = {
           description: `:saluting_face: **__For the Best Quality__ [Visit the Kraken Here](${data.file.url}) -->  [${data.file.name}](${data.file.url})**`,
@@ -1272,7 +1344,6 @@ if (client) {
         
           embeds.push(createEmb.createEmbed(obj))
         }
->>>>>>> faee708917d084866202c2d2dcb79c201595396a
         if (isFile === true) {
           
 if (nameOfFile === `music.m4a`){
@@ -1351,21 +1422,6 @@ embeds.push(
     },
   }))
 } 
-<<<<<<< HEAD
-if (data.file_type === 'kraken-link') {
-  let obj = {
-  description: `:saluting_face: **__For the Best Quality__ [Visit the Kraken Here](${data.file.url}) -->  [${data.file.name}](${data.file.url})**`,
- color: "BLUE",
- }
-
-  embeds.push(createEmb.createEmbed(obj))
-}
-            user.send({
-              embeds:
-                embeds,
-              files: [file],
-            }).then( async () => {
-=======
 
 async function getFileSizeInMB(url) {
   try {
@@ -1415,7 +1471,6 @@ createBtn
     content: trueSize > limit ? `**__File Size Limit Exceeded__**\n\nThis File is ${trueSize} MB\n\nThe File Size Limit is ${limit} MB\n\n\n> __**Visit :**__ ${file.attachment}` : ``
   });
 }).then( async () => {
->>>>>>> faee708917d084866202c2d2dcb79c201595396a
               try {
                 await interaction.editReply({
                   embeds: [createEmb.createEmbed({ title: labelT })],

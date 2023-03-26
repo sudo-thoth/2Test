@@ -7,7 +7,7 @@ const createBtn = require(`../../functions/create/createButton.js`);
 const createActRow = require(`../../functions/create/createActionRow.js`);
 const channelsDB = require(`../../../MongoDB/db/schemas/schema_channels.js`);
 const copyrightContentDB = require(`../../../MongoDB/db/schemas/schema_copyrightContent.js`);
-const mongoose = require("mongoose");
+const mongoose = require("mongoose"); // 
 let filters = {
   attachments: {
     on: `<:Online:1068901648296063047> <:10671434201602907700128:1086967254773678172> \`Attachments filter\``,

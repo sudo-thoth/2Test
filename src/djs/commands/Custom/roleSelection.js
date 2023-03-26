@@ -120,7 +120,7 @@ module.exports = {
         roleHubEmbed = createEmb.createEmbed({
          title: `Role Selection`,
          color: `#7d1702`,
-         image: `https://media.tenor.com/7a89EbuwecMAAAAC/juice-wrld-ewaste999.gif`
+         image: `https://cdn.discordapp.com/attachments/1089358722620461106/1089388839845494834/darkcarts-burn.gif`
          // ...
        });    
       

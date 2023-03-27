@@ -10,6 +10,7 @@ const cleanData = new Schema(
     messageURL: String,
     channelID: String,
     serverID: String,
+    ogContent: String,
 
    
   },

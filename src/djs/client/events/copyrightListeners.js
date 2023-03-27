@@ -736,7 +736,7 @@ if (client) {
     if (interaction.isButton()) {
       console.log(`Button Clicked`);
       const interactionObj = scripts_djs.getInteractionObj(interaction);
-      const { customID } = interactionObj;
+      const customID = interaction?.customId;;
 
       if (customID.includes("copyright_content_") || customID.includes("attachment_content_") ||customID.includes("link_content_")) {
         try {

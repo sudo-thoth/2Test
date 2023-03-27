@@ -3,6 +3,7 @@ const {
   PermissionFlagsBits,
   EmbedBuilder,
 } = require("discord.js");
+require("dotenv").config({ path: "../../my.env" });
 const scripts_djs = require("../../functions/scripts/scripts_djs.js");
 const scripts = require("../../functions/scripts/scripts.js");
 const createEmb = require("../../functions/create/createEmbed.js");
@@ -87,7 +88,7 @@ module.exports = {
         try {
           let data = await cleanDumpdb.findOne({ randID: randID }).exec();
           if (data) {
-            let { url, messageID, messageURL, channelID, serverID } = data;
+            let { url, messageID, messageURL, channelID, serverID, ogContent } = data;
             
             let guild = interaction.client.guilds.cache.get(serverID);
             let channel = guild.channels.cache.get(channelID);
@@ -220,7 +221,8 @@ module.exports = {
         messageID: message.id,
         messageURL: message.url,
         channelID: message.channel.id,
-        serverID: message.guild.id,
+        serverID: message.guild.id, 
+        ogContent: message.content
       });
       if (result) {
         console.log("Document created:", result);
@@ -234,10 +236,20 @@ module.exports = {
     }; // Replace this with your actual schema and model definition
 
     let saveLink = async (link, randID, message) => {
-      try {
-        console.log("Before cleanDumpdb.create:", link, randID, message.id);
-        cleanDumpdb
-          .create({
+      let numAttempts = 0;
+      const maxAttempts = 5;
+      let isConnected = false;
+    
+      while (numAttempts < maxAttempts && !isConnected) {
+        try {
+          if (!mongoose.connection.readyState) {
+            // Connect to the database if not already connected
+            await mongoose.connect(process.env.MongoDB_Token_2Test_bot);
+          }
+          isConnected = true; // Set flag to true if successful connection
+          console.log(`Connected to MongoDB on attempt ${numAttempts + 1}`);
+          // Save the link to the database
+          const result = await cleanDumpdb.create({
             _id: new mongoose.Types.ObjectId(),
             randID: randID,
             customID: `clean_dump_${randID}`,
@@ -246,19 +258,21 @@ module.exports = {
             messageURL: message.url,
             channelID: message.channel.id,
             serverID: message.guild.id,
-          })
-          .then((result) => {
-            console.log("After cleanDumpdb.create:", link, randID, message.id);
-            console.log("Result:", result);
-            console.log(`saved`);
-          })
-          .catch((error) => {
-            console.log("Error in cleanDumpdb.create:", error);
+            ogContent: message.content
           });
-      } catch (error) {
-        console.log(`not saved`, error);
+          console.log("Result:", result);
+          console.log(`Saved link ${link} to database`);
+        } catch (error) {
+          numAttempts++;
+          console.log(`Error in cleanDumpdb.create on attempt ${numAttempts}:`, error);
+        }
+      }
+    
+      if (!isConnected) {
+        console.error(`Failed to connect to MongoDB after ${maxAttempts} attempts`);
       }
     };
+    
 
     async function redactLinksInChannel(channel) {
       let messagesWithLinks = [];
@@ -274,7 +288,7 @@ module.exports = {
               let button = await createBtn.createButton({
                 style: "secondary",
                 label: "content",
-                customID: `clean_dump_${link}_1_${randID}`,
+                customID: `clean_dump_1_${randID}`,
               });
               //links.push(link);
               buttons.push(button);
@@ -464,7 +478,7 @@ module.exports = {
                           let button = await createBtn.createButton({
                             style: "secondary",
                             label: "content",
-                            customID: `clean_dump_${link}_2_${randID}`,
+                            customID: `clean_dump_2_${randID}`,
                           });
                           buttons.push(button);
                         } catch (error) {
@@ -485,7 +499,7 @@ module.exports = {
                       let button = await createBtn.createButton({
                         style: "secondary",
                         label: "content",
-                        customID: `clean_dump_${link}_3_${randID}`,
+                        customID: `clean_dump_3_${randID}`,
                       });
                       buttons.push(button);
                       buttons = buttons.flat();

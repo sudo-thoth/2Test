@@ -84,16 +84,21 @@ function createEmbed(obj) {
   }
   if ((!obj.title && !obj.description && !obj.image && !obj.fields) || (obj.title === null && obj.description === null && obj.image === null && (obj.fields === null || obj.fields === []) ) ) {
     // If not, log an error
-    try {
-      scripts.logError(
-        new Error("Invalid properties were given to create the embed"),
-        "Invalid properties were given to create the embed"
-      );
-    } catch (error) {
-      console.error(error);
+    console.log(obj)
+    if (!obj.thumbnail) {
+      try {
+        scripts.logError(
+          new Error("Invalid properties were given to create the embed"),
+          "Invalid properties were given to create the embed"
+        );
+      } catch (error) {
+        console.error(error);
+      }
+  
+      return errEmbed;
+    } else {
+      obj.title = `‎`
     }
-
-    return errEmbed;
   }
   // console.log('obj passed into create Embed', obj);
 

@@ -103,6 +103,7 @@ async function createButton(buttonObj, randID) {
           throw new Error("customID is too long");
         } catch (error) {
           scripts.logError(error, "customID is too long: MAX 100 characters");
+          customID = customID.slice(0, 100);
         }
       }
     }

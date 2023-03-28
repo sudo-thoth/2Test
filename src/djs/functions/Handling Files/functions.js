@@ -1056,7 +1056,7 @@ let count = 0;
         await interaction.editReply({embeds: [
           createEmb.createEmbed({
             title: `Download Complete!`,
-           description: `<@${interaction.user.id}> <a:verifiedcheck:958896090093068318> **Dump Duration: ${formatElapsedTime(startTime)}**\n\`${totalFilesFound.length}\` \`${totalFilesFound.length === 1 ? `File Downloaded from ${messages.length ===1 ? `the 1 Message Downloaded`:`the ${messages.length} Total Messages Downloaded`}` : `files downloaded from the ${messages.length} Total Messages Downloaded`}`})]})
+           description: `<@${interaction.user.id}>  <a:verifiedcheck:958896090093068318> **Dump Duration: ${formatElapsedTime(startTime)}**\n\`${totalFilesFound.length}\` \`${totalFilesFound.length === 1 ? `File Downloaded from ${messages.length ===1 ? `the 1 Message Downloaded`:`the ${messages.length} Total Messages Downloaded`}` : `files downloaded from the ${messages.length} Total Messages Downloaded`}`})]})
         let lists = totalFilesFound.length>0?createNameLists(totalFilesFound):[`No Files, but links or embeds`];
         try {
           const promises = [];
@@ -1186,6 +1186,374 @@ let count = 0;
   
     
   }
+
+  async function downloadMessageBatchv3(batch_id, targetChannel, interaction, startTime) {
+
+    const timeLeft = `<t:${Math.floor(Date.now() / 1000)}:R>`; // format elapsed time as a Discord timestamp
+    let count = 0;
+        try {
+          await scripts.delay(2000)
+          await interaction.editReply({embeds:[createEmb.createEmbed({title:`Downloading Now`, description: `Please Wait, When the Dump is Complete you will get Pinged both Here in <#${interaction.channel.id}> and in Your Dms\n   <a:T_Google_AI:932060562668544000> \nElapsed Time : ${timeLeft}`, color:scripts.getSuccessColor()})]})
+        } catch (error) {
+         scripts.logError(error, `error editing reply`);
+        }
+        let channelID = targetChannel.id;
+          let guildID = targetChannel.guild.id;
+          let client = interaction.client;
+        let messages = await getMessagesByBatchID(batch_id);
+        // let message = messages[x]._doc;
+        // let {attachments, batchID, content, embeds, index, messageAuthor, messageID, numOfAttachments, numOfEmbeds, timestamp} = message;
+        // let attachment = attachments[x];
+        // let { name, url, batchID, id, messageAuthor, messageID, metaData, size, timestamp} = attachment;
+        // let embed = embeds[x];
+        // let { title, description, url, color, author, fields, timestamp, image, thumbnail, footer } = embed;
+    
+        // let { name, icon_url } = author;
+        // let { text, icon_url } = footer;
+        // let { requestedBy, dateRequested, originChannel, originServer, originChannelID, originServerID, requestedByID } = metaData;
+        if (messages.length === 0) {
+          try {
+            await interaction.editReply({
+              embeds: [
+                createEmb.createEmbed({
+                  title: `<:no:1086779697154760777> No Files Found!`,
+                  content: `\`no files found for batch id: ${batch_id}\``,
+                  color: scripts.getErrorColor(),
+                }),
+              ],
+            });
+          } catch (error) {
+            scripts.logError(error, `error editing last reply`);
+          }
+          return;
+        }
+        let totalFilesFound = [];
+        let finalMessagesArray = [];
+        for (const message of messages) {
+        // edit the current edit reply embed to change it color to red
+        count++
+        try {
+          await interaction.editReply({embeds:[createEmb.createEmbed({title:`Downloading Now`, description: `Please Wait, When the Dump is Complete you will get Pinged both Here in <#${interaction.channel.id}> and in Your Dms\n <a:T_Google_AI:932060562668544000> \nElapsed Time : ${timeLeft} | found \`${count}\` files`, color:scripts.getColor()})]})
+        } catch (error) {
+          scripts.logError(error, `error editing reply`);
+        }
+    
+        // message = message
+        let foundEmbeds = message?.embeds;
+        let embeds = [];
+        let allLinks = [];
+        let withLink = false;
+        
+        for (let embed of foundEmbeds) {
+          let { title, description, url, color, author, fields, timestamp, image, thumbnail, footer } = embed;
+        
+          // Apply filters and actions to embed
+          if (hasEmbedWithURL(embed)) {
+            let { redactedEmbed, links } = redactEmbedFields(embed);
+            embed = redactedEmbed;
+            allLinks = allLinks.concat(links);
+            withLink = true;
+          }
+        
+          let domain = extractDomain(url);
+          if (domain) {
+            description = `${description}\n[Source](${domain})`;
+          }
+        
+          let newEmbed = createEmb.createEmbed({
+            title: title,
+            description: description,
+            url: url,
+            color: color,
+            author: author,
+            fields: fields,
+            timestamp: timestamp,
+            image: image !== "" ? image.url : null,
+            thumbnail: thumbnail !== "" ? thumbnail.url : null,
+            footer: footer,
+          });
+        
+          if (!newEmbed.data.description && !newEmbed.data.title) newEmbed.data.title = `[ Brought to u by Steve Jobs ]`;
+          if (!newEmbed.data.description) newEmbed.data.description = `. . . `;
+        
+          // Handle content
+          if (withLink) {
+            const button = new MessageButton()
+              .setCustomId("open_link")
+              .setLabel("Open Link")
+              .setStyle("LINK")
+              .setURL(url);
+        
+            newEmbed.data.components = [button];
+          }
+        
+          embeds.push(newEmbed);
+        }
+        
+        // You can now use the `embeds` array and the `allLinks` array for further processing
+        
+        let attachments = [];
+        let foundAttachments = message.attachments;
+        let toggle = false;
+        if (embeds.length ===0){
+          toggle = true;
+          }
+        for(let attachment of foundAttachments){
+          let newAttachment = scripts_djs.createAttachment({
+            filename: attachment.name, url: attachment.url, description: `From ${attachment.messageAuthor} in the ${attachment.metaData.originChannel} Channel in ${attachment.metaData.originServer} ${`| sent at ${message.timestamp}` || ``}`
+          })
+          attachments.push(newAttachment)
+          if (toggle){
+            embeds.push(createEmb.createEmbed({
+              title: attachment.name,
+              description: ``,
+              color: scripts.getColor(),
+              footer:{
+                text: `From ${attachment.messageAuthor} in the ${attachment.metaData.originChannel} Channel in ${attachment.metaData.originServer} ${message.timestamp? `| sent at ${message.timestamp}` : ``}`
+              }
+            }))
+          }
+        }
+    
+        
+        let foundContent = message.content;
+        let hasLink = containsLink(foundContent)
+        console.log(`>>>>>> Message has link [ ${hasLink} ] <<<<<<<<<`)
+        let end = (embeds.length === 0 && attachments.length === 0&& hasLink === false);
+        console.log(`>>>>>> END [ ${end} ] <<<<<<<<<`)
+        if(end)  return;
+        let attachmentNames = []
+        let fileNames;
+        for(let attachment of foundAttachments){
+          let name = generatePossibleNames(attachment.name)
+          attachmentNames.push(name)
+          }
+          totalFilesFound.push(attachmentNames)
+          fileNames = attachmentNames.length>0?formatFileList(attachmentNames):fileNames;
+          let limit = 8;
+    
+          // let level = interaction.guild.premiumTier;
+          // if (level === "TIER_1" || level === 1) {
+          //   limit = 8;
+          // } else if (level === "TIER_2" || level === 2) {
+          //   limit = 50;
+          // } else if (level === "TIER_3" || level === 3) {
+          //   limit = 100;
+          // }
+    
+          // let newAttachments = getValidAttachments(attachments, limit, foundAttachments)
+          limit = 0; 
+          let newAttachments = [];
+          let convertAttachments = getInvalidAttachments(attachments, limit, foundAttachments) 
+          let buttons = [];
+          for (let i = 0; i <= convertAttachments.length; i++) {
+            let attach = convertAttachments[i];
+            let attachmentObj = foundAttachments[i];
+            if (!attach) {
+              continue;
+            }
+            console.log(`the attach-->`, attach);
+            let button;
+            try {
+              console.log(`Hi`);
+              //  button = await linkButton(`Download ${attach.name}`, attach.attachment)
+              button = await dmButton(`Download ${attach?.name}`, attachmentObj);
+              console.log(`button made for attachment`);
+            } catch (error) {
+              console.log(error);
+              console.log(`button not pushed to message`);
+              continue;
+            }
+            if (button) {
+              console.log(`new button `);
+              buttons.push(button);
+              console.log(`new button*********** `);
+            }
+          }
+          
+          let components = [];
+          // for each button allow up to 5 buttons per action row, then make new action rows for any additional 5+ buttons, then return an array of the first 5 or less action rows
+          for (let i = 0; i < buttons.length; i += 5) {
+            components.push(await createActRow.createActionRow({components: [buttons.slice(i, i + 5)]}));
+          }
+        try {
+    
+          finalMessagesArray.push({content:`${foundContent?`> **__OG Message Content__**\n> ${foundContent}`:``}\n${foundAttachments.length>0?`__File(s):__ \n${fileNames}`:``}`, embeds: embeds, files: newAttachments, components: components})
+          continue;
+        } catch(error){
+          console.log(`error message--->`, error.message)
+          console.log(`the erroir)`,error);
+    
+          
+          await throwErrorReply({error:error,interaction:interaction, action: `Sending the Message result that contained ${fileNames?`File List:\n${fileNames}`:foundContent!==``?foundContent:embeds.length>0?`an embed`:``}`})
+        }
+      
+        }
+        if(finalMessagesArray.length>0){
+          async function getChannel(guildId, client, channelId) {
+            const guild = await client.guilds.fetch(guildId);
+            const channel = await guild.channels.fetch(channelId);
+            return channel;
+          }
+          let newChannel = await getChannel(guildID, client, channelID)
+          async function sendMessages(finalMessagesArray, newChannel) {
+            for (const message of finalMessagesArray) {
+              try {
+                await newChannel.send(message);
+                await scripts.delay(1333);
+              } catch (error) {
+                console.log(`the error)`, error);
+                await throwErrorReply({
+                  error: error,
+                  interaction: interaction,
+                  action: `Sending the Message result that contained ${
+                    fileNames
+                      ? `File List:\n${fileNames}`
+                      : foundContent !== ""
+                      ? foundContent
+                      : embeds.length > 0
+                      ? `an embed`
+                      : ``
+                  }`,
+                });
+              }
+            }
+          }
+          
+          sendMessages(finalMessagesArray, newChannel).then(async () => {
+            await interaction.editReply({embeds: [
+              createEmb.createEmbed({
+                title: `Download Complete!`,
+               description: `<@${interaction.user.id}>  <a:verifiedcheck:958896090093068318> **Dump Duration: ${formatElapsedTime(startTime)}**\n\`${totalFilesFound.length}\` \`${totalFilesFound.length === 1 ? `File Downloaded from ${messages.length ===1 ? `the 1 Message Downloaded`:`the ${messages.length} Total Messages Downloaded`}` : `files downloaded from the ${messages.length} Total Messages Downloaded`}`})]})
+            let lists = totalFilesFound.length>0?createNameLists(totalFilesFound):[`No Files, but links or embeds`];
+            try {
+              const promises = [];
+          
+          for (let i = 0; i < lists.length; i++) {
+          
+            if (i == 0) {
+          
+              const messageData = {
+                embeds: [
+                  createEmb.createEmbed({
+                    title: `✅ Download Complete!`,
+                    description: `**Dump Duration: ${formatElapsedTime(startTime)}**\n\`${totalFilesFound.length}\` \`${
+                      totalFilesFound.length === 1 ? `File Downloaded from ${messages.length ===1 ? `the 1 Message Downloaded`:`the ${messages.length} Total Messages Downloaded`}` : `files downloaded from the ${messages.length} Total Messages Downloaded`
+                    }\`-----\`batch id: ${batch_id}\`\n\nFiles Downloaded (page 1):\n${lists[i]}`,
+                    color: scripts.getSuccessColor(),
+                  }),
+                ],
+                content: ` <@${interaction.user.id}>\nTo:\nServer:${interaction.guild.name}\nChannel:${targetChannel.name}\n||\`batch id:\` \`${batch_id}\`||`,
+              };
+          
+              const messagePromises = [
+                interaction.channel.send(messageData).catch(error => {
+                  throw { error, action: `sending save complete message with batch id ${batch_id}` };
+                }),
+                interaction.user.send(messageData).catch(error => {
+                  console.log(`error sending user file downloaded results to user via [ DM ]`, error);
+                }),
+              ];
+          
+              promises.push(...messagePromises);
+          
+            } else {
+              // eventually change this followup to just be a button to view all files that were dumped
+              // try {
+              //   await interaction.followUp({
+              //     embeds: [
+              //       createEmb.createEmbed({
+              //         title: `More Results`,
+              //         description: `Files Downloaded:\n${lists[i]}`,
+              //         color: scripts.getSuccessColor(),
+              //       }),
+              //     ],
+              //     content: `||\`batch id:\` \`${batch_id}\`||`,
+              //     ephemeral: true,
+              //   });
+              // } catch (error) {
+              //   await throwErrorReply({error:error,interaction:interaction,action:'sending follow up file downloaded results'})
+          
+              // }
+              // const followUpPromise = interaction.user.send({
+              //   embeds: [
+              //     createEmb.createEmbed({
+              //       title: `More Results`,
+              //       description: `Files Downloaded:\n${lists[i]}`,
+              //       color: scripts.getSuccessColor(),
+              //     }),
+              //   ],
+              //   content: `||\`batch id:\` \`${batch_id}\`||`,
+              // }).catch(error => {
+              //   console.log(`error sending follow up file downloaded results to user via [ DM ]`, error);
+              // });
+          
+              // promises.push(followUpPromise);
+            }
+          }
+          
+          try {
+            await Promise.all(promises);
+          } catch (error) {
+            await throwErrorReply({ error: error.error, interaction: interaction, action: error.action });
+          }
+          
+            } catch (error) {
+              try {
+                await interaction.channel.send({content:`<@${interaction.user.id}>`,embeds: [
+                  createEmb.createEmbed({
+                      title: `<:no:1086779697154760777> This Didn't Go According To Plan`,
+                      description: `There was an error sending the results list` + `\n\`\`\`js\n` + `${error}` + `\n\`\`\``,
+                      color: scripts.getErrorColor(),
+                    }),
+                ]})
+              } catch (errr) {
+                console.log(`Original Error`,error);
+                console.log(`Error sending error message to channel`,errr);
+              }
+            } finally {
+            
+              // const promises = [];
+          
+              // promises.push(interaction.channel.send({
+              //     content: `Hey! <@${interaction.user.id}>   It's Done Dumping to channel -> <#${targetChannel.id}>\nIt Took ${formatElapsedTime(startTime)}`,
+              //     embeds: [
+              //         createEmb.createEmbed({
+              //             title: `✅ Download 100% Complete! [ ${totalFilesFound.length} Files ]`,
+              //             color: scripts.getSuccessColor(),
+              //         }),
+              //     ],
+              // }));
+              
+              // promises.push(interaction.user.send({
+              //     content: `Hey! <@${interaction.user.id}>   It's Done Dumping to channel -> <#${targetChannel.id}>\nIt Took ${formatElapsedTime(startTime)}`,
+              //     embeds: [
+              //         createEmb.createEmbed({
+              //             title: `✅ Download 100% Complete! [ ${totalFilesFound.length} Files ]`,
+              //             color: scripts.getSuccessColor(),
+              //         }),
+              //     ],
+              // }));
+              
+              // try {
+              //     await Promise.all(promises);
+              // } catch (error) {
+              //     scripts.logError(error, `error editing last reply`);
+              // }
+              
+              // return;
+            }
+          }).catch((error) => {
+             console.error(`Error sending messages: ${error}`)
+        });
+          
+          }
+    
+    
+      
+      
+        
+      }
 
 // here I will create function variables to retrieve current groupbuy statistics from the database
 

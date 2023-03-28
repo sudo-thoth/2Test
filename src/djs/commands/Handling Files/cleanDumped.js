@@ -166,7 +166,8 @@ let labelT = `${emoji} ${
 
 function extractDomain(url) {
   const regex = /^(?:https?:\/\/)?(?:[^@\n]+@)?(?:www\.)?([^:/\n?]+)/;
-  const match = url.match(regex);
+
+  const match = url?.match(regex);
   const domain = match && match[1];
   if (domain) {
     const domainParts = domain.split(".");
@@ -308,6 +309,15 @@ module.exports = {
         );
       }
     };
+    function trimNonAlphanumeric(str) {
+      // Remove non-alphanumeric characters (excluding slashes) from the beginning of the string
+      str = str?.replace(/^[^\w/]+/, '');
+    
+      // Remove non-alphanumeric characters (excluding slashes) from the end of the string
+      str = str?.replace(/[^\w/]+$/, '');
+    
+      return str;
+    }
 
     async function redactLinksInChannel(channel) {
       let messagesWithLinks = [];
@@ -315,6 +325,7 @@ module.exports = {
         let buttons = [];
         await Promise.all(
           links.map(async (link) => {
+link =  trimNonAlphanumeric(link)
             let randID = scripts_djs.getRandID();
             let button = await createBtn.createButton({
               style: "primary",
@@ -353,52 +364,61 @@ module.exports = {
               /\[.*?\]\(https?:\/\/[^\s]+\)/g.test(field.name) ||
               /\[.*?\]\(https?:\/\/[^\s]+\)/g.test(field.value) ||
               /https?:\/\/[^\s]+/g.test(field.name) ||
-              /https?:\/\/[^\s]+/g.test(field.value)
+              /https?:\/\/[^\s]+/g.test(field.value) || 
+              /\[([\s\S]*?)\]\(https?:\/\/[^\s]+\)/g.test(field.name) ||
+              /\[([\s\S]*?)\]\(https?:\/\/[^\s]+\)/g.test(field.value)
             );
           });
         });
       }
 
       function redactEmbedFields(embed) {
-        const regex = /\[(.*?)\]\((https?:\/\/[^\s]+)\)/g;
+        const regex = /\[([\s\S]*?)\]\((https?:\/\/[^\s]+)\)/g;
         const links2 = [];
         let redactedEmbed2 = embed?.data || embed;
-        if (redactedEmbed2?.fields?.length > 0) {
-          redactedEmbed2.fields?.forEach((field) => {
-            const patterns = [
-              /\[.*?\]\(https?:\/\/[^\s]+\)/g,
-              /https?:\/\/[^\s]+/g,
-            ];
+      
+        // Return early if there are no fields
+        if (!redactedEmbed2?.fields?.length) {
+          return { redactedEmbed2, links2 };
 
-            patterns.forEach((pattern) => {
-              ["name", "value"].forEach((property) => {
-                let matches = field[property].match(pattern);
-                if (matches) {
-                  matches.forEach((match) => {
-                    let parts = match.match(/\[(.*?)\]\((.*?)\)/) || [
-                      null,
-                      null,
-                      match,
-                    ];
-                    let text = parts[1] || match;
-                    let link = parts[2];
-                    field[property] = field[property].replace(
-                      match,
-                      `${text} (link below)`
-                    );
-                    links2.push(link);
-                  });
-                }
-              });
+        }
+      
+        redactedEmbed2.fields?.forEach((field) => {
+          const patterns = [
+            /\[([\s\S]*?)\]\(https?:\/\/[^\s]+\)/g,
+            /https?:\/\/[^\s]+/g,
+          ];
+      
+          patterns.forEach((pattern) => {
+            ["name", "value"].forEach((property) => {
+              let matches = field[property].match(pattern);
+              if (matches) {
+                matches.forEach((match) => {
+                  let parts = match.match(regex) || [
+                    null,
+                    null,
+                    match,
+                  ];
+                  let text = parts[1] || match;
+                  let link = parts[2];
+                  link = trimNonAlphanumeric(link)
+                  field[property] = field[property].replace(
+                    match,
+                    `${text} (link below)`
+                  );
+                  links2.push(link);
+                });
+              }
             });
           });
-        }
-
+        });
+      
         return {
           redactedEmbed2,
           links2,
         };
       }
+      
 
       async function handleMessages(channel) {
         let fetchedMessages;
@@ -430,7 +450,7 @@ module.exports = {
           console.log(`Fetched ${fetchedMessages.size} messages.`);
         } while (fetchedMessages.size > 0);
         const patterns = [
-          /\[.*?\]\(https?:\/\/[^\s]+\)/g,
+          /\[([\s\S]*?)\]\(https?:\/\/[^\s]+\)/g,
           /https?:\/\/[^\s]+/g,
         ];
 
@@ -470,6 +490,7 @@ module.exports = {
               (embed) =>
                 (embed?.description &&
                   /\[[^\[\]\n]+\]\([^()\s]+\)/g.test(embed?.description)) ||
+                  /\[([\s\S]*?)\]\(https?:\/\/[^\s]+\)/g.test(embed?.description) ||
                 hasEmbedWithFieldURL(message) ||
                 message?.attachments.length > 0
             )
@@ -513,46 +534,7 @@ module.exports = {
           messagesWithLinks.map(async (message) => {
             // run a check here so that if message.content === `` dont even bother with the regex in message content
 
-            if (
-              message.content.includes(
-                `https://leaked.cx/threads/juice-wrld-fadeaway-scars-master.88358/`
-              ) ||
-              message.content.includes(
-                `https://onlyfiles.cc/f2/iMAVg_V73SqJX5l/`
-              ) ||
-              message.content.includes(
-                `https://onlyfiles.cc/f2/6nEt5h9_azADI9R/`
-              )
-            ) {
-              console.log(`should flagg this message`);
-              console.log(message.content);
-              console.log(
-                `total check`,
-                LINK_REGEX.test(
-                  !message.content === "" && !message.content === null
-                    ? message.content
-                    : ``
-                ) ||
-                  hasEmbedWithURL(message) ||
-                  message?.embeds?.some(
-                    (embed) =>
-                      (embed?.description &&
-                        /\[.*?\]\(https?:\/\/[^\s]+\)/g.test(
-                          embed?.description
-                        )) ||
-                      hasEmbedWithFieldURL(message) ||
-                      message?.attachments.length > 0 ||
-                      message?.content?.match(/https?:\/\/[^\s]+/g)
-                  )
-              );
 
-              console.log(
-                `link check`,
-                message?.content?.match(/https?:\/\/[^\s]+/g)
-              );
-
-              console.log(`done`);
-            }
             let redactedContent =
               message?.content === "" || message?.content === null
                 ? ""
@@ -564,10 +546,11 @@ module.exports = {
             console.log(message);
             console.log(links, `links`);
             console.log(redactedContent, `redactedContent`);
-
+            links = Array.from(new Set(links));
             let buttons = [];
             if (links.length > 0) {
-              for (const link of links) {
+              for (let link of links) {
+                link = trimNonAlphanumeric(link)
                 const button = await handleLinks([link], message);
                 for (const b of button) {
                   buttons.push(b);
@@ -583,6 +566,7 @@ module.exports = {
                   embed.url ||
                   (embed?.description &&
                     /\[[^\[\]\n]+\]\([^()\s]+\)/g.test(embed?.description)) ||
+                    /\[([\s\S]*?)\]\(https?:\/\/[^\s]+\)/g.test(embed?.description) ||
                   hasEmbedWithFieldURL(message) ||
                   message?.attachments.length > 0 ||
                   message?.content?.match(/https?:\/\/[^\s]+/g)
@@ -609,46 +593,6 @@ module.exports = {
                   });
                   let content = message.content;
 
-                  if (
-                    message.content.includes(
-                      `https://leaked.cx/threads/juice-wrld-fadeaway-scars-master.88358/`
-                    ) ||
-                    message.content.includes(
-                      `https://onlyfiles.cc/f2/iMAVg_V73SqJX5l/`
-                    ) ||
-                    message.content.includes(
-                      `https://onlyfiles.cc/f2/6nEt5h9_azADI9R/`
-                    )
-                  ) {
-                    console.log(`should flagg this message`);
-                    console.log(message.content);
-                    console.log(
-                      `total check`,
-                      LINK_REGEX.test(
-                        !message.content === "" && !message.content === null
-                          ? message.content
-                          : ``
-                      ) ||
-                        hasEmbedWithURL(message) ||
-                        message?.embeds?.some(
-                          (embed) =>
-                            (embed?.description &&
-                              /\[.*?\]\(https?:\/\/[^\s]+\)/g.test(
-                                embed?.description
-                              )) ||
-                            hasEmbedWithFieldURL(message) ||
-                            message?.attachments.length > 0 ||
-                            message?.content?.match(/https?:\/\/[^\s]+/g)
-                        )
-                    );
-
-                    console.log(
-                      `link check`,
-                      message?.content?.match(/https?:\/\/[^\s]+/g)
-                    );
-
-                    console.log(`done`);
-                  }
                   if (content.match(/https?:\/\/[^\s]+/g)) {
                     if (
                       message.content.includes(
@@ -695,12 +639,7 @@ module.exports = {
                     let matches = redactedContent.match(/https?:\/\/[^\s]+/g);
                     if (matches) {
                       matches.forEach(async (match) => {
-                        function extractDomain(url) {
-                          const regex =
-                            /^(?:https?:\/\/)?(?:[^@\n]+@)?(?:www\.)?([^:/\n?]+)/;
-                          const match = url.match(regex);
-                          return match && match[1];
-                        }
+
                         let link = match;
                         let domain = extractDomain(link);
                         redactedContent = redactedContent.replace(
@@ -778,18 +717,19 @@ module.exports = {
                   if (embed?.description) {
                     // replace [x](y) pattern in description
                     let matches = redactedEmbed?.data?.description?.match(
-                      /\[[^\[\]\n]+\]\([^()\s]+\)/g
-                    );
+                      /\[([\s\S]*?)\]\(https?:\/\/[^\s]+\)/g
+                    ); 
                     if (matches) {
                       matches.forEach(async (match) => {
-                        let parts = match.match(/\[(.*?)\]\((.*?)\)/);
-                        let text = parts[1];
-                        let link = parts[2];
-                        redactedEmbed.data.description =
-                          redactedEmbed?.data?.description.replace(
-                            match,
-                            `${text} (link below)`
-                          );
+                        let parts = match.match(/\[([\s\S]*?)\]\(https?:\/\/[^\s]+\)/);
+let text = parts[1];
+let link = parts[2];
+link = trimNonAlphanumeric(link)
+redactedEmbed.data.description = redactedEmbed?.data?.description.replace(
+  match,
+  `${text} (link below)`
+);
+
                         links.push(link);
 
                         // save link to db here
@@ -907,45 +847,7 @@ module.exports = {
             while (actionRows.length > 5) {
               actionRows.shift();
             }
-            if (
-              message.content.includes(
-                `https://leaked.cx/threads/juice-wrld-fadeaway-scars-master.88358/`
-              ) ||
-              message.content.includes(
-                `https://onlyfiles.cc/f2/iMAVg_V73SqJX5l/`
-              ) ||
-              message.content.includes(
-                `https://onlyfiles.cc/f2/6nEt5h9_azADI9R/`
-              )
-            ) {
-              console.log(`should flagg this message`);
-              console.log(message.content);
-              console.log(
-                `total check`,
-                LINK_REGEX.test(
-                  !message.content === "" && !message.content === null
-                    ? message.content
-                    : ``
-                ) ||
-                  hasEmbedWithURL(message) ||
-                  message?.embeds?.some(
-                    (embed) =>
-                      (embed?.description &&
-                        /\[.*?\]\(https?:\/\/[^\s]+\)/g.test(
-                          embed?.description
-                        )) ||
-                      hasEmbedWithFieldURL(message) ||
-                      message?.attachments.length > 0 ||
-                      message?.content?.match(/https?:\/\/[^\s]+/g)
-                  )
-              );
-              console.log(
-                `link check`,
-                message?.content?.match(/https?:\/\/[^\s]+/g)
-              );
 
-              console.log(`done`);
-            }
             await message
               .edit({
                 content: redactedContent,

@@ -155,21 +155,35 @@ if (obj.timestamp) embed.setTimestamp( new Date());
     if (scripts.isDefined(obj.thumbnail)) {
       console.log("thumbnail", obj.thumbnail);
       try {
-      //  console.log("thumbnail", obj.thumbnail);
-        embed.setThumbnail(obj.thumbnail);
-      //  console.log(`thumbnail set to ${obj.thumbnail}`);
+        // if image is type string, set image to obj.image
+        if (typeof obj.thumbnail === 'string') {
+          embed.setThumbnail(obj.thumbnail);
+        }
+        // if thumbnail is of type object, set thumbnail to obj.thumbnail.url
+        else if (typeof obj.thumbnail === 'object' && obj.thumbnail?.url) {
+          embed.setThumbnail(obj.thumbnail?.url);
+        }
+        // console.log(`thumbnail set to ${obj.thumbnail}`);
       } catch (error) {
         scripts.logError(error, "Error setting thumbnail of embed");
       }
     } // Error occuring
     if (obj.image) {
       try {
-        embed.setImage(obj.image);
-      //  console.log(`image set to ${obj.image}`);
+        // if image is type string, set image to obj.image
+        if (typeof obj.image === 'string') {
+          embed.setImage(obj.image);
+        }
+        // if image is of type object, set image to obj.image.url
+        else if (typeof obj.image === 'object' && obj.image?.url) {
+          embed.setImage(obj.image?.url);
+        }
+        // console.log(`image set to ${obj.image}`);
       } catch (error) {
         scripts.logError(error, "Error setting image of embed");
       }
     }
+    
     if (obj.author) {
       try {
         embed.setAuthor({

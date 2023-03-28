@@ -1056,7 +1056,7 @@ let count = 0;
         await interaction.editReply({embeds: [
           createEmb.createEmbed({
             title: `Download Complete!`,
-           description: `<@${interaction.user.id}>  <a:verifiedcheck:958896090093068318> **Dump Duration: ${formatElapsedTime(startTime)}**\n\`${totalFilesFound.length}\` \`${totalFilesFound.length === 1 ? `File Downloaded from ${messages.length ===1 ? `the 1 Message Downloaded`:`the ${messages.length} Total Messages Downloaded`}` : `files downloaded from the ${messages.length} Total Messages Downloaded`}`})]})
+           description: `<@${interaction.user.id}> <a:verifiedcheck:958896090093068318> **Dump Duration: ${formatElapsedTime(startTime)}**\n\`${totalFilesFound.length}\` \`${totalFilesFound.length === 1 ? `File Downloaded from ${messages.length ===1 ? `the 1 Message Downloaded`:`the ${messages.length} Total Messages Downloaded`}` : `files downloaded from the ${messages.length} Total Messages Downloaded`}`})]})
         let lists = totalFilesFound.length>0?createNameLists(totalFilesFound):[`No Files, but links or embeds`];
         try {
           const promises = [];

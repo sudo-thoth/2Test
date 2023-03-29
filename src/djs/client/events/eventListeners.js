@@ -243,7 +243,9 @@ if (client) {
             });
 
             await scripts.delay(4444);
-            await interaction.deleteReply();
+            if (interaction.replied) {
+              await interaction.deleteReply();
+            }
           } catch (error) {
             await throwNewError(
               `sending updated role status for ${role.name} role`,
@@ -273,7 +275,10 @@ if (client) {
             });
 
             await scripts.delay(4444);
-            await interaction.deleteReply();
+            if (interaction.replied) {
+              await interaction.deleteReply();
+            }
+            
           } catch (error) {
             await throwNewError(
               `sending updated role status for ${role.name} role`,
@@ -841,7 +846,9 @@ if (client) {
         });
         // delete the reply in 6 seconds
         setTimeout(async () => {
-          await interaction.deleteReply();
+          if (interaction.replied) {
+              await interaction.deleteReply();
+            }
         }, 6000);
       } else if (customID.includes("custom")) {
         // Launch Custom Modal

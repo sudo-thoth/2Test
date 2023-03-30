@@ -39,7 +39,8 @@ const { Test_Bot_token } = process.env;
 
 
 client.commands = new Collection();
-
+client.lfcommands = new Collection();
+client.scommands = new Collection();
 client.on("ready", () => {
   console.log("---------- >> Bot is Online << ----------");
 

@@ -10,14 +10,28 @@ const clientId = Test_Bot_clientId;
 module.exports = async (client, commandFolders, path) => {
   client.commandArray = [];
   const filteredCommandFolders = commandFolders.filter(folder => !folder.includes('.DS_Store'));
-  for (folder of filteredCommandFolders) {
+  for (const folder of filteredCommandFolders) {
     const commandFiles = fs
-  .readdirSync(`${path}/${folder}`)
-  .filter((file) => file.endsWith(".js") && !file.includes('.DS_Store'));
+      .readdirSync(`${path}/${folder}`)
+      .filter((file) => file.endsWith(".js") && !file.includes('.DS_Store'));
+  
     for (const file of commandFiles) {
       const command = require(`../../commands/${folder}/${file}`);
-      client.commands.set(command.data.name, command);
-      client.commandArray.push(command.data.toJSON());
+  
+      if (folder === 'lastFM') {
+        client.lfcommands.set(command.name, command);
+        if (command.aliases) {
+          for (let i = 0; i < command.aliases.length; i++) {
+            client.lfcommands.set(command.aliases[i], command)
+          }
+        }
+      } else if (folder === 'snipes') {
+        client.scommands.set(command.data.name, command);
+        scommands.push(command.data.toJSON());
+      } else {
+        client.commands.set(command.data.name, command);
+        client.commandArray.push(command.data.toJSON());
+      }
     }
   }
 

@@ -611,7 +611,7 @@ async function sendCopyrightContentBackup(interaction, data) {
 
 }
 
-async function sendWarningMessage(filter, user, buttonObj, embedObj) {
+async function sendWarningMessage(filter, user, buttonObj, embedObj, m) {
 
   let button = await createBtn.createButton(buttonObj)
   let row = await createActRow.createActionRow({ components: [button] })
@@ -684,7 +684,7 @@ if (client) {
             
             
                         
-            let warningMessage = await sendWarningMessage(filter, user, newObj.button, newObj.embed)
+            let warningMessage = await sendWarningMessage(filter, user, newObj.button, newObj.embed, m )
             // does not work as of now, mess's up the database
             if (warningMessage) {
               obj.warningMessage = {

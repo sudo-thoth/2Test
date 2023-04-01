@@ -1150,15 +1150,16 @@ client.on("interactionCreate", async (interaction) => {
             );
           }
         }
-//        embedObj.url = krakFile ? krakFile : krakLink ? krakLink : null;
+        // embedObj.url = krakFile ? krakFile : krakLink ? krakLink : null;
       } else {
 //        embedObj.url = file.attachment || null;
       }
-
+      embedObj.url =  kraken || null;
       if (fields.length > 0) {
         embedObj.fields = fields;
       }
       await updatePostData(randID, { embed: embedObj });
+      embedObj.url = ``;
       const embed = createEmb.createEmbed(embedObj);
 
       const directMessageButton = await createBtn.createButton({

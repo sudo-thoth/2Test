@@ -678,7 +678,7 @@ if (client) {
   });
 
   client.on("interactionCreate", async (interaction) => {
-    // console.log(`the interaction`, interaction);
+     console.log(`the interaction`, interaction);
     const interactionObj = scripts_djs.getInteractionObj(interaction);
     const { id, channel, guild, userInfo, customID } = interactionObj;
     const { name, displayName, userId, avatar, role, roleID, roleName } =
@@ -1232,7 +1232,8 @@ if (client) {
           color = embedObj.color;
           fields = embedObj.fields;
           thumbnail = embedObj.thumbnail;
-          // for every field get the value and key
+          link = embedObj.url
+          // for every field get the value and key 
           if (fields) {
             for (let i = 0; i < fields.length; i++) {
               let field = fields[i];
@@ -1374,7 +1375,7 @@ if (nameOfFile === `music.m4a`){
               : ``
           }`
         : "",
-    url: file.url ? file.url : null,
+    url: link && link !== null ? link : (file.url ? file.url : null),
     color: scripts.getColor(),
     thumbnail: thumbnail ? thumbnail : null,
     footer: {
@@ -1418,7 +1419,7 @@ embeds.push(
               : ``
           }`
         : "",
-    url: file.url ? file.url : null,
+    url: link && link !== null ? link : (file.url ? file.url : null),
     color: scripts.getColor(),
     thumbnail: thumbnail ? thumbnail : null,
     footer: {
@@ -1501,7 +1502,7 @@ createBtn
                       title:
                         "There was an Error , Share the Error w the Developer",
                       description:
-                       `${ file.url?file.url:file.attachment ? `Here is the [link](${file.url?file.url:file.attachment})\n\n`: ``} __While :__ \`Dm'ing File\`\n` +
+                       `${ file.url?file.url:file.attachment ? `Here is the [link](${file.url?file.url:file.attachment})${link && link !== `` ? `And [Kraken?](${link})` :`` }\n\n`: ``} __While :__ \`Dm'ing File\`\n` +
                         "```js\n" +
                         error +
                         "\n```\n" +

@@ -1201,6 +1201,73 @@ let count = 0;
           let guildID = targetChannel.guild.id;
           let client = interaction.client;
         let messages = await getMessagesByBatchID(batch_id);
+        const patterns = [
+          /\[.*?\]\(https?:\/\/[^\s]+\)/g,
+          /https?:\/\/[^\s]+/g,
+        ];
+        function extractDomain(url) {
+          const regex =
+            /^(?:https?:\/\/)?(?:[^@\n]+@)?(?:www\.)?([^:/\n?]+)/;
+          const match = url.match(regex);
+          return match && match[1];
+        }
+
+        function hasFieldURLPattern(embed) {
+          embed = embed?.data || embed;
+          if(embed?.fields?.length <= 0 || !embed.fields) return false
+
+          return embed.fields.some((field) => {
+
+                return ["name", "value"].some((property) => {
+                return patterns.some((pattern) => {
+                  return pattern.test(field[property]);
+                });
+              });
+            });
+        }
+        function hasEmbedWithURL(message) {
+          return message?.embeds?.some((embed) => embed.url);
+        }
+        function redactEmbedFields(embed) {
+          const regex = /\[(.*?)\]\((https?:\/\/[^\s]+)\)/g;
+          const links2 = [];
+          let redactedEmbed2 = embed?.data || embed;
+          if (redactedEmbed2?.fields?.length > 0) {
+            redactedEmbed2.fields?.forEach((field) => {
+              const patterns = [
+                /\[.*?\]\(https?:\/\/[^\s]+\)/g,
+                /https?:\/\/[^\s]+/g,
+              ];
+  
+              patterns.forEach((pattern) => {
+                ["name", "value"].forEach((property) => {
+                  let matches = field[property].match(pattern);
+                  if (matches) {
+                    matches.forEach((match) => {
+                      let parts = match.match(/\[(.*?)\]\((.*?)\)/) || [
+                        null,
+                        null,
+                        match,
+                      ];
+                      let text = parts[1] || match;
+                      let link = parts[2];
+                      field[property] = field[property].replace(
+                        match,
+                        `${text} (link below)`
+                      );
+                      links2.push(link);
+                    });
+                  }
+                });
+              });
+            });
+          }
+  
+          return {
+            redactedEmbed2,
+            links2,
+          };
+        }
         // let message = messages[x]._doc;
         // let {attachments, batchID, content, embeds, index, messageAuthor, messageID, numOfAttachments, numOfEmbeds, timestamp} = message;
         // let attachment = attachments[x];
@@ -1237,33 +1304,20 @@ let count = 0;
         } catch (error) {
           scripts.logError(error, `error editing reply`);
         }
-    
+        
         // message = message
         let foundEmbeds = message?.embeds;
         let embeds = [];
-        let allLinks = [];
-        let withLink = false;
+        let allLinks= [], buttons = [];
+        let actionRows = [];
+       
         
         for (let embed of foundEmbeds) {
           let { title, description, url, color, author, fields, timestamp, image, thumbnail, footer } = embed;
-        
-          // Apply filters and actions to embed
-          if (hasEmbedWithURL(embed)) {
-            let { redactedEmbed, links } = redactEmbedFields(embed);
-            embed = redactedEmbed;
-            allLinks = allLinks.concat(links);
-            withLink = true;
-          }
-        
-          let domain = extractDomain(url);
-          if (domain) {
-            description = `${description}\n[Source](${domain})`;
-          }
-        
           let newEmbed = createEmb.createEmbed({
             title: title,
             description: description,
-            url: url,
+
             color: color,
             author: author,
             fields: fields,
@@ -1272,21 +1326,113 @@ let count = 0;
             thumbnail: thumbnail !== "" ? thumbnail.url : null,
             footer: footer,
           });
+
+          // Apply filters and actions to embed
+          if (hasFieldURLPattern(newEmbed)) {
+            let { redactedEmbed, links } = redactEmbedFields(newEmbed);
+            newEmbed = redactedEmbed;
+            allLinks = allLinks.concat(links);
+           
+          }
+
+          // make filter for links in embed description
+          // Apply filters and actions to embed
+          if (
+            newEmbed?.description &&
+            (/\[[^\[\]\n]+\]\([^()\s]+\)/g.test(newEmbed?.description) ||
+              /(https?:\/\/[^\s]+)/g.test(newEmbed?.description))
+          ) {
+            let links = [];
+          
+            // For every match from /\[[^\[\]\n]+\]\([^()\s]+\)/g, get the link from the match and push it to the links array
+            // Then replace every match with `[*]`
+            const linkPattern1 = /\[[^\[\]\n]+\]\([^()\s]+\)/g;
+            let match1;
+            while ((match1 = linkPattern1.exec(newEmbed.description))) {
+              const link = match1[0].match(/\(([^()\s]+)\)/)[1];
+              links.push(link);
+              let domain = extractDomain(link);
+              newEmbed.description = newEmbed.description.replace(match1[0], `\`Redacted [ ${domain} ] Content\``);
+            }
+          
+            // For every match of /(https?:\/\/[^\s]+)/g, get the link from the match and push it to the links array
+            // Then replace every match with `[*]`
+            const linkPattern2 = /(https?:\/\/[^\s]+)/g;
+            let match2;
+            while ((match2 = linkPattern2.exec(newEmbed.description))) {
+              links.push(match2[0]);
+              let domain = extractDomain(match2[0]);
+              newEmbed.description = newEmbed.description.replace(match2[0], `\`Redacted [ ${domain} ] Content\``);
+            }
+          
+            allLinks = allLinks.concat(links);
+          }
+          
+
+          // make filter for links in embed url property
+          // Apply filters and actions to embed
+          if (embed.url) { // change to embed.url
+            allLinks = allLinks.concat(url);
+    
+          }
+        
+          // let domain = extractDomain(url);
+          // if (domain) {
+          //   description = `${description}\n[Source](${domain})`;
+          // }
+        
+
         
           if (!newEmbed.data.description && !newEmbed.data.title) newEmbed.data.title = `[ Brought to u by Steve Jobs ]`;
           if (!newEmbed.data.description) newEmbed.data.description = `. . . `;
         
           // Handle content
-          if (withLink) {
-            const button = new MessageButton()
-              .setCustomId("open_link")
-              .setLabel("Open Link")
-              .setStyle("LINK")
-              .setURL(url);
-        
-            newEmbed.data.components = [button];
+          for (let i = 0; i < allLinks.length; i++) {
+            // sort allLinks so that there are no duplicate links present
+            allLinks = Array.from(new Set(allLinks));
+            let link = allLinks[i];
+            let domain = extractDomain(link);
+            let randID = scripts_djs.getRandID();
+                    let button = await createBtn.createButton({
+                      style: "primary",
+                      label: `[${domain}] Content`,
+                      customID: `clean_dump_4_${randID}`,
+                    });
+                    buttons.push(button);
+                    buttons = buttons.flat();
+                    try {
+                      console.log("Before saveLink:", randID, link);
+                      await saveLink(link, randID, message);
+                      console.log("After saveLink:", randID, link);
+                    } catch (error) {
+                      console.log(error);           }
+            
           }
-        
+// For every group of 5 buttons or less, make a single actionRow
+
+
+// Slice the buttons array into arrays in groups of 5 buttons per new array
+let buttonArrays = (buttons) => {
+  let result = [];
+  while (buttons.length) {
+    result.push(buttons.splice(0, 5));
+  }
+  return result;
+}
+
+// Call the buttonArrays function to get an array of button groups
+let groupedButtons = buttonArrays(buttons);
+
+// Create actionRows using the groupedButtons
+groupedButtons.forEach(async (buttonGroup, index) => {
+  // Check if there are more than 5 actionRows, and limit it to only the first 5
+  if (index < 5) {
+    let actionRow = await createActRow.createActionRow({components: buttonGroup})
+
+    actionRows.push(actionRow);
+  }
+});
+
           embeds.push(newEmbed);
         }
         
@@ -1345,7 +1491,7 @@ let count = 0;
           limit = 0; 
           let newAttachments = [];
           let convertAttachments = getInvalidAttachments(attachments, limit, foundAttachments) 
-          let buttons = [];
+          buttons = [];
           for (let i = 0; i <= convertAttachments.length; i++) {
             let attach = convertAttachments[i];
             let attachmentObj = foundAttachments[i];
@@ -1371,7 +1517,7 @@ let count = 0;
             }
           }
           
-          let components = [];
+          let components = [...actionRows];
           // for each button allow up to 5 buttons per action row, then make new action rows for any additional 5+ buttons, then return an array of the first 5 or less action rows
           for (let i = 0; i < buttons.length; i += 5) {
             components.push(await createActRow.createActionRow({components: [buttons.slice(i, i + 5)]}));
@@ -2012,6 +2158,7 @@ function getMessageObj(interaction) {
 module.exports = {
   uploadMessageBatch,
   downloadMessageBatch,
+  downloadMessageBatchv3,  
   throwErrorReply,
   getMessageObj,
 

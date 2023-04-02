@@ -5,8 +5,9 @@ const fs = require("fs");
 
 const dotenv = require("dotenv")
 dotenv.config({ path: "../../../../my.env" });
-const { Wok_Beta_Bot_token, Wok_Beta_Bot_clientId } = process.env;
-const clientId = Wok_Beta_Bot_clientId;
+
+const { Test_Bot_token, Test_Bot_clientId } = process.env;
+const clientId = Test_Bot_clientId;
 
 module.exports = async (client, commandFolders, path) => {
   client.commandArray = [];
@@ -24,7 +25,8 @@ module.exports = async (client, commandFolders, path) => {
 
   const rest = new REST({
     version: "9",
-  }).setToken( Wok_Beta_Bot_token);
+  }).setToken(Test_Bot_token);
+
 
   (async () => {
     try {

@@ -103,6 +103,7 @@ async function createButton(buttonObj, randID) {
           throw new Error("customID is too long");
         } catch (error) {
           scripts.logError(error, "customID is too long: MAX 100 characters");
+          
         }
       }
     }
@@ -130,9 +131,9 @@ async function createButton(buttonObj, randID) {
   } else {
     if (!lessCharsThan(label, 80)) {
       try {
-        throw new Error("label is too long");
+        throw new Error("label is too long: MAX 80 characters");
       } catch (error) {
-        scripts.logError(error, "label is too long: MAX 45 characters");
+        scripts.logError(error, "label is too long: MAX 80 characters");
       }
     }
     button.setLabel(label);

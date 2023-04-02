@@ -27,6 +27,8 @@ const dbVars = require("../../functions/groupbuy/databaseVariables.js");
 const mongoose = require("mongoose");
 const gbdb = require("../../../MongoDB/db/schemas/schema_gb.js");
 let modal;
+const allowedRoles = ["manager", "moderator", "mod", "admin", "administrator", "co owner", "co owners", "co-owner", ".", "co-owners", "ceo", "higher up", "higher ups", "higher-up", "higher-ups", "staff", "gb manager", "gb-manager"];
+
 async function throwNewError(interaction, err, i) {
   try {
     await interaction.editReply({
@@ -80,90 +82,119 @@ module.exports = {
   data: new SlashCommandBuilder()
     .setName("gb")
     .setDescription("post group buy")
-    .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
+    .setDefaultMemberPermissions(PermissionFlagsBits.MuteMembers),
   async execute(interaction) {
-    // await interaction.deferReply({ ephemeral: true });
-     const randID = scripts_djs.getRandID(); // testing new randID below, this is old
-   // let randID = scripts_djs.extractID(customID);
-    // upon execution of the command, the user is shown a modal that gathers the gb name, the total amount of price needed, the current amount of money raised
-    // use #ffcb6b as the embed color
-
-    // after the modal is submitted a message composed of an embed and 1 button labeled `EDIT` (that only admin users can see and click) is sent to the channel the command was executed in
-
-    // when the user clicks the `EDIT` button, another emphemeral action row with 3 buttons labeled `UPDATE`, `DELETE`, and `END` is shown
-    // the user can edit the name, price, and amount raised
-    // the modal is shown again with the previous values filled in as place holders, and all fields are optional. If the user would like to overwrite the previous values, they can do so and submit the modal again. If the user would like to keep the previous values, they can leave the fields blank and submit the modal again.
-    // the message embed is updated with the new values
-    // the user can also delete the group buy
-    // the message is deleted from the channel
-    // the user can end the group buy by clicking the `END` button
-    // the user's action row is updated to only include the `GB canlelled` button, `GB Complete` button, and `GB Postponed` button
-    // the `GB Cancelled` button will change the embed color to red and change the title to `Group Buy Cancelled`, change the amount needed to `N/A`
-    // the `GB Complete` button will change the embed color to green and change the title to `Group Buy Complete!`, change the amount needed to `0`, the percentLeft to `100%`
-    // the `GB Postponed` button will change the embed color to yellow and change the title to `Group Buy Postponed`, change the amount needed to `N/A`
-
-    // first step is to create the modal
-    /////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    // Create Modal
-    //  modal = createModal.createModal({
-    //     title: "New Group Buy",
-    //     customID: `gb-post-modal${randID}`,
-    //     inputFields: [
-    //         {
-    //             customID: "gb_p_name",
-    //     label: "Name of the song",
-    //     style: "TextInputStyle.Short",
-    //     placeholder: "",
-    //     required: false
-    //         },
-    //         {
-    //             customID: "gb_p_price",
-    //     label: "Price of the song",
-    //     style: "TextInputStyle.Short",
-    //     placeholder: "",
-    //     required: true
-    //         },
-    //         {
-    //             customID: "gb_p_current",
-    //     label: "Amount of money raised",
-    //     style: "TextInputStyle.Short",
-    //     placeholder: "",
-    //     required: false
-    //         },
-    //     ],
-    // })
-    let modal2 = new ModalBuilder()
-      .setCustomId(`gb-post-modal${randID}`)
-      .setTitle("New Group Buy");
-
-    const field1 = new TextInputBuilder()
-      .setCustomId("gb_p_name")
-      .setLabel("Name of the song")
-      .setStyle(TextInputStyle.Short)
-      .setPlaceholder("")
-      .setRequired(false);
-
-    const field2 = new TextInputBuilder()
-      .setCustomId("gb_p_price")
-      .setLabel("Price of the song")
-      .setStyle(TextInputStyle.Short)
-      .setPlaceholder("")
-      .setRequired(true);
-
-    const field3 = new TextInputBuilder()
-      .setCustomId("gb_p_current")
-      .setLabel("Amount of money raised")
-      .setStyle(TextInputStyle.Short)
-      .setPlaceholder("")
-      .setRequired(false);
-
-    const firstActionRow = new ActionRowBuilder().addComponents(field1);
-    const secondActionRow = new ActionRowBuilder().addComponents(field2);
-    const thirdActionRow = new ActionRowBuilder().addComponents(field3);
-
-    modal2.addComponents(firstActionRow, secondActionRow, thirdActionRow);
-    // Show the Modal to the user
-    await interaction.showModal(modal2);
+    if (interaction.memberPermissions.has("Administrator") || interaction.member.roles.cache.some(role => allowedRoles.includes(role.name.toLowerCase()))) {
+    if (client.connectedToMongoose) {
+      // await interaction.deferReply({ ephemeral: true });
+       const randID = scripts_djs.getRandID(); // testing new randID below, this is old
+     // let randID = scripts_djs.extractID(customID);
+      // upon execution of the command, the user is shown a modal that gathers the gb name, the total amount of price needed, the current amount of money raised
+      // use #ffcb6b as the embed color
+  
+      // after the modal is submitted a message composed of an embed and 1 button labeled `EDIT` (that only admin users can see and click) is sent to the channel the command was executed in
+  
+      // when the user clicks the `EDIT` button, another emphemeral action row with 3 buttons labeled `UPDATE`, `DELETE`, and `END` is shown
+      // the user can edit the name, price, and amount raised
+      // the modal is shown again with the previous values filled in as place holders, and all fields are optional. If the user would like to overwrite the previous values, they can do so and submit the modal again. If the user would like to keep the previous values, they can leave the fields blank and submit the modal again.
+      // the message embed is updated with the new values
+      // the user can also delete the group buy
+      // the message is deleted from the channel
+      // the user can end the group buy by clicking the `END` button
+      // the user's action row is updated to only include the `GB canlelled` button, `GB Complete` button, and `GB Postponed` button
+      // the `GB Cancelled` button will change the embed color to red and change the title to `Group Buy Cancelled`, change the amount needed to `N/A`
+      // the `GB Complete` button will change the embed color to green and change the title to `Group Buy Complete!`, change the amount needed to `0`, the percentLeft to `100%`
+      // the `GB Postponed` button will change the embed color to yellow and change the title to `Group Buy Postponed`, change the amount needed to `N/A`
+  
+      // first step is to create the modal
+      /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      // Create Modal
+      //  modal = createModal.createModal({
+      //     title: "New Group Buy",
+      //     customID: `gb-post-modal${randID}`,
+      //     inputFields: [
+      //         {
+      //             customID: "gb_p_name",
+      //     label: "Name of the song",
+      //     style: "TextInputStyle.Short",
+      //     placeholder: "",
+      //     required: false
+      //         },
+      //         {
+      //             customID: "gb_p_price",
+      //     label: "Price of the song",
+      //     style: "TextInputStyle.Short",
+      //     placeholder: "",
+      //     required: true
+      //         },
+      //         {
+      //             customID: "gb_p_current",
+      //     label: "Amount of money raised",
+      //     style: "TextInputStyle.Short",
+      //     placeholder: "",
+      //     required: false
+      //         },
+      //     ],
+      // })
+      let modal2 = new ModalBuilder()
+        .setCustomId(`gb-post-modal${randID}`)
+        .setTitle("New Group Buy");
+  
+      const field1 = new TextInputBuilder()
+        .setCustomId("gb_p_name")
+        .setLabel("Name of the song")
+        .setStyle(TextInputStyle.Short)
+        .setPlaceholder("")
+        .setRequired(false);
+  
+      const field2 = new TextInputBuilder()
+        .setCustomId("gb_p_price")
+        .setLabel("Price of the song")
+        .setStyle(TextInputStyle.Short)
+        .setPlaceholder("")
+        .setRequired(true);
+  
+      const field3 = new TextInputBuilder()
+        .setCustomId("gb_p_current")
+        .setLabel("Amount of money raised")
+        .setStyle(TextInputStyle.Short)
+        .setPlaceholder("")
+        .setRequired(false);
+  
+      const firstActionRow = new ActionRowBuilder().addComponents(field1);
+      const secondActionRow = new ActionRowBuilder().addComponents(field2);
+      const thirdActionRow = new ActionRowBuilder().addComponents(field3);
+  
+      modal2.addComponents(firstActionRow, secondActionRow, thirdActionRow);
+      // Show the Modal to the user
+      await interaction.showModal(modal2);
+    } else {
+      try {
+        await interaction.reply({ephemeral: true, embeds: [createEmb.createEmbed({
+          title: `the bot is experiencing internet connection issues`,
+          description: `\`STATUS:\` \`currently disconnected from the database\`\n\n**Run \`/reconnect\` to force a reconnection to the database**\nIf no luck after multiple attempts, wait some time and contact Steve Jobs`,
+          color: `#10B479`
+        })]})
+        await scripts.delay(6000);
+        await interaction.deleteReply()
+        return
+      } catch (error) {
+        console.log(error)
+      }
+    }
+  } else {
+    await interaction.reply({ephemeral: true, embeds: [createEmb.createEmbed({
+      title: `you do not have permission to use this command`,
+      description: `you need to be an admin or have the \`GB Manager\` role to use this command`,
+      color: `#10B479`
+    })]}).then(async ()=>{
+      await scripts.delay(6000);
+      await interaction.deleteReply()
+      return
+    }).catch(error=>{
+      return console.log(error)
+    })
+  }
 
     /////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -437,9 +468,14 @@ module.exports = {
     try {
       await interaction.deferReply({ ephemeral: true });
     } catch (error) {
-      await interaction.editReply({embeds:[createEmb.createEmbed({title:`Error - editing gb`,description:`\`\`\`js\n${error}\n\`\`\`\n__Share the Error with Steve Jobs__`,color:scripts.getErrorColor()})]})
+      try {
+        return await interaction.editReply({embeds:[createEmb.createEmbed({title:`Error - editing gb`,description:`\`\`\`js\n${error}\n\`\`\`\n__Share the Error with Steve Jobs__`,color:scripts.getErrorColor()})]})
+      } catch (error) {
+        return console.log(error)
+      }
     }
-    if (!interaction.memberPermissions.has("Administrator")) {
+    
+    if (!interaction.memberPermissions.has("Administrator") && !interaction.member.roles.cache.some(role => allowedRoles.includes(role.name.toLowerCase()))) {
       console.log(
         `Edit Button Clicked by a non-admin user:\nusername: ${interaction.member.user.username}\nID: ${interaction.member.user.id}\nGuild: ${interaction.guild.name}\nGuild ID: ${interaction.guild.id}\nChannel: ${interaction.channel.name}\nChannel ID: ${interaction.channel.id}\nMessage ID: ${interaction.message.id}\nButton ID: ${interaction.customID}`
       );
@@ -1723,12 +1759,12 @@ module.exports = {
       fields: [
         {
           name: `__Amount Paid__`,
-          value: price == `` ? `\`$\` \`0\`` : `\`$\`  \`${priceNumber}\``,
+          value: `\`$\`  \`${priceNumber}\``,
           inline: false,
         },
         {
           name: `__Song Price__`,
-          value: price == `` ? `\`$\` \`0\`` : `\`$\`  \`${priceNumber}\``,
+          value: `\`$\`  \`${priceNumber}\``,
           inline: false,
         },
       ],

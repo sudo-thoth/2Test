@@ -452,7 +452,7 @@ async function uploadFileBatch(interaction) {
 async function downloadFileBatch(batch_id, targetChannel, interaction){
   let batchMessages = await scripts_mongoDB.getBatchMessages(batch_id);
   if (batchMessages.length === 0){
-    await interaction.editReply({embeds: [createEmb.createEmbed({title: `❌ No Files Found!`, content: `\`no files found for batch id: ${batch_id}\``, color: scripts.getErrorColor()})]});
+    await interaction.editReply({embeds: [createEmb.createEmbed({title: `<:no:1086779697154760777> No Files Found!`, content: `\`no files found for batch id: ${batch_id}\``, color: scripts.getErrorColor()})]});
     return;
   }
 

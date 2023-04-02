@@ -1154,7 +1154,7 @@ client.on("interactionCreate", async (interaction) => {
       } else {
 //        embedObj.url = file.attachment || null;
       }
-      embedObj.url =  kraken || null;
+      embedObj.url = krakFile ? krakFile : krakLink ? krakLink : null;
       if (fields.length > 0) {
         embedObj.fields = fields;
       }

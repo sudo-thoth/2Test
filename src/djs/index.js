@@ -31,11 +31,8 @@ const djsEventFiles = fs
   const mongoConfig = fs.readdirSync("./src/MongoDB/db/config");
 
 
+
 const { Test_Bot_token } = process.env;
-
-
-
-
 
 
 client.commands = new Collection();
@@ -70,8 +67,6 @@ module.exports = client;
 
 const { MongoDB_Token_2Test_bot } = process.env;
 
-
-
   const db = mongoose.connection;
 db.on("error", () => {
   client.connectedToMongoose = false;
@@ -89,7 +84,6 @@ handleFunctions(djsFunctionFolders, "./src/djs/functions");
 
 
 (async () => {
-
   if (mongoose === undefined) {
     return;
   } else {
@@ -107,5 +101,6 @@ handleFunctions(djsFunctionFolders, "./src/djs/functions");
     
   }
 })()
+
 
 

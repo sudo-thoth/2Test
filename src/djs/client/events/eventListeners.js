@@ -6359,15 +6359,13 @@ if (!customID.includes("post_new_")) {
         // create a button to download the image
         console.log(`the kraken`, kraken);
         console.log(`the file`, file);
-        console.log(
-          `the decision`,
-          kraken ? (file ? file?.toString() : null) : file ? file?.attachment?.toString() : null
-        );
 
+
+        
         const downloadButton = await createBtn.createButton({
           label: `Download`,
           style: `link`,
-          link: kraken ? (file ? file?.toString() : null) : file ? file?.attachment?.toString() : null,
+          link: file ? file?.attachment?.toString() : kraken ||  null,
         });
         let krakenButton;
                 if (kraken !== null) {
@@ -6708,13 +6706,13 @@ if (!customID.includes("post_new_")) {
         console.log(`the file`, file);
         console.log(
           `the decision`,
-          kraken ? (file ? file?.toString() : null) : file ? file?.attachment?.toString() : null
+          file ? file?.attachment?.toString() : kraken ||  null
         );
 
         const downloadButton = await createBtn.createButton({
           label: `Download`,
           style: `link`,
-          link: kraken ? (file ? file?.toString() : null) : file ? file?.attachment?.toString() : null,
+          link: file ? file?.attachment?.toString() : kraken ||  null,
         });
         let krakenButton;
                 if (kraken !== null) {

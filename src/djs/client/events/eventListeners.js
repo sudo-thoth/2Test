@@ -6237,14 +6237,14 @@ if (!customID.includes("post_new_")) {
       } else if (customID.includes(`post_magicaledit_modal`)) {
         randID = scripts_djs.extractID(customID);
         let data = await scripts_mongoDB.getPostData(randID);
-        file = user = interaction.user;
+        user = interaction.user;
         // console.log(`the data is right here data`, data);
         let {
           //  userId,
           roles,
           //  type,
           //  format,
-          // file,
+          file,
           //  interactionID,
           //  file_type,
           choice,
@@ -6584,14 +6584,14 @@ if (!customID.includes("post_new_")) {
       } else if (customID.includes(`post_edit_modal`)) {
         randID = scripts_djs.extractID(customID);
         let data = await scripts_mongoDB.getPostData(randID);
-        file = user = interaction.user;
+        user = interaction.user;
         // console.log(`the data is right here data`, data);
         let {
           //  userId,
           roles,
           //  type,
           //  format,
-          // file,
+          file,
           //  interactionID,
           //  file_type,
           choice,

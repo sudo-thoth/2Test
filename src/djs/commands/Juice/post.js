@@ -48,6 +48,7 @@ module.exports = {
                 { name: "Studio Session", value: "studiosession" },
                 { name: "Instrumental", value: "instrumental" },
                 { name: "Accapella", value: "accapella" },
+                { name: "Edit", value: "edit"},
                 { name: "Session Edit", value: "mixedsession" },
                 { name: "Snippet", value: "snippet" },
                 { name: "Remaster", value: "remaster" },
@@ -91,6 +92,7 @@ module.exports = {
                   { name: "Studio Session", value: "studiosession" },
                   { name: "Instrumental", value: "instrumental" },
                   { name: "Accapella", value: "accapella" },
+                  { name: "Edit", value: "edit"},
                   { name: "Session Edit", value: "mixedsession" },
                   { name: "Snippet", value: "snippet" },
                   { name: "Remaster", value: "remaster" },
@@ -896,6 +898,58 @@ if (file_type === "attachment") {
             // Show the modal
             await interaction.showModal(modal);
               break;
+              case "edit":
+              // do edit things
+                                          // Modal Object that gets passed in below
+            modalObj = {
+              customID: `post_edit_modal_a${randID}`,
+              title: "Edit Survey",
+              inputFields: [
+                {
+                  customID: "producer",
+                  label:
+                    "Made By",
+                  style: "TextInputStyle.Short",
+                  placeholder: "@stevejobs",
+                  required: false,
+                },
+                {
+                  customID: "name",
+                  label: "What is the name of the song?",
+                  style: "TextInputStyle.Short",
+                  placeholder: "Adore You",
+                  required: true,
+                },
+                {
+                  customID: "altname",
+                  label: "Any alternate names for the song?",
+                  style: "TextInputStyle.Long",
+                  placeholder: "Dark Knight",
+                  required: false,
+                },
+                {
+                  customID: "text",
+                  label:
+                    "Additional Information About The Magical Edit",
+                  style: "TextInputStyle.Long",
+                  placeholder: "extra shit",
+                  required: false,
+                },
+                {
+                  customID: "kraken",
+                  label:
+                    "Optional: If you want to add the kraken link",
+                  style: "TextInputStyle.Short",
+                  placeholder: "https://krakenfiles.com/view/stevejobswashere.lol",
+                  required: false,
+                },
+              ],
+            };
+            // Create the modal
+            modal = await createModal.createModal(modalObj);
+            // Show the modal
+            await interaction.showModal(modal);
+              break;
             case "magicaledit":
               // do magical edit things
                                           // Modal Object that gets passed in below
@@ -1555,6 +1609,58 @@ if (file_type === "attachment") {
             "Additional Information About The Stem Edit",
           style: "TextInputStyle.Long",
           placeholder: "extra shit",
+          required: false,
+        },
+      ],
+    };
+    // Create the modal
+    modal = await createModal.createModal(modalObj);
+    // Show the modal
+    await interaction.showModal(modal);
+      break;
+      case "edit":
+      // do edit things
+                                  // Modal Object that gets passed in below
+    modalObj = {
+      customID: `post_edit_modal${randID}`,
+      title: "Edit Survey",
+      inputFields: [
+        {
+          customID: "producer",
+          label:
+            "Made By",
+          style: "TextInputStyle.Short",
+          placeholder: "@stevejobs",
+          required: false,
+        },
+        {
+          customID: "name",
+          label: "What is the name of the song?",
+          style: "TextInputStyle.Short",
+          placeholder: "Adore You",
+          required: true,
+        },
+        {
+          customID: "altname",
+          label: "Any alternate names for the song?",
+          style: "TextInputStyle.Long",
+          placeholder: "Dark Knight",
+          required: false,
+        },
+        {
+          customID: "text",
+          label:
+            "Additional Information About The Magical Edit",
+          style: "TextInputStyle.Long",
+          placeholder: "extra shit",
+          required: false,
+        },
+        {
+          customID: "kraken",
+          label:
+            "Optional: If you want to add the kraken link",
+          style: "TextInputStyle.Short",
+          placeholder: "https://krakenfiles.com/view/stevejobswashere.lol",
           required: false,
         },
       ],

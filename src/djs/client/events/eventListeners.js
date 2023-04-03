@@ -11,7 +11,7 @@ const drflgif =
   "https://media.discordapp.net/attachments/981241396608532534/1078161086794174464/ezgif.com-gif-maker_4.gif";
 const gbgrgif =
   "https://media.discordapp.net/attachments/981241396608532534/1078159688983654441/ezgif.com-optimize.gif";
-
+  const wodgif = "https://i.imgur.com/5kI4Zt4.gif"
 const jw3gif = () => {
   let gifs = [
     "https://media.discordapp.net/attachments/981241396608532534/1078163296412246016/ezgif.com-optimize_2.gif",
@@ -2848,6 +2848,8 @@ if (!customID.includes("post_new_")) {
             era.toLowerCase() === "juice the kidd"
           ) {
             embedObj.thumbnail = jtkgif;
+          } else if(era.toLowerCase() === "wod" || era.toLowerCase() === "wrld on drugs"){
+            embedObj.thumbnail = wodgif;
           } else {
             embedObj.thumbnail = interaction.guild.iconURL();
           }
@@ -3227,6 +3229,8 @@ if (!customID.includes("post_new_")) {
             era.toLowerCase() === "juice the kidd"
           ) {
             embedObj.thumbnail = jtkgif;
+          } else if(era.toLowerCase() === "wod" || era.toLowerCase() === "wrld on drugs"){
+            embedObj.thumbnail = wodgif;
           } else {
             embedObj.thumbnail = interaction.guild.iconURL();
           }
@@ -3590,6 +3594,8 @@ if (!customID.includes("post_new_")) {
             era.toLowerCase() === "juice the kidd"
           ) {
             embedObj.thumbnail = jtkgif;
+          } else if(era.toLowerCase() === "wod" || era.toLowerCase() === "wrld on drugs"){
+            embedObj.thumbnail = wodgif;
           } else {
             embedObj.thumbnail = interaction.guild.iconURL();
           }
@@ -4590,6 +4596,8 @@ if (!customID.includes("post_new_")) {
             era.toLowerCase() === "juice the kidd"
           ) {
             embedObj.thumbnail = jtkgif;
+          } else if(era.toLowerCase() === "wod" || era.toLowerCase() === "wrld on drugs"){
+            embedObj.thumbnail = wodgif;
           } else {
             embedObj.thumbnail = interaction.guild.iconURL();
           }
@@ -4954,6 +4962,8 @@ if (!customID.includes("post_new_")) {
             era.toLowerCase() === "juice the kidd"
           ) {
             embedObj.thumbnail = jtkgif;
+          } else if(era.toLowerCase() === "wod" || era.toLowerCase() === "wrld on drugs"){
+            embedObj.thumbnail = wodgif;
           } else {
             embedObj.thumbnail = interaction.guild.iconURL();
           }
@@ -5253,9 +5263,7 @@ if (!customID.includes("post_new_")) {
         const era = interaction.fields.getTextInputValue("era")
           ? interaction.fields.getTextInputValue("era")
           : null;
-        const altname = interaction.fields.getTextInputValue("altname")
-          ? interaction.fields.getTextInputValue("altname")
-          : null;
+          const text = interaction.fields.getTextInputValue("text")
         const producer = interaction.fields.getTextInputValue("producer")
           ? interaction.fields.getTextInputValue("producer")
           : null;
@@ -5268,7 +5276,7 @@ if (!customID.includes("post_new_")) {
         const role = roleString(roles);
         let embedObj = {
           title: `${songName}`,
-          // description: text ? text : null,
+          description: text ? text : null,
           color: scripts.getColor(),
           thumbnail: interaction.guild.iconURL(),
           author: {
@@ -5319,6 +5327,8 @@ if (!customID.includes("post_new_")) {
             era.toLowerCase() === "juice the kidd"
           ) {
             embedObj.thumbnail = jtkgif;
+          } else if(era.toLowerCase() === "wod" || era.toLowerCase() === "wrld on drugs"){
+            embedObj.thumbnail = wodgif;
           } else {
             embedObj.thumbnail = interaction.guild.iconURL();
           }
@@ -5330,13 +5340,13 @@ if (!customID.includes("post_new_")) {
             inline: true,
           });
         }
-        if (altname !== null) {
-          fields.push({
-            name: `Alternate Name(s)`,
-            value: `${altname}`,
-            inline: true,
-          });
-        }
+        // if (altname !== null) {
+        //   fields.push({
+        //     name: `Alternate Name(s)`,
+        //     value: `${altname}`,
+        //     inline: true,
+        //   });
+        // }
 
         if (file_type === "kraken-link") {
           let krakLink = interaction.fields.getTextInputValue("kraken")
@@ -5450,8 +5460,6 @@ if (!customID.includes("post_new_")) {
                 file.name && file.name !== songName
                   ? `\nFile Name : ${file.name}`
                   : ""
-              }${
-                altname !== null ? `\nAlternate Name(s) : ${altname}` : ""
               } ||`}`,
               embeds: [embed],
               components: [actionRow, actionRow2],
@@ -5495,8 +5503,6 @@ if (!customID.includes("post_new_")) {
                 file.name && file.name !== songName
                   ? `\nFile Name : ${file.name}`
                   : ""
-              }${
-                altname !== null ? `\nAlternate Name(s) : ${altname}` : ""
               } ||`}`,
               embeds: [embed],
               components: [actionRow],
@@ -5535,8 +5541,6 @@ if (!customID.includes("post_new_")) {
                 file.name && file.name !== songName
                   ? `\nFile Name : ${file.name}`
                   : ""
-              }${
-                altname !== null ? `\nAlternate Name(s) : ${altname}` : ""
               } ||`}`,
               embeds: [embed],
               components: [actionRow],
@@ -5574,8 +5578,6 @@ if (!customID.includes("post_new_")) {
                 file.name && file.name !== songName
                   ? `\nFile Name : ${file.name}`
                   : ""
-              }${
-                altname !== null ? `\nAlternate Name(s) : ${altname}` : ""
               } ||`}`,
               embeds: [embed],
               components: [actionRow, actionRow2],

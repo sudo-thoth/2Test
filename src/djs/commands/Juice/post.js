@@ -538,10 +538,11 @@ if (file_type === "attachment") {
                     required: false,
                   },
                   {
-                    customID: "altname",
-                    label: "Any alternate names for the song?",
+                    customID: "text",
+                    label:
+                      "Additional Information About The Master",
                     style: "TextInputStyle.Long",
-                    placeholder: "Dark Knight\nAdore U",
+                    placeholder: "extra shit",
                     required: false,
                   },
                   {
@@ -1500,12 +1501,13 @@ if (file_type === "attachment") {
           required: false,
         },
         {
-          customID: "altname",
-          label: "Any alternate names for the song?",
+          customID: "text",
+          label:
+            "Additional Information About The Master",
           style: "TextInputStyle.Long",
-          placeholder: "Dark Knight",
+          placeholder: "extra shit",
           required: false,
-        },
+        }
         
       ],
     };

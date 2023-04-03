@@ -129,7 +129,9 @@ async function sendContent(interaction) {
 }
 
 client.on("interactionCreate", async (i) => {
-  await sendContent(i);
+  if (i?.customId.includes("clean_dump_") && i?.isButton()) {
+    await sendContent(i);
+  }
 });
 
 let sentEmojis = [

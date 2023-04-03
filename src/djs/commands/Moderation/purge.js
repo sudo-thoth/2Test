@@ -62,7 +62,7 @@ return;
 
     try {
       messages = await channel.messages.fetch({
-        limit: amount + 1,
+        limit: amount < 100 ? amount + 1 : 100,
       });
     } catch (error) {
       console.error(`Failed Fetch Attempt`, error);
@@ -75,7 +75,7 @@ return;
       const filtered = [];
 
       try {
-        (await messages).filter((msg) => {
+        (await messages)?.filter((msg) => { // fix error here with filter trying to run on undefined
           if (msg.author.id === target.id && amount > i) {
             filtered.push(msg);
             i++;

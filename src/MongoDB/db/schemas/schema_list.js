@@ -7,7 +7,7 @@ const listSchema = new Schema(
     guildName: String,
     channelId: String,
     channelName: String,
-    messageId: String,
+    messageId: {type: String, required: true},
     messageURL: String,
     listTitle: {type: String, required: true},
     listItems: [String],

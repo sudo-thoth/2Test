@@ -9,7 +9,7 @@ const scripts = require("../../functions/scripts/scripts.js");
 const createEmb = require("../../functions/create/createEmbed.js");
 const createBtn = require("../../functions/create/createButton.js");
 const createActRow = require("../../functions/create/createActionRow.js");
-const cleanDumpdb = require("../../../MongoDB/db/schemas/schema_cleanData.js");
+const lists = require("../../../MongoDB/db/schemas/schema_list.js");
 const client = require("../../index.js");
 const mongoose = require("mongoose");
 const { Schema, model } = require("mongoose");
@@ -45,47 +45,39 @@ module.exports = {
         }),
       ],
     });
-  // create an embed to send in the channel as the list\
-  let listEmbed = createEmb.createEmbed({
-    title: `${options.getString("list-title")}`,
-    description: `> **Run the \`/add-list-item\` command to add an item to the list**`,
-    color: scripts.getColor(),
-    author: {
-      iconURL: `${interaction.guild.iconURL()}`,
-    }, 
-    footer: {
-      name: `#${interaction.channel.name}`,
+    let listEmbedObj = {
+      // title: `${options.getString("list-title")}`,
+      description: `\`Run the /add-list-item command to add your first item to the list!\` \n\`\`\`\n \`\`\``,
+      color: scripts.getColor(),
+      author: {
+        iconURL: `${interaction.guild.iconURL()}`,
+        // name: `\u200B`
+        name: `${options.getString("list-title")}`
+      }, 
+      footer: {
+        text: `Last Updated By: ${interaction.user.username} | #${interaction.channel.name}`,
+        iconURL: `${interaction.user.avatarURL()}`
+      }
     }
-  });
+  // create an embed to send in the channel as the list\
+  let listEmbed = createEmb.createEmbed(listEmbedObj);
 // send the new embed in the channel as the list
 interaction.channel.send({ embeds: [listEmbed] }).then(async (msg) => {
   // send a reply to the user saying the list was created
   await interaction.editReply({
     embeds: [
       createEmb.createEmbed({
-        title: `List Created`,
-        description: `> **Run the \`/add-list-item\` command to add an item to the list**`,
+       // title: `List Created`,
+        description: `:white_check_mark: \`List Created\``,
+        //description: `> **Run the \`/add-list-item\` command to add an item to the list**`,
         color: scripts.getSuccessColor(),
       }),
     ],
   });
-  // create a new schema for the list
-  const listSchema = new Schema({
-    _id: mongoose.Schema.Types.ObjectId,
-    guildId: String,
-    guildName: String,
-    channelId: String,
-    channelName: String,
-    messageId: String,
-    messageURL: String,
-    listTitle: {type: String, required: true},
-    listItems: [String],
-  });
-  // create a new model for the list
-  const List = model("List", listSchema);
+
   // create a new list
   const newList = {
-    _id: mongoose.Types.ObjectId(),
+    _id: new mongoose.Types.ObjectId(),
     guildId: `${interaction.guild.id}`,
     guildName: `${interaction.guild.name}`,
     channelId: `${interaction.channel.id}`,
@@ -94,10 +86,31 @@ interaction.channel.send({ embeds: [listEmbed] }).then(async (msg) => {
     messageURL: `${msg.url}`,
     listTitle: `${options.getString("list-title")}`,
     listItems: [],
+    embedObj: listEmbedObj,
   }
-  // save the new list
-  await newList.save();
-}).catch((error) => {
+
+      let result = await lists.create(newList);
+      if (result) {
+        console.log("Document created:", result);
+        
+      } else {
+        console.error("Error creating document:", result);
+        try {
+          await interaction.user.send({
+            embeds: [
+              createEmb.createEmbed({
+                title: `Error Occurred!`,
+                description: `Error Report:\n*send to steve jobs if problem persists*\n\`\`\`js\nunable to save the list to the database, please use \`/reconnect\` & try again\n\`\`\``,
+                color: scripts.getErrorColor()
+              })      
+            ]
+          })
+        } catch (err) {
+          console.log(`error-->>>`, err)
+          
+        }
+      }
+}).catch(async (error) => {
   try {
     await interaction.user.send({
       embeds: [
@@ -108,10 +121,10 @@ interaction.channel.send({ embeds: [listEmbed] }).then(async (msg) => {
         })      
       ]
     })
-  } catch ((err) => {
+  } catch (err) {
     console.log(`og error-->>>`, error)
     
-  })
+  }
 })
  
   },

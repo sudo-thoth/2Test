@@ -129,7 +129,7 @@ async function sendContent(interaction) {
 }
 
 client.on("interactionCreate", async (i) => {
-  if (i?.customId.includes("clean_dump_") && i?.isButton()) {
+  if (i?.customId?.includes("clean_dump_") && i?.isButton()) {
     await sendContent(i);
   }
 });

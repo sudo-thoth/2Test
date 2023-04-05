@@ -114,11 +114,7 @@ async function execute(interaction) {
         return row;
     };
 
-    const clarifyEmbed = {
-        title: `Player 2 was Never Selected`,
-        description: `Do you want to play against a Friend, Random Server Member, or vs <@${interaction.client.user.id}>?\nYou have ${timeLeft} to choose`,
-        color: scripts.getColor(),
-    }
+    
     let row = async (left, middle, right) => await new ActionRowBuilder().setComponents(
         left, middle, right
     )
@@ -140,7 +136,14 @@ async function execute(interaction) {
 
 
         // ⭕❌🏅
-        const gameBoard = await interaction.channel.send({ content: `**${player1.username}** vs **${player2.username}**\n\n⏰ You have **30 seconds** to start!\n❌ ${player1}, make your first move.`, components: components })
+        let maxTime2 = Date.now() + 30000;
+        const currentTimeInSeconds = Math.floor(Date.now() / 1000);
+        const timeDifferenceInSeconds = Math.floor(
+          (maxTime2 - Date.now()) / 1000
+        );
+        let timeLeft2 = currentTimeInSeconds + timeDifferenceInSeconds;
+        timeLeft2 = `<t:${timeLeft2}:R>`;
+        const gameBoard = await interaction.channel.send({ content: `**${player1.username}** vs **${player2.username}**\n\n⏰ You have **30 seconds** to start!\n❌ ${player1}, make your first move.\n\`opportunity to play ends\`${timeLeft2}`, components: components })
         let xo;
         let buttoncolor;
         let win;
@@ -162,7 +165,7 @@ async function execute(interaction) {
             }
 
             if (!(currentPlayersTurn.bot)) {
-                gameBoard.awaitMessageComponent({ filter, componentType: ComponentType.Button, max: 1, time: 30000, errors: ["time"] }).then(async (interaction) => {
+                gameBoard.awaitMessageComponent({ filter, componentType: ComponentType.Button, max: 1, time: 30000, }).then(async (interaction) => {
 
                     switch (interaction.customId) {
                         case 'ttt_11':
@@ -297,6 +300,7 @@ async function execute(interaction) {
                         // code to handle other cases
                     }
                 }).catch(err => {
+                    console.log(err)
                     gameBoard.delete()
                 })
             } else {
@@ -391,8 +395,9 @@ async function execute(interaction) {
         // if no button is clicked after 10 seconds, disable both buttons and update the embed message saying no actions were taken in enough time, if you still want to play try `/tictactoe` again
 
         maxTime = Date.now() + 10000;
-        timeLeft = Math.floor(maxTime / 1000);
-        timeLeft = `<t:${timeLeft}:R>`;
+        
+
+        
         let row = await selectionRow()
         // start a timer in a variable named timer so that I can reference this variable again to see if 10 seconds have passed or not
         try {
@@ -400,19 +405,46 @@ async function execute(interaction) {
         } catch (error) {
             console.log(`Error HERE in TicTacToe`)
         }
+        maxTime = Date.now() + 12000;
+        
+
+         let currentTimeInSeconds = Math.floor(Date.now() / 1000);
+                    let timeDifferenceInSeconds = Math.floor(
+                      (maxTime - Date.now()) / 1000
+                    );
+                    timeLeft = currentTimeInSeconds + timeDifferenceInSeconds;
+                    timeLeft = `<t:${timeLeft}:R>`;
+
+                    const clarifyEmbed = {
+                        title: `Player 2 was Never Selected`,
+                        description: `Do you want to play against a Friend, Random ${interaction.guild.name} Member, or vs <@${interaction.client.user.id}>?\nOpportunity will end ${timeLeft}`,
+                        color: scripts.getColor(),
+                    }
         const clarifyPlayer2 = await interaction.editReply({
             content: content(player1), components: [row], embeds: [createEmb.createEmbed(clarifyEmbed)]
         })
         let timer = setTimeout(async () => {
             // Disable the message buttons after 10 seconds
             row = await selectionRowDisabled()
-            await interaction.editReply({ embeds: [createEmb.createEmbed({ title: `❗️ You took too long to decide`, description: `If you still wish to play, run \`/tictactoe\` again`, color: scripts.getErrorColor() })], components: [row] });
+            await interaction.editReply({ embeds: [createEmb.createEmbed({ title: `❗️ You took too long to decide`, description: `If you still wish to play, run \`/tictactoe\` again`, color: scripts.getErrorColor() })], components: [] });
+            await scripts.delay(5000)
+            try{
+                await interaction.deleteReply()
+            } catch (error){
+                console.log(error)
+            }
         }, 10000);
         let filter = i => {
             i.deferUpdate();
             return i.user.id === currentPlayersTurn.id
         }
-        clarifyPlayer2.awaitMessageComponent({ filter, componentType: ComponentType.Button, max: 1, time: 30000, errors: ["time"] }).then(async (interaction) => {
+        let oldI = interaction;
+        clarifyPlayer2.awaitMessageComponent({ filter, componentType: ComponentType.Button, max: 1, time: 10000,  }).then(async (interaction) => {
+            try {
+                await oldI.deleteReply()
+            } catch (error){
+                console.log(error)
+            }
             console.log(`A ttt button was pressed by ${interaction.user.username}`)
             if (interaction.user.id !== player1.id) {
                 await interaction.reply({ embeds: [createEmb.createEmbed({ title: `❌ You are not the player who started this game`, color: scripts.getErrorColor() })], ephemeral: true, content: content(interaction.user) });
@@ -479,10 +511,16 @@ async function execute(interaction) {
                     timeLeft2 = Math.floor(maxTime2 / 1000);
                     timeLeft2 = `<t:${timeLeft2}:R>`;
                     console.log(`the targetUser`, targetUser)
-                    let requestMessage = await msg.channel.send({ content: content(player1, targetUser), embeds: [createEmb.createEmbed({ title: `❓ ${targetUser.tag} -> ${msg.author.username} wants to play Tic Tac Toe with you`, description: `Do you accept? You have ${timeLeft2} left to accept`, color: scripts.getColor() })], components: [acceptRow] })
+                    let requestMessage = await msg.channel.send({ content: content(player1, targetUser), embeds: [createEmb.createEmbed({ title: `❓ ${targetUser.tag} -> ${msg.author.username} wants to play Tic Tac Toe with you`, description: `Do you accept? Chance to Accept ends ${timeLeft2}`, color: scripts.getColor() })], components: [acceptRow] })
                     let timer3 = setTimeout(async () => {
                         // Disable the message buttons after 30 seconds
                         await requestMessage.edit({ content: content(player1, targetUser), embeds: [createEmb.createEmbed({ title: `❗️ You took too long to decide`, description: `If you still wish to play, run \`/tictactoe\` again`, color: scripts.getErrorColor() })], components: [] });
+                        await scripts.delay(6000)
+                        try {
+                            await requestMessage.delete() 
+                        } catch (error) {
+                            console.log(error)
+                        }
                     }, 30000);
                     filter = (i) => {
                         // Only listen to messages that mention the target user and were not sent by them
@@ -497,7 +535,7 @@ async function execute(interaction) {
                         // return i.user.id === targetUser.id;
                         return true;
                     };
-                    requestMessage.awaitMessageComponent({ filter, componentType: ComponentType.Button, time: 30000, errors: ["time"] }).then(async (interaction) => {
+                    requestMessage.awaitMessageComponent({ filter, componentType: ComponentType.Button, time: 30000  }).then(async (interaction) => {
                         // update the request message to say user has accepted
                         console.log(`The user ${interaction.user.tag} has accepted the request`)
                         try {
@@ -532,8 +570,12 @@ async function execute(interaction) {
                             }
                         }
                     }).catch(async (err) => {
-                        console.log("An Error Occurred", err);
-                    });
+                        if (err.code === "InteractionCollectorError") {
+                          console.log("No interactions received before timeout");
+                        } else {
+                          console.log("An Error Occurred", err);
+                        }
+                      });
 
                 });
 
@@ -561,32 +603,104 @@ async function execute(interaction) {
                     label: 'Accept',
                 })
                 let acceptRow = await createActRow.createActionRow({ components: [acceptButton] })
-                let timer3 = setTimeout(async () => {
-                    await interaction.deferReply({ ephemeral: true })
-                    // Disable the message buttons after 30 seconds
-                    await interaction.editReply({ content: content(player1), embeds: [createEmb.createEmbed({ title: `❗️ Potential Opponents took too long to decide`, description: `If you still wish to play, run \`/tictactoe\` again`, color: scripts.getErrorColor() })], components: [] });
-                }, 30000);
-                maxTime2 = Date.now() + 30000;
-                timeLeft2 = Math.floor(maxTime2 / 30000);
-                timeLeft2 = `<t:${timeLeft2}:R>`;
-                let requestMessage = await interaction.channel.send({ content: content(player1), embeds: [createEmb.createEmbed({ title: `❓ ${interaction.user.username} wants to play Tic Tac Toe with someone here`, description: `Do you accept? You have ${timeLeft2} left to accept`, color: scripts.getColor() })], components: [acceptRow] })
-                filter = (i) => {
-                    // Only listen to messages that mention the target user and were not sent by them
-                    return true;
-                };
-                requestMessage.awaitMessageComponent({ filter, componentType: ComponentType.Button, max: 1, time: 30000, errors: ["time"] }).then(async (interaction) => {
-                    let targetUser = interaction.user
-                    // update the request message to say user has accepted
-                    clearTimeout(timer3)
-                    await requestMessage.edit({ content: content(player1, targetUser), embeds: [createEmb.createEmbed({ title: `✅ ${targetUser.username} has accepted the request`, description: `The game will begin shortly`, color: scripts.getSuccessColor() })], components: [] });
-                    await scripts.delay(2000)
-                    await begin({ player1: player1, player2: targetUser, interaction: interaction })
+                maxTime2 = Date.now() + 34000;
+                async function executeTimeout() {
+                    let timer3 = new Promise((resolve) => {
+                        setTimeout(async () => {
+                          // Delete the interaction reply
+                          await interaction.deleteReply();
+                    
+                          // Edit the requestMessage
+                          await requestMessage.edit({
+                            content: content(player1),
+                            embeds: [
+                              createEmb.createEmbed({
+                                title: "❗️ Potential Opponents took too long to decide",
+                                description: "If you still wish to play, run `/tictactoe` again",
+                                color: scripts.getErrorColor(),
+                              }),
+                            ],
+                            components: [],
+                          });
+                          resolve();
+                        }, 34000);
+                      });
+                  
+                    
+                    const currentTimeInSeconds = Math.floor(Date.now() / 1000);
+                    const timeDifferenceInSeconds = Math.floor(
+                      (maxTime2 - Date.now()) / 1000
+                    );
+                    let timeLeft2 = currentTimeInSeconds + timeDifferenceInSeconds;
+                    timeLeft2 = `<t:${timeLeft2}:R>`;
+                    let requestMessage = await interaction.channel.send({
+                      content: content(player1),
+                      embeds: [
+                        createEmb.createEmbed({
+                          title: `❓ ${interaction.user.username} wants to play Tic Tac Toe with someone here`,
+                          description: `Do you accept? Opportunity to accept will end ${timeLeft2}`,
+                          color: scripts.getColor(),
+                        }),
+                      ],
+                      components: [acceptRow],
+                    });
+                    filter = (i) => {
+                      // Only listen to messages that mention the target user and were not sent by them
+                      return true;
+                    };
+                    requestMessage
+                      .awaitMessageComponent({
+                        filter,
+                        componentType: ComponentType.Button,
+                        max: 1,
+                        time: 30000,
+                        
+                      })
+                      .then(async (interaction) => {
+                        let targetUser = interaction.user;
+                        // update the request message to say user has accepted
+                        clearTimeout(timer3);
+                        await requestMessage.edit({
+                          content: content(player1, targetUser),
+                          embeds: [
+                            createEmb.createEmbed({
+                              title: `✅ ${targetUser.username} has accepted the request`,
+                              description: `The game will begin shortly`,
+                              color: scripts.getSuccessColor(),
+                            }),
+                          ],
+                          components: [],
+                        });
+                        await scripts.delay(2000);
+                        await begin({ player1: player1, player2: targetUser, interaction: interaction });
+                      })
+                      .catch(async (err) => {
+                        if (err.code === "InteractionCollectorError") {
+                          console.log("No interactions received before timeout");
+                        } else {
+                          console.log("An Error Occurred", err);
+                        }
+                      });
+                  }
+                  
+                  try {
+                    executeTimeout();
+                  } catch (err) {
+                    if (err.code === "InteractionCollectorError") {
+                        console.log("No interactions received before timeout");
+                      } else {
+                        console.log("An Error Occurred", err);
+                      }
+                  }
+                }
                 }).catch(async (err) => {
-                    console.log("An Error Occurred", err);
-                });
-            }
-
-        });
+                    if (err.code === "InteractionCollectorError") {
+                      console.log("No interactions received before timeout");
+                    } else {
+                      console.log("An Error Occurred", err);
+                    }
+                  });
+                  
     } else {
         // maybe turn all this into a function called begin and pass in player 1 and player 2 after determining them 
         await begin({ player1: player1, player2: player2, interaction: interaction })

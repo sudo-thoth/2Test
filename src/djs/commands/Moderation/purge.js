@@ -45,20 +45,24 @@ module.exports = {
     const type = options.getSubcommand();
     const amount = options.getInteger("num");
     const target = options.getUser("target");
-
+try{await interaction.deferReply({ephemeral:true})
+} catch(error){
+console.log(`Failed to defer reply:`, error);
+return;
+}
     if (amount > 100) {
       const errEmbed = new EmbedBuilder()
         .setDescription(`You can only purge up to 100 messages at a time.`)
         .setColor(0xc72c3b);
       console.log(`Purge Command Failed to Execute: ❌`);
-      return interaction.reply({ embeds: [errEmbed], ephemeral: true });
+      return interaction.editReply({ embeds: [errEmbed] });
     }
 
     let messages;
 
     try {
       messages = await channel.messages.fetch({
-        limit: amount + 1,
+        limit: amount < 100 ? amount + 1 : 100,
       });
     } catch (error) {
       console.error(`Failed Fetch Attempt`, error);
@@ -71,7 +75,7 @@ module.exports = {
       const filtered = [];
 
       try {
-        (await messages).filter((msg) => {
+        (await messages)?.filter((msg) => { // fix error here with filter trying to run on undefined
           if (msg.author.id === target.id && amount > i) {
             filtered.push(msg);
             i++;
@@ -88,7 +92,7 @@ module.exports = {
               amount != 1 ? `${amount} messages` : `${amount} message`
             } from ${target}.`
           );
-          interaction.reply({ ephemeral: true, embeds: [res] });
+          interaction.editReply({  embeds: [res] });
           console.log(`Purge Command Executed Successfully: ✅`);
         });
       } catch (error) {
@@ -100,7 +104,7 @@ module.exports = {
           res.setDescription(
             `:white_check_mark: Successfully deleted ${messages.size} messages from the channel.`
           );
-          interaction.reply({ ephemeral: true, embeds: [res] });
+          interaction.editReply({  embeds: [res] });
           console.log(`Purge Command Executed Successfully: ✅`);
         });
       } catch (error) {

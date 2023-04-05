@@ -6,5 +6,39 @@ Required Projects to Install Before use
 - boxen >> npm i boxen
 - discord.js v14 >> npm i discord.js
 - dotenv >> npm i dotenv
+- pm2 >> npm install pm2 -g
 
+Adjust bot token in index.js & handleCommands.js
 
+Adjust bot client id in handleCommands.js
+
+Adjust MongoDB token in index.js & reconnect.js
+
+## Running the Bot ##
+## Available Scripts
+
+In the project directory, you can run:
+
+### `npm run start`
+
+Starts the Node.js server using `nodemon`.
+
+### `npm run bot`
+
+Starts the Discord.js bot using `pm2`. The bot will automatically restart when changes to the code are detected.
+
+### `npm run pm2-list`
+
+Lists all the instances currently running on your `pm2` server.
+
+### `npm run pm2-stop -- <name>`
+
+Stops a specified instance. Replace `<name>` with the name of the instance you want to stop.
+
+### `npm run show-logs`
+
+Displays the logs for the specified instance. Note that this command will continue running until you manually stop it.
+
+### `npm run toggle-logs`
+
+Toggles logging on and off for the specified instance. When logging is on, the logs will be displayed in the terminal. When logging is off, the logs will not be displayed.

@@ -19,13 +19,22 @@ module.exports = {
     .setName(`${commandName}`)
     .setDescription(`${commandDescription}}`),
   async execute(interaction) {
+    const nodemon = require('nodemon');
+    nodemon.once('exit', () => { // This will run when nodemon has finished
+      console.log('nodemon has stopped');
+    });
+    
+    nodemon.emit('quit');
+    
+      process.kill(process.pid, 'SIGINT');
+   
     let testing = 'nothing';
 
     // Success and Fail Messages
     // Change the content into embeds
     const success = `✅ The Test was a Success!`;
 
-    const fail = `❌ The Test Failed!`;
+    const fail = `<:no:1086779697154760777> The Test Failed!`;
     const description = `\`Tested : ${testing}\``
 
 
@@ -37,7 +46,14 @@ module.exports = {
     let result, testResultEmbed;
 
     const interactionObj = scripts_djs.getInteractionObj(interaction);
-    await interaction.deferReply({ ephemeral: true })
+    try {
+      await interaction.deferReply({ ephemeral: true })
+    } catch (error) {
+      if(error.message.includes(`Unknown interaction`)){return;} else{console.log(error)}
+      
+      
+    }
+    // throw new Error('Test Error');
     try {
 
       // Test Code Here
@@ -48,7 +64,8 @@ module.exports = {
 
       // // Testing beginFileFetch()
       //  scripts_djs.beginFileFetch(interaction);
-
+      await interaction.editReply({content: `Hi test go cry like a  <:android:1083158839957921882>`})
+      
 
       // // Testing createFolders()
       // scripts.createFolders(scripts.songs, `/Users/logantucker/Desktop/Juice Song Layout`);

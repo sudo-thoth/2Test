@@ -6,11 +6,12 @@ const createEmb = require(`../../functions/create/createEmbed.js`);
 const createBtn = require(`../../functions/create/createButton.js`);
 const createActRow = require(`../../functions/create/createActionRow.js`);
 const gb = require(`../../commands/Juice/gb.js`);
+const handleFileFunctions = require("../../functions/Handling Files/functions.js")
 const drflgif =
   "https://media.discordapp.net/attachments/981241396608532534/1078161086794174464/ezgif.com-gif-maker_4.gif";
 const gbgrgif =
   "https://media.discordapp.net/attachments/981241396608532534/1078159688983654441/ezgif.com-optimize.gif";
-
+  const wodgif = "https://i.imgur.com/5kI4Zt4.gif"
 const jw3gif = () => {
   let gifs = [
     "https://media.discordapp.net/attachments/981241396608532534/1078163296412246016/ezgif.com-optimize_2.gif",
@@ -38,7 +39,7 @@ async function fileProcessing(interaction) {
       embeds: [
         createEmb.createEmbed({
           title: "File Being Processed",
-          description: "Please wait...",
+          description: "<a:loadingGreen:984682889625108520> Please wait...",
           color: 0x00ff00,
         }),
       ],
@@ -230,7 +231,7 @@ if (client) {
             await interaction.editReply({
               embeds: [
                 createEmb.createEmbed({
-                  title: `${role.name} Role Removed`,
+                  title: `**${role.name}** Role Removed`,
                   description: "role status updated successfully",
                   color: scripts.getErrorColor(),
                   author: {
@@ -242,7 +243,9 @@ if (client) {
             });
 
             await scripts.delay(4444);
-            await interaction.deleteReply();
+            if (interaction.replied) {
+              await interaction.deleteReply();
+            }
           } catch (error) {
             await throwNewError(
               `sending updated role status for ${role.name} role`,
@@ -260,7 +263,7 @@ if (client) {
             await interaction.editReply({
               embeds: [
                 createEmb.createEmbed({
-                  title: `${role.name} Role Added`,
+                  title: `**${role.name}** Role Added`,
                   description: "role status updated successfully",
                   color: scripts.getSuccessColor(),
                   author: {
@@ -272,7 +275,10 @@ if (client) {
             });
 
             await scripts.delay(4444);
-            await interaction.deleteReply();
+            if (interaction.replied) {
+              await interaction.deleteReply();
+            }
+            
           } catch (error) {
             await throwNewError(
               `sending updated role status for ${role.name} role`,
@@ -324,8 +330,281 @@ if (client) {
       giveawaysrole,
       stemeditsrole,
       sessioneditsrole,
+      mastersrole,
+      instrumentalsrole, 
+      acapellasrole,
+      slowreverbrole,
+      magicaleditsrole,
+      editsrole,
+      axscompupdatesrole,
       songofthedayrole;
+      console.log(`logged ------------->`, roleName)
     switch (currentServer) {
+      case "Creative Hub":
+      mastersrole = await interaction.guild.roles.fetch("1089359313887301652");
+      instrumentalsrole = await interaction.guild.roles.fetch(
+        "1089359178050584687"
+      );
+      acapellasrole = await interaction.guild.roles.fetch(
+        "1089359583056769135"
+      );
+      remastersrole = await interaction.guild.roles.fetch(
+        "1089359778284843120"
+      );
+      axscompupdatesrole = await interaction.guild.roles.fetch(
+        "1089361350171562074"
+      );
+      slowreverbrole = await interaction.guild.roles.fetch("1089359849726410812");
+      stemeditsrole = await interaction.guild.roles.fetch(
+        "1089359350402912256"
+      );
+      chatreviverole = await interaction.guild.roles.fetch(
+        "1085666065918459985"
+      );
+      sessioneditsrole = await interaction.guild.roles.fetch(
+        "1089359434746187837"
+      );
+      magicaleditsrole = await interaction.guild.roles.fetch(
+        "1089359639239475302"
+      );
+      editsrole = await interaction.guild.roles.fetch(
+        "1089359739680469022"
+      );
+      switch (roleName) {
+        // WRLD Updates Roles
+        case "masters":
+          try {
+            await updateRole(interaction, mastersrole);
+          } catch (error) {
+            try {
+              await interaction.editReply({embeds:[createEmb.createEmbed({description: ` \`Error Occurred Please Try Again\`\n\n\n\`\`\`js\n${error}\n\`\`\``, color: scripts.getErrorColor()})]})
+            } catch (err) {
+              console.log(err)
+            }
+          }
+          break;
+        case "instrumentals":
+          try {
+            await updateRole(interaction, instrumentalsrole);
+          } catch (error) {
+            try {
+              await interaction.editReply({embeds:[createEmb.createEmbed({description: ` \`Error Occurred Please Try Again\`\n\n\n\`\`\`js\n${error}\n\`\`\``, color: scripts.getErrorColor()})]})
+            } catch (err) {
+              console.log(err)
+            }
+          }
+          break;
+        case "acapellas":
+          try {
+            await updateRole(interaction, acapellasrole);
+          } catch (error) {
+            try {
+              await interaction.editReply({embeds:[createEmb.createEmbed({description: ` \`Error Occurred Please Try Again\`\n\n\n\`\`\`js\n${error}\n\`\`\``, color: scripts.getErrorColor()})]})
+            } catch (err) {
+              console.log(err)
+            }
+          }
+          break;
+        case "sessionedits":
+          try {
+            await updateRole(interaction, sessioneditsrole);
+          } catch (error) {
+            try {
+              await interaction.editReply({embeds:[createEmb.createEmbed({description: ` \`Error Occurred Please Try Again\`\n\n\n\`\`\`js\n${error}\n\`\`\``, color: scripts.getErrorColor()})]})
+            } catch (err) {
+              console.log(err)
+            }
+          }
+          break;
+        case "axscompupdates":
+          try {
+            await updateRole(interaction, axscompupdatesrole);
+          } catch (error) {
+            try {
+              await interaction.editReply({embeds:[createEmb.createEmbed({description: ` \`Error Occurred Please Try Again\`\n\n\n\`\`\`js\n${error}\n\`\`\``, color: scripts.getErrorColor()})]})
+            } catch (err) {
+              console.log(err)
+            }
+          }
+          break;
+        case "remasters":
+          try {
+            await updateRole(interaction, remastersrole);
+          } catch (error) {
+            try {
+              await interaction.editReply({embeds:[createEmb.createEmbed({description: ` \`Error Occurred Please Try Again\`\n\n\n\`\`\`js\n${error}\n\`\`\``, color: scripts.getErrorColor()})]})
+            } catch (err) {
+              console.log(err)
+            }
+          }
+          break;
+        case "slowreverb":
+          try {
+            await updateRole(interaction, slowreverbrole);
+          } catch (error) {
+            try {
+              await interaction.editReply({embeds:[createEmb.createEmbed({description: ` \`Error Occurred Please Try Again\`\n\n\n\`\`\`js\n${error}\n\`\`\``, color: scripts.getErrorColor()})]})
+            } catch (err) {
+              console.log(err)
+            }
+          }
+          break;
+        case "chatrevive":
+          try {
+            await updateRole(interaction, chatreviverole);
+          } catch (error) {
+            try {
+              await interaction.editReply({embeds:[createEmb.createEmbed({description: ` \`Error Occurred Please Try Again\`\n\n\n\`\`\`js\n${error}\n\`\`\``, color: scripts.getErrorColor()})]})
+            } catch (err) {
+              console.log(err)
+            }
+          }
+          break;
+        case "magicaledits":
+          try {
+            await updateRole(interaction, magicaleditsrole);
+          } catch (error) {
+            try {
+              await interaction.editReply({embeds:[createEmb.createEmbed({description: ` \`Error Occurred Please Try Again\`\n\n\n\`\`\`js\n${error}\n\`\`\``, color: scripts.getErrorColor()})]})
+            } catch (err) {
+              console.log(err)
+            }
+          }
+          break;
+          case "stemedits":
+          try {
+            await updateRole(interaction, stemeditsrole);
+          } catch (error) {
+            try {
+              await interaction.editReply({embeds:[createEmb.createEmbed({description: ` \`Error Occurred Please Try Again\`\n\n\n\`\`\`js\n${error}\n\`\`\``, color: scripts.getErrorColor()})]})
+            } catch (err) {
+              console.log(err)
+            }
+          }
+          case "edits":
+          try {
+            await updateRole(interaction, editsrole);
+          } catch (error) {
+            try {
+              await interaction.editReply({embeds:[createEmb.createEmbed({description: ` \`Error Occurred Please Try Again\`\n\n\n\`\`\`js\n${error}\n\`\`\``, color: scripts.getErrorColor()})]})
+            } catch (err) {
+              console.log(err)
+            }
+          }
+          break;
+        default:
+          break;
+      }
+      break;
+    
+      case "Biscotti":
+      let _999_leaksrole = await interaction.guild.roles.fetch("1088637680662892644");
+      let _999_ogfilesrole = await interaction.guild.roles.fetch(
+        "1088637988818403478"
+      );
+      let _999_snippetsrole = await interaction.guild.roles.fetch(
+        "1088641233297088562"
+      );
+      let _999_sessionsrole = await interaction.guild.roles.fetch(
+        "1088641500868517888"
+      );
+      let _999_compupdatesrole = await interaction.guild.roles.fetch(
+        "1088641708222316655"
+      );
+      let _999_newsrole = await interaction.guild.roles.fetch("1088641831690055701");
+      let _999_groupbuysrole = await interaction.guild.roles.fetch(
+        "1088641891337261096"
+      );
+      let _999_releasesrole = await interaction.guild.roles.fetch(
+        "1088645332675600504"
+      );
+       giveawaysrole = await interaction.guild.roles.fetch(
+        "1088642040058875954"
+      );
+       chatreviverole = await interaction.guild.roles.fetch(
+        "1088642359182512218"
+      );
+
+        let zzz_leaksrole = await interaction.guild.roles.fetch("1088640983748595732");
+        let zzz_ogfilesrole = await interaction.guild.roles.fetch(
+          "1088637988818403478"
+        );
+        let zzz_snippetsrole = await interaction.guild.roles.fetch(
+          "1088641233297088562"
+        );
+        let zzz_sessionsrole = await interaction.guild.roles.fetch(
+          "1088641269342949376"
+        );
+        let zzz_compupdatesrole = await interaction.guild.roles.fetch(
+          "1088641437475803156"
+        );
+        let zzz_newsrole = await interaction.guild.roles.fetch("1088641754091241532");
+        let zzz_releasesrole = await interaction.guild.roles.fetch(
+          "1088645211640565810"
+        );
+
+        switch (roleName) {
+          
+          // Zzz. Biscotti Roles
+          case "zzzleaks":
+            await updateRole(interaction, zzz_leaksrole);
+            break;
+          case "zzzogfiles":
+            await updateRole(interaction, zzz_ogfilesrole);
+            break;
+          case "zzzsnippets":
+            await updateRole(interaction, zzz_snippetsrole);
+            break;
+          case "zzzsessions":
+            await updateRole(interaction, zzz_sessionsrole);
+            break;
+          case "zzzcompupdates":
+            await updateRole(interaction, zzz_compupdatesrole);
+            break;
+          case "zzznews":
+            await updateRole(interaction, zzz_newsrole);
+            break;
+          case "zzzofficialreleases":
+            await updateRole(interaction, zzz_releasesrole);
+            break;
+
+           // 999 Biscotti Roles
+        case "999leaks":
+        await updateRole(interaction, _999_leaksrole);
+        break;
+      case "999ogfiles":
+        await updateRole(interaction, _999_ogfilesrole);
+        break;
+      case "999snippets":
+        await updateRole(interaction, _999_snippetsrole);
+        break;
+      case "999sessions":
+        await updateRole(interaction, _999_sessionsrole);
+        break;
+      case "999compupdates":
+        await updateRole(interaction, _999_compupdatesrole);
+        break;
+      case "999news":
+        await updateRole(interaction, _999_newsrole);
+        break;
+      case "gbupdates":
+        await updateRole(interaction, _999_groupbuysrole);
+        break;
+      case "999officialreleases":
+        await updateRole(interaction, _999_releasesrole);
+        break;
+      case "giveaways":
+        await updateRole(interaction, giveawaysrole);
+        break;
+      case "chatrevive":
+        await updateRole(interaction, chatreviverole);
+        break;
+      default:
+        break;
+    }
+
+      break;
+    
       case "NLMB":
         leaksrole = await interaction.guild.roles.fetch("1080671948335501372");
         ogfilesrole = await interaction.guild.roles.fetch(
@@ -458,6 +737,7 @@ if (client) {
         break;
       
         default:
+        console.log(`logged`, roleName)
         await interaction.editReply({
           content: `error happened here\n the server name is ${currentServer}\nthe role is ${role}\nthe role name is ${roleName}\nsend Steve Jobs the error report`,
         });
@@ -486,7 +766,7 @@ if (client) {
   });
 
   client.on("interactionCreate", async (interaction) => {
-    // console.log(`the interaction`, interaction);
+     console.log(`the interaction`, interaction);
     const interactionObj = scripts_djs.getInteractionObj(interaction);
     const { id, channel, guild, userInfo, customID } = interactionObj;
     const { name, displayName, userId, avatar, role, roleID, roleName } =
@@ -522,12 +802,67 @@ if (client) {
     if (interaction.isButton()) {
       console.log(`Button Clicked`);
 
+      if (customID.includes("download_dump")){
+        let randID = scripts_djs.extractID(customID);
+        try {
+          await interaction.deferReply({ ephemeral: true });
+        } catch (error) {
+          if (error.message.includes(`Unknown interaction`)) {
+            console.log(
+              `An unknown Interaction was Logged\nInteraction User ${interaction?.user?.username}`       
+            ); // <:android:1083158839957921882>
+            return;
+          } else {
+            return console.log(error);
+          }
+        }
+        // get data from download dump button db
+        let data = await  handleFileFunctions.getDownloadDumpData(randID);
+        // send the attachment to the interaction.user along wiht an embed with teh file(s) name(s) and in the footer the channel  & server names where the interaction was initiated, the footer icon is the server icon   
+        try{
+          await interaction.user.send({embeds: [createEmb.createEmbed({description: `${data.attachment.name}`, footer: {text:`Requested from ${interaction.guild.name} in ${interaction.channel.name}`,iconURL: interaction.guild.iconURL({dynamic: true})}, color: scripts.getColor(), })], files: data.attachment.size <= 8000 ?[data.attachment.url] : [], components: data.attachment.size <= 8000 ? [] : [await createActRow.createActionRow({components: [await createBtn.createButton({label: data.label ? data.label : `Download`, style: `link`, link: data.attachment.url})]})]})
+          try {
+            
+            await interaction.editReply({content: `sent`})
+            
+          } catch (error) {
+            console.log(error)
+          }
+        } catch (error) {
+          try {
+            console.log(error)
+            await interaction.editReply({content: `an error occured \n\n\`\`\`js\n${error}\`\`\``})
+            
+          } catch (error) {
+            console.log(error)
+          }
+        }
+      }
+
       if (customID.includes("groupbuy_")) {
         console.log(`Group Buy Button Clicked`);
         client.emit("GroupBuyButton", interaction);
       } else if (customID.includes("role_")) {
         console.log(`a role selection Button Clicked`);
+         try {
         await interaction.deferReply({ ephemeral: true });
+      } catch (error) {
+        if (error.message.includes(`Unknown interaction`)) {
+          console.log(`logged custom ID-----------> `, customID)
+          // console.log(`logged inter -----------> `, interaction)
+          console.log(
+            `An unknown Interaction was Logged\nInteraction User ${interaction?.user?.username}`
+          ); // <:android:1083158839957921882>
+          // try{
+          //   client.emit("role", interaction, customID);
+          // } catch (error) {
+          //   console.log(error)
+          // }
+          return;
+        } else {
+          return console.log(error);
+        }
+      }
         client.emit("role", interaction, customID);
         console.log(`after role emit`);
       } else if (customID.includes("gb_")) {
@@ -599,7 +934,9 @@ if (client) {
         });
         // delete the reply in 6 seconds
         setTimeout(async () => {
-          await interaction.deleteReply();
+          if (interaction.replied) {
+              await interaction.deleteReply();
+            }
         }, 6000);
       } else if (customID.includes("custom")) {
         // Launch Custom Modal
@@ -667,7 +1004,18 @@ if (client) {
         });
       } else if (customID.includes("view__")) {
         console.log(`interaction reply 3`);
-        await interaction.deferReply({ ephemeral: true });
+        try {
+          await interaction.deferReply({ ephemeral: true });
+        } catch (error) {
+          if (error.message.includes(`Unknown interaction`)) {
+            console.log(
+              `An unknown Interaction was Logged\nInteraction User ${interaction?.user?.username}`       
+            ); // <:android:1083158839957921882>
+            return;
+          } else {
+            return console.log(error);
+          }
+        }
         // TODO:
 
         let attachmentURL = doc.attachmentURL;
@@ -933,7 +1281,18 @@ if (client) {
           await interaction.update(obj);
         }
       } else if (customID.includes("direct_message_")) {
+         try {
         await interaction.deferReply({ ephemeral: true });
+      } catch (error) {
+        if (error.message.includes(`Unknown interaction`)) {
+          console.log(
+            `An unknown Interaction was Logged\nInteraction User ${interaction?.user?.username}`
+          ); // <:android:1083158839957921882>
+          return;
+        } else {
+          return console.log(error);
+        }
+      }
 
         // determine what boost tier the server is to determine how big the file can be sent
 
@@ -961,7 +1320,8 @@ if (client) {
           color = embedObj.color;
           fields = embedObj.fields;
           thumbnail = embedObj.thumbnail;
-          // for every field get the value and key
+          link = embedObj.url
+          // for every field get the value and key 
           if (fields) {
             for (let i = 0; i < fields.length; i++) {
               let field = fields[i];
@@ -1051,7 +1411,7 @@ if (client) {
           `the type:`,
           await scripts_djs.krakenFileTypeFinder(file.url, interaction)
         );
-        let newFile, attach;
+        let newFile, attach, oldFile;
         if (file) {
           if (file.url) {
             attach = {
@@ -1068,177 +1428,176 @@ if (client) {
             newFile = scripts_djs.createAttachment(attach);
           }
         }
+        oldFile = file;
         file = file.url ? newFile : file;
         console.log(`the file`, file); // the file AttachmentBuilder {attachment: 'https://s9download.krakenfiles.com/force-do…Rg6SPL1IHN94GKCqVcjN3ZEFDv7egua/qVDaXdn7lX', name: undefined, description: undefined}
 
         await fileProcessing(interaction);
+        let embeds = [];
+        if (data.file_type === 'kraken-link') {
+          let obj = {
+          description: `:saluting_face: **__For the Best Quality__ [Visit the Kraken Here](${data.file.url}) -->  [${data.file.name}](${data.file.url})**`,
+         color: "blue",
+         }
+        
+          embeds.push(createEmb.createEmbed(obj))
+        }
         if (isFile === true) {
-          try {
-            user.send({
-              embeds:
-                nameOfFile === `music.m4a`
-                  ? [
-                      createEmb.createEmbed({
-                        title: `${
-                          (title ? title : `${name ? name : nameOfFile}`) ===
-                          nameOfFile
-                            ? ``
-                            : `${title ? title : `${name ? name : nameOfFile}`}`
-                        }`,
-                        description:
-                          fileInfoString || fileTechnicalInfoString
-                            ? `**__File Information:__**\n\n${
-                                fileInfoString ? `${fileInfoString}` : ``
-                              }${
-                                fileTechnicalInfoString
-                                  ? `${fileTechnicalInfoString}`
-                                  : ``
-                              }`
-                            : "",
-                        url: file.url ? file.url : null,
-                        color: scripts.getColor(),
-                        thumbnail: thumbnail ? thumbnail : null,
-                        footer: {
-                          text: `${
-                            file.url
-                              ? `this file was scraped from Kraken Files by Steve Jobs`
-                              : `Wok Bot provided by Steve Jobs`
-                          }`,
-                          iconURL: `https://a57.foxnews.com/static.foxnews.com/foxnews.com/content/uploads/2018/09/1200/675/youngstevo.jpg?ve=1&tl=1`,
-                        },
-                      }),
-                      createEmb.createEmbed({
-                        title: `:warning: caution`,
-                        description: `\`\`\`js\nVulnerability Status : true\n\`\`\`\nThis File Was Pulled From The Kraken Link Provided Causing Manipulation\n\n\n:warning:  **Possible Manipulation:**\n\n🤒 \`File Name Manipulation :\` \`file name changed to\` \`music\`\n🤢 \`File Type Manipulation :\` \`file type changed to\` \`.m4a\`\n🤮 \`File Degradation :\` \`quality reduced to\` \`64 kb/s\`\n\n\n👀 **What You Can Do:**\n> *IF you just want to* __**LISTEN**__ : This file is more than sufficient to have a quick listen
-                   \n
-                  > *IF you would like to* ** __Retain the Highest Quality__** : I recommend viewing the link on Kraken and Downloading/Listening from there`,
-                        url: embedObj ? embedObj.url : null,
-                        color: "Yellow",
-                        footer: {
-                          text: `this file was scraped from Kraken Files by Steve Jobs`,
-                          iconURL: `https://a57.foxnews.com/static.foxnews.com/foxnews.com/content/uploads/2018/09/1200/675/youngstevo.jpg?ve=1&tl=1`,
-                        },
-                      }),
-                    ]
-                  : [
-                      createEmb.createEmbed({
-                        title: `${
-                          (title ? title : `${name ? name : nameOfFile}`) ===
-                          nameOfFile
-                            ? ``
-                            : `${title ? title : `${name ? name : nameOfFile}`}`
-                        }`,
-                        description:
-                          fileInfoString || fileTechnicalInfoString
-                            ? `**__File Information:__**\n\n${
-                                fileInfoString ? `${fileInfoString}` : ``
-                              }${
-                                fileTechnicalInfoString
-                                  ? `${fileTechnicalInfoString}`
-                                  : ``
-                              }`
-                            : "",
-                        url: file.url ? file.url : null,
-                        color: scripts.getColor(),
-                        thumbnail: thumbnail ? thumbnail : null,
-                        footer: {
-                          text: `${
-                            file.url
-                              ? `this file was scraped from Kraken Files by Steve Jobs`
-                              : `Wok Bot provided by Steve Jobs`
-                          }`,
-                          iconURL: `https://a57.foxnews.com/static.foxnews.com/foxnews.com/content/uploads/2018/09/1200/675/youngstevo.jpg?ve=1&tl=1`,
-                        },
-                      }),
-                    ],
-              files: [file],
-            });
-          } catch (error) {
-            try {
-              await user.send({
-                embeds: [
-                  createEmb.createEmbed({
-                    title:
-                      "There was an Error , Share the Error w the Developer",
-                    description:
-                      `__While :__ \`Dm'ing File\`\n` +
-                      "```js\n" +
-                      err +
-                      "\n```\n" +
-                      `Error Report Summary:` +
-                      "\n```js\n" +
-                      `username: ${interaction.member.user.username}\nID: ${interaction.member.user.id}\nGuild: ${interaction.guild.name}\nGuild ID: ${interaction.guild.id}\nChannel: ${interaction.channel.name}\nChannel ID: ${interaction.channel.id}\nMessage ID: ${interaction.message.id}\nButton ID: ${interaction.customID}` +
-                      "\n```",
-                    color: scripts.getErrorColor(),
-                    footer: {
-                      text: "Contact STEVE JOBS and Send the Error",
-                      iconURL: interaction.user.avatarURL(),
-                    },
-                  }),
-                ],
-              });
-            } catch (error) {
-              if (i) {
-                try {
-                  await i.editReply({
-                    embeds: [
-                      createEmb.createEmbed({
-                        title:
-                          "There was an Error , Share the Error w the Developer",
-                        description:
-                          "```js\n" +
-                          err +
-                          "\n```\n" +
-                          `Error Report Summary:` +
-                          "\n```js\n" +
-                          `username: ${i.member.user.username}\nID: ${i.member.user.id}\nGuild: ${i.guild.name}\nGuild ID: ${i.guild.id}\nChannel: ${i.channel.name}\nChannel ID: ${i.channel.id}\nMessage ID: ${i.message.id}\nButton ID: ${i.customID}` +
-                          "\n```",
-                        color: scripts.getErrorColor(),
-                        footer: {
-                          text: "Contact STEVE JOBS and Send the Error",
-                          iconURL: i.user.avatarURL(),
-                        },
-                      }),
-                    ],
-                  });
-                } catch (errr) {
-                  console.log(
-                    `error occurred when trying to send the user this-> Error: ${err}\n\n\nThe error that occurred when trying to send the user the 2nd time -> error is: ${error}\n\n\nThe error that occurred when trying to send the user the 3rd time -> error is: ${errr}`
-                  );
-                }
-              } else {
+          
+if (nameOfFile === `music.m4a`){
+  embeds.push(
+    createEmb.createEmbed({
+    title: `${
+      (title ? title : `${name ? name : nameOfFile}`) ===
+      nameOfFile
+        ? ``
+        : `${title ? title : `${name ? name : nameOfFile}`}`
+    }`,
+    description:
+      fileInfoString || fileTechnicalInfoString
+        ? `**__File Information:__**\n\n${
+            fileInfoString ? `${fileInfoString}` : ``
+          }${
+            fileTechnicalInfoString
+              ? `${fileTechnicalInfoString}`
+              : ``
+          }`
+        : "",
+    url: link && link !== null ? link : (file.url ? file.url : null),
+    color: scripts.getColor(),
+    thumbnail: thumbnail ? thumbnail : null,
+    footer: {
+      text: `${
+        file.url
+          ? `this file was scraped from Kraken Files by Steve Jobs`
+          : `Wok Bot provided by Steve Jobs`
+      }`,
+      iconURL: `https://a57.foxnews.com/static.foxnews.com/foxnews.com/content/uploads/2018/09/1200/675/youngstevo.jpg?ve=1&tl=1`,
+    },
+  })
+)
+embeds.push(  
+  createEmb.createEmbed({
+  title: `:warning: caution`,
+  description: `\`\`\`js\nVulnerability Status : true\n\`\`\`\nThis File Was Pulled From The Kraken Link Provided Causing Manipulation\n\n\n:warning:  **Possible Manipulation:**\n\n🤒 \`File Name Manipulation :\` \`file name changed to\` \`music\`\n🤢 \`File Type Manipulation :\` \`file type changed to\` \`.m4a\`\n🤮 \`File Degradation :\` \`quality reduced to\` \`64 kb/s\`\n\n\n👀 **What You Can Do:**\n> *IF you just want to* __**LISTEN**__ : This file is more than sufficient to have a quick listen
+\n
+> *IF you would like to* ** __Retain the Highest Quality__** : I recommend viewing the link on Kraken and Downloading/Listening from there`,
+  url: embedObj ? embedObj.url : null,
+  color: "Yellow",
+  footer: {
+    text: `this file was scraped from Kraken Files by Steve Jobs`,
+    iconURL: `https://a57.foxnews.com/static.foxnews.com/foxnews.com/content/uploads/2018/09/1200/675/youngstevo.jpg?ve=1&tl=1`,
+  },
+}))
+} else {
+  embeds.push(createEmb.createEmbed({
+    title: `${
+      (title ? title : `${name ? name : nameOfFile}`) ===
+      nameOfFile
+        ? ``
+        : `${title ? title : `${name ? name : nameOfFile}`}`
+    }`,
+    description:
+      fileInfoString || fileTechnicalInfoString
+        ? `**__File Information:__**\n\n${
+            fileInfoString ? `${fileInfoString}` : ``
+          }${
+            fileTechnicalInfoString
+              ? `${fileTechnicalInfoString}`
+              : ``
+          }`
+        : "",
+    url: link && link !== null ? link : (file.url ? file.url : null),
+    color: scripts.getColor(),
+    thumbnail: thumbnail ? thumbnail : null,
+    footer: {
+      text: `${
+        file.url
+          ? `this file was scraped from Kraken Files by Steve Jobs`
+          : `Wok Bot provided by Steve Jobs`
+      }`,
+      iconURL: `https://a57.foxnews.com/static.foxnews.com/foxnews.com/content/uploads/2018/09/1200/675/youngstevo.jpg?ve=1&tl=1`,
+    },
+  }))
+} 
+
+async function getFileSizeInMB(url) {
+  try {
+    const response = await fetch(url, { method: 'HEAD' });
+
+    if (response.ok) {
+      const contentLength = response.headers.get('content-length');
+
+      if (contentLength) {
+        const fileSizeInBytes = parseInt(contentLength, 10);
+        const fileSizeInMB = fileSizeInBytes / (1024 * 1024);
+        return fileSizeInMB.toFixed(2);
+      } else {
+        throw new Error('Content-Length header not found');
+      }
+    } else {
+      throw new Error(`Request failed with status ${response.status}`);
+    }
+  } catch (error) {
+    console.error('Error fetching file size:', error);
+    return null;
+  }
+}
+
+
+let trueSize = nameOfFile === `music.m4a` ? await getFileSizeInMB(oldFile.attachment) : sizeMB
+
+createBtn
+.createButton({
+  style: "link",
+  label: "Download",
+  link: oldFile.attachment ? oldFile.attachment : oldFile.url,
+})
+.then(async (button) => {
+ try {
+   actionRow = await createActRow.createActionRow({components: [button]})
+ } catch (error) {
+  console.log(error)
+ }
+    return { actionRow};
+  })
+.then(({ actionRow }) => {
+  return user.send({
+    embeds: embeds,
+    files: trueSize < limit  ? [file] : [],
+    components: trueSize > limit  ? [actionRow] : [],
+    content: trueSize > limit ? `**__File Size Limit Exceeded__**\n\nThis File is ${trueSize} MB\n\nThe File Size Limit is ${limit} MB\n\n\n> __**Visit :**__ ${file.attachment}` : ``
+  });
+}).then( async () => {
+              try {
                 await interaction.editReply({
+                  embeds: [createEmb.createEmbed({ title: labelT })],
+                  content: "",
+                  files: [],
+                  components: [],
+                });
+              } catch (error) {
+                console.log(
+                  `An Error occured when trying to reply to a DM Button Request`,
+                  error
+                );
+              }
+            }).catch(async (error) => {
+              try {
+                await user.send({
                   embeds: [
                     createEmb.createEmbed({
                       title:
-                        "There was an Error, Share the Error w the Developer",
+                        "There was an Error , Share the Error w the Developer",
                       description:
-                        `${
-                          interaction.commandName
-                            ? `Command: \`${interaction.commandName}\`\n`
-                            : ""
-                        }` +
+                       `${ file.url?file.url:file.attachment ? `Here is the [link](${file.url?file.url:file.attachment})${link && link !== `` ? `And [Kraken?](${link})` :`` }\n\n`: ``} __While :__ \`Dm'ing File\`\n` +
                         "```js\n" +
-                        err +
+                        error +
                         "\n```\n" +
-                        `Error occurred for admin user:` +
+                        `Error Report Summary:` +
                         "\n```js\n" +
-                        `username: ${interaction.member.user.username}\nID: ${
-                          interaction.member.user.id
-                        }\nGuild: ${interaction.guild.name}\nGuild ID: ${
-                          interaction.guild.id
-                        }\nChannel: ${interaction.channel.name}\nChannel ID: ${
-                          interaction.channel.id
-                        }${
-                          interaction.message
-                            ? `\nMessage ID: ${interaction.message.id}`
-                            : ""
-                        }${
-                          interaction.customID
-                            ? `\nCustom ID: ${interaction.customID}`
-                            : ""
-                        }` +
-                        "\n```",
+                        `username: ${interaction.member.user.username}\nID: ${interaction.member.user.id}\nGuild: ${interaction.guild.name}\nGuild ID: ${interaction.guild.id}\nChannel: ${interaction.channel.name}\nChannel ID: ${interaction.channel.id}\nMessage ID: ${interaction.message.id}\nButton ID: ${interaction.customID}` +
+                        "\n```\n\n\`\`\`js\n${error}\n\`\`\`",
                       color: scripts.getErrorColor(),
                       footer: {
                         text: "Contact STEVE JOBS and Send the Error",
@@ -1247,24 +1606,83 @@ if (client) {
                     }),
                   ],
                 });
+              } catch (error) {
+                if (i) {
+                  try {
+                    await i.editReply({
+                      embeds: [
+                        createEmb.createEmbed({
+                          title:
+                            "There was an Error , Share the Error w the Developer",
+                          description:
+                            "```js\n" +
+                            err +
+                            "\n```\n" +
+                            `Error Report Summary:` +
+                            "\n```js\n" +
+                            `username: ${i.member.user.username}\nID: ${i.member.user.id}\nGuild: ${i.guild.name}\nGuild ID: ${i.guild.id}\nChannel: ${i.channel.name}\nChannel ID: ${i.channel.id}\nMessage ID: ${i.message.id}\nButton ID: ${i.customID}` +
+                            "\n```",
+                          color: scripts.getErrorColor(),
+                          footer: {
+                            text: "Contact STEVE JOBS and Send the Error",
+                            iconURL: i.user.avatarURL(),
+                          },
+                        }),
+                      ],
+                    });
+                  } catch (errr) {
+                    console.log(
+                      `error occurred when trying to send the user this-> Error: ${err}\n\n\nThe error that occurred when trying to send the user the 2nd time -> error is: ${error}\n\n\nThe error that occurred when trying to send the user the 3rd time -> error is: ${errr}`
+                    );
+                  }
+                } else {
+                  await interaction.editReply({
+                    embeds: [
+                      createEmb.createEmbed({
+                        title:
+                          "There was an Error, Share the Error w the Developer",
+                        description:
+                          `${
+                            interaction.commandName
+                              ? `Command: \`${interaction.commandName}\`\n`
+                              : ""
+                          }` +
+                          "```js\n" +
+                          err +
+                          "\n```\n" +
+                          `Error occurred for admin user:` +
+                          "\n```js\n" +
+                          `username: ${interaction.member.user.username}\nID: ${
+                            interaction.member.user.id
+                          }\nGuild: ${interaction.guild.name}\nGuild ID: ${
+                            interaction.guild.id
+                          }\nChannel: ${interaction.channel.name}\nChannel ID: ${
+                            interaction.channel.id
+                          }${
+                            interaction.message
+                              ? `\nMessage ID: ${interaction.message.id}`
+                              : ""
+                          }${
+                            interaction.customID
+                              ? `\nCustom ID: ${interaction.customID}`
+                              : ""
+                          }` +
+                          "\n```",
+                        color: scripts.getErrorColor(),
+                        footer: {
+                          text: "Contact STEVE JOBS and Send the Error",
+                          iconURL: interaction.user.avatarURL(),
+                        },
+                      }),
+                    ],
+                  });
+                }
               }
-            }
-          }
-          try {
-            await interaction.editReply({
-              embeds: [createEmb.createEmbed({ title: labelT })],
-              content: "",
-              files: [],
-              components: [],
             });
-          } catch (error) {
-            console.log(
-              `An Error occured when trying to reply to a DM Button Request`,
-              error
-            );
-          }
+
+
         } else if (isFile === false) {
-          try {
+
             user.send({
               content: `__**Visit :**__ ${attachment}`,
               embeds: nameOfFile === `music.m4a`
@@ -1342,8 +1760,21 @@ if (client) {
                     },
                   }),
                 ],
+            }).then(async () => {
+                        try {
+            await interaction.editReply({
+              embeds: [createEmb.createEmbed({ title: labelT })],
+              content: "",
+              files: [],
+              components: [],
             });
           } catch (error) {
+            console.log(
+              `An Error occured when trying to reply to a DM Button Request`,
+              error
+            );
+          }
+            }).catch( async (error)=> {
             try {
               await user.send({
                 embeds: [
@@ -1353,7 +1784,7 @@ if (client) {
                     description:
                       `__While :__ \`Dm'ing File\`\n` +
                       "```js\n" +
-                      err +
+                      error +
                       "\n```\n" +
                       `Error Report Summary:` +
                       "\n```js\n" +
@@ -1439,23 +1870,23 @@ if (client) {
                 });
               }
             }
-          }
-          try {
-            await interaction.editReply({
-              embeds: [createEmb.createEmbed({ title: labelT })],
-              content: "",
-              files: [],
-              components: [],
-            });
-          } catch (error) {
-            console.log(
-              `An Error occured when trying to reply to a DM Button Request`,
-              error
-            );
-          }
+          })
+
+
         }
       } else if (customID.includes("view_attachment_")) {
-        await interaction.deferReply({ ephemeral: true });
+        try {
+          await interaction.deferReply({ ephemeral: true });
+        } catch (error) {
+          if (error.message.includes(`Unknown interaction`)) {
+            console.log(
+              `An unknown Interaction was Logged\nInteraction User ${interaction?.user?.username}`       
+            ); // <:android:1083158839957921882>
+            return;
+          } else {
+            return console.log(error);
+          }
+        }
         randID = scripts_djs.extractID(customID);
         let data = await scripts_mongoDB.getPostData(randID);
         // await interaction.channel.send({content:`\`\`\`js
@@ -1822,32 +2253,34 @@ if (client) {
       console.log(`Modal Submitted`);
       // defer the interaction
       console.log(`interaction reply 8`);
-      try {
-        await interaction.deferReply({
-          ephemeral: true,
-        });
-      } catch (error) {
+if (!customID.includes("post_new_")) {
         try {
-          await interaction.reply({
-            embeds: [
-              createEmb.createEmbed({
-                title: "Error",
-                description:
-                  `An Error occurred when trying to reply to a Modal Button Request\n**Please Contact Steve Jobs and allow him to look into the error below**\n*Do Not Forget To Tell Him What Your Actions That Were Taken Were*\n__Error Explained:__` +
-                  "```js" +
-                  `\n${error}\n` +
-                  "```",
-                color: scripts.getErrorColor(),
-              }),
-            ],
+          await interaction.deferReply({
+            ephemeral: true,
           });
-        } catch (errr) {
-          console.log(
-            `The Original Error has something to do w the interaction`,
-            error
-          );
+        } catch (error) {
+          try {
+            await interaction.reply({
+              embeds: [
+                createEmb.createEmbed({
+                  title: "Error",
+                  description:
+                    `An Error occurred when trying to reply to a Modal Button Request\n**Please Contact Steve Jobs and allow him to look into the error below**\n*Do Not Forget To Tell Him What Your Actions That Were Taken Were*\n__Error Explained:__` +
+                    "```js" +
+                    `\n${error}\n` +
+                    "```",
+                  color: scripts.getErrorColor(),
+                }),
+              ],
+            });
+          } catch (errr) {
+            console.log(
+              `The Original Error has something to do w the interaction`,
+              error
+            );
+          }
         }
-      }
+}
 
       let modalInput = null;
       let embed = null;
@@ -2415,6 +2848,8 @@ if (client) {
             era.toLowerCase() === "juice the kidd"
           ) {
             embedObj.thumbnail = jtkgif;
+          } else if(era.toLowerCase() === "wod" || era.toLowerCase() === "wrld on drugs"){
+            embedObj.thumbnail = wodgif;
           } else {
             embedObj.thumbnail = interaction.guild.iconURL();
           }
@@ -2794,6 +3229,8 @@ if (client) {
             era.toLowerCase() === "juice the kidd"
           ) {
             embedObj.thumbnail = jtkgif;
+          } else if(era.toLowerCase() === "wod" || era.toLowerCase() === "wrld on drugs"){
+            embedObj.thumbnail = wodgif;
           } else {
             embedObj.thumbnail = interaction.guild.iconURL();
           }
@@ -3157,6 +3594,8 @@ if (client) {
             era.toLowerCase() === "juice the kidd"
           ) {
             embedObj.thumbnail = jtkgif;
+          } else if(era.toLowerCase() === "wod" || era.toLowerCase() === "wrld on drugs"){
+            embedObj.thumbnail = wodgif;
           } else {
             embedObj.thumbnail = interaction.guild.iconURL();
           }
@@ -4157,6 +4596,8 @@ if (client) {
             era.toLowerCase() === "juice the kidd"
           ) {
             embedObj.thumbnail = jtkgif;
+          } else if(era.toLowerCase() === "wod" || era.toLowerCase() === "wrld on drugs"){
+            embedObj.thumbnail = wodgif;
           } else {
             embedObj.thumbnail = interaction.guild.iconURL();
           }
@@ -4521,6 +4962,8 @@ if (client) {
             era.toLowerCase() === "juice the kidd"
           ) {
             embedObj.thumbnail = jtkgif;
+          } else if(era.toLowerCase() === "wod" || era.toLowerCase() === "wrld on drugs"){
+            embedObj.thumbnail = wodgif;
           } else {
             embedObj.thumbnail = interaction.guild.iconURL();
           }
@@ -4795,6 +5238,362 @@ if (client) {
             console.log(`Snippet Post error`, error);
             await throwNewError(
               `Posting [ Snippet : ${songName} ]`,
+              interaction,
+              error
+            );
+          }
+        }
+      } else if (customID.includes(`post_master_modal`)) {
+        let data = await scripts_mongoDB.getPostData(randID);
+        // console.log(`the data is right here data`, data);
+        let {
+          //  userId,
+          roles,
+          //  type,
+          //  format,
+          file,
+          //  interactionID,
+          //  file_type,
+          choice,
+          file_type,
+        } = data;
+        const songName = interaction.fields.getTextInputValue("name")
+          ? interaction.fields.getTextInputValue("name")
+          : null;
+        const era = interaction.fields.getTextInputValue("era")
+          ? interaction.fields.getTextInputValue("era")
+          : null;
+          const text = interaction.fields.getTextInputValue("text")
+        const producer = interaction.fields.getTextInputValue("producer")
+          ? interaction.fields.getTextInputValue("producer")
+          : null;
+        const kraken = interaction.fields.getTextInputValue("kraken")
+          ? interaction.fields.getTextInputValue("kraken")
+          : null;
+
+        // const user = await client.users.fetch(userId);
+        // const interaction = await client.rest.interactions(interactionID).get();
+        const role = roleString(roles);
+        let embedObj = {
+          title: `${songName}`,
+          description: text ? text : null,
+          color: scripts.getColor(),
+          thumbnail: interaction.guild.iconURL(),
+          author: {
+            name: `New Master`,
+            icon_url: scripts.getJuice(),
+          },
+        };
+
+        let fields = [];
+        if (era !== null) {
+          fields.push({
+            name: `Era`,
+            value: `${era}`,
+            inline: true,
+          });
+          // add gif to embed thumbnail based on the era inputted
+
+          if (
+            era.toLowerCase() === "drfl" ||
+            era.toLowerCase() === "death race for love" ||
+            era.toLowerCase() === "death race"
+          ) {
+            embedObj.thumbnail = drflgif;
+          } else if (
+            era.toLowerCase() === "gbgr" ||
+            era.toLowerCase() === "goodbye and good riddance" ||
+            era.toLowerCase() === "goodbye & good riddance"
+          ) {
+            embedObj.thumbnail = gbgrgif;
+          } else if (
+            era.toLowerCase() === "jw3" ||
+            era.toLowerCase() === "tpne" ||
+            era.toLowerCase() === "outsider" ||
+            era.toLowerCase() === "outsiders" ||
+            era.toLowerCase() === "juice wrld 3" ||
+            era.toLowerCase() === "juice wrld three" ||
+            era.toLowerCase() === "lnd" ||
+            era.toLowerCase() === "the party never ends" ||
+            era.toLowerCase() === "legends never die" ||
+            era.toLowerCase() === "fd" ||
+            era.toLowerCase() === "fighting demons" ||
+            era.toLowerCase() === "post-homous" ||
+            era.toLowerCase() === "posthumous"
+          ) {
+            embedObj.thumbnail = jw3gif();
+          } else if (
+            era.toLowerCase() === "jtk" ||
+            era.toLowerCase() === "juice the kidd"
+          ) {
+            embedObj.thumbnail = jtkgif;
+          } else if(era.toLowerCase() === "wod" || era.toLowerCase() === "wrld on drugs"){
+            embedObj.thumbnail = wodgif;
+          } else {
+            embedObj.thumbnail = interaction.guild.iconURL();
+          }
+        }
+        if (producer !== null) {
+          fields.push({
+            name: `Produced By:`,
+            value: `${producer}`,
+            inline: true,
+          });
+        }
+        // if (altname !== null) {
+        //   fields.push({
+        //     name: `Alternate Name(s)`,
+        //     value: `${altname}`,
+        //     inline: true,
+        //   });
+        // }
+
+        if (file_type === "kraken-link") {
+          let krakLink = interaction.fields.getTextInputValue("kraken")
+            ? interaction.fields.getTextInputValue("kraken")
+            : null;
+          let theName = interaction.fields.getTextInputValue("name")
+            ? interaction.fields.getTextInputValue("name")
+            : "";
+          let krakFile;
+          if (krakLink !== null) {
+            try {
+              krakFile = await scripts_djs.krakenWebScraper(
+                krakLink,
+                randID,
+                interaction
+              );
+              file = {
+                name: theName,
+                attachment: `${
+                  krakFile
+                    ? krakFile
+                    : `https://media4.giphy.com/media/8L0Pky6C83SzkzU55a/giphy.gif?cid=ecf05e47mactcs5z03dril6i1ffrxb7tfkukvayujqxuql2i&rid=giphy.gif&ct=g`
+                }`,
+                url: `${krakLink ? krakLink : null}`,
+              };
+              // update the data obj file if the file is changed
+              data.file = file;
+
+              try {
+                await scripts_mongoDB.updatePostData(randID, data);
+              } catch (error) {
+                await throwNewError(
+                  "updating the kraken file elements to the db",
+                  interaction,
+                  error
+                );
+              }
+            } catch (error) {
+              await throwNewError(
+                "getting file from kraken link",
+                interaction,
+                error
+              );
+            }
+          }
+          embedObj.url = krakFile ? krakFile : krakLink ? krakLink : null;
+          typeOfFile = await scripts_djs.krakenFileTypeFinder(
+            krakLink,
+            interaction
+          );
+        } else {
+          embedObj.url = file.attachment ? file.attachment : null;
+        }
+
+        if (fields.length > 0) {
+          embedObj.fields = fields;
+        }
+        await scripts_mongoDB.updatePostData(randID, { embed: embedObj });
+        const embed = createEmb.createEmbed(embedObj);
+
+        // create a button to download the image
+        const downloadButton = await createBtn.createButton({
+          label: `Download`,
+          style: `link`,
+          link: file ? file.attachment : null,
+        });
+        let krakenButton;
+                if (kraken !== null) {
+          // check if the krken is a link
+          if (isValidURL(kraken)) {
+
+          krakenButton = await createBtn.createButton({
+            label: `View on Kraken`,
+            style: `link`,
+            link: kraken,
+          });
+        } else {
+          await throwNewError("The link sent with the command is not a valid URL", interaction, "invalid url")
+        }
+      }
+        const viewAttachmentButton = await createBtn.createButton({
+          label: `View Attachment`,
+          style: "primary",
+          customID: `view_attachment_${randID}`,
+          emoji: "📁",
+        });
+
+        const directMessageButton = await createBtn.createButton({
+          label: `Save via DM's`,
+          style: "success",
+          customID: `direct_message_${randID}`,
+          emoji: "📮",
+        });
+        // create a action row to hold the button
+        let actionRow, actionRow2;
+        if (choice === "yes" && typeOfFile !== "zip") {
+          // attach the file to the message
+          actionRow = await createActRow.createActionRow({
+            components: [downloadButton, krakenButton ? krakenButton : null],
+          });
+          actionRow2 = await createActRow.createActionRow({
+            components: [directMessageButton, viewAttachmentButton],
+          });
+          try {
+            interaction.channel.send({
+              content: `${`|| ${
+                role.length > 1
+                  ? `${scripts_djs.getAlertEmoji()} ${role}\n`
+                  : ""
+              }${songName !== null ? `Song Name : ${songName}` : ""}${
+                file.name && file.name !== songName
+                  ? `\nFile Name : ${file.name}`
+                  : ""
+              } ||`}`,
+              embeds: [embed],
+              components: [actionRow, actionRow2],
+              // files: [file],
+            });
+            interaction.editReply({
+              embeds: [
+                createEmb.createEmbed({
+                  title: `Sent [ Master: ${songName} ]`,
+                }),
+              ],
+            });
+          } catch (error) {
+            console.log(`Master Post error`, error);
+            await throwNewError(
+              `Posting [ Master : ${songName} ]`,
+              interaction,
+              error
+            );
+          }
+        } else if (
+          (choice === "yes" || choice === null) &&
+          typeOfFile === "zip"
+        ) {
+          // attach the file to the message
+          actionRow = await createActRow.createActionRow({
+            components: [
+              downloadButton,
+              directMessageButton,
+              krakenButton ? krakenButton : null,
+            ],
+          });
+
+          try {
+            interaction.channel.send({
+              content: `${`|| ${
+                role.length > 1
+                  ? `${scripts_djs.getAlertEmoji()} ${role}\n`
+                  : ""
+              }${songName !== null ? `Song Name : ${songName}` : ""}${
+                file.name && file.name !== songName
+                  ? `\nFile Name : ${file.name}`
+                  : ""
+              } ||`}`,
+              embeds: [embed],
+              components: [actionRow],
+              // files: [file],
+            });
+            interaction.editReply({
+              embeds: [
+                createEmb.createEmbed({
+                  title: `Sent [ Master: ${songName} ]`,
+                }),
+              ],
+            });
+          } catch (error) {
+            console.log(`Master Post error`, error);
+            await throwNewError(
+              `Posting [ Master : ${songName} ]`,
+              interaction,
+              error
+            );
+          }
+        } else if (choice === "no") {
+          // don't attach the file to the message
+          actionRow = await createActRow.createActionRow({
+            components: [
+              krakenButton ? krakenButton : null,
+              directMessageButton,
+            ],
+          });
+          try {
+            interaction.channel.send({
+              content: `${`|| ${
+                role.length > 1
+                  ? `${scripts_djs.getAlertEmoji()} ${role}\n`
+                  : ""
+              }${songName !== null ? `Song Name : ${songName}` : ""}${
+                file.name && file.name !== songName
+                  ? `\nFile Name : ${file.name}`
+                  : ""
+              } ||`}`,
+              embeds: [embed],
+              components: [actionRow],
+            });
+            interaction.editReply({
+              embeds: [
+                createEmb.createEmbed({
+                  title: `Sent [ Master: ${songName} ]`,
+                }),
+              ],
+            });
+          } catch (error) {
+            console.log(`Master Post error`, error);
+            await throwNewError(
+              `Posting [ Master : ${songName} ]`,
+              interaction,
+              error
+            );
+          }
+        } else {
+          // attach the file to the message
+          actionRow = await createActRow.createActionRow({
+            components: [downloadButton, krakenButton ? krakenButton : null],
+          });
+          actionRow2 = await createActRow.createActionRow({
+            components: [directMessageButton, viewAttachmentButton],
+          });
+          try {
+            interaction.channel.send({
+              content: `${`|| ${
+                role.length > 1
+                  ? `${scripts_djs.getAlertEmoji()} ${role}\n`
+                  : ""
+              }${songName !== null ? `Song Name : ${songName}` : ""}${
+                file.name && file.name !== songName
+                  ? `\nFile Name : ${file.name}`
+                  : ""
+              } ||`}`,
+              embeds: [embed],
+              components: [actionRow, actionRow2],
+              // files: [file],
+            });
+            interaction.editReply({
+              embeds: [
+                createEmb.createEmbed({
+                  title: `Sent [ Master: ${songName} ]`,
+                }),
+              ],
+            });
+          } catch (error) {
+            console.log(`Master Post error`, error);
+            await throwNewError(
+              `Posting [ Master : ${songName} ]`,
               interaction,
               error
             );
@@ -5440,14 +6239,14 @@ if (client) {
       } else if (customID.includes(`post_magicaledit_modal`)) {
         randID = scripts_djs.extractID(customID);
         let data = await scripts_mongoDB.getPostData(randID);
-        file = user = interaction.user;
+        user = interaction.user;
         // console.log(`the data is right here data`, data);
         let {
           //  userId,
           roles,
           //  type,
           //  format,
-          // file,
+          file,
           //  interactionID,
           //  file_type,
           choice,
@@ -5562,15 +6361,13 @@ if (client) {
         // create a button to download the image
         console.log(`the kraken`, kraken);
         console.log(`the file`, file);
-        console.log(
-          `the decision`,
-          kraken ? (file ? file : null) : file ? file.attachment : null
-        );
 
+
+        
         const downloadButton = await createBtn.createButton({
           label: `Download`,
           style: `link`,
-          link: kraken ? (file ? file : null) : file ? file.attachment : null,
+          link: file ? file?.attachment?.toString() : kraken ||  null,
         });
         let krakenButton;
                 if (kraken !== null) {
@@ -5784,7 +6581,354 @@ if (client) {
             );
           }
         }
-      } else if (customID.includes(`post_slowreverb_modal`)) {
+      } else if (customID.includes(`post_edit_modal`)) {
+        randID = scripts_djs.extractID(customID);
+        let data = await scripts_mongoDB.getPostData(randID);
+        user = interaction.user;
+        // console.log(`the data is right here data`, data);
+        let {
+          //  userId,
+          roles,
+          //  type,
+          //  format,
+          file,
+          //  interactionID,
+          //  file_type,
+          choice,
+          file_type,
+        } = data;
+        console.log(`the file is`, file);
+        const songName = interaction.fields.getTextInputValue("name")
+          ? interaction.fields.getTextInputValue("name")
+          : null;
+        const text = interaction.fields.getTextInputValue("text")
+          ? interaction.fields.getTextInputValue("text")
+          : null;
+        const altname = interaction.fields.getTextInputValue("altname")
+          ? interaction.fields.getTextInputValue("altname")
+          : null;
+        const producer = interaction.fields.getTextInputValue("producer")
+          ? interaction.fields.getTextInputValue("producer")
+          : null;
+        const kraken = interaction.fields.getTextInputValue("kraken")
+          ? interaction.fields.getTextInputValue("kraken")
+          : null;
+
+        // const user = await client.users.fetch(userId);
+        // const interaction = await client.rest.interactions(interactionID).get();
+        const role = roleString(roles);
+        let embedObj = {
+          title: `${songName}`,
+          description: text ? text : null,
+          color: scripts.getColor(),
+          thumbnail: interaction.guild.iconURL(),
+          author: {
+            name: `New Edit`,
+            icon_url: scripts.getJuice(),
+          },
+        };
+
+        let fields = [];
+        if (producer !== null) {
+          fields.push({
+            name: `Produced By:`,
+            value: `${producer}`,
+            inline: true,
+          });
+        }
+        if (altname !== null) {
+          fields.push({
+            name: `Alternate Name(s)`,
+            value: `${altname}`,
+            inline: true,
+          });
+        }
+
+        if (file_type === "kraken-link") {
+          let krakLink = interaction.fields.getTextInputValue("kraken")
+            ? interaction.fields.getTextInputValue("kraken")
+            : null;
+          let theName = interaction.fields.getTextInputValue("name")
+            ? interaction.fields.getTextInputValue("name")
+            : "";
+          let krakFile;
+          if (krakLink !== null) {
+            try {
+              krakFile = await scripts_djs.krakenWebScraper(
+                krakLink,
+                randID,
+                interaction
+              );
+              file = {
+                name: theName,
+                attachment: `${
+                  krakFile
+                    ? krakFile
+                    : `https://media4.giphy.com/media/8L0Pky6C83SzkzU55a/giphy.gif?cid=ecf05e47mactcs5z03dril6i1ffrxb7tfkukvayujqxuql2i&rid=giphy.gif&ct=g`
+                }`,
+                url: `${krakLink ? krakLink : null}`,
+              };
+              // update the data obj file if the file is changed
+              data.file = file;
+
+              try {
+                await scripts_mongoDB.updatePostData(randID, data);
+              } catch (error) {
+                await throwNewError(
+                  "updating the kraken file elements to the db",
+                  interaction,
+                  error
+                );
+              }
+            } catch (error) {
+              await throwNewError(
+                "getting file from kraken link",
+                interaction,
+                error
+              );
+            }
+          }
+          embedObj.url = krakFile ? krakFile : krakLink ? krakLink : null;
+          typeOfFile = await scripts_djs.krakenFileTypeFinder(
+            krakLink,
+            interaction
+          );
+        } else {
+          embedObj.url = file.attachment ? file.attachment : null;
+        }
+
+        if (fields.length > 0) {
+          embedObj.fields = fields;
+        }
+        await scripts_mongoDB.updatePostData(randID, { embed: embedObj });
+        const embed = createEmb.createEmbed(embedObj);
+
+        // create a button to download the image
+        console.log(`the kraken`, kraken);
+        console.log(`the file`, file);
+        console.log(
+          `the decision`,
+          file ? file?.attachment?.toString() : kraken ||  null
+        );
+
+        const downloadButton = await createBtn.createButton({
+          label: `Download`,
+          style: `link`,
+          link: file ? file?.attachment?.toString() : kraken ||  null,
+        });
+        let krakenButton;
+                if (kraken !== null) {
+          // check if the krken is a link
+          if (isValidURL(kraken)) {
+
+          krakenButton = await createBtn.createButton({
+            label: `View on Kraken`,
+            style: `link`,
+            link: kraken,
+          });
+        } else {
+          await throwNewError("The link sent with the command is not a valid URL", interaction, "invalid url")
+        }
+      }
+        const viewAttachmentButton = await createBtn.createButton({
+          label: `View Attachment`,
+          style: "primary",
+          customID: `view_attachment_${randID}`,
+          emoji: "📁",
+        });
+
+        const directMessageButton = await createBtn.createButton({
+          label: `Save via DM's`,
+          style: "success",
+          customID: `direct_message_${randID}`,
+          emoji: "📮",
+        });
+        // create a action row to hold the button
+        let actionRow, actionRow2;
+        if ((choice === "yes" || choice === null) && typeOfFile !== "zip") {
+          // attach the file to the message
+          actionRow = await createActRow.createActionRow({
+            components: [downloadButton, krakenButton ? krakenButton : null],
+          });
+          actionRow2 = await createActRow.createActionRow({
+            components: [directMessageButton, viewAttachmentButton],
+          });
+          try {
+            interaction.channel.send({
+              content: `${
+                role.length > 1
+                  ? `|| ${scripts_djs.getAlertEmoji()} ${role}\n${
+                      file.name ? `Song Name : ${file.name}` : ``
+                    }${
+                      altname !== null ? `\nAlternate Name(s) : ${altname}` : ``
+                    } ||`
+                  : `${
+                      file.name
+                        ? `|| Song Name : ${file.name}${
+                            altname !== null
+                              ? `\nAlternate Name(s) : ${altname}`
+                              : ``
+                          } ||`
+                        : ``
+                    }`
+              }`,
+              embeds: [embed],
+              components: [actionRow, actionRow2],
+              // files: [file],
+            });
+            interaction.editReply({
+              embeds: [
+                createEmb.createEmbed({
+                  title: `Sent [ Edit: ${songName} ]`,
+                }),
+              ],
+            });
+          } catch (error) {
+            console.log(`Edit Post error`, error);
+            await throwNewError(
+              `Posting [ Edit: ${songName} ]`,
+              interaction,
+              error
+            );
+          }
+        } else if (
+          (choice === "yes" || choice === null) &&
+          typeOfFile === "zip"
+        ) {
+          // attach the file to the message
+          actionRow = await createActRow.createActionRow({
+            components: [
+              downloadButton,
+              directMessageButton,
+              krakenButton ? krakenButton : null,
+            ],
+          });
+          try {
+            interaction.channel.send({
+              content: `${
+                role.length > 1
+                  ? `|| ${scripts_djs.getAlertEmoji()} ${role}\n${
+                      file.name ? `Song Name : ${file.name}` : ``
+                    }${
+                      altname !== null ? `\nAlternate Name(s) : ${altname}` : ``
+                    } ||`
+                  : `${
+                      file.name
+                        ? `|| Song Name : ${file.name}${
+                            altname !== null
+                              ? `\nAlternate Name(s) : ${altname}`
+                              : ``
+                          } ||`
+                        : ``
+                    }`
+              }`,
+              embeds: [embed],
+              components: [actionRow],
+              // files: [file],
+            });
+            interaction.editReply({
+              embeds: [
+                createEmb.createEmbed({
+                  title: `Sent [ Edit: ${songName} ]`,
+                }),
+              ],
+            });
+          } catch (error) {
+            console.log(`Edit Post error`, error);
+            await throwNewError(
+              `Posting [ Edit: ${songName} ]`,
+              interaction,
+              error
+            );
+          }
+        } else if (choice === "no") {
+          // don't attach the file to the message
+          actionRow = await createActRow.createActionRow({
+            components: [
+              krakenButton ? krakenButton : null,
+              directMessageButton,
+            ],
+          });
+          try {
+            interaction.channel.send({
+              content: `${`|| ${
+                role.length > 1
+                  ? `${scripts_djs.getAlertEmoji()} ${role}\n`
+                  : ""
+              }${songName !== null ? `Song Name : ${songName}` : ""}${
+                file.name && file.name !== songName
+                  ? `\nFile Name : ${file.name}`
+                  : ""
+              }${
+                altname !== null ? `\nAlternate Name(s) : ${altname}` : ""
+              } ||`}`,
+              embeds: [embed],
+              components: [actionRow],
+            });
+            interaction.editReply({
+              embeds: [
+                createEmb.createEmbed({
+                  title: `Sent [ Edit: ${songName} ]`,
+                }),
+              ],
+            });
+          } catch (error) {
+            console.log(`Edit Post error`, error);
+            await throwNewError(
+              `Posting [ Edit: ${songName} ]`,
+              interaction,
+              error
+            );
+          }
+        } else {
+          // attach the file to the message
+          actionRow = await createActRow.createActionRow({
+            components: [downloadButton, krakenButton ? krakenButton : null],
+          });
+          actionRow2 = await createActRow.createActionRow({
+            components: [directMessageButton, viewAttachmentButton],
+          });
+          try {
+            // let str2 =
+            interaction.channel.send({
+              content: `${
+                role.length > 1
+                  ? `|| ${scripts_djs.getAlertEmoji()} ${role}\n${
+                      file.name ? `Song Name : ${file.name}` : ``
+                    }${
+                      altname !== null ? `\nAlternate Name(s) : ${altname}` : ``
+                    } ||`
+                  : `${
+                      file.name
+                        ? `|| Song Name : ${file.name}${
+                            altname !== null
+                              ? `\nAlternate Name(s) : ${altname}`
+                              : ``
+                          } ||`
+                        : ``
+                    }`
+              }`,
+              embeds: [embed],
+              components: [actionRow, actionRow2],
+              // files: [file],
+            });
+            interaction.editReply({
+              embeds: [
+                createEmb.createEmbed({
+                  title: `Sent [ Edit: ${songName} ]`,
+                }),
+              ],
+            });
+          } catch (error) {
+            console.log(`Edit Post error`, error);
+            await throwNewError(
+              `Posting [ Edit: ${songName} ]`,
+              interaction,
+              error
+            );
+          }
+        }
+      }else if (customID.includes(`post_slowreverb_modal`)) {
         let data = await scripts_mongoDB.getPostData(randID);
         // console.log(`the data is right here data`, data);
         let {

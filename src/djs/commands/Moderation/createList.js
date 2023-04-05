@@ -87,6 +87,7 @@ interaction.channel.send({ embeds: [listEmbed] }).then(async (msg) => {
     listTitle: `${options.getString("list-title")}`,
     listItems: [],
     embedObj: listEmbedObj,
+    embeds: [listEmbedObj]
   }
 
       let result = await lists.create(newList);
@@ -128,4 +129,79 @@ interaction.channel.send({ embeds: [listEmbed] }).then(async (msg) => {
 })
  
   },
+  formatListString(list, listItems) {
+    let listString = ''; 
+    list?.listItems?.forEach((item, index) => {
+      if (index === 0) {
+        listString += `> ${item}\n---`;
+      } else if (index === listItems.length){
+        listString += `\n> ${item}`;
+      } else {
+        listString += `\n> ${item}\n---`;
+      }
+    });
+    return listString;
+  }, 
+   createEmbeds(interaction, list) {
+    let listItems = list.listItems;
+    let embeds = [];
+    let currentEmbedDescription = "";
+    let sharedColor = scripts.getColor();
+    let count = 0;
+    for (const item of listItems) {
+      count++;
+  if (currentEmbedDescription.length + item.length + 8 > 4090) {
+        let newEmbed = createEmb.createEmbed({
+          description: `\`\`\`\n${currentEmbedDescription}\n\`\`\``,
+          color: sharedColor,
+          footer: {
+            text: `#${interaction.channel.name} | Last Updated By: ${interaction.user.username}`,
+            iconURL: interaction.user.avatarURL(),
+          },
+          timestamp: true,
+        });
+        embeds.push(newEmbed);
+        if (count === 1) {
+          if (listItems.length === 1) {
+            currentEmbedDescription = `> ${item}`;
+          } else {
+            currentEmbedDescription = `> ${item}\n---`;
+          }
+        } else if (count === listItems.length){
+          currentEmbedDescription = `\n> ${item}`;
+        } else {
+          currentEmbedDescription = `\n> ${item}\n---`;
+        }
+      } else {
+        if (count === 1) {
+          if (listItems.length === 1) {
+            currentEmbedDescription += `> ${item}`;
+          } else {
+            currentEmbedDescription += `> ${item}\n---`;
+          }
+        } else if (count === listItems.length){
+          currentEmbedDescription += `\n> ${item}`;
+        } else {
+          currentEmbedDescription += `\n> ${item}\n---`;
+        }
+      }
+    }
+    if (currentEmbedDescription.length > 0) {
+      let newEmbed = createEmb.createEmbed({
+        description: `\`\`\`\n${currentEmbedDescription}\n\`\`\``,
+        color: sharedColor,
+        footer: {
+          text: `#${interaction.channel.name} | Last Updated By: ${interaction.user.username}`,
+          iconURL: interaction.user.avatarURL(),
+        },
+        timestamp: true,
+      });
+      embeds.push(newEmbed);
+    }
+    embeds[0].data.author = {
+      name: list?.listTitle,
+      iconURL: interaction?.guild?.iconURL(),
+    };
+    return embeds;
+  }
 };

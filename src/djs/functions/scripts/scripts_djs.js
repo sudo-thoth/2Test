@@ -22,6 +22,192 @@ function extractM4Aurl(str) {
 
   return res && res[1];
 }
+// TODO : modify command to liking
+async function throwErrorReply(obj) {
+  // let obj = {
+  //   interaction: interaction,
+  //   error: error,
+  //   action: action,
+  //   interaction2: interaction2,
+  // }
+  let { interaction, error, action, interaction2 } = obj;
+  if (!interaction || !error) return;
+  console.log("New Error Sent In Server\n\n", error);
+  try {
+    await interaction.editReply({
+      embeds: [
+        createEmb.createEmbed({
+          title: "❗️ There was an Error , Share the Error w the Developer",
+          description:
+            `__**While :**__ **\`${
+              action !== null ? action : "? : no action inputted"
+            }\`**\n` +
+            `${
+              interaction.commandName
+                ? `Command: \`${interaction.commandName}\`\n`
+                : ""
+            }` +
+            "```js\n" +
+            error +
+            "\n```\n" +
+            `Error Report Summary:` +
+            "\n```js\n" +
+            `username: ${interaction.member.user.username}\nID: ${
+              interaction.member.user.id
+            }\nGuild: ${interaction.guild.name}\nGuild ID: ${
+              interaction.guild.id
+            }\nChannel Name: ${interaction.channel.name}\nChannel ID: ${
+              interaction.channel.id
+            }\nMessage ID: ${interaction.message.id}\nMessage Content: ${
+              interaction.message.content
+            }\nCustom ID: ${interaction.customId}\nTimestamp: ${new Date()}` +
+            "\n```",
+          color: scripts.getErrorColor(),
+          footer: {
+            text: "Contact STEVE JOBS and Send the Error",
+            iconURL: interaction.user
+              ? interaction.user.avatarURL()
+              : interaction.client.user.avatarURL(),
+          },
+        }),
+      ],
+    });
+  } catch (err) {
+    if (interaction2) {
+      try {
+        await interaction2.editReply({
+          embeds: [
+            createEmb.createEmbed({
+              title: "❗️ There was an Error , Share the Error w the Developer",
+              description:
+                `ORIGINAL ERROR\n\n__**While :**__ **\`${
+                  action !== null ? action : "? : no action inputted"
+                }\`**\n` +
+                `${
+                  interaction.commandName
+                    ? `Command: \`${interaction.commandName}\`\n`
+                    : ""
+                }` +
+                "```js\n" +
+                error +
+                "\n```\n" +
+                `Error Report Summary:` +
+                "\n```js\n" +
+                `username: ${interaction.member.user.username}\nID: ${
+                  interaction.member.user.id
+                }\nGuild: ${interaction.guild.name}\nGuild ID: ${
+                  interaction.guild.id
+                }\nChannel Name: ${interaction.channel.name}\nChannel ID: ${
+                  interaction.channel.id
+                }\nMessage ID: ${interaction.message.id}\nMessage Content: ${
+                  interaction.message.content
+                }\nCustom ID: ${
+                  interaction.customId
+                }\nTimestamp: ${new Date()}` +
+                "\n```" +
+                `\n\nAdditional ERROR\n\n__**While :**__ **\`sending the original error message\`**\n` +
+                "```js\n" +
+                err +
+                "\n```\n" +
+                `Error Report Summary:` +
+                "\n```js\n" +
+                `username: ${interaction2.member.user.username}\nID: ${
+                  interaction2.member.user.id
+                }\nGuild: ${interaction2.guild.name}\nGuild ID: ${
+                  interaction2.guild.id
+                }\nChannel Name: ${interaction2.channel.name}\nChannel ID: ${
+                  interaction2.channel.id
+                }\nMessage ID: ${interaction2.message.id}\nMessage Content: ${
+                  interaction2.message.content
+                }\nCustom ID: ${
+                  interaction2.customId
+                }\nTimestamp: ${new Date()}` +
+                "\n```",
+              color: scripts.getErrorColor(),
+              footer: {
+                text: "Contact STEVE JOBS and Send the Error",
+                iconURL: interaction.user
+                  ? interaction.user.avatarURL()
+                  : interaction2.user
+                  ? interaction2.user.avatarURL()
+                  : interaction.client.user.avatarURL(),
+              },
+            }),
+          ],
+        });
+      } catch (errr) {
+        console.log(
+          `error occurred when trying to send the user this-> Error: ${error}\n\n\nThe error that occurred when trying to send the user the 2nd time -> error is: ${err}\n\n\nThe error that occurred when trying to send the user the 3rd time -> error is: ${errr}`,error
+        );
+      }
+    } else {
+      try {
+        await interaction.channel.send({
+          embeds: [
+            createEmb.createEmbed({
+              title: "❗️ There was an Error , Share the Error w the Developer",
+              description:
+                `ORIGINAL ERROR\n\n__**While :**__ **\`${
+                  action !== null ? action : "? : no action inputted"
+                }\`**\n` +
+                `${
+                  interaction.commandName
+                    ? `Command: \`${interaction.commandName}\`\n`
+                    : ""
+                }` +
+                "```js\n" +
+                error +
+                "\n```\n" +
+                `Error Report Summary:` +
+                "\n```js\n" +
+                `username: ${interaction.member.user.username}\nID: ${
+                  interaction.member.user.id
+                }\nGuild: ${interaction.guild.name}\nGuild ID: ${
+                  interaction.guild.id
+                }\nChannel Name: ${interaction.channel.name}\nChannel ID: ${
+                  interaction.channel.id
+                }\nMessage ID: ${interaction.message.id}\nMessage Content: ${
+                  interaction.message.content
+                }\nCustom ID: ${
+                  interaction.customId
+                }\nTimestamp: ${new Date()}` +
+                "\n```" +
+                `\n\nAdditional ERROR\n\n__**While :**__ **\`sending the original error message\`**\n` +
+                "```js\n" +
+                err +
+                "\n```\n" +
+                `Error Report Summary:` +
+                "\n```js\n" +
+                `username: ${interaction.member.user.username}\nID: ${
+                  interaction.member.user.id
+                }\nGuild: ${interaction.guild.name}\nGuild ID: ${
+                  interaction.guild.id
+                }\nChannel Name: ${interaction.channel.name}\nChannel ID: ${
+                  interaction.channel.id
+                }\nMessage ID: ${interaction.message.id}\nMessage Content: ${
+                  interaction.message.content
+                }\nCustom ID: ${
+                  interaction.customId
+                }\nTimestamp: ${new Date()}` +
+                "\n```",
+              color: scripts.getErrorColor(),
+              footer: {
+                text: "Contact STEVE JOBS and Send the Error",
+                iconURL: interaction.user
+                  ? interaction.user.avatarURL()
+                  : interaction.client.user.avatarURL(),
+              },
+            }),
+          ],
+        });
+      } catch (errr) {
+        console.log(
+          `error occurred when trying to send the user this-> Error: ${error}\n\n\nThe error that occurred when trying to send the user the 2nd time -> error is: ${err}\n\n\nThe error that occurred when trying to send the user the 3rd time -> error is: ${errr}`, error
+        );
+      }
+    }
+  }
+}
 
 async function throwNewError(
   action = action && typeof action === "string" ? action : null,

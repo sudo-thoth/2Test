@@ -580,7 +580,18 @@ module.exports = {
   },
 
   async gbupdate(interaction, randID) {
-    await interaction.deferReply({ ephemeral: true });
+    try {
+      await interaction.deferReply({ ephemeral: true });
+    } catch (error) {
+      if (error.message.includes(`Unknown interaction`)) {
+        console.log(
+          `An unknown Interaction was Logged\nInteraction User ${interaction?.user?.username}`
+        ); 
+        return;
+      } else {
+        return console.log(error);
+      }
+    }
     console.log(
       `Update Button Clicked by an admin user:\nusername: ${interaction.member.user.username}\nID: ${interaction.member.user.id}\nGuild: ${interaction.guild.name}\nGuild ID: ${interaction.guild.id}\nChannel: ${interaction.channel.name}\nChannel ID: ${interaction.channel.id}\nMessage ID: ${interaction.message.id}\nButton ID: ${interaction.customID}`
     );
@@ -860,6 +871,7 @@ module.exports = {
     } catch (error) {
       await throwNewError(interaction, error);
     }
+    if (!gbMessage?.embeds)return await throwNewError(interaction, `The message embed was not found in the database. Current gbMessage Value : ${gmMessage}.`);
     let gbEmbed = gbMessage.embeds[0];
     let gbEmbedTitle = gbEmbed.title;
     let gbEmbedDescription = gbEmbed.description;

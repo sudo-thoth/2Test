@@ -17,6 +17,7 @@ const lists = require("../../../MongoDB/db/schemas/schema_list.js");
 const client = require("../../index.js");
 const mongoose = require("mongoose");
 const { Schema, model } = require("mongoose");
+const createList = require("./createList.js"); 
 
 // list choice auto complete listener
 
@@ -62,17 +63,17 @@ client.on("interactionCreate", async (interaction) => {
   }
 });
 
-    function formatListString(list) {
-      let listString = ''; 
-      list?.listItems?.forEach((item, index) => {
-        if (index === 0) {
-          listString += `> ${item}`;
-        } else {
-          listString += `\n> ${item}`;
-        }
-      });
-      return listString;
-    }
+    // function formatListString(list) {
+    //   let listString = ''; 
+    //   list?.listItems?.forEach((item, index) => {
+    //     if (index === 0) {
+    //       listString += `> ${item}`;
+    //     } else {
+    //       listString += `\n> ${item}`;
+    //     }
+    //   });
+    //   return listString;
+    // }
 
 module.exports = {
   data: new ContextMenuCommandBuilder()
@@ -159,27 +160,30 @@ for (let i = 0; i < list.listItems.length; i += 25) {
 // for each itemGroup within itemGroups, create one selectMenu and push it to the menus array
  // For each itemGroup within itemGroups, create one Select Menu and push it to the menus array.
  let menus = [];
- itemGroups.forEach((itemGroup, index) => {
-   // Convert the items from the itemGroup to an array of options.
-   let options = [];
-   itemGroup.forEach((item, index2) => {
-     if (item.length > 100) {
-       item = item.slice(0, 96) + "...";
-     }
-     options.push({
-       label: item,
-       value: `${index}_${index2}`,
-     });
-   });
+ for (let i = 0; i < itemGroups.length; i++) {
+  let itemGroup = itemGroups[i];
+  let options = [];
+  for (let j = 0; j < itemGroup.length; j++) {
+    let item = itemGroup[j];
+    if(item.length > 100){
+      item = item.slice(0,96) + "..."
+    }
+    options.push({
+      label: item,
+      value: `${i}_${j}`
+    });
+  }
 
-   let selectMenu = new StringSelectMenuBuilder()
-     .setCustomId('selectmenu_list_delete')
-     .setPlaceholder('Nothing selected')
-     .setMinValues(1)
-     .addOptions(options);
 
-   menus.push(selectMenu);
- });
+let selectMenu = new StringSelectMenuBuilder()
+.setCustomId('selectmenu_list_delete')
+.setPlaceholder('Nothing selected')
+.setMinValues(1)
+.addOptions(options)
+
+menus.push(selectMenu)
+
+}
 
  // For pagination, always have 1 Select Menu action row displaying at a time.
  // There will be 3 buttons: one to go to the next page/Select Menu, one to go back,
@@ -199,119 +203,89 @@ for (let i = 0; i < list.listItems.length; i += 25) {
      time: 30000,
    },
    collectorCallback: async (i) => {
-     // Get the values from the Select Menu.
-     let values = i.values;
+    // Get the interaction type.
+    let interactionType = i.componentType;
+    // Handle the interaction based on its type.
+    if (interactionType === 3) {
 
-     // Handle user's selection.
-     let selectedItems = [];
-     let itemGroups = pagination.menus[pagination.currentPage].options.map((option) => option.label);
-     let selectedIndexes = values.map((value) => {
-       let [groupsIndex, groupIndex] = value.split('_');
-       return [groupsIndex, groupIndex];
-     });
+      // Testing
+      // try {
+      //   await i.reply({ ephemeral: true, content: 'hi' });
+      // } catch (error) {
+      //   scripts.logError(error, `error deferring reply`);
+      // }
+      // Testing
+      
+      try {
+        await i.deferReply({ ephemeral: true });
+      } catch (error) {
+        scripts.logError(error, `error deferring reply`);
+      }
+      // Get the values from the Select Menu.
+      let values = i.values;
+  let itemGroups = []
+  for (let i = 0; i < list.listItems.length; i += 25) {
+  itemGroups.push(list.listItems.slice(i, i + 25));
+}
 
-     selectedIndexes.forEach(([groupsIndex, groupIndex]) => {
-       selectedItems.push(itemGroups[groupsIndex][groupIndex]);
-     });
-
-     // Delete selected items.
-     list.listItems = list.listItems.filter((item) => !selectedItems.includes(item));
-
-    // update the list in the database
-    const query = { 
-      messageId: interaction?.message?.id,
-
-    };
-    const update = { $set: list };
-
-    try {
-      await lists.findOneAndUpdate(query, update, { upsert: true },(err, data) => (err ? console.log(`Ran into 
-      some Errors while trying to find and update: `, err) : console.log(`found it and updated it successfully`))
-      ).clone()
-      console.log(`updated the data to the database w the query: `, query)
-    } catch (error) {
-        console.log(`an error occurred while trying to update the data to the database: `, error);
-        return await interaction.editReply({
-          embeds: [
-            createEmb.createEmbed({
-              title: `Error: List Not Found`,
-              color: scripts.getErrorColor(),
-              description: `> \`The list was not found in this channel.\`\n\`\`\`\n${error}\n\`\`\``,  
-            }),
-          ],
-        });
+  
+      // Handle user's selection.
+      let selectedItems = [];
+      // let itemGroups = pagination.menus[pagination.currentPage].options.map((option) =>{
         
-    }   
+      //   return option?.data?.label
+      // });
+      let selectedIndexes = values.map((value) => {
+        let [groupsIndex, groupIndex] = value.split('_');
+        return [groupsIndex, groupIndex];
+      });
+  
+      selectedIndexes.forEach(([groupsIndex, groupIndex]) => {
+        selectedItems.push(itemGroups[groupsIndex][groupIndex]);
+      });
+  
+      // Store the selected items in a variable to use later.
+      let itemsToDelete = selectedItems;
+
+      // need to update the list message embed with the new listItems array
+      // first get the listItems array from the database
+      let listItems = list.listItems;
+      // then remove the itemsToDelete from the listItems array
+      listItems = listItems.filter((item) => !itemsToDelete.includes(item));
+      // then update the listItems array in the database
+      list.listItems = listItems
+
+
+      // Create the Embeds w function here
+
+      let newEmbeds = createList.createEmbeds(i, list)
+        // update the first embed with the author properties
+  // newEmbeds[0].author = {
+  //   name: list?.embeds[0]?.data?.author.name,
+  //   iconURL: list?.embeds[0]?.data?.author.iconURL,
+  // };
+      list.embeds = newEmbeds;
+
+
+      //
+
+      // let listString = createList.formatListString(list, listItems);
+      // // edit the message with the new listItems array in the embed
+      // let listEmbed = list.embedObj;
+      // listEmbed.description = `\`\`\`\n${listString}\n\`\`\``
+      // listEmbed.footer = {
+      //   text: `#${i.channel.name} | Last Updated By: ${i.user.username}`,
+      //   iconURL: i.user.avatarURL(),
+      // }    
+      // list.embedObj = listEmbed;
+      // // new embed color
+      // list.embedObj.color = scripts.getColor();
 
 
 
-     // Send response message to user.
-     let responseText = `The following list items have been deleted from the list:\n- ${selectedItems.join('\n- ')}`;
-     await interaction.editReply({
-       embeds: [
-         createEmb.createEmbed({
-           title: `List Items Deleted Successfully`,
-           description: "```\n"+responseText+"\n```",
-           color: scripts.getSuccessColor(),
-         }),
-       ],
-       components: []
-     });
-
-     // Update current page of pagination object and edit the message.
-     let currentPage = pagination.currentPage;
-     let menus = pagination.menus;
-     let actionRow = new MessageActionRow().addComponents(menus[currentPage]);
-     await i.update({ components: [actionRow] });
-   },
- };
-
- // Create initial action row with first Select Menu.
- let initialMenu = menus[0];
- let actionRow = new MessageActionRow().addComponents(initialMenu);
- await interaction.editReply({ components: [actionRow] });
-
-    
-
-
-
-    // if the list exists, add the new item to the list
-    list.listItems.push(newItem);
-
-    // format the list string to be sent in the embed
-    
-   let listString = formatListString(list);
-   let { author } = list?.embedObj
-
-
-   // configure the new embed
-    let newListEmbedObj = {
-      // title: list.listTitle,
-      description: `\`\`\`\n${listString}\n\`\`\``,
-      color: scripts.getColor(),
-      author: {
-        name: author.name,
-        iconURL: author.iconURL,
-      },
-      footer: {
-        text: `#${interaction.channel.name} | Last Updated By: ${interaction.user.username}`,
-        iconURL: interaction.user.avatarURL(),
-      },
-      timestamp: true,
-    };
-
-    // update the embedObj in the db list
-    list.embedObj = newListEmbedObj;
-    // create the new embed from the obj
-
-    let newListEmbed = createEmb.createEmbed(newListEmbedObj);
-
-
-
-    // update the list in the database
+          // update the list in the database
     const query = { 
-      channelId: interaction.channel.id,
-      listTitle: listTitle
+      messageId: list.messageId   
     };
     const update = { $set: list };
 
@@ -322,67 +296,226 @@ for (let i = 0; i < list.listItems.length; i += 25) {
       console.log(`updated the data to the database w the query: `, query)
     } catch (error) {
         console.log(`an error occurred while trying to update the data to the database: `, error);
-        await interaction.editReply({
+        await i.editReply({
           embeds: [
             createEmb.createEmbed({
-              title: `Error: List Not Found`,
+              title: `Error: Deleting List Item`,
               color: scripts.getErrorColor(),
-              description: `> \`The list with the title of ${options.getString("list-title")} was not found in this channel.\`\n\`\`\`\n${error}\n\`\`\``,  
+              description: `> \`The list with the title of ${list.listTitle} was not found in this channel.\`\n\`\`\`\n${error}\n\`\`\``,  
             }),
           ],
         });
         return;
     }
 
-    // fetch the message using the message id found in the list
+    // get the message using the list message id
+    let listMsg = await i.channel.messages.fetch(list.messageId);
 
-    let msg;
-    try {
-      msg = await interaction.channel.messages.fetch(list.messageId);
-    } catch (error) {
-      scripts.logError(error, `error fetching message`);
-      await interaction.editReply({
+try {
+  await listMsg.edit({ embeds: newEmbeds });
+} catch(err){
+  console.log(err)
+  try {
+    await i.user.send({
+      embeds: [
+        createEmb.createEmbed({
+          title: `Error Occurred!`,
+          description: `Error Report:\n*send to steve jobs if problem persists*\n\`\`\`js\n${err}\n\`\`\``,
+          color: scripts.getErrorColor()
+        })      
+      ]
+    })
+  } catch (errr) {
+    console.log(`og error-->>>`, err)
+    
+  }
+}
+  
+      let responseText = `You have successfully deleted the following list items from the list\`\`\`\n\`\`\`- ${itemsToDelete.join('\n- ')}`;
+      await i.followUp({
         embeds: [
           createEmb.createEmbed({
-            title: `Error: List Not Found`,
-            color: scripts.getErrorColor(),
-            description: `> \`The list with the title of ${options.getString("list-title")} was not found in this channel.\`\n\`\`\`\n${error}\n\`\`\``,
+            title: `Completed List Item Deletion`,
+            description: "```\n"+responseText+"\n```",
+            color: scripts.getSuccessColor(),
           }),
         ],
       });
-      return;
-    }
 
-// send the new embed in the channel as the list
-await msg.edit({ embeds: [newListEmbed] }).then(async (m) => {
-  // send a reply to the user saying the list was created
-  await interaction.editReply({
-    embeds: [
-      createEmb.createEmbed({
-       // title: `List Created`,
-        description: `:white_check_mark: \`List Updated\``,
-        //description: `> **Run the \`/add-list-item\` command to add an item to the list**`,
-        color: scripts.getSuccessColor(),
-      }),
-    ],
+      try {
+        await scripts.delay(10000);
+      // Delete the select menu.
+      return await i.deleteReply()
+    } catch(error){
+      return console.log(error)
+    }
+    } else if (interactionType === 2) {
+      // Handle pagination button.
+      if (i.customId.includes("back")) {
+        if (pagination.currentPage > 0) {
+          pagination.currentPage--;
+        }
+      } else if (i.customId.includes("next")) {
+        
+        if (pagination.currentPage < pagination.totalPages - 1) {
+          pagination.currentPage++;
+        }
+      }
+  
+      // Update the pagination page button.
+      let newPageButton = await createBtn.createButton({
+        label: `Page ${pagination.currentPage + 1} of ${pagination.totalPages}`,
+        style: "SECONDARY",
+        customID: "list_delete_page_button",
+        disabled: true,
+      });
+  
+      // Update the action row with the new page button.
+      let buttonRow = await createActRow.createActionRow({
+        components: [backButton, newPageButton, nextButton],
+      });
+  
+      // Edit the message with the updated action row and menu.
+      let actionRow = await createActRow.createActionRow({
+        components: [pagination.menus[pagination.currentPage]],
+      });
+      try {
+        await i.update({ components: [actionRow, buttonRow] });
+      } catch (error) {
+        console.log(error)
+        if(error.message.includes(`Unknown interaction`)){
+         try {
+           await i.reply({embeds: [createEmb.createEmbed({
+             title: `An Error Occured`,
+             description: `> \`The interaction has expired.\`\n\n\`\`\`js\n${error}\`\`\``,
+           })]})
+         } catch (error) {
+          console.log(error)
+         }
+        }
+      }
+    }
+    }
+  ,
+ };
+
+ // Create initial action row with first Select Menu.
+ let initialMenu = menus[0];
+
+ let menuRow = await createActRow.createActionRow({
+  components: [initialMenu]
+ })
+ // create the buttons and action row full of the buttons for the pagination to function
+  let backButton = await createBtn.createButton({
+    label: "Back",
+    style: "PRIMARY",
+    customID: "list_delete_back_button",
+    disabled: false,
+  });
+  let nextButton = await createBtn.createButton({
+    label: "Next",
+    style: "PRIMARY",
+    customID: "list_delete_next_button",
+    disabled: false,
+  });
+  let pageButton = await createBtn.createButton({
+    label: `Page ${pagination.currentPage + 1} of ${pagination.totalPages}`,
+    style: "SECONDARY",
+    customID: "list_delete_page_button",
+    disabled: true,
+  });
+  let buttonRow = await createActRow.createActionRow({
+    components: [backButton, pageButton, nextButton],
   });
 
-}).catch(async (error) => {
+  // create the embed to be sent
+  let embed = createEmb.createEmbed({
+    description: `\`select the item(s) to delete from the list\``,
+  });
+
+try {
+  
+    let menuResponse;
+    try {
+      menuResponse = await interaction.editReply({embeds: [embed], components: [menuRow, buttonRow] });
+  } catch (error ) {
+    console.log(error)
+    if(error.message.includes(`DiscordAPIError[50035]: Invalid Form Body`)){
+      try {
+        return await interaction.editReply({
+        embeds: [
+          createEmb.createEmbed({
+            title: `Error: Deleting List Item`,
+            color: scripts.getErrorColor(),
+            description: `> \`The item you chose to delete was not found in the list (according to the database)\`\n\`\`\`\n${error}\n\`\`\``,  
+          }),
+        ],
+      });
+      } catch(err) {
+        try {
+          return await interaction.user.send({
+          embeds: [
+            createEmb.createEmbed({
+              title: `Error: Deleting List Item`,
+              color: scripts.getErrorColor(),
+              description: `> \`The item you chose to delete was not found in the list (according to the database)\`\n\`\`\`\n${error}\n\`\`\``,  
+            }),
+          ],
+        });
+        } catch(er) {
+          console.log(err, `\n\n---\n\nOG Error:`, error)
+        }
+      }
+    } else {
+      try {
+        return await interaction.user.send({
+        embeds: [
+          createEmb.createEmbed({
+            title: `An Error Occurred: Deleting List Item`,
+            color: scripts.getErrorColor(),
+            description: `> \`SS & Send the Error to Steve Jobs\`\n\`\`\`\n${error}\n\`\`\``,  
+          }),
+        ],
+      });
+      } catch(er) {
+        console.log(er, `\n\n---\n\nOG Error:`, error)
+      }
+    }
+  }
+  
+      // Start collector.
+      pagination.collector = menuResponse.createMessageComponentCollector(pagination.collectorFilter, pagination.collectorOptions);
+      pagination.collector.on('collect', pagination.collectorCallback);
+      pagination.collector.on('end', async (collected) => {
+        // Disable all buttons after the collector has ended.
+        buttonRow.components.forEach((button) => {
+          button.setDisabled(true);
+        });
+       try {
+         await menuResponse.edit({ components: [actionRow, buttonRow] });
+         await scripts.delay(3000);
+         await menuResponse.delete();
+       } catch (error) {
+        console.log(error)
+        
+       }
+      });
+} catch (err3) {
+  console.log(err3)
   try {
     await interaction.user.send({
       embeds: [
         createEmb.createEmbed({
           title: `Error Occurred!`,
-          description: `Error Report:\n*send to steve jobs if problem persists*\n\`\`\`js\n${error}\n\`\`\``,
+          description: `Error Report:\n*send to steve jobs if problem persists*\n\`\`\`js\n${err3}\n\`\`\``,
           color: scripts.getErrorColor()
         })      
       ]
     })
-  } catch (err) {
-    console.log(`og error-->>>`, error)
+  } catch (errr) {
+    console.log(`og error-->>>`, err3)
     
   }
-})
- 
-  },
+}
+},
 };

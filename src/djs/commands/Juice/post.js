@@ -44,10 +44,12 @@ module.exports = {
               .addChoices(
                 { name: "Leak", value: "leak" },
                 { name: "OG File", value: "ogfile" },
+                { name: "Master", value: "master" },
                 { name: "Studio Session", value: "studiosession" },
                 { name: "Instrumental", value: "instrumental" },
                 { name: "Accapella", value: "accapella" },
-                { name: "Fully Mixed Session Edit", value: "mixedsession" },
+                { name: "Edit", value: "edit"},
+                { name: "Session Edit", value: "mixedsession" },
                 { name: "Snippet", value: "snippet" },
                 { name: "Remaster", value: "remaster" },
                 { name: "Stem Edit", value: "stemedit" },
@@ -86,10 +88,12 @@ module.exports = {
                 .addChoices(
                   { name: "Leak", value: "leak" },
                   { name: "OG File", value: "ogfile" },
+                  { name: "Master", value: "master" },
                   { name: "Studio Session", value: "studiosession" },
                   { name: "Instrumental", value: "instrumental" },
                   { name: "Accapella", value: "accapella" },
-                  { name: "Fully Mixed Session Edit", value: "mixedsession" },
+                  { name: "Edit", value: "edit"},
+                  { name: "Session Edit", value: "mixedsession" },
                   { name: "Snippet", value: "snippet" },
                   { name: "Remaster", value: "remaster" },
                   { name: "Stem Edit", value: "stemedit" },
@@ -512,7 +516,70 @@ if (file_type === "attachment") {
             // Show the modal
             await interaction.showModal(modal);
               break;
-            case "instrumental":
+              case "master":
+              // do master things
+              // Modal Object that gets passed in below
+              modalObj = {
+                customID: `post_master_modal_a${randID}`,
+                title: "New Master Survey",
+                inputFields: [
+                  {
+                    customID: "name",
+                    label: "What is the name of the song?",
+                    style: "TextInputStyle.Short",
+                    placeholder: "Adore You",
+                    required: true,
+                  },
+                  {
+                    customID: "era",
+                    label: "What is the era of the song?",
+                    style: "TextInputStyle.Short",
+                    placeholder: "DRFL",
+                    required: false,
+                  },
+                  {
+                    customID: "text",
+                    label:
+                      "Additional Information About The Master",
+                    style: "TextInputStyle.Long",
+                    placeholder: "extra shit",
+                    required: false,
+                  },
+                  {
+                    customID: "producer",
+                    label: "Mixed By",
+                    style: "TextInputStyle.Short",
+                    placeholder: "@stevejobs",
+                    required: false,
+                  },
+                  {
+                    customID: "kraken",
+                    label: "Optional: If you want to add the kraken link",
+                    style: "TextInputStyle.Short",
+                    placeholder:
+                      "https://krakenfiles.com/view/stevejobswashere.lol",
+                    required: false,
+                  },
+                ],
+              };
+              // Create the modal
+              modal = await createModal.createModal(modalObj);
+              // Show the modal
+                  try {
+     await interaction.showModal(modal);
+    } catch (error) {
+      if (error.message.includes(`Unknown interaction`)) {
+        console.log(
+          `An unknown Interaction was Logged\nInteraction User ${interaction?.user?.username}`
+        ); // <:android:1083158839957921882>
+        return;
+      } else {
+        return console.log(error);
+      }
+    }
+              break;
+            
+              case "instrumental":
               // do instrumental things
                               // Modal Object that gets passed in below
             modalObj = {
@@ -629,7 +696,7 @@ if (file_type === "attachment") {
                                     // Modal Object that gets passed in below
             modalObj = {
               customID: `post_mixedsession_modal_a${randID}`,
-              title: "New Mixed Session Survey",
+              title: "New Session Edit Survey",
               inputFields: [
                 {
                   customID: "name",
@@ -760,7 +827,7 @@ if (file_type === "attachment") {
                 {
                   customID: "text",
                   label:
-                    "Additional Information About The Accapella",
+                    "Additional Information About The Remaster",
                   style: "TextInputStyle.Long",
                   placeholder: "extra shit",
                   required: false,
@@ -812,7 +879,59 @@ if (file_type === "attachment") {
                 {
                   customID: "text",
                   label:
-                    "Additional Information About The Accapella",
+                    "Additional Information About The Stem Edit",
+                  style: "TextInputStyle.Long",
+                  placeholder: "extra shit",
+                  required: false,
+                },
+                {
+                  customID: "kraken",
+                  label:
+                    "Optional: If you want to add the kraken link",
+                  style: "TextInputStyle.Short",
+                  placeholder: "https://krakenfiles.com/view/stevejobswashere.lol",
+                  required: false,
+                },
+              ],
+            };
+            // Create the modal
+            modal = await createModal.createModal(modalObj);
+            // Show the modal
+            await interaction.showModal(modal);
+              break;
+              case "edit":
+              // do edit things
+                                          // Modal Object that gets passed in below
+            modalObj = {
+              customID: `post_edit_modal_a${randID}`,
+              title: "Edit Survey",
+              inputFields: [
+                {
+                  customID: "producer",
+                  label:
+                    "Made By",
+                  style: "TextInputStyle.Short",
+                  placeholder: "@stevejobs",
+                  required: false,
+                },
+                {
+                  customID: "name",
+                  label: "What is the name of the song?",
+                  style: "TextInputStyle.Short",
+                  placeholder: "Adore You",
+                  required: true,
+                },
+                {
+                  customID: "altname",
+                  label: "Any alternate names for the song?",
+                  style: "TextInputStyle.Long",
+                  placeholder: "Dark Knight",
+                  required: false,
+                },
+                {
+                  customID: "text",
+                  label:
+                    "Additional Information About The Magical Edit",
                   style: "TextInputStyle.Long",
                   placeholder: "extra shit",
                   required: false,
@@ -864,7 +983,7 @@ if (file_type === "attachment") {
                 {
                   customID: "text",
                   label:
-                    "Additional Information About The Accapella",
+                    "Additional Information About The Magical Edit",
                   style: "TextInputStyle.Long",
                   placeholder: "extra shit",
                   required: false,
@@ -916,7 +1035,7 @@ if (file_type === "attachment") {
                 {
                   customID: "text",
                   label:
-                    "Additional Information About The Accapella",
+                    "Additional Info For The Slowed & Reverb Edit",
                   style: "TextInputStyle.Long",
                   placeholder: "extra shit",
                   required: false,
@@ -1244,7 +1363,7 @@ if (file_type === "attachment") {
                             // Modal Object that gets passed in below
     modalObj = {
       customID: `post_mixedsession_modal${randID}`,
-      title: "New Mixed Session Survey",
+      title: "New Session Edit Survey",
       inputFields: [
         {
           customID: "kraken",
@@ -1343,6 +1462,60 @@ if (file_type === "attachment") {
     // Show the modal
     await interaction.showModal(modal);
       break;
+      case "master":
+      // do master things
+                                  // Modal Object that gets passed in below
+    modalObj = {
+      customID: `post_master_modal${randID}`,
+      title: "Master Survey",
+      inputFields: [
+        {
+          customID: "kraken",
+          label:
+            "Provide 1 kraken link",
+          style: "TextInputStyle.Short",
+          placeholder: "https://krakenfiles.com/view/stevejobswashere.lol",
+          required: true,
+        },
+        {
+          customID: "producer",
+          label:
+            "Made By",
+          style: "TextInputStyle.Short",
+          placeholder: "@stevejobs",
+          required: false,
+        },
+        {
+          customID: "name",
+          label: "What is the name of the song?",
+          style: "TextInputStyle.Short",
+          placeholder: "Adore You",
+          required: true,
+        },
+        {
+          customID: "era",
+          label:
+            "What is the era of the song?",
+          style: "TextInputStyle.Short",
+          placeholder: "DRFL",
+          required: false,
+        },
+        {
+          customID: "text",
+          label:
+            "Additional Information About The Master",
+          style: "TextInputStyle.Long",
+          placeholder: "extra shit",
+          required: false,
+        }
+        
+      ],
+    };
+    // Create the modal
+    modal = await createModal.createModal(modalObj);
+    // Show the modal
+    await interaction.showModal(modal);
+      break;
     case "remaster":
       // do remaster things
                                   // Modal Object that gets passed in below
@@ -1383,7 +1556,7 @@ if (file_type === "attachment") {
         {
           customID: "text",
           label:
-            "Additional Information About The Accapella",
+            "Additional Information About The Remaster",
           style: "TextInputStyle.Long",
           placeholder: "extra shit",
           required: false,
@@ -1435,9 +1608,61 @@ if (file_type === "attachment") {
         {
           customID: "text",
           label:
-            "Additional Information About The Accapella",
+            "Additional Information About The Stem Edit",
           style: "TextInputStyle.Long",
           placeholder: "extra shit",
+          required: false,
+        },
+      ],
+    };
+    // Create the modal
+    modal = await createModal.createModal(modalObj);
+    // Show the modal
+    await interaction.showModal(modal);
+      break;
+      case "edit":
+      // do edit things
+                                  // Modal Object that gets passed in below
+    modalObj = {
+      customID: `post_edit_modal${randID}`,
+      title: "Edit Survey",
+      inputFields: [
+        {
+          customID: "producer",
+          label:
+            "Made By",
+          style: "TextInputStyle.Short",
+          placeholder: "@stevejobs",
+          required: false,
+        },
+        {
+          customID: "name",
+          label: "What is the name of the song?",
+          style: "TextInputStyle.Short",
+          placeholder: "Adore You",
+          required: true,
+        },
+        {
+          customID: "altname",
+          label: "Any alternate names for the song?",
+          style: "TextInputStyle.Long",
+          placeholder: "Dark Knight",
+          required: false,
+        },
+        {
+          customID: "text",
+          label:
+            "Additional Information About The Magical Edit",
+          style: "TextInputStyle.Long",
+          placeholder: "extra shit",
+          required: false,
+        },
+        {
+          customID: "kraken",
+          label:
+            "Optional: If you want to add the kraken link",
+          style: "TextInputStyle.Short",
+          placeholder: "https://krakenfiles.com/view/stevejobswashere.lol",
           required: false,
         },
       ],
@@ -1487,7 +1712,7 @@ if (file_type === "attachment") {
         {
           customID: "text",
           label:
-            "Additional Information About The Accapella",
+            "Additional Information About The Magical Edit",
           style: "TextInputStyle.Long",
           placeholder: "extra shit",
           required: false,
@@ -1539,7 +1764,7 @@ if (file_type === "attachment") {
         {
           customID: "text",
           label:
-            "Additional Information About The Accapella",
+            "Additional Info For The Slowed & Reverb Edit",
           style: "TextInputStyle.Long",
           placeholder: "extra shit",
           required: false,

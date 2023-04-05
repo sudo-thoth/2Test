@@ -129,7 +129,9 @@ async function sendContent(interaction) {
 }
 
 client.on("interactionCreate", async (i) => {
-  await sendContent(i);
+  if (i?.customId?.includes("clean_dump_") && i?.isButton()) {
+    await sendContent(i);
+  }
 });
 
 let sentEmojis = [
@@ -718,20 +720,20 @@ link =  trimNonAlphanumeric(link)
                     // replace [x](y) pattern in description
                     let matches = redactedEmbed?.data?.description?.match(
                       /\[([\s\S]*?)\]\(https?:\/\/[^\s]+\)/g
-                    ); 
+                    );
                     if (matches) {
                       matches.forEach(async (match) => {
-                        let parts = match.match(/\[([\s\S]*?)\]\(https?:\/\/[^\s]+\)/);
-let text = parts[1];
-let link = parts[2];
-link = trimNonAlphanumeric(link)
-redactedEmbed.data.description = redactedEmbed?.data?.description.replace(
-  match,
-  `${text} (link below)`
-);
-
+                        let parts = match.match(/\[([\s\S]*?)\]\((https?:\/\/[^\s]+)\)/);
+                        let text = parts[1];
+                        let link = parts[2];
+                        link = trimNonAlphanumeric(link);
+                        redactedEmbed.data.description = redactedEmbed?.data?.description.replace(
+                          match,
+                          `${text} (link below)`
+                        );
+                  
                         links.push(link);
-
+                  
                         // save link to db here
                         let randID = scripts_djs.getRandID();
                         let button = await createBtn.createButton({
@@ -754,6 +756,7 @@ redactedEmbed.data.description = redactedEmbed?.data?.description.replace(
                       console.log(`no matches`);
                     }
                   }
+                  
 
                   // handle embed url
                   if (embed?.url) {

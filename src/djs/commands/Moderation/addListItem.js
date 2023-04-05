@@ -13,6 +13,7 @@ const lists = require("../../../MongoDB/db/schemas/schema_list.js");
 const client = require("../../index.js");
 const mongoose = require("mongoose");
 const { Schema, model } = require("mongoose");
+const createList = require("./createList.js");
 
 // list choice auto complete listener
 
@@ -58,17 +59,7 @@ client.on("interactionCreate", async (interaction) => {
   }
 });
 
-    function formatListString(list) {
-      let listString = ''; 
-      list?.listItems?.forEach((item, index) => {
-        if (index === 0) {
-          listString += `> ${item}`;
-        } else {
-          listString += `\n> ${item}`;
-        }
-      });
-      return listString;
-    }
+
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -157,33 +148,44 @@ module.exports = {
 
     // format the list string to be sent in the embed
     
-   let listString = formatListString(list);
+  //  let listString = createList.formatListString(list, list.listItems);
    let { author } = list?.embedObj
 
 
-   // configure the new embed
-    let newListEmbedObj = {
-      // title: list.listTitle,
-      description: `\`\`\`\n${listString}\n\`\`\``,
-      color: scripts.getColor(),
-      author: {
-        name: author.name,
-        iconURL: author.iconURL,
-      },
-      footer: {
-        text: `#${interaction.channel.name} | Last Updated By: ${interaction.user.username}`,
-        iconURL: interaction.user.avatarURL(),
-      },
-      timestamp: true,
-    };
 
-    // update the embedObj in the db list
-    list.embedObj = newListEmbedObj;
-    // create the new embed from the obj
+  //  // configure the new embed
+  //   let newListEmbedObj = {
+  //     // title: list.listTitle,
+  //     description: `\`\`\`\n${listString}\n\`\`\``,
+  //     color: scripts.getColor(),
+  //     author: {
+  //       name: author.name,
+  //       iconURL: author.iconURL,
+  //     },
+  //     footer: {
+  //       text: `#${interaction.channel.name} | Last Updated By: ${interaction.user.username}`,
+  //       iconURL: interaction.user.avatarURL(),
+  //     },
+  //     timestamp: true,
+  //   };
 
-    let newListEmbed = createEmb.createEmbed(newListEmbedObj);
+  //   // update the embedObj in the db list
+  //   list.embedObj = newListEmbedObj;
+  //   // create the new embed from the obj
 
+  //   let newListEmbed = createEmb.createEmbed(newListEmbedObj);
+    
 
+let newEmbeds = createList.createEmbeds(interaction, list);
+
+  // update the first embed with the author properties
+  // newEmbeds[0].author = {
+  //   name: list?.embeds[0]?.author.name,
+  //   iconURL: list?.embeds[0]?.author.iconURL,
+  // };
+
+  // switch the schema to array of embeds rather than 1 then use this belwo
+   list.embeds = newEmbeds;
 
     // update the list in the database
     const query = { 
@@ -231,7 +233,7 @@ module.exports = {
     }
 
 // send the new embed in the channel as the list
-await msg.edit({ embeds: [newListEmbed] }).then(async (m) => {
+await msg.edit({ embeds: newEmbeds }).then(async (m) => {
   // send a reply to the user saying the list was created
   await interaction.editReply({
     embeds: [

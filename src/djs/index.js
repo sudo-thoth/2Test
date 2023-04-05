@@ -8,15 +8,20 @@ const {
   PermissionsBitField,
   Permissions,
   MessageManager,
+
   Embed,
   Collection,
 } = require(`discord.js`);
 const mongoose = require('mongoose');
 const client = new Client({
   intents: [
-    GatewayIntentBits.Guilds | GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.Guilds , GatewayIntentBits.GuildMessages,
     GatewayIntentBits.MessageContent,
+    GatewayIntentBits.GuildPresences,
+    GatewayIntentBits.GuildMembers,
+    GatewayIntentBits.DirectMessages
   ],
+  partials: ['User', 'GuildMember', 'Channel', 'Message', 'Reaction', 'Presence'] 
 });
 
 const handleFunctions = require("./client/handlers/handleFunctions");

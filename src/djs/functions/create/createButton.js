@@ -79,18 +79,20 @@ async function createButton(buttonObj, randID) {
               }
             } else {
 
-              button.setURL(link);
+              if (link !== null) {
+                button.setURL(link); 
+              }
             }
           } else {
             button.setURL(`https://google.com/`);
           }
         } else {
 
-          try {
-            throw new Error("customID is not defined");
-          } catch (error) {
-            scripts.logError(error, "customID is not defined");
-          }
+          // try {
+          //   throw new Error("customID is not defined");
+          // } catch (error) {
+          //   scripts.logError(error, "customID is not defined");
+          // }
         }
       } catch (error) {
         scripts.logError(error, "err trying to get data in button create");
@@ -101,6 +103,7 @@ async function createButton(buttonObj, randID) {
           throw new Error("customID is too long");
         } catch (error) {
           scripts.logError(error, "customID is too long: MAX 100 characters");
+          
         }
       }
     }
@@ -113,7 +116,9 @@ async function createButton(buttonObj, randID) {
       }
     } else {
 
-      button.setURL(link); 
+      if (link !== null) {
+        button.setURL(link); 
+      }
     }
   }
   if (!scripts.isDefined(label)) {
@@ -126,9 +131,9 @@ async function createButton(buttonObj, randID) {
   } else {
     if (!lessCharsThan(label, 80)) {
       try {
-        throw new Error("label is too long");
+        throw new Error("label is too long: MAX 80 characters");
       } catch (error) {
-        scripts.logError(error, "label is too long: MAX 45 characters");
+        scripts.logError(error, "label is too long: MAX 80 characters");
       }
     }
     button.setLabel(label);
@@ -141,7 +146,7 @@ async function createButton(buttonObj, randID) {
       style !== "secondary" &&
       style !== "success" &&
       style !== "danger" &&
-      style !== "link"
+      style !== "link" && style !== "PRIMARY" && style!== "SECONDARY" && style!== "SUCCESS" && style!== "DANGER" && style!== "LINK"
     ) {
       try {
         scripts.cLog(
@@ -168,6 +173,21 @@ async function createButton(buttonObj, randID) {
       case "link":
         button.setStyle(ButtonStyle.Link);
         break;
+        case "PRIMARY":
+        button.setStyle(ButtonStyle.Primary);
+        break;
+        case "SECONDARY":
+        button.setStyle(ButtonStyle.Secondary);
+        break;
+        case "SUCCESS":
+        button.setStyle(ButtonStyle.Success);
+        break;
+        case "DANGER":
+        button.setStyle(ButtonStyle.Danger);
+        break;
+        case "LINK":
+        button.setStyle(ButtonStyle.Link);
+        break;
       default:
         button.setStyle(ButtonStyle.Primary);
         break;
@@ -180,7 +200,9 @@ async function createButton(buttonObj, randID) {
           scripts.logError(error, "link is not defined");
         }
       } else {
-        button.setURL(link);
+        if (link !== null) {
+          button.setURL(link); 
+        }
       }
     }
   } else {

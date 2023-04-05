@@ -2,6 +2,7 @@ const { SlashCommandBuilder, EmbedBuilder } = require("@discordjs/builders");
 const commandName = "nick";
 const commandDescription = "create a new nickname";
 const scripts = require("../../functions/scripts/scripts.js");
+const scripts_djs = require("../../functions/scripts/scripts_djs.js");
 const createEmbed = require("../../functions/create/createEmbed.js");
 
 // This command gives you the opportunity to create a completely new nickname with just two simple steps.
@@ -21,7 +22,7 @@ module.exports = {
 async function execute(interaction) {
   // All you have to is access this command, type in your new nickname, and you are done!
   const nickname = interaction.options.getString("nickname");
-  const interactionObj = scripts.getInteractionObj(interaction);
+  const interactionObj = scripts_djs.getInteractionObj(interaction);
   const successEmbed = {
     title: `Nickname Changed`,
     description: `Your nickname has been changed to **${nickname}**`,
@@ -46,6 +47,24 @@ async function execute(interaction) {
     .setTitle("❗️ Error")
     .setDescription("The bot does not have the permissions to change your nickname. Please contact an admin to fix this issue.");
 
+  console.log(interaction.member.roles.highest.comparePositionTo(interaction.guild.members.me.roles.highest));
+  console.log(interaction.member.roles.highest)
+  console.log(interaction.guild.members.me.roles.highest)
+    // make sure the bot is not higher or equal in hierarchy before setting the members nickname
+    if (interaction.member.roles.highest.comparePositionTo(interaction.guild.members.me.roles.highest) >= 0) {
+      await interaction.reply({
+        embeds: [createEmbed.createEmbed({
+          title: "❗️ Error",
+          description: `The Bot does not have the permissions to change your nickname. Please contact an admin to fix this issue.\nThe bot must be higher or equal in hierarchy to <@&${interaction.member.roles.highest.id}> in order to successfully change your nickname.`,
+          color: `${scripts.getErrorColor()}`,
+          thumbnail: interaction.member.user.displayAvatarURL({ dynamic: true }),
+
+        })],
+        ephemeral: true,
+      });
+      return;
+    }
+
   try {
     // If the input nickname contains any curse words, throw an error
     if (scripts.checkForCurseWords(nickname)) {
@@ -56,7 +75,8 @@ async function execute(interaction) {
 
   try {
     // Send the successEmbed to the user to confirm the nickname change
-    await interaction.reply({ embeds: [createEmbed(successEmbed)] });
+    await interaction.reply({
+ephemeral: true, embeds: [createEmbed.createEmbed(successEmbed)] });
   } catch (error) {
     // If there is an error, send the errEmbed to the user and log the error
     //   await interaction.reply({ embeds: [errEmbed], ephemeral: true });

@@ -78,18 +78,27 @@ const errEmbed = new EmbedBuilder()
 function createEmbed(obj) {
   // Check if the obj has a valid value in the title, description, image, or fields array
   // At least one of these properties must be present in the obj in order for the embed to be valid
+  if (obj === null){
+    // no embed will be produced, return a non error inducing product
+    return errEmbed;
+  }
   if ((!obj.title && !obj.description && !obj.image && !obj.fields) || (obj.title === null && obj.description === null && obj.image === null && (obj.fields === null || obj.fields === []) ) ) {
     // If not, log an error
-    try {
-      scripts.logError(
-        new Error("Invalid properties were given to create the embed"),
-        "Invalid properties were given to create the embed"
-      );
-    } catch (error) {
-      console.error(error);
+    console.log(obj)
+    if (!obj.thumbnail) {
+      try {
+        scripts.logError(
+          new Error("Invalid properties were given to create the embed"),
+          "Invalid properties were given to create the embed"
+        );
+      } catch (error) {
+        console.error(error);
+      }
+  
+      return errEmbed;
+    } else {
+      obj.title = `‎`
     }
-
-    return errEmbed;
   }
   // console.log('obj passed into create Embed', obj);
 
@@ -139,24 +148,42 @@ function createEmbed(obj) {
 	        scripts.logError(error, "Error setting footer of embed");
 	      }
 }
+
+if (obj.timestamp) embed.setTimestamp( new Date());
+
+
     if (scripts.isDefined(obj.thumbnail)) {
       console.log("thumbnail", obj.thumbnail);
       try {
-      //  console.log("thumbnail", obj.thumbnail);
-        embed.setThumbnail(obj.thumbnail);
-      //  console.log(`thumbnail set to ${obj.thumbnail}`);
+        // if image is type string, set image to obj.image
+        if (typeof obj.thumbnail === 'string') {
+          embed.setThumbnail(obj.thumbnail);
+        }
+        // if thumbnail is of type object, set thumbnail to obj.thumbnail.url
+        else if (typeof obj.thumbnail === 'object' && obj.thumbnail?.url) {
+          embed.setThumbnail(obj.thumbnail?.url);
+        }
+        // console.log(`thumbnail set to ${obj.thumbnail}`);
       } catch (error) {
         scripts.logError(error, "Error setting thumbnail of embed");
       }
     } // Error occuring
     if (obj.image) {
       try {
-        embed.setImage(obj.image);
-      //  console.log(`image set to ${obj.image}`);
+        // if image is type string, set image to obj.image
+        if (typeof obj.image === 'string') {
+          embed.setImage(obj.image);
+        }
+        // if image is of type object, set image to obj.image.url
+        else if (typeof obj.image === 'object' && obj.image?.url) {
+          embed.setImage(obj.image?.url);
+        }
+        // console.log(`image set to ${obj.image}`);
       } catch (error) {
         scripts.logError(error, "Error setting image of embed");
       }
     }
+    
     if (obj.author) {
       try {
         embed.setAuthor({

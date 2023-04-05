@@ -5,7 +5,12 @@
   "main": "./src/djs/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon index.js"
+    "start": "nodemon index.js",
+    "bot": "pm2 start ./src/djs/index.js --watch --name 2Test_bot",
+    "pm2-list": "pm2 list",
+    "pm2-stop": "pm2 stop",
+    "show-logs": "pm2 logs 2Test_bot",
+    "toggle-logs": "pm2 trigger 2Test_bot toggleLogs"
   },
   "author": "LT",
   "license": "ISC",
@@ -16,7 +21,11 @@
     "cli-box": "^6.0.10",
     "discord.js": "^14.7.1",
     "dotenv": "^16.0.3",
+    "moment": "^2.29.4",
     "mongoose": "^6.9.0",
     "rxjs": "^7.8.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.21"
   }
 }

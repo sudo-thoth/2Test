@@ -5,10 +5,14 @@ const {
 } = require("discord.js");
 const createModal = require("../../functions/create/createModal.js");
 const client = require(`../../index.js`);
+const createEmb = require("../../functions/create/createEmbed.js");
+const scripts = require("../../functions/scripts/scripts.js")
+const scripts_djs = require("../../functions/scripts/scripts_djs.js")
+
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("post")
-    .setDescription("Files must be 8mb or less or posted via Kraken Link")
+    .setDescription("Files must be less than server mb limit or posted via Kraken Link")
     .setDefaultMemberPermissions(PermissionFlagsBits.AttachFiles)
     .addSubcommandGroup((group) =>
     group
@@ -40,16 +44,18 @@ module.exports = {
               .addChoices(
                 { name: "Leak", value: "leak" },
                 { name: "OG File", value: "ogfile" },
+                { name: "Master", value: "master" },
                 { name: "Studio Session", value: "studiosession" },
                 { name: "Instrumental", value: "instrumental" },
                 { name: "Accapella", value: "accapella" },
-                { name: "Fully Mixed Session Edit", value: "mixedsession" },
+                { name: "Edit", value: "edit"},
+                { name: "Session Edit", value: "mixedsession" },
                 { name: "Snippet", value: "snippet" },
                 { name: "Remaster", value: "remaster" },
                 { name: "Stem Edit", value: "stemedit" },
                 { name: "Magical Edit", value: "magicaledit" },
                 { name: "Slowed & Reverb", value: "slowreverb" },
-                { name: "Random", value: "rand" }
+                { name: "Random", value: "rando" }
               )
           )
           .addRoleOption((opt) =>
@@ -82,10 +88,12 @@ module.exports = {
                 .addChoices(
                   { name: "Leak", value: "leak" },
                   { name: "OG File", value: "ogfile" },
+                  { name: "Master", value: "master" },
                   { name: "Studio Session", value: "studiosession" },
                   { name: "Instrumental", value: "instrumental" },
                   { name: "Accapella", value: "accapella" },
-                  { name: "Fully Mixed Session Edit", value: "mixedsession" },
+                  { name: "Edit", value: "edit"},
+                  { name: "Session Edit", value: "mixedsession" },
                   { name: "Snippet", value: "snippet" },
                   { name: "Remaster", value: "remaster" },
                   { name: "Stem Edit", value: "stemedit" },
@@ -95,7 +103,7 @@ module.exports = {
                 )
             )
             .addAttachmentOption((option) =>
-              option.setName("attachment").setDescription("The file to post")
+              option.setName("attachment").setDescription("The file to post").setRequired(true)
             )
             .addRoleOption((opt) =>
               opt
@@ -123,7 +131,7 @@ module.exports = {
                 )
             )
             .addAttachmentOption((option) =>
-              option.setName("attachment").setDescription("The file to post")
+              option.setName("attachment").setDescription("The file to post").setRequired(true)
             )
             .addRoleOption((opt) =>
               opt
@@ -151,7 +159,7 @@ module.exports = {
                 )
             )
             .addAttachmentOption((option) =>
-              option.setName("attachment").setDescription("The file to post")
+              option.setName("attachment").setDescription("The file to post").setRequired(true)
             )
             .addRoleOption((opt) =>
               opt
@@ -202,6 +210,21 @@ module.exports = {
 
     }
 client.emit("PostCommand", optionsObj)
+
+if (file) {
+  if (file.contentType  === 'application/zip' && file_type !== 'kraken-link') {
+    // file.contentType = 'audio/mpeg' || 'application/zip' || 'video/mp4' || 'image/jpeg' || 'image/png' || 'image/gif'
+   return await interaction.reply({
+    ephemeral: true,
+      embeds: [createEmb.createEmbed({color: scripts.getErrorColor(),
+        title: '⚠️ Error',
+      description: 'In Order to Send a **__.Zip__** file, you need to send the zip file via a **Kraken Link Only**, Not an attachment\nAfter creating the link, redo the command and select the kraken link option as apposed to the attachment option\n> Do Not Use A WeTranser Link b/c the Bot is only setup for Kraken File Links',
+    timestamp: new Date(),})]
+    })
+      }
+}
+
+
 
     switch (format) {
       case "image":
@@ -493,7 +516,70 @@ if (file_type === "attachment") {
             // Show the modal
             await interaction.showModal(modal);
               break;
-            case "instrumental":
+              case "master":
+              // do master things
+              // Modal Object that gets passed in below
+              modalObj = {
+                customID: `post_master_modal_a${randID}`,
+                title: "New Master Survey",
+                inputFields: [
+                  {
+                    customID: "name",
+                    label: "What is the name of the song?",
+                    style: "TextInputStyle.Short",
+                    placeholder: "Adore You",
+                    required: true,
+                  },
+                  {
+                    customID: "era",
+                    label: "What is the era of the song?",
+                    style: "TextInputStyle.Short",
+                    placeholder: "DRFL",
+                    required: false,
+                  },
+                  {
+                    customID: "text",
+                    label:
+                      "Additional Information About The Master",
+                    style: "TextInputStyle.Long",
+                    placeholder: "extra shit",
+                    required: false,
+                  },
+                  {
+                    customID: "producer",
+                    label: "Mixed By",
+                    style: "TextInputStyle.Short",
+                    placeholder: "@stevejobs",
+                    required: false,
+                  },
+                  {
+                    customID: "kraken",
+                    label: "Optional: If you want to add the kraken link",
+                    style: "TextInputStyle.Short",
+                    placeholder:
+                      "https://krakenfiles.com/view/stevejobswashere.lol",
+                    required: false,
+                  },
+                ],
+              };
+              // Create the modal
+              modal = await createModal.createModal(modalObj);
+              // Show the modal
+                  try {
+     await interaction.showModal(modal);
+    } catch (error) {
+      if (error.message.includes(`Unknown interaction`)) {
+        console.log(
+          `An unknown Interaction was Logged\nInteraction User ${interaction?.user?.username}`
+        ); // <:android:1083158839957921882>
+        return;
+      } else {
+        return console.log(error);
+      }
+    }
+              break;
+            
+              case "instrumental":
               // do instrumental things
                               // Modal Object that gets passed in below
             modalObj = {
@@ -610,7 +696,7 @@ if (file_type === "attachment") {
                                     // Modal Object that gets passed in below
             modalObj = {
               customID: `post_mixedsession_modal_a${randID}`,
-              title: "New Mixed Session Survey",
+              title: "New Session Edit Survey",
               inputFields: [
                 {
                   customID: "name",
@@ -635,11 +721,11 @@ if (file_type === "attachment") {
                   required: false,
                 },
                 {
-                  customID: "date",
+                  customID: "producer",
                   label:
-                    "What date was the song leaked?",
+                    "Made By",
                   style: "TextInputStyle.Short",
-                  placeholder: "Oct 25, 2021",
+                  placeholder: "@stevejobs",
                   required: false,
                 },
                 {
@@ -741,7 +827,7 @@ if (file_type === "attachment") {
                 {
                   customID: "text",
                   label:
-                    "Additional Information About The Accapella",
+                    "Additional Information About The Remaster",
                   style: "TextInputStyle.Long",
                   placeholder: "extra shit",
                   required: false,
@@ -793,7 +879,59 @@ if (file_type === "attachment") {
                 {
                   customID: "text",
                   label:
-                    "Additional Information About The Accapella",
+                    "Additional Information About The Stem Edit",
+                  style: "TextInputStyle.Long",
+                  placeholder: "extra shit",
+                  required: false,
+                },
+                {
+                  customID: "kraken",
+                  label:
+                    "Optional: If you want to add the kraken link",
+                  style: "TextInputStyle.Short",
+                  placeholder: "https://krakenfiles.com/view/stevejobswashere.lol",
+                  required: false,
+                },
+              ],
+            };
+            // Create the modal
+            modal = await createModal.createModal(modalObj);
+            // Show the modal
+            await interaction.showModal(modal);
+              break;
+              case "edit":
+              // do edit things
+                                          // Modal Object that gets passed in below
+            modalObj = {
+              customID: `post_edit_modal_a${randID}`,
+              title: "Edit Survey",
+              inputFields: [
+                {
+                  customID: "producer",
+                  label:
+                    "Made By",
+                  style: "TextInputStyle.Short",
+                  placeholder: "@stevejobs",
+                  required: false,
+                },
+                {
+                  customID: "name",
+                  label: "What is the name of the song?",
+                  style: "TextInputStyle.Short",
+                  placeholder: "Adore You",
+                  required: true,
+                },
+                {
+                  customID: "altname",
+                  label: "Any alternate names for the song?",
+                  style: "TextInputStyle.Long",
+                  placeholder: "Dark Knight",
+                  required: false,
+                },
+                {
+                  customID: "text",
+                  label:
+                    "Additional Information About The Magical Edit",
                   style: "TextInputStyle.Long",
                   placeholder: "extra shit",
                   required: false,
@@ -845,7 +983,7 @@ if (file_type === "attachment") {
                 {
                   customID: "text",
                   label:
-                    "Additional Information About The Accapella",
+                    "Additional Information About The Magical Edit",
                   style: "TextInputStyle.Long",
                   placeholder: "extra shit",
                   required: false,
@@ -897,7 +1035,7 @@ if (file_type === "attachment") {
                 {
                   customID: "text",
                   label:
-                    "Additional Information About The Accapella",
+                    "Additional Info For The Slowed & Reverb Edit",
                   style: "TextInputStyle.Long",
                   placeholder: "extra shit",
                   required: false,
@@ -958,6 +1096,7 @@ if (file_type === "attachment") {
               break;
           }
 } else if (file_type === "kraken-link") {
+
   switch (type) {
     case "leak":
       // do leak things
@@ -1167,7 +1306,7 @@ if (file_type === "attachment") {
     // Show the modal
     await interaction.showModal(modal);
       break;
-    case "acapella":
+    case "accapella":
       // do acappella things
                             // Modal Object that gets passed in below
     modalObj = {
@@ -1224,7 +1363,7 @@ if (file_type === "attachment") {
                             // Modal Object that gets passed in below
     modalObj = {
       customID: `post_mixedsession_modal${randID}`,
-      title: "New Mixed Session Survey",
+      title: "New Session Edit Survey",
       inputFields: [
         {
           customID: "kraken",
@@ -1257,11 +1396,11 @@ if (file_type === "attachment") {
           required: false,
         },
         {
-          customID: "date",
+          customID: "producer",
           label:
-            "What date was the song leaked?",
+            "Made By",
           style: "TextInputStyle.Short",
-          placeholder: "Oct 25, 2021",
+          placeholder: "@stevejobs",
           required: false,
         },
       ],
@@ -1323,6 +1462,60 @@ if (file_type === "attachment") {
     // Show the modal
     await interaction.showModal(modal);
       break;
+      case "master":
+      // do master things
+                                  // Modal Object that gets passed in below
+    modalObj = {
+      customID: `post_master_modal${randID}`,
+      title: "Master Survey",
+      inputFields: [
+        {
+          customID: "kraken",
+          label:
+            "Provide 1 kraken link",
+          style: "TextInputStyle.Short",
+          placeholder: "https://krakenfiles.com/view/stevejobswashere.lol",
+          required: true,
+        },
+        {
+          customID: "producer",
+          label:
+            "Made By",
+          style: "TextInputStyle.Short",
+          placeholder: "@stevejobs",
+          required: false,
+        },
+        {
+          customID: "name",
+          label: "What is the name of the song?",
+          style: "TextInputStyle.Short",
+          placeholder: "Adore You",
+          required: true,
+        },
+        {
+          customID: "era",
+          label:
+            "What is the era of the song?",
+          style: "TextInputStyle.Short",
+          placeholder: "DRFL",
+          required: false,
+        },
+        {
+          customID: "text",
+          label:
+            "Additional Information About The Master",
+          style: "TextInputStyle.Long",
+          placeholder: "extra shit",
+          required: false,
+        }
+        
+      ],
+    };
+    // Create the modal
+    modal = await createModal.createModal(modalObj);
+    // Show the modal
+    await interaction.showModal(modal);
+      break;
     case "remaster":
       // do remaster things
                                   // Modal Object that gets passed in below
@@ -1363,7 +1556,7 @@ if (file_type === "attachment") {
         {
           customID: "text",
           label:
-            "Additional Information About The Accapella",
+            "Additional Information About The Remaster",
           style: "TextInputStyle.Long",
           placeholder: "extra shit",
           required: false,
@@ -1415,9 +1608,61 @@ if (file_type === "attachment") {
         {
           customID: "text",
           label:
-            "Additional Information About The Accapella",
+            "Additional Information About The Stem Edit",
           style: "TextInputStyle.Long",
           placeholder: "extra shit",
+          required: false,
+        },
+      ],
+    };
+    // Create the modal
+    modal = await createModal.createModal(modalObj);
+    // Show the modal
+    await interaction.showModal(modal);
+      break;
+      case "edit":
+      // do edit things
+                                  // Modal Object that gets passed in below
+    modalObj = {
+      customID: `post_edit_modal${randID}`,
+      title: "Edit Survey",
+      inputFields: [
+        {
+          customID: "producer",
+          label:
+            "Made By",
+          style: "TextInputStyle.Short",
+          placeholder: "@stevejobs",
+          required: false,
+        },
+        {
+          customID: "name",
+          label: "What is the name of the song?",
+          style: "TextInputStyle.Short",
+          placeholder: "Adore You",
+          required: true,
+        },
+        {
+          customID: "altname",
+          label: "Any alternate names for the song?",
+          style: "TextInputStyle.Long",
+          placeholder: "Dark Knight",
+          required: false,
+        },
+        {
+          customID: "text",
+          label:
+            "Additional Information About The Magical Edit",
+          style: "TextInputStyle.Long",
+          placeholder: "extra shit",
+          required: false,
+        },
+        {
+          customID: "kraken",
+          label:
+            "Optional: If you want to add the kraken link",
+          style: "TextInputStyle.Short",
+          placeholder: "https://krakenfiles.com/view/stevejobswashere.lol",
           required: false,
         },
       ],
@@ -1467,7 +1712,7 @@ if (file_type === "attachment") {
         {
           customID: "text",
           label:
-            "Additional Information About The Accapella",
+            "Additional Information About The Magical Edit",
           style: "TextInputStyle.Long",
           placeholder: "extra shit",
           required: false,
@@ -1519,7 +1764,7 @@ if (file_type === "attachment") {
         {
           customID: "text",
           label:
-            "Additional Information About The Accapella",
+            "Additional Info For The Slowed & Reverb Edit",
           style: "TextInputStyle.Long",
           placeholder: "extra shit",
           required: false,

@@ -11,7 +11,8 @@ const listSchema = new Schema(
     messageURL: String,
     listTitle: {type: String, required: true},
     listItems: [String],
-    embedObj: Object
+    embedObj: Object,
+    embeds: [Object]
   },
   { collection: "lists" } // the database default collection name the schema will be stored in
 );

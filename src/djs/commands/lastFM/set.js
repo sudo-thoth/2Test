@@ -1,4 +1,4 @@
-const lastfmModel = require('../../../mongoDB/schemas/lastfmSchema.js');
+const lastfmModel = require("../../../MongoDB/db/schemas/schema_lastfm.js") 
 const { EmbedBuilder } = require("discord.js")
 
 module.exports = {

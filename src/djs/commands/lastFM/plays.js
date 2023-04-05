@@ -1,5 +1,5 @@
 const axios = require("axios")
-const lastfmModel = require('../../models/lastfmSchema');
+const lastfmModel = require('../../../MongoDB/db/schemas/schema_lastfm.js');
 const { EmbedBuilder } = require("discord.js");
 const jsdom = require("jsdom");
 

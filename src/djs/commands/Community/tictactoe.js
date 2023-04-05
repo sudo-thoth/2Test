@@ -7,7 +7,7 @@ const scripts_djs = require("../../functions/scripts/scripts_djs.js");
 const createEmb = require("../../functions/create/createEmbed.js");
 const client = require("../../index.js");
 let maxTime, maxTime2, timeLeft, timeLeft2;
-const createBtn = require("../../functions/create/createbutton.js");
+const createBtn = require("../../functions/create/createButton.js");
 const createActRow = require("../../functions/create/createActionRow.js");
 // This command gives you the opportunity to create a completely new nickname with just two simple steps.
 module.exports = {

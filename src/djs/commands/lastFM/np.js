@@ -1,8 +1,8 @@
 const axios = require("axios")
-const lastfmModel = require('../models/lastfmSchema');
+const lastfmModel = require('../../../MongoDB/db/schemas/schema_lastfm.js');
 const { EmbedBuilder } = require("discord.js");
 const jsdom = require("jsdom");
-const client = require("../bot.js");
+const client = require("../../index.js");
 
 module.exports = {
     name: "np",

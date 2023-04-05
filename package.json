@@ -9,10 +9,9 @@
     "pm2-list": "pm2 list",
     "pm2-stop": "pm2 stop",
     "show-logs": "pm2 logs 2Test_bot",
-    "toggle-logs": "pm2 trigger 2Test_bot toggleLogs"
-    "start": "npm run check-deps && nodemon index.js", 
+    "toggle-logs": "pm2 trigger 2Test_bot toggleLogs",
+    "start": "npm run check-deps && nodemon index.js",
     "check-deps": "for dep in axios axios-observable chalk cli-box discord.js dotenv moment mongoose rxjs; do if [ ! -d \"node_modules/$dep\" ]; then npm install $dep; fi; done"
-
   },
   "author": "LT",
   "license": "ISC",
@@ -23,6 +22,7 @@
     "cli-box": "^6.0.10",
     "discord.js": "^14.7.1",
     "dotenv": "^16.0.3",
+    "jsdom": "^21.1.1",
     "moment": "^2.29.4",
     "mongoose": "^6.9.0",
     "nodemon": "^2.0.21",

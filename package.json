@@ -10,7 +10,7 @@
     "pm2-stop": "pm2 stop",
     "show-logs": "pm2 logs 2Test_bot",
     "toggle-logs": "pm2 trigger 2Test_bot toggleLogs",
-    "start": "npm run check-deps && nodemon index.js",
+    "start": "nodemon index.js",
     "check-deps": "for dep in axios axios-observable chalk cli-box discord.js dotenv moment mongoose rxjs; do if [ ! -d \"node_modules/$dep\" ]; then npm install $dep; fi; done"
   },
   "author": "LT",

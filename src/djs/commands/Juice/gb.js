@@ -960,8 +960,11 @@ module.exports = {
       gbMessage = await gbMessage.edit({
         embeds: [createEmb.createEmbed(gbEmbed)],
       });
-
-      // update the gbInfo
+      let priceNumber = Number(gbEmbedSongPrice);
+      let amountPaidNumber = Number(gbEmbedAmountPaid);
+      let priceString = gbEmbedAmountPaid;
+      let amountPaidString = gbEmbedAmountPaid;
+            // update the gbInfo
       gbInfo = {
         randID: randID,
         interactionID: randID,
@@ -969,12 +972,15 @@ module.exports = {
         channelID: gbMessage.channel.id,
         guildID: gbMessage.guild.id,
         name: gbEmbedTitle,
-        price: gbEmbedSongPrice,
-        amountPaid: gbEmbedAmountPaid,
+        priceNumber: priceNumber,
+        price: priceString,
+        amountPaid: amountPaidString,
+        amountPaidNumber: amountPaidNumber,
         totalPaid: gbEmbedAmountPaid + gbEmbedSongPrice,
         amountLeft: amountLeft,
         percentLeft: percentLeft,
       };
+      
       // update the gbInfo
       try {
         await this.savetodb(randID, gbInfo);
@@ -1136,19 +1142,25 @@ module.exports = {
       });
 
       // update the gbInfo
+      let priceNumber = Number(gbEmbedSongPrice);
+      let amountPaidNumber = Number(gbEmbedAmountPaid);
+      let priceString = gbEmbedAmountPaid;
+      let amountPaidString = gbEmbedAmountPaid;
+            // update the gbInfo
       gbInfo = {
+        randID: randID,
+        interactionID: randID,
         messageID: gbMessage.id,
         channelID: gbMessage.channel.id,
         guildID: gbMessage.guild.id,
-        message: gbMessage,
         name: gbEmbedTitle,
-        price: gbEmbedSongPrice,
-        amountPaid: gbEmbedAmountPaid,
+        priceNumber: priceNumber,
+        price: priceString,
+        amountPaid: amountPaidString,
+        amountPaidNumber: amountPaidNumber,
         totalPaid: gbEmbedAmountPaid + gbEmbedSongPrice,
         amountLeft: amountLeft,
         percentLeft: percentLeft,
-        randID: randID,
-        interactionID: randID,
       };
       // update the gbInfo
       try {
@@ -1328,18 +1340,25 @@ module.exports = {
       });
 
       // update the gbInfo
+      let priceNumber = Number(gbEmbedSongPrice);
+      let amountPaidNumber = Number(gbEmbedAmountPaid);
+      let priceString = gbEmbedAmountPaid;
+      let amountPaidString = gbEmbedAmountPaid;
+            // update the gbInfo
       gbInfo = {
+        randID: randID,
+        interactionID: randID,
         messageID: gbMessage.id,
         channelID: gbMessage.channel.id,
         guildID: gbMessage.guild.id,
         name: gbEmbedTitle,
-        price: gbEmbedSongPrice,
-        amountPaid: gbEmbedAmountPaid,
+        priceNumber: priceNumber,
+        price: priceString,
+        amountPaid: amountPaidString,
+        amountPaidNumber: amountPaidNumber,
         totalPaid: gbEmbedAmountPaid + gbEmbedSongPrice,
         amountLeft: amountLeft,
         percentLeft: percentLeft,
-        randID: randID,
-        interactionID: randID,
       };
       // update the gbInfo
       try {
@@ -1609,7 +1628,11 @@ module.exports = {
             }),
           ],
         });
-
+        try{
+          await gbdb.deleteOne({ randID: randID });
+        } catch (error) {
+          console.log(error, `\n\n\nError deleting gb from db`)
+        }
         // delete the interaction after 12 seconds
         setTimeout(async () => {
           await interaction.deleteReply();

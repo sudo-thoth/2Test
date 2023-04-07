@@ -95,7 +95,10 @@ if (i) {
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("role-selection")
-    .setDescription("role selection buttons"),
+    .setDescription("role selection buttons")
+    .addStringOption((option) =>
+      option.setName("msg-id").setDescription("Message id of the current role selection")
+    ),
    
   async execute(interaction) {
     if (interaction.memberPermissions.has("Administrator") || interaction.member.roles.cache.some(role => allowedRoles.includes(role.name.toLowerCase()))) {
@@ -154,11 +157,18 @@ module.exports = {
        });
        const axscompupdates = await createButtn.createButton({
          customID: `role_axscompupdates_${interaction.guild.name}${randID}`,
-         label: "Comp",
+         label: "AxS Comp Updates",
          style: "secondary",
          disabled: false,
          emoji: "<:10671434201602907700128:1086967254773678172>",
        });
+       const markycompupdates = await createButtn.createButton({
+        customID: `role_markcompupdates_${interaction.guild.name}${randID}`,
+        label: "Marky Comp Updates",
+        style: "secondary",
+        disabled: false,
+        emoji: "<:YohprojectCrayonCuteFoldermusic:1089371278797971536>",
+      });
        const magicaledits = await createButtn.createButton({
          customID: `role_magicaledits_${interaction.guild.name}${randID}`,
          label: "Magical Edits",
@@ -211,7 +221,7 @@ module.exports = {
          components: [magicaledits, stemedits, slowreverb, edits],
        });
        const row3 = await createActRow.createActionRow({
-         components: [ axscompupdates, chatrevive],
+         components: [ markycompupdates, axscompupdates, chatrevive],
        });
    
        const hub = {
@@ -225,12 +235,45 @@ module.exports = {
 
 
 
- 
+
+      if (interaction.options.getString('msg-id')) {
+        // Get the input message ID string
+        let msgidStr = interaction.options.getString('msg-id');
+      
+        // Remove anything that's not a number from the input string
+        let msgid = msgidStr.replace(/\D/g, '');
+      
+        // Check if the resulting ID is valid
+        if (!/^\d+$/.test(msgid)) {
+          // If the resulting ID is not all digits, send an error message
+          const errorMessage = new MessageEmbed()
+            .setColor('RED')
+            .setTitle('Invalid Message ID')
+            .setDescription(``);
+          return await interaction.editReply({ embeds: [createEmb.createEmbed({
+            title: 'Invalid Message ID',
+            description: `"${msgidStr}" is not a valid message ID.`,
+            color: scripts.getErrorColor()
+          })], ephemeral: true });
+        }
+      
+        // Edit the message with the given ID
+        try {
+          let roleMsg = await interaction.channel.messages.fetch(msgid);
+          await roleMsg.edit(hub);
+        } catch (error) {
+          await throwNewError("sending role selection hub", interaction, error);
+        }
+      } else {
+         //   This is to send a new Embeded Message to the Channel
        try {
          await interaction.channel.send(hub);
        } catch (error) {
          await throwNewError("sending role selection hub", interaction, error);
        }
+      }
+      
+
       //  try {
  
       //      await interaction.channel.send(serverhub);

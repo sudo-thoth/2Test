@@ -354,6 +354,9 @@ if (client) {
       axscompupdatesrole = await interaction.guild.roles.fetch(
         "1089361350171562074"
       );
+      markycompupdatesrole = await interaction.guild.roles.fetch(
+        "1093993604705435849"
+      );
       slowreverbrole = await interaction.guild.roles.fetch("1089359849726410812");
       stemeditsrole = await interaction.guild.roles.fetch(
         "1089359350402912256"
@@ -419,6 +422,17 @@ if (client) {
         case "axscompupdates":
           try {
             await updateRole(interaction, axscompupdatesrole);
+          } catch (error) {
+            try {
+              await interaction.editReply({embeds:[createEmb.createEmbed({description: ` \`Error Occurred Please Try Again\`\n\n\n\`\`\`js\n${error}\n\`\`\``, color: scripts.getErrorColor()})]})
+            } catch (err) {
+              console.log(err)
+            }
+          }
+          break;
+          case "markycompupdates":
+          try {
+            await updateRole(interaction, markycompupdatesrole);
           } catch (error) {
             try {
               await interaction.editReply({embeds:[createEmb.createEmbed({description: ` \`Error Occurred Please Try Again\`\n\n\n\`\`\`js\n${error}\n\`\`\``, color: scripts.getErrorColor()})]})

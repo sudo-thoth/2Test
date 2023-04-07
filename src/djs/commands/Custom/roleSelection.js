@@ -261,6 +261,15 @@ module.exports = {
         try {
           let roleMsg = await interaction.channel.messages.fetch(msgid);
           await roleMsg.edit(hub);
+          await interaction.editReply({
+            embeds: [
+              createEmb.createEmbed({
+                title: "Success",
+                description: "Role Selection Hub Updated",
+                color: scripts.getSuccessColor(),
+              }),
+            ],
+          });
         } catch (error) {
           await throwNewError("sending role selection hub", interaction, error);
         }
@@ -268,6 +277,15 @@ module.exports = {
          //   This is to send a new Embeded Message to the Channel
        try {
          await interaction.channel.send(hub);
+         await interaction.editReply({
+          embeds: [
+            createEmb.createEmbed({
+              title: "Success",
+              description: "Role Selection Hub Posted",
+              color: scripts.getSuccessColor(),
+            }),
+          ],
+        });
        } catch (error) {
          await throwNewError("sending role selection hub", interaction, error);
        }
@@ -280,15 +298,7 @@ module.exports = {
       //    } catch (error) {
       //      await throwNewError("sending role selection hub", interaction, error);
       //    }
-       await interaction.editReply({
-         embeds: [
-           createEmb.createEmbed({
-             title: "Success",
-             description: "Role Selection Hub Posted",
-             color: scripts.getSuccessColor(),
-           }),
-         ],
-       });
+       
        }else if (interaction.guild.id === "1074125896698581104") { // Biscotti
         roleHubEmbed = createEmb.createEmbed({
          title: `Juice WRLD Role Selection`,

@@ -19,10 +19,11 @@ module.exports = async (client, commandFolders, path) => {
   
     for (const file of commandFiles) {
       const command = require(`../../commands/${folder}/${file}`);
-  
+      if (folder === 'lastFM') break;
+        
     
-        client.commands.set(command.data.name, command);
-        client.commandArray.push(command.data.toJSON());
+        client.commands.set(command.data?.name, command);
+        client.commandArray.push(command.data?.toJSON());
       
 
       // if were to do an alt way w prefix commands

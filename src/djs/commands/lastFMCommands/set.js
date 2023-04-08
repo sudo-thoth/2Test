@@ -1,5 +1,5 @@
 const lastfmModel = require("../../../MongoDB/db/schemas/schema_lastfm.js") 
-const { EmbedBuilder,SlashCommandBuilder } = require("discord.js")
+const { SlashCommandBuilder } = require("discord.js")
 const scripts = require("../../functions/scripts/scripts.js")
 const createEmb = require("../../functions/create/createEmbed.js")
 
@@ -17,11 +17,11 @@ module.exports = {
             console.log(error, `error deferring reply`);
           }
           let {options, user} = interaction;
-          let lfmUsername = options.getString("username")
+          let lfmUsername = options.getString("username") // last fm username
         let LFuser; // last fm user
-        lastfmModel
+        lastfmModel // db model obj
   .findOneAndUpdate(
-    { userID: user.id },
+    { userID: user.id }, // find the doc by user id, if there is not one present, it creates a new user doc
     {
       $set: {
         userID: user.id,
@@ -32,7 +32,7 @@ module.exports = {
     },
     { upsert: true, new: true }
   )
-  .then(async (LFuser) => {
+  .then(async (LFuser) => { // LFUser is the doc
     let embed = createEmb.createEmbed({
       title: 'Success!',
       description: `\n\n <:yes:1087550258764071004> \`LastFM username set to:\` \n\`\`\`${LFuser.lastfmID}\`\`\``,

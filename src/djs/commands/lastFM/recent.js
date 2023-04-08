@@ -3,6 +3,8 @@ const lastfmModel = require('../../../MongoDB/db/schemas/schema_lastfm');
 const { EmbedBuilder } = require("discord.js");
 const jsdom = require("jsdom");
 const client = require("../../index.js")
+require("dotenv").config({ path: "./my.env" }); 
+const { lastFM_API_ID } = process.env;
 
 module.exports = {
     name: "recent",
@@ -34,7 +36,7 @@ module.exports = {
             console.log(err);
         }
 
-        const uri = `https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=${LFuser.lastfmID}&api_key=2fdf8c5b06054003142716d7a970cada&limit=10`
+        const uri = `https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=${LFuser.lastfmID}&api_key=${lastFM_API_ID}&limit=10`
     
         const toptracks = await axios.get(uri)
         

@@ -2,6 +2,8 @@ const axios = require("axios")
 const lastfmModel = require('../../../MongoDB/db/schemas/schema_lastfm.js');
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle, EmbedBuilder, ComponentType } = require("discord.js");
 const jsdom = require("jsdom");
+require("dotenv").config({ path: "./my.env" }); 
+const { lastFM_API_ID } = process.env;
 
 module.exports = {
     name: "whoknowstrack",
@@ -42,7 +44,7 @@ module.exports = {
             } catch(err) {
                 console.log(err);
             }
-            const uri1 = `https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=${LFuser.lastfmID}&api_key=2fdf8c5b06054003142716d7a970cada&limit=1`
+            const uri1 = `https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=${LFuser.lastfmID}&api_key=${lastFM_API_ID}&limit=1`
 
             const recenttracks = await axios.get(uri1)
             
@@ -69,7 +71,7 @@ module.exports = {
             try{
                 LFuser = await lastfmModel.findOne({ userID: message.guild.members.cache.get(member) });
                 if (LFuser) {
-                    const uri = `https://ws.audioscrobbler.com/2.0/?method=track.getInfo&user=${LFuser.lastfmID}&api_key=2fdf8c5b06054003142716d7a970cada&artist=${artist}&track=${track}`
+                    const uri = `https://ws.audioscrobbler.com/2.0/?method=track.getInfo&user=${LFuser.lastfmID}&api_key=${lastFM_API_ID}&artist=${artist}&track=${track}`
     
                     const toptracks = await axios.get(uri)
                     

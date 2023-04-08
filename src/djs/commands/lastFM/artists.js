@@ -3,6 +3,8 @@ const lastfmModel = require('../../../MongoDB/db/schemas/schema_lastfm.js')
 const { EmbedBuilder } = require("discord.js");
 const jsdom = require("jsdom");
 const client = require("../../index.js")
+require("dotenv").config({ path: "./my.env" }); 
+const { lastFM_API_ID } = process.env;
 
 module.exports = {
     name: "artists",
@@ -39,22 +41,22 @@ module.exports = {
             var timelength = args[3];
         } else var timelength = args[2];
         if (timelength === "7d") {
-            var uri = `https://ws.audioscrobbler.com/2.0/?method=user.gettopartists&user=${LFuser.lastfmID}&api_key=2fdf8c5b06054003142716d7a970cada&limit=10&period=7day`
+            var uri = `https://ws.audioscrobbler.com/2.0/?method=user.gettopartists&user=${LFuser.lastfmID}&api_key=${lastFM_API_ID}&limit=10&period=7day`
             var timeperiod = "7 Days"
         } else if (timelength === "1m") {
-            var uri = `https://ws.audioscrobbler.com/2.0/?method=user.gettopartists&user=${LFuser.lastfmID}&api_key=2fdf8c5b06054003142716d7a970cada&limit=10&period=1month`
+            var uri = `https://ws.audioscrobbler.com/2.0/?method=user.gettopartists&user=${LFuser.lastfmID}&api_key=${lastFM_API_ID}&limit=10&period=1month`
             var timeperiod = "1 Month"
         } else if (timelength === "3m") {
-            var uri = `https://ws.audioscrobbler.com/2.0/?method=user.gettopartists&user=${LFuser.lastfmID}&api_key=2fdf8c5b06054003142716d7a970cada&limit=10&period=3month`
+            var uri = `https://ws.audioscrobbler.com/2.0/?method=user.gettopartists&user=${LFuser.lastfmID}&api_key=${lastFM_API_ID}&limit=10&period=3month`
             var timeperiod = "3 Months"
         } else if (timelength === "6m") {
-            var uri = `https://ws.audioscrobbler.com/2.0/?method=user.gettopartists&user=${LFuser.lastfmID}&api_key=2fdf8c5b06054003142716d7a970cada&limit=10&period=6month`
+            var uri = `https://ws.audioscrobbler.com/2.0/?method=user.gettopartists&user=${LFuser.lastfmID}&api_key=${lastFM_API_ID}&limit=10&period=6month`
             var timeperiod = "6 Months"
         } else if (timelength === "12m" || timelength === "1y") {
-            var uri = `https://ws.audioscrobbler.com/2.0/?method=user.gettopartists&user=${LFuser.lastfmID}&api_key=2fdf8c5b06054003142716d7a970cada&limit=10&period=12month`
+            var uri = `https://ws.audioscrobbler.com/2.0/?method=user.gettopartists&user=${LFuser.lastfmID}&api_key=${lastFM_API_ID}&limit=10&period=12month`
             var timeperiod = "1 Year"
         } else {
-            var uri = `https://ws.audioscrobbler.com/2.0/?method=user.gettopartists&user=${LFuser.lastfmID}&api_key=2fdf8c5b06054003142716d7a970cada&limit=10`
+            var uri = `https://ws.audioscrobbler.com/2.0/?method=user.gettopartists&user=${LFuser.lastfmID}&api_key=${lastFM_API_ID}&limit=10`
             var timeperiod = "Overall"
         }
     

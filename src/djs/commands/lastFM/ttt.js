@@ -2,6 +2,8 @@ const axios = require("axios")
 const lastfmModel = require('../../../MongoDB/db/schemas/schema_lastfm.js');
 const { EmbedBuilder } = require("discord.js");
 const jsdom = require("jsdom");
+require("dotenv").config({ path: "./my.env" }); 
+const { lastFM_API_ID } = process.env;
 
 module.exports = {
     name: "ttt",
@@ -28,7 +30,7 @@ module.exports = {
             console.log(err);
         }
         
-        var uri = `https://ws.audioscrobbler.com/2.0/?method=user.gettoptracks&user=${LFuser.lastfmID}&api_key=2fdf8c5b06054003142716d7a970cada&limit=1000`
+        var uri = `https://ws.audioscrobbler.com/2.0/?method=user.gettoptracks&user=${LFuser.lastfmID}&api_key=${lastFM_API_ID}&limit=1000`
 
         const toptracks = await axios.get(uri)
         
@@ -37,7 +39,7 @@ module.exports = {
         });
 
         if (!args[2]) {
-            let uri1 = `https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=${LFuser.lastfmID}&api_key=2fdf8c5b06054003142716d7a970cada&limit=1`
+            let uri1 = `https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=${LFuser.lastfmID}&api_key=${lastFM_API_ID}&limit=1`
         
         
             const recenttrack = await axios.get(uri1)

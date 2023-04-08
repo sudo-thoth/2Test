@@ -20,20 +20,26 @@ module.exports = async (client, commandFolders, path) => {
     for (const file of commandFiles) {
       const command = require(`../../commands/${folder}/${file}`);
   
-      if (folder === 'lastFM') {
-        client.lfcommands.set(command.name, command);
-        if (command.aliases) {
-          for (let i = 0; i < command.aliases.length; i++) {
-            client.lfcommands.set(command.aliases[i], command)
-          }
-        }
-      } else if (folder === 'snipes') {
-        client.scommands.set(command.data.name, command);
-        scommands.push(command.data.toJSON());
-      } else {
+    
         client.commands.set(command.data.name, command);
         client.commandArray.push(command.data.toJSON());
-      }
+      
+
+      // if were to do an alt way w prefix commands
+      // if (folder === 'lastFM') {
+      //   client.lfcommands.set(command.name, command);
+      //   if (command.aliases) {
+      //     for (let i = 0; i < command.aliases.length; i++) {
+      //       client.lfcommands.set(command.aliases[i], command)
+      //     }
+      //   }
+      // } else if (folder === 'snipes') {
+      //   client.scommands.set(command.data.name, command);
+      //   scommands.push(command.data.toJSON());
+      // } else {
+      //   client.commands.set(command.data.name, command);
+      //   client.commandArray.push(command.data.toJSON());
+      // }
     }
   }
 

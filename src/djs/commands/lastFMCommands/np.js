@@ -12,7 +12,7 @@ module.exports = {
     data: new SlashCommandBuilder()
     .setName("np")
     .setDescription("LastFM users most recently played track.")
-    .addUserOption(option => option.setName("username").setDescription("Input User You want to Query").setRequired(true)
+    .addUserOption(option => option.setName("username").setDescription("Input User You want to Query").setRequired(false)
     ),
     async execute(interaction) {
         let userinfoget = interaction.options.getUser("username") || interaction.user;
@@ -44,6 +44,15 @@ module.exports = {
         const dom1 = new jsdom.JSDOM(recenttrack.data, {
             contentType: "text/xml",
         });
+        if(!dom1?.window?.document?.querySelector("name")?.textContent){
+            try {
+                return await interaction.editReply({embeds: [createEmb.createEmbed({title: 'Error!', description: `<a:Error:1005725142015549621> \`an error occured while retrieving ${userinfoget.id === interaction.user.id ? 'your' : `@${userinfoget.username}'s`} LastFM stats, Please verify ${userinfoget.id === interaction.user.id ? 'your' : `@${userinfoget.username}'s`} account has valid data to be shown\` <:ArrowDCL:1079572493318246451> \`${LFuser.lastfmID}\``, color: scripts.getErrorColor(), 
+                thumbnail: userinfoget.avatarURL({ dynamic: true})})    
+               ]})
+           } catch (error) {
+               return console.log(error)
+             }
+        }
         let trackname = dom1.window.document.querySelector("name").textContent;
         let artistname = dom1.window.document.querySelector("artist").textContent;
         let album = dom1.window.document.querySelector("album").textContent;
@@ -82,7 +91,7 @@ let artistImageURL = artistInfo.data.artist.image[3]["#text"];
         if (albumimage == '') {
             albumimage = 'https://www.google.com/url?sa=i&url=https%3A%2F%2Fstackoverflow.com%2Fquestions%2F65441963%2Fhtml-file-upload-uploads-missing-icon-instead-of-chosen-image&psig=AOvVaw15V_is7ApKvri_t8awEQAf&ust=1681025684216000&source=images&cd=vfe&ved=0CBAQjRxqFwoTCKDC3ujimf4CFQAAAAAdAAAAABAF';
         }
-        const embed = createEmb.createEmbed({color: userinfoget.hexAccentColor,author:{name: `LastFM User: ${LFuser.lastfmID}`, iconURL: `${avatar}`, url: `https://www.last.fm/user/${LFuser.lastfmID}`}, footer: { text: `Playcount: ${playcount} | Total Scrobbles: ${totalscrobbles} | Album: ${album}`, iconURL: artistImageURL}, fields: [
+        const embed = createEmb.createEmbed({color: userinfoget.hexAccentColor,author:{name: `LastFM User: ${LFuser.lastfmID}`, iconURL: `${avatar}`, url: `https://www.last.fm/user/${LFuser.lastfmID}`}, footer: { text: `Playcount: ${playcount} | Total Scrobbles: ${totalscrobbles} | Album: ${album}`, iconURL: artistname === "Juice WRLD" || "Juice Wrld" ? "https://lastfm.freetls.fastly.net/i/u/ar0/d6e904e50bb79e7877711efe9463c675.jpg" : artistImageURL}, fields: [
                 {name: 'Track', value: `> [${trackname}](${trackurl})`},
                 {name: 'Artist', value: `> [${artistname}](${artisturl})`}], thumbnail: albumimage})
            

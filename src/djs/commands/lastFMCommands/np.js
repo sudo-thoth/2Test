@@ -10,7 +10,7 @@ const { lastFM_API_ID } = process.env;
 
 module.exports = {
     data: new SlashCommandBuilder()
-    .setName("np")
+    .setName("np-lastfm")
     .setDescription("LastFM users most recently played track.")
     .addUserOption(option => option.setName("username").setDescription("Input User You want to Query").setRequired(false)
     ),
@@ -18,6 +18,7 @@ module.exports = {
         let userinfoget = interaction.options.getUser("username") || interaction.user;
         try {
             await interaction.deferReply({ ephemeral: true });
+            await interaction.editReply({embeds: [createEmb.createEmbed({ description: `<a:Discord_loading:1094515757074874428>`})]})
           } catch (error) {
             console.log(error, `error deferring reply`);
           }
@@ -91,13 +92,15 @@ module.exports = {
         if (albumimage == '') {
             albumimage = 'https://www.google.com/url?sa=i&url=https%3A%2F%2Fstackoverflow.com%2Fquestions%2F65441963%2Fhtml-file-upload-uploads-missing-icon-instead-of-chosen-image&psig=AOvVaw15V_is7ApKvri_t8awEQAf&ust=1681025684216000&source=images&cd=vfe&ved=0CBAQjRxqFwoTCKDC3ujimf4CFQAAAAAdAAAAABAF';
         }
-        const embed = createEmb.createEmbed({color: userinfoget.hexAccentColor,author:{name: `LastFM User: ${LFuser.lastfmID}`, iconURL: `${avatar}`, url: `https://www.last.fm/user/${LFuser.lastfmID}`}, footer: { text: `Playcount: ${playcount} | Total Scrobbles: ${totalscrobbles} | Album: ${album}`, iconURL: artistname === "Juice WRLD" || "Juice Wrld" ? "https://lastfm.freetls.fastly.net/i/u/ar0/d6e904e50bb79e7877711efe9463c675.jpg" : ''}, fields: [
+        const embed = createEmb.createEmbed({color: userinfoget.hexAccentColor,author:{name: `Requested by: ${interaction.user.username} | LastFM User: ${LFuser.lastfmID}`, iconURL: `${avatar}`, url: `https://www.last.fm/user/${LFuser.lastfmID}`}, footer: { text: `Playcount: ${playcount} | Total Scrobbles: ${totalscrobbles} | Album: ${album}`, iconURL: artistname === "Juice WRLD" || "Juice Wrld" ? "https://lastfm.freetls.fastly.net/i/u/ar0/d6e904e50bb79e7877711efe9463c675.jpg" : ''}, fields: [
                 {name: 'Track', value: `> [${trackname}](${trackurl})`},
                 {name: 'Artist', value: `> [${artistname}](${artisturl})`}], thumbnail: albumimage})
-           
-        await interaction.channel.send({embeds: [embed]}).then(sentEmbed => {
+        await interaction.followUp({embeds: [embed]}).then(async sentEmbed => {
+            await interaction.editReply({embeds: [createEmb.createEmbed({color:scripts.getSuccessColor(), description: `<:check:1088834644381794365>`})]})
             sentEmbed.react("<a:Up_Vote:1094169827201007667>")
             sentEmbed.react("<a:down_red_arow:1094172682318266481>")
+            await scripts.delay(3330)
+            await interaction.deleteReply()
         })
         
     }

@@ -96,7 +96,7 @@ module.exports = {
           
           let trackList = tracknames.map((trackname, index) => `\`${index + 1}.\` **[${trackname}](${trackurls[index]}) (\`${trackplays[index]} ${trackplays[index] <= 1 ? `Play` : `Plays`}\`)**`).join('\n');
           
-          const embed = createEmb.createEmbed({color: userinfoget.hexAccentColor, title: `${LFuser.lastfmID} | Top Tracks | ${artists[0] === undefined ? usersArtist : artists[0] }`, url: `https://www.last.fm/user/${LFuser.lastfmID}`, footer: { text: `Requested by : ${interaction.user.username} | Total Plays: ${playcount}`, iconURL: interaction.user.avatarURL()}, description: trackList})
+          const embed = createEmb.createEmbed({color: userinfoget.hexAccentColor, title: `${LFuser.lastfmID} | Top Tracks | ${artists[0] === undefined ? usersArtist : artists[0] }`, url: `https://www.last.fm/user/${LFuser.lastfmID}`, footer: { text: `Requested by : ${interaction.user.username} | Total Plays: ${playcount}`, iconURL: userinfoget.avatarURL()}, description: trackList})
           
         await interaction.followUp({embeds: [embed]})
         await interaction.editReply({embeds: [createEmb.createEmbed({color:scripts.getSuccessColor(), description: `<:check:1088834644381794365>`})]})

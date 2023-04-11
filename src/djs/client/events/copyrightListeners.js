@@ -28,7 +28,7 @@ let filters = {
 
 async function filterOnChannel(channel, guild) {
   try {
-    let doc = await channelsDB.findOne({ channelID: channel.id, guildID: guild.id })
+    let doc = await channelsDB.findOne({ channelID: channel?.id, guildID: guild?.id })
     if (doc?.copyright_filterOn || doc?.attachments_filterOn || doc?.links_filterOn || doc?.mentions_filterOn || doc?.profanity_filterOn || doc?.spam_filterOn || doc?.swear_filterOn || doc?.zalgo_filterOn) {
       return true;
     } else {

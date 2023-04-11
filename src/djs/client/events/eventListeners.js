@@ -337,6 +337,7 @@ if (client) {
       magicaleditsrole,
       editsrole,
       axscompupdatesrole,
+      markycompupdatesrole,
       songofthedayrole;
       console.log(`logged ------------->`, roleName)
     switch (currentServer) {

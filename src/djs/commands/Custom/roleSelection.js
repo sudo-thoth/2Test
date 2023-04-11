@@ -163,7 +163,7 @@ module.exports = {
          emoji: "<:10671434201602907700128:1086967254773678172>",
        });
        const markycompupdates = await createButtn.createButton({
-        customID: `role_markcompupdates_${interaction.guild.name}${randID}`,
+        customID: `role_markycompupdates_${interaction.guild.name}${randID}`,
         label: "Marky Comp Updates",
         style: "secondary",
         disabled: false,

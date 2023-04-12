@@ -35,6 +35,10 @@ module.exports = {
             }
         } catch(err) {
             console.log(err);
+            if(err.message.includes(`buffering timed out`)){
+                const embed = createEmb.createEmbed({color: scripts.getErrorColor(), description: `❌ \`Unable to connect to the database\`\n\`Wait a minute or two and try again\``})
+                return await interaction.editReply({embeds: [embed]})
+            }
         }
         
         if (args[2] && args[2].startsWith("<@")) {

@@ -31,7 +31,7 @@ module.exports = {
         try{
             LFuser = await lastfmModel.findOne({ userID: userinfoget.id });
             if(!LFuser){
-                const embed = createEmb.createEmbed({color: scripts.getErrorColor(), description: `❌ \`Invalid LastFM\`\nMakeSure Your LastFM is Set-up Properly with \`/set-lastfm\``})
+                const embed = createEmb.createEmbed({color: scripts.getErrorColor(), description: `❌ \`Invalid LastFM\`\nMake Sure Your LastFM is Set-up Properly with \`/set-lastfm\``})
                 return await interaction.editReply({embeds: [embed]}) 
             } else {
                 

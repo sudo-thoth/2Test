@@ -8,6 +8,15 @@ const { lastFM_API_ID } = process.env;
 const scripts = require("../../functions/scripts/scripts.js")
 const createEmb = require("../../functions/create/createEmbed.js")
 
+function calculateTotalPlays(dom) {
+    let albumNodes = dom.window.document.querySelectorAll('album');
+    let totalPlays = 0;
+    albumNodes.forEach((album) => {
+      totalPlays += parseInt(album.querySelector('playcount').textContent);
+    });
+    return totalPlays;
+  }
+
 module.exports = {
     data: new SlashCommandBuilder()
     .setName("tt-lastfm")
@@ -28,97 +37,115 @@ module.exports = {
           } catch (error) {
             console.log(error, `error deferring reply`);
           }
-          let userinfoget = interaction?.options?.getString("target") || interaction.user;
+          let userinfoget = interaction?.options?.getUser("target") || interaction.user;
 
 
         let LFuser;
         try{
-            LFuser = await lastfmModel.findOne({ userID: userinfoget.id });
+            LFuser = await lastfmModel.findOne({ userID: userinfoget?.id });
             if(!LFuser){
-                const embed = createEmb.createEmbed({color: scripts.getErrorColor(), description: `❌ \`Invalid LastFM\`\nMakeSure Your LastFM is Set-up Properly with \`/set-lastfm\``})
+                const embed = createEmb.createEmbed({color: scripts.getErrorColor(), description: `❌ \`Invalid LastFM\`\nMake Sure Your LastFM is Set-up Properly with \`/set-lastfm\``})
                 return await interaction.editReply({embeds: [embed]})
             }
         } catch(err) {
             console.log(err);
+            if(err.message.includes(`buffering timed out`)){
+                const embed = createEmb.createEmbed({color: scripts.getErrorColor(), description: `❌ \`Unable to connect to the database\`\n\`Wait a minute or two and try again\``})
+                return await interaction.editReply({embeds: [embed]})
+            }
         }
 
             let timelength = interaction?.options?.getString("time-period") ? (interaction.options.getString("time-period") === 'overall' ? 'Overall' : interaction.options.getString("time-period")) : 'Overall';
-        let uri = `https://ws.audioscrobbler.com/2.0/?method=user.gettoptracks&user=${LFuser.lastfmID}&api_key=${lastFM_API_ID}&limit=10`
+            let uri = `https://ws.audioscrobbler.com/2.0/?method=user.gettoptracks&user=${LFuser?.lastfmID}&api_key=${lastFM_API_ID}&limit=10`
+            let albumuri = `https://ws.audioscrobbler.com/2.0/?method=user.gettopalbums&user=${LFuser?.lastfmID}&api_key=${lastFM_API_ID}&limit=10`
             switch (timelength) {
                 case '7d': 
-                uri += `&period=7day`;
-                break;
+                    uri += `&period=7day`;
+                    albumuri += `&period=7day`; 
+                    break;
                 case '1m':
-                uri += `&period=1month`;
-                break;
+                    uri += `&period=1month`;
+                    albumuri += `&period=1month`;
+                    break;
                 case '3m':
-                uri += `&period=3month`;
-                break;
+                    uri += `&period=3month`;
+                    albumuri += `&period=3month`;
+                    break;
                 case '6m':
-                uri += `&period=6month`;
-                break;
+                    uri += `&period=6month`;
+                    albumuri += `&period=6month`;
+                    break;
                 case '1y':
-                uri += `&period=12month`;
-                break;
+                    uri += `&period=12month`;
+                    albumuri += `&period=12month`;
+                    break;
                 default:
-                uri = uri;
-                break;
+                    uri = uri;
+                    albumuri = albumuri;
+                    break;
             }
-        
-    
-        const toptracks = await axios.get(uri)
-        
-        const dom1 = new jsdom.JSDOM(toptracks.data, {
-            contentType: "text/xml",
-        });
-        const embed = {
-  color : userinfoget.hexAccentColor,
-  title: `${LFuser.lastfmID} | Top Tracks (${timeperiod})`,
-  url: `https://www.last.fm/user/${LFuser.lastfmID}`,
-    }
+   
+            const topalbums = await axios.get(albumuri);
 
-let tracks = [];
-let artists = [];
-let urls = [];
-let plays = [];
-embed.fields = [];
+            const dom = new jsdom.JSDOM(topalbums.data, {
+              contentType: "text/xml",
+            });
+            
+            const toptracks = await axios.get(uri)
+            
+            const dom1 = new jsdom.JSDOM(toptracks.data, {
+                contentType: "text/xml",
+            });
 
-let trackNodes = dom1.window.document.querySelectorAll('track');
-for (let i = 0; i < trackNodes.length && i < 10; i++) {
-  let track = trackNodes[i].querySelector('name').textContent;
-  let artist = trackNodes[i].querySelector('artist name').textContent;
-  let url = trackNodes[i].querySelector('url').textContent;
-  let play = trackNodes[i].querySelector('playcount').textContent;
-  
-  tracks.push(track);
-  artists.push(artist);
-  urls.push(url);
-  plays.push(play);
-
-}
-
-let playcount = plays.reduce((total, num) => total + parseFloat(num), 0);
-embed.footer = { text: `Requested by: ${interaction.user.username} | Total Plays: ${playcount}`, iconURL: userinfoget.avatarURL()}
-
-if (trackNodes.length > 0) {
-  let description = '';
-  for (let i = 0; i < tracks.length && i < 10; i++) {
-    let rank = i + 1;
-    description += `\`${rank}.\` **[${tracks[i]}](${urls[i]})** by **[${artists[i]}]** (\`${plays[i]}\`)\n`;
-  }
-  if (trackNodes.length > 10) {
-    description += `...and ${trackNodes.length - 10} more`;
-  }
-  embed.description = description;
-} else {
-    embed.description = 'No tracks were found';
-    return await interaction.editReply({embeds: [createEmb.createEmbed(embed)]})
-}
-
-
-        await interaction.channel.send({embeds: [createEmb.createEmbed(embed)]})
-        await interaction.editReply({embeds: [createEmb.createEmbed({color:scripts.getSuccessColor(), description: `<:check:1088834644381794365>`})]})
-        await scripts.delay(3330)
-        await interaction.deleteReply()
+            const embed = {
+                color: userinfoget.hexAccentColor,
+                title: `${LFuser?.lastfmID} | Top Tracks (${timelength})`,
+                url: `https://www.last.fm/user/${LFuser?.lastfmID}`,
+                footer: {
+                    text: `Requested by: ${interaction.user.username} | Total Plays: ${calculateTotalPlays(dom)}`,
+                    iconURL: interaction.user.avatarURL({dynamic: true})
+                }
+            }
+            
+            let tracks = [];
+            let artists = [];
+            let urls = [];
+            let plays = [];
+            embed.fields = [];
+            
+            let trackNodes = dom1.window.document.querySelectorAll('track');
+            let description = '';
+            if (trackNodes.length > 0) {
+            
+                for (let i = 0; i < trackNodes.length; i++) {
+                    let track = trackNodes[i].querySelector('name').textContent;
+                    let artist = trackNodes[i].querySelector('artist name').textContent;
+                    let url = trackNodes[i].querySelector('url').textContent;
+                    let play = trackNodes[i].querySelector('playcount').textContent;
+                    let rank = i + 1;
+            
+                    if (description.length + `\`${rank}.\` **[${track}](${url})** by **[ *${artist}* ]** (\`${play <= 1 ? `${play} Play` : `${play} Plays`}\`)\n`.length > 4000) {
+                        let remainingTracks = trackNodes.length - i;
+                        description += `...and ${remainingTracks} more`;
+                        break;
+                    }
+            
+                    description += `\`${rank}.\` **[${track}](${url})** by **[ *${artist}* ]** (\`${play <= 1 ? `${play} Play` : `${play} Plays`}\`)\n`;
+                }
+            
+                embed.description = description;
+                if (description.includes('more')) {
+                    embed.description += `\n\nNote: Some tracks were not displayed due to the 4096 character limit.`;
+                }
+            } else {
+                embed.description = 'No tracks were found';
+                return await interaction.editReply({embeds: [createEmb.createEmbed(embed)]})
+            }
+            
+            await interaction.channel.send({embeds: [createEmb.createEmbed(embed)]})
+            await interaction.editReply({embeds: [createEmb.createEmbed({color:scripts.getSuccessColor(), description: `<:check:1088834644381794365>`})]})
+            await scripts.delay(3330)
+            await interaction.deleteReply()
+            
 }
 }

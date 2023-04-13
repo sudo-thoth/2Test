@@ -8,14 +8,7 @@ const { lastFM_API_ID } = process.env;
 const scripts = require("../../functions/scripts/scripts.js")
 const createEmb = require("../../functions/create/createEmbed.js")
 
-function calculateTotalPlays(dom) {
-    let albumNodes = dom.window.document.querySelectorAll('album');
-    let totalPlays = 0;
-    albumNodes.forEach((album) => {
-      totalPlays += parseInt(album.querySelector('playcount').textContent);
-    });
-    return totalPlays;
-  }
+
 
 module.exports = {
     data: new SlashCommandBuilder()

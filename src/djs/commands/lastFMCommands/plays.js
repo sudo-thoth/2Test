@@ -42,7 +42,7 @@ module.exports = {
             const uri1 = `https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=${LFuser.lastfmID}&api_key=${lastFM_API_ID}&limit=1`
     
             const recenttracks = await axios.get(uri1)
-            
+            console.log(recenttracks.data)
             const dom2 = new jsdom.JSDOM(recenttracks.data, {
                 contentType: "text/xml",
             });
@@ -57,18 +57,20 @@ module.exports = {
         const dom1 = new jsdom.JSDOM(toptracks.data, {
             contentType: "text/xml",
         });
+        const artistUrl = `https://www.last.fm/music/${artist}`;
+
         const userplays = dom1.window.document.querySelector('stats userplaycount').textContent;
         const artistname = dom1.window.document.querySelector('name').textContent;
         const globalplays = dom1.window.document.querySelector('stats playcount').textContent;
-        
+        let globalplaycount;
         if (globalplays.length > 9) {
-            var globalplaycount = `${globalplays.slice(0, -9)}b`;
+            globalplaycount = `${globalplays.slice(0, -9)}b`;
         } else if (globalplays.length > 6 && globalplays.length <= 9) {
-            var globalplaycount = `${globalplays.slice(0, -6)}m`;
+            globalplaycount = `${globalplays.slice(0, -6)}m`;
         } else if (globalplays.length > 3 <= 6) {
-            var globalplaycount = `${globalplays.slice(0, -3)}k`;
+            globalplaycount = `${globalplays.slice(0, -3)}k`;
         } else if (globalplays.length < 0 <= 3) {
-            var globalplaycount = globalplays;
+            globalplaycount = globalplays;
         } else {
             const embed ={color: scripts.getErrorColor(),
             footer: {
@@ -79,19 +81,19 @@ module.exports = {
               
             return await interaction.editReply({embeds: [createEmb.createEmbed(embed)]})
         }
-        var userpercent = (userplays / globalplays) * 100;
-        var userpercent = userpercent.toFixed(2)
+        let userpercent = (userplays / globalplays) * 100;
+        let userpercent = userpercent.toFixed(2)
         if (userpercent === '0.00') {
-            var userpercent = '0.01'
+             userpercent = '0.01'
         }
        
             const embed ={color: interaction.user.hexAccentColor,
-                title: `${LFuser.lastfmID} | Plays | ${artistname}`,
-                url: `https://www.last.fm/user/${LFuser.lastfmID}`,
+                title: `All-Time Plays for ${artistname}`,
+                url: artistUrl,
 
                 footer: { text: `Requested by ${interaction.user.username} | ${artistname} has a total of ${globalplaycount} (${userpercent}%)`,
                     iconURL: interaction.user.avatarURL({ dynamic: true})
-                }, description: `*${interaction.user.username}* has played **${artistname}** \`${userplays}\` times`
+                }, description: `[${interaction.user.username} [${LFuser.lastfmID}]](https://www.last.fm/user/${LFuser.lastfmID}) \n\`Total Plays\`\n\`\`\`${userplays}\`\`\``
                 }
                 await interaction.channel.send({embeds: [createEmb.createEmbed(embed)]})
                 await interaction.editReply({embeds: [createEmb.createEmbed({color:scripts.getSuccessColor(), description: `<:check:1088834644381794365>`})]});

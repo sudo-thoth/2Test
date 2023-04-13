@@ -29,7 +29,11 @@ if (client) {
             await lastFM.toptentracks(m, args);
           }
 
-
+          if ([`np`,`nowplaying`].includes(calledcmd)) {
+           
+            await lastFM.np(m, args);
+          }
+          
 
       }
 

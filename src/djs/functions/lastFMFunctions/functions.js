@@ -17,6 +17,95 @@ function calculateTotalPlays(dom) {
     return totalPlays;
   }
 
+    // if prefix+[`np`,`nowplaying`]+[artist] is used
+    async function np(message, args){
+        let userinfoget = message.mentions.members.first() || message.guild.members.cache.get(args[1]) || message.guild.members.cache.get(message.author.id)
+        if (userinfoget.user.id === client.user.id) {
+            try{
+                userinfoget = message.guild.members.cache.get(args[1].replace("<@", "").replace(">", ""))
+            } catch(err) {
+                userinfoget = message.guild.members.cache.get(message.author.id)
+            }
+        }
+
+    let LFuser;
+    try{
+        LFuser = await lastfmModel.findOne({ userID: userinfoget?.id });
+        if(!LFuser){
+            if (userinfoget.id === message.member.user.id){
+            return await message.reply({embeds: [createEmb.createEmbed({color: scripts.getErrorColor(), description: "❌ Before you can check your account, set your LastFM username -> `/set-lastfm`"})]})
+            } else {
+                return await message.reply({embeds: [createEmb.createEmbed({color: scripts.getErrorColor(), description: `❌ Before you can check <@${userinfoget.id}>'s account, they need to set their LastFM username`})]})
+            }
+        }
+    } catch(err) {
+        console.log(err);
+        if(err.message.includes(`buffering timed out`)){
+            const embed = createEmb.createEmbed({content: `<@${message.member.user.id}>`,color: scripts.getErrorColor(), description: `❌ \`Unable to connect to the database\`\n\`Wait a minute or two and try again\``})
+            return await message.reply({embeds: [embed]})
+        }
+    }
+
+    let uri = `https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=${LFuser.lastfmID}&api_key=${lastFM_API_ID}&limit=1`
+        
+        
+    const recenttrack = await axios.get(uri) // the data
+
+    
+    const dom1 = new jsdom.JSDOM(recenttrack.data, {
+        contentType: "text/xml",
+    });
+    if(!dom1?.window?.document?.querySelector("name")?.textContent){
+        try {
+            return await message.reply({embeds: [createEmb.createEmbed({title: 'Error!', description: `<a:Error:1005725142015549621> \`an error occured while retrieving ${userinfoget.id === message.member.user.id ? 'your' : `@${userinfoget.username}'s`} LastFM stats, Please verify ${userinfoget.id === message.member.user.id ? 'your' : `@${userinfoget.username}'s`} account has valid data to be shown\` <:ArrowDCL:1079572493318246451> \`${LFuser.lastfmID}\``, color: scripts.getErrorColor(), 
+            thumbnail: userinfoget.avatarURL({ dynamic: true})})    
+           ]})
+       } catch (error) {
+           return console.log(error)
+         }
+    }
+    let trackname = dom1.window.document.querySelector("name").textContent;
+    let artistname = dom1.window.document.querySelector("artist").textContent;
+    let album = dom1.window.document.querySelector("album").textContent;
+    let trackurl = dom1.window.document.querySelector("url").textContent;
+    let artisturlTEMP1 = trackurl.slice(0, -trackname.length);
+    let artisturlTEMP2 = artisturlTEMP1.replace(`/_/`, "");
+    let artisturl = artisturlTEMP2.replace(" ", "+");
+    let albumimage = dom1.window.document.querySelector('image[size="extralarge"]').textContent;
+
+    let tracknameXML = trackname.replace(` `, "+");
+    let artistnameXML = artistname.replace(` `, "+");
+
+    let uri1 = `https://ws.audioscrobbler.com/2.0/?method=track.getInfo&api_key=${lastFM_API_ID}&artist=${artistnameXML}&track=${tracknameXML}&user=${LFuser.lastfmID}`
+
+    const trackinfo = await axios.get(uri1) 
+    const dom2 = new jsdom.JSDOM(trackinfo.data)
+    let playcount;
+    try {
+        playcount = dom2.window.document.querySelector("userplaycount").textContent;
+    } catch (error) {
+        console.log(error)
+        playcount = "?"
+    }
+    
+    let totalscrobbles = dom1.window.document.querySelector("recenttracks").getAttribute('total');
+    let avatar = message.member.user.displayAvatarURL({dynamic: true})
+    if (albumimage == '') {
+        albumimage = 'https://www.google.com/url?sa=i&url=https%3A%2F%2Fstackoverflow.com%2Fquestions%2F65441963%2Fhtml-file-upload-uploads-missing-icon-instead-of-chosen-image&psig=AOvVaw15V_is7ApKvri_t8awEQAf&ust=1681025684216000&source=images&cd=vfe&ved=0CBAQjRxqFwoTCKDC3ujimf4CFQAAAAAdAAAAABAF';
+    }
+    const embed = createEmb.createEmbed({color: message.member.user.displayHexColor,author:{name: `Requested by: ${message.member.user.username} | LastFM User: ${LFuser.lastfmID}`, iconURL: `${avatar}`, url: `https://www.last.fm/user/${LFuser.lastfmID}`}, footer: { text: `Playcount: ${playcount} | Total Scrobbles: ${totalscrobbles} | Album: ${album}`, iconURL: artistname === "Juice WRLD" || "Juice Wrld" ? "https://lastfm.freetls.fastly.net/i/u/ar0/d6e904e50bb79e7877711efe9463c675.jpg" : ''}, fields: [
+            {name: 'Track', value: `> [${trackname}](${trackurl})`},
+            {name: 'Artist', value: `> [${artistname}](${artisturl})`}], thumbnail: albumimage})
+    await message.reply({embeds: [embed]}).then(async sentEmbed => {
+        sentEmbed.react("<a:Up_Vote:1094169827201007667>")
+        sentEmbed.react("<a:down_red_arow:1094172682318266481>")
+
+    })
+    
+
+
+}
+
     // if prefix+[`ttt`,`toptentracks`]+[artist] is used
     async function toptentracks(message, args){
         let userinfoget = message.mentions.members.first() || message.guild.members.cache.get(args[1]) || message.guild.members.cache.get(message.author.id)
@@ -108,7 +197,7 @@ function calculateTotalPlays(dom) {
           
           let trackList = tracknames.map((trackname, index) => `\`${index + 1}.\` **[${trackname}](${trackurls[index]}) (\`${trackplays[index]} ${trackplays[index] <= 1 ? `Play` : `Plays`}\`)**`).join('\n');
           
-          const embed = createEmb.createEmbed({color: message.member.user.displayHexColor, title: `${LFuser.lastfmID} | Top Tracks | ${artists[0] === undefined ? usersArtist : artists[0] }`, url: `https://www.last.fm/user/${LFuser.lastfmID}`, footer: { text: `Requested by : ${message.member.user.username} | Total Plays: ${playcount}`, iconURL: message.member.user.avatarURL()}, description: trackList})
+          const embed = createEmb.createEmbed({color: message.member.user.displayHexColor, title: `${LFuser.lastfmID} | Top Tracks | ${artists[0] === undefined ? usersArtist : artists[0] }`, url: `https://www.last.fm/user/${LFuser.lastfmID}`, footer: { text: `Requested by : ${message.member.user.username} | Total Plays: ${playcount}`, iconURL: message.member.user.displayAvatarURL({dynamic: true})}, description: trackList})
           
         await message.reply({embeds: [embed]})
 
@@ -247,6 +336,7 @@ function calculateTotalPlays(dom) {
 
   module.exports = {
     tracks,
-    toptentracks
+    toptentracks,
+    np
 
   }

@@ -37,7 +37,7 @@ module.exports = {
             }
           }
 
-          let timelength = interaction?.options?.getString("time-period") ? (interaction.options.getString("time-period") === 'overall' ? 'Overall' : interaction.options.getString("time-period")) : 'Overall';
+      
           const uri = `https://ws.audioscrobbler.com/2.0/?method=user.getrecenttracks&user=${LFuser.lastfmID}&api_key=${lastFM_API_ID}&limit=10`
           
           const toptracks = await axios.get(uri);

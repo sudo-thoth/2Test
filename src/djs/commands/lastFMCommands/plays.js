@@ -82,7 +82,7 @@ module.exports = {
             return await interaction.editReply({embeds: [createEmb.createEmbed(embed)]})
         }
         let userpercent = (userplays / globalplays) * 100;
-        let userpercent = userpercent.toFixed(2)
+        userpercent = userpercent.toFixed(2)
         if (userpercent === '0.00') {
              userpercent = '0.01'
         }

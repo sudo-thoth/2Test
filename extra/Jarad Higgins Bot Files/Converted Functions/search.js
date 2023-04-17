@@ -1,12 +1,14 @@
 require("dotenv").config({ path: "./my.env" });
+const client = require("../../index.js");
 
+// TODO: add a global discoRefreshTime on the client as a property
 async function search(interaction) {
   // This function is an asynchronous function that takes an "interaction" object as an input.
 
   async function discographyRefresh(interaction, force) {
-    let discographyRefreshTime;
+
     // This function is an asynchronous function that takes an "interaction" object and a "force" parameter as inputs.
-  
+      let discographyRefreshTime = client.juice_disco_refresh_time || null;
     if (discographyRefreshTime != null) {
       // This line checks if "discographyRefreshTime" is not null.
   
@@ -31,7 +33,7 @@ async function search(interaction) {
         
           let token = JSON.parse(google_token_info_xNine)
           // This line reads the token file and assigns the contents to the "token" variable.
-        // HERE Working here
+        // This Function is never/rarely called upon, but if it is it might cause errors
           function getAccessToken(oAuth2Client, callback) {
             // This function takes an OAuth2 client and a callback function as inputs.
           
@@ -81,15 +83,12 @@ async function search(interaction) {
               });
             });
           }
-          
-
-          if (token == null)
-              return getAccessToken(oAuth2Client, callback);
+      if (token == null){return getAccessToken(oAuth2Client, callback)};
           // This line checks if the "token" variable is null.
           // If it is, the function calls the "getAccessToken" function to retrieve a new access token using the OAuth2 client and the "callback" function.
         
           oAuth2Client.setCredentials(token);
-          // This line sets the credentials of the OAuth2 client using the parsed contents of the "token" file.
+          // This line sets the credentials of the OAuth2 client using the token.
         
           if (typeof args !== 'undefined') {
               return await callback(oAuth2Client, args);
@@ -132,22 +131,20 @@ async function search(interaction) {
         await authorize(updateDiscography);
         // This line calls the "authorize" function to authorize the bot and then calls the "updateDiscography" function to update the discography information.
   
-        discographyRefreshTime = new Date();
+        client.juice_disco_refresh_time = new Date();
         // This line updates the "discographyRefreshTime" variable to the current time.
   
-        let refreshMessage = await client.channels.cache.get(interaction.channel_id).send(new Discord.MessageEmbed().setColor(color.success).setDescription(artistName + ` discography refreshed ${loadedEmojis.get('finished')}`));
+        let refreshMessage = await interaction.channel.send({embeds:[createEmb.createEmbed({description: `${artistName} discography refreshed`})]});
         // This line sends a success message to the channel where the "interaction" occurred.
   
-        setTimeout(function () {
-          refreshMessage.delete().then().catch(function (error) {});
-          // This line deletes the "refreshMessage" object and catches any errors that may occur.
-        }, messageDeleteTime * 1000);
+        await scripts.delay(5000)
+        await refreshMessage.delete();
       }
     } else {
       await authorize(updateDiscography);
       // This line calls the "authorize" function to authorize the bot and then calls the "updateDiscography" function to update the discography information.
   
-      discographyRefreshTime = new Date();
+      client.juice_disco_refresh_time = new Date();
       // This line updates the "discographyRefreshTime" variable to the current time.
   
       let refreshMessage = await client.channels.cache.get(interaction.channel_id).send(new Discord.MessageEmbed().setColor(color.success).setDescription(artistName + ` discography refreshed ${loadedEmojis.get('finished')}`));

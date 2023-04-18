@@ -234,6 +234,7 @@ async function updateDiscographyInfo(auth) {
 async function updateMetadata(song) {
     return new Promise((resolve, reject) => {
         ffmpeg.ffprobe(song.path, function (err, metadata) {
+            console.log(song, "\n\n\n\n ^^Song Object ^^\n\n\n\n")
             if (metadata != null) {
                 if (metadata.format.tags != null) {
                     song.title = metadata.format.tags.title;

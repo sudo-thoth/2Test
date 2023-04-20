@@ -4,3 +4,5 @@ package-lock.json
 *.code-workspace
 *.DS_Store
 node_modules
+Juice_WRLD_credentials.json
+Juice_WRLD_token.json

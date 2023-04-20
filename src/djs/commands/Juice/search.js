@@ -1,4 +1,4 @@
-require("dotenv").config({ path: "./my.env" });
+require("dotenv").config({ path: "./xNine.env" });
 const client = require("../../index.js");
 const {
   google
@@ -20,10 +20,13 @@ const createEmb = require("../../functions/create/createEmbed.js");
 const createBtn = require("../../functions/create/createButton.js");
 const createActRow = require("../../functions/create/createActionRow.js");
 
+const Fuse = require('fuse.js');
+const { once } = require('events');
+
 const SCOPES = ['https://www.googleapis.com/auth/drive', 'https://www.googleapis.com/auth/spreadsheets'];
 const artistName = "Juice WRLD"
 const statsFile = '../../logs/' + artistName.replace(/\s/g, '_') + '_stats.json';
-const basePath = '../../data/jw/' ;
+const basePath = 'src/djs/data/jw/searches/' ;
 const color = {
   play: 'GREEN',
   search: '#0021de',
@@ -102,7 +105,7 @@ function getAccessToken(oAuth2Client, callback) {
     });
   });
 }
-async function authorize(callback, args) {
+async function authorize(callback, args, interaction) {
   // This function is an asynchronous function that takes a "callback" function and an "args" parameter as inputs.
 
 
@@ -110,61 +113,68 @@ async function authorize(callback, args) {
     google_client_secret_xNine,
     google_client_id_xNine,
     redirect_uri_xNine_A, 
-    google_token_info_xNine
+    google_token_access_token_xNine,
+    google_token_refresh_token_xNine,
+    google_token_scope_xNine,
+    google_token_token_type_xNine,
+    google_token_expiry_date_xNine
   } = process.env;
+  let googleTokenInfoObj = {access_token:google_token_access_token_xNine,refresh_token:google_token_refresh_token_xNine,scope:google_token_scope_xNine,token_type:google_token_token_type_xNine,expiry_date:google_token_expiry_date_xNine}
+  
   // This line extracts the "google_client_secret_xNine", "google_client_id_xNine", and "redirect_uri_xNine_A" properties from the env.
 
   const oAuth2Client = new google.auth.OAuth2(google_client_id_xNine, google_client_secret_xNine, redirect_uri_xNine_A);
   // This line creates a new OAuth2 client using the extracted properties.
-
-  // let token = JSON.parse(google_token_info_xNine)
-  let token = google_token_info_xNine
+   
+  // let tokenA = JSON.parse(google_token_info_xNine)
+  // let token = google_token_info_xNine
   // This line reads the token file and assigns the contents to the "token" variable.
 
-if (token == null){return getAccessToken(oAuth2Client, callback)};
+if (!googleTokenInfoObj){return getAccessToken(oAuth2Client, callback)};
   // This line checks if the "token" variable is null.
   // If it is, the function calls the "getAccessToken" function to retrieve a new access token using the OAuth2 client and the "callback" function.
 
-  oAuth2Client.setCredentials(token);
+  oAuth2Client.setCredentials(googleTokenInfoObj);
   // This line sets the credentials of the OAuth2 client using the token.
 
   if (typeof args !== 'undefined') {
-      return await callback(oAuth2Client, args);
+    return   await callback(oAuth2Client, args, interaction);
+      
   } else {
-      return await callback(oAuth2Client);
+    return await callback(oAuth2Client);
+      
   }
   // This block checks if the "args" parameter is defined.
   // If it is, the "callback" function is called with the OAuth2 client and the "args" parameter.
   // If it is not, the "callback" function is called with just the OAuth2 client.
 }
 async function updateDiscography(auth) {
-  // This function is an asynchronous function that takes an "auth" object as an input.
-
   const drive = google.drive({
     version: 'v3',
     auth
   });
-  // This line creates a new Drive client using the "auth" object.
 
-  let res = await drive.files.list({
-    pageSize: 1000,
-    q: "mimeType='audio/mpeg' OR fileExtension='wav' OR fileExtension='flac' OR fileExtension='m4a'",
-    fields: 'files(id, name, size)',
-  });
-  // This line retrieves a list of files from the user's Google Drive that match certain criteria (mimeType and fileExtension).
-  // The list is limited to 1000 files and includes only the ID, name, and size of each file.
+  try {
+    let res = await drive.files.list({
+      pageSize: 1000,
+      q: "mimeType='audio/mpeg' OR fileExtension='wav' OR fileExtension='flac' OR fileExtension='m4a'",
+      fields: 'files(id, name, size)',
+    }).then(res => {
+      for (let i = 0; i < res.data.files.length; i++) {
+      res.data.files[i].url = ('https://drive.google.com/uc?export=download&id=').concat(res.data.files[i].id);
+    }
 
-  for (let i = 0; i < res.data.files.length; i++) {
-    res.data.files[i].url = ('https://drive.google.com/uc?export=download&id=').concat(res.data.files[i].id);
-    // This line adds a "url" property to each file object in the list.
-    // The "url" property contains a URL that can be used to download the file from Google Drive.
+    client.discography = res.data.files;
+  }).catch(err => console.error(err));
+
+    
+  } catch (error) {
+    console.error(error);
   }
-
-  client.discography = res.data.files;
-  // This line assigns the list of files (with the "url" property added to each file object) to the "discography" variable.
 }
-async function discographyRefresh(interaction, force) {
 
+async function discographyRefresh(interaction, force) {
+  const refreshTime = 30; //mins
   // This function is an asynchronous function that takes an "interaction" object and a "force" parameter as inputs.
     let discographyRefreshTime = client.juice_disco_refresh_time || null;
   if (discographyRefreshTime != null) {
@@ -184,24 +194,49 @@ async function discographyRefresh(interaction, force) {
       client.juice_disco_refresh_time = new Date();
       // This line updates the "discographyRefreshTime" variable to the current time.
 
-      let refreshMessage = await interaction.channel.send({embeds:[createEmb.createEmbed({description: `${artistName} discography refreshed`})]});
+      try {
+        await interaction.editReply({embeds:[createEmb.createEmbed({title: ``, description: `${artistName} discography refreshed <a:check:1091081054800064522>`})]});
+      } catch (error) {
+        console.log(error)
+        try {
+          if(error.message.includes(`Unknown interaction`)){
+            await interaction.user.send({embeds:[createEmb.createEmbed({title: `I'm Sorry a Hiccup Occurred | Please Try Again`, description: `<a:attention:760937915643068430>\n> **The error was**\n\n\`\`\`js\n${error}\n\`\`\``, color: scripts.getErrorColor(), footer: {text: `Contact the Dev if error persists`}})]})
+          } else {
+            return
+          }
+        } catch (err) {
+          console.log(err)
+        }
+        }
       // This line sends a success message to the channel where the "interaction" occurred.
 
-      await scripts.delay(5000)
-      await refreshMessage.delete();
     }
   } else {
-    await authorize(updateDiscography);
+    await authorize(updateDiscography).then( async () => {
     // This line calls the "authorize" function to authorize the bot and then calls the "updateDiscography" function to update the discography information.
 
     client.juice_disco_refresh_time = new Date();
     // This line updates the "discographyRefreshTime" variable to the current time.
 
-    let refreshMessage = await interaction.channel.send({embeds:[createEmb.createEmbed({description: `${artistName} discography refreshed`})]});
+try {
+      await interaction.editReply({embeds:[createEmb.createEmbed({title: ``, description: `${artistName} discography refreshed <a:check:1091081054800064522>`})]});
+    } catch (error) {
+      console.log(error)
+      try {
+        if(error.message.includes(`Unknown interaction`)){
+          await interaction.user.send({embeds:[createEmb.createEmbed({title: `I'm Sorry a Hiccup Occurred | Please Try Again`, description: `<a:attention:760937915643068430>\n> **The error was**\n\n\`\`\`js\n${error}\n\`\`\``, color: scripts.getErrorColor(), footer: {text: `Contact the Dev if error persists`}})]})
+        } else {
+          return
+        }
+      } catch (err) {
+        console.log(err)
+      }
+      }
     // This line sends a success message to the channel where the "interaction" occurred.
 
-    await scripts.delay(5000)
-    await refreshMessage.delete();
+    }).catch(err => {
+      console.log(err)
+    })
   }
 }
 async function updateMetadata(song) {
@@ -222,6 +257,9 @@ async function updateMetadata(song) {
   });
 }
 async function updateGeniusData(song) {
+  const fileNameFilter = ['.mp3', '.wav', '.flac', '.m4a'];
+const wordFilter = ['\\(v\\d\\)', 'v\\d', '\\(snippet\\)', '\\(master\\)', '\\(solo\\)', '\\(Sessions\\)', 'bass', 'boost', 'extended'];
+const geniusFilter = [...fileNameFilter, ...wordFilter];
   const artistName = 'Juice WRLD';
   return new Promise(async(resolve, reject) => {
     let geniusTitle;
@@ -279,6 +317,83 @@ async function updateGeniusData(song) {
     }
   });
   }
+async function batchDownload(auth, songs, interaction) {
+  const drive = google.drive({
+      version: 'v3',
+      auth
+  });
+
+  const updatedFiles = [];
+
+  const songsToProcess = songs.slice(0, 3); // get the first 3 songs to process
+try {
+    await interaction.editReply({embeds:[createEmb.createEmbed({description: `<a:loading:647604616858566656> Processing`, color: scripts.getColor()})]})
+  } catch (error) {
+    console.log(error)
+    try {
+      if(error.message.includes(`Unknown interaction`)){
+        await interaction.user.send({embeds:[createEmb.createEmbed({title: `I'm Sorry a Hiccup Occurred | Please Try Again`, description: `<a:attention:760937915643068430>\n> **The error was**\n\n\`\`\`js\n${error}\n\`\`\``, color: scripts.getErrorColor(), footer: {text: `Contact the Dev if error persists`}})]})
+      } else {
+        return
+      }
+    } catch (err) {
+      console.log(err)
+    }
+    }
+  let counter = 0;
+  for (let song of songsToProcess) {
+
+    let stream = await drive.files.get({
+      fileId: song.id,
+      alt: 'media'
+    }, {
+      responseType: 'stream'
+    });
+
+    song.path = basePath.concat(song.name).replace(/\s/g, '_').replace(/\(/g, '').replace(/\)/g, '').replace(/&/g, '').replace(/'/g, '').replace(/\$/g, 'S');
+
+    const fileNameFilter = ['.mp3', '.wav', '.flac', '.m4a'];
+    const wordFilter = ['\\(v\\d\\)', 'v\\d', '\\(snippet\\)', '\\(master\\)', '\\(solo\\)', '\\(Sessions\\)', 'bass', 'boost', 'extended'];
+    const geniusFilter = [...fileNameFilter, ...wordFilter];
+
+    try {
+      if (!fs.existsSync(song.path)) {
+        const writeStream = fs.createWriteStream(song.path);
+        stream.data.pipe(writeStream);
+        await once(writeStream, 'finish');
+      }
+
+      song = await updateMetadata(song);
+
+      song = await updateGeniusData(song, geniusFilter);
+
+      updatedFiles.push(song);
+      counter++;
+      if(counter === 2){
+try {
+          await interaction.editReply({embeds:[createEmb.createEmbed({description: `<a:loading:1094842418521722941> Processing Almost Complete`, color: scripts.getColor()})]})
+        } catch (error) {
+          console.log(error)
+          try {
+            if(error.message.includes(`Unknown interaction`)){
+              await interaction.user.send({embeds:[createEmb.createEmbed({title: `I'm Sorry a Hiccup Occurred | Please Try Again`, description: `<a:attention:760937915643068430>\n> **The error was**\n\n\`\`\`js\n${error}\n\`\`\``, color: scripts.getErrorColor(), footer: {text: `Contact the Dev if error persists`}})]})
+            } else {
+              return
+            }
+          } catch (err) {
+            console.log(err)
+          }
+          }
+      }
+    } catch (err) {
+      throw err;
+    }
+  }
+
+  return updatedFiles;
+}
+
+
 async function download(auth, song) {
   const drive = google.drive({
       version: 'v3',
@@ -290,7 +405,13 @@ async function download(auth, song) {
   }, {
       responseType: 'stream'
   });
-  song.path = basePath.concat(song.name).replace(/\s/g, '_').replace(/\(/g, '').replace(/\)/g, '').replace(/&/g, '').replace(/'/g, '').replace(/\$/g, 'S') + '/'; // added / to create folder ??
+  console.log(song.name)
+  console.log(song.path)
+  console.log(song.id)
+  console.log(stream)
+  console.log(song)
+
+  song.path = basePath.concat(song.name).replace(/\s/g, '_').replace(/\(/g, '').replace(/\)/g, '').replace(/&/g, '').replace(/'/g, '').replace(/\$/g, 'S'); // + '/' added / to create folder ??
 
 
 
@@ -302,26 +423,100 @@ const geniusFilter = [...fileNameFilter, ...wordFilter];
 
 
 
-
-
+try {
   if (!fs.existsSync(song.path)) {
-      return new Promise(async(resolve, reject) => {
-          stream.data.pipe(fs.createWriteStream(song.path)).on('finish', async function () {
-              song = await updateMetadata(song);
-              song = await updateGeniusData(song);
-              resolve(song);
-          });
-      });
+    const writeStream = fs.createWriteStream(song.path);
+    stream.data.pipe(writeStream);
+     // triggers the finish event
+    await once(writeStream, 'finish');
+  }
+
+  song = await updateMetadata(song);
+  console.log(`updateMetadata song`, song)
+
+  song = await updateGeniusData(song);
+  console.log(`updateGeniusdData song`, song)
+
+  return song;
+} catch (err) {
+  throw err;
+}
+
+}
+function isLetter(str) {
+  return str.length === 1 && str.match(/[a-z]/i);
+}
+
+function fmtMSS(s) {
+  return (s - (s %= 60)) / 60 + (9 < s ? ':' : ':0') + s
+}
+
+// New Function ////////
+async function fileFuzzySearch(files, inputtedSearch, interaction) {
+  // transform files object array into an array of key and value pairs with the file name as the key and the file object as the value
+  function transformArray(array) {
+    return array.map(item => {
+      return { [item.name]: item };
+    });
+  }
+  const songList = transformArray(files);
+
+  // extract the names from the songList Object array
+  function extractNames(array) {
+    return array.map(item => {
+      const key = Object.keys(item)[0];
+      return key;
+    });
+  }
+  const songListNames = extractNames(songList);
+
+  // Create a Fuse instance with the song list and options
+  const options = {
+    includeScore: true,
+    threshold: 0.3,
+    distance: 100,
+  };
+  const fuse = new Fuse(songListNames, options);
+
+  // Perform the fuzzy search with the search string
+  const result = fuse.search(inputtedSearch);
+
+  // The most likely match
+  if (result.length > 0) {
+    console.log('Most likely match:', result[0].item, `\n\n\nNumber 2 is ${result[1]?.item} & 3 is ${result[2]?.item}`);
+
+    const resultFiles = result.map(resultItem => {
+      const songName = resultItem.item;
+      const file = songList.find(item => item.hasOwnProperty(songName))[songName];
+      return file;
+    });
+try {
+      await interaction.editReply({embeds:[createEmb.createEmbed({description: `<:yes:1087550258764071004> Result Found!`, color: scripts.getSuccessColor()})]})
+    } catch (error) {
+      console.log(error)
+      try {
+        if(error.message.includes(`Unknown interaction`)){
+          await interaction.user.send({embeds:[createEmb.createEmbed({title: `I'm Sorry a Hiccup Occurred | Please Try Again`, description: `<a:attention:760937915643068430>\n> **The error was**\n\n\`\`\`js\n${error}\n\`\`\``, color: scripts.getErrorColor(), footer: {text: `Contact the Dev if error persists`}})]})
+        } else {
+          return
+        }
+      } catch (err) {
+        console.log(err)
+      }
+      }
+    return await authorize(batchDownload, resultFiles, interaction);
   } else {
-      return new Promise(async(resolve, reject) => {
-          song = await updateMetadata(song);
-          song = await updateGeniusData(song);
-          resolve(song);
-      });
+    console.log('No match found');
+    return null;
   }
 }
+
+////////////////////////
+
 async function fileSearchMatch(files, keywords, quickSearch) {
   let fileSearch = [];
+  console.log(files)
+
   for (let file of files) {
       let count = 0;
       let count2 = 0;
@@ -342,6 +537,7 @@ async function fileSearchMatch(files, keywords, quickSearch) {
       }
   }
   if (fileSearch.length == 0) {
+
       return null;
   } else {
       if (fileSearch.length > 1) {
@@ -355,6 +551,7 @@ async function fileSearchMatch(files, keywords, quickSearch) {
       delete fileSearch[0].hits;
       delete fileSearch[0].exactMatches;
       if (quickSearch != null && quickSearch === true) {
+
           return fileSearch[0];
       }
 
@@ -364,13 +561,20 @@ async function fileSearchMatch(files, keywords, quickSearch) {
 async function songEmbed(interaction, song, annotation) {
 let userInput = interaction?.options?.getString("song");
 let user = interaction.user;
+
+const sizeString = song.size ? `Size: ${(song.size * Math.pow(1024, -2)).toFixed(2)} MB` : '';
+const lengthString = song.duration ? `Length: ${fmtMSS(song.duration)}` : '';
+const bitrateString = song.bitrate ? `Bitrate: ${song.bitrate} kbps` : '';
+
+const descriptionArray = [sizeString, lengthString, bitrateString];
+const description = descriptionArray.filter(Boolean).join(', ');
 let embed = {
   title: song.name,
   url: song.url,
   author: {
     name: annotation,
   },
-  description: `Size: ${(song.size * Math.pow(1024, -2)).toFixed(2)} MB, Length: ${fmtMSS(song.duration)}, Bitrate: ${song.bitrate} kbps`,
+  description: description,
   thumbnail: song.albumArt || null,
 }
 
@@ -443,6 +647,25 @@ module.exports = {
 };
 
 async function execute(interaction) {
+  try {
+    await interaction.deferReply({ ephemeral: false });
+  } catch (error) {
+    scripts.logError(error, `error deferring reply`);
+  }
+try {
+    await interaction.editReply({embeds:[createEmb.createEmbed({description: '<a:LoadingGreen:974345645693468712> Searching...', color: scripts.getColor()})]})
+  } catch (error) {
+    console.log(error)
+    try {
+      if(error.message.includes(`Unknown interaction`)){
+        await interaction.user.send({embeds:[createEmb.createEmbed({title: `I'm Sorry a Hiccup Occurred | Please Try Again`, description: `<a:attention:760937915643068430>\n> **The error was**\n\n\`\`\`js\n${error}\n\`\`\``, color: scripts.getErrorColor(), footer: {text: `Contact the Dev if error persists`}})]})
+      } else {
+        return
+      }
+    } catch (err) {
+      console.log(err)
+    }
+    }
   await search(interaction)
 }
 
@@ -452,61 +675,160 @@ async function execute(interaction) {
 async function search(interaction) {
   // This function is an asynchronous function that takes an "interaction" object as an input.
   let userInput = interaction?.options?.getString("song");
+  let currentSong = client.currentSong;
 
   
 
-  await discographyRefresh(interaction);
+  discographyRefresh(interaction).then( async () => {
   // This line calls the "discographyRefresh" function to refresh the discography information.
 
+console.log(client.discography)
 
-
-  let song = await fileSearchMatch(client.discography, userInput);
+  // let song = await fileSearchMatch(client.discography, userInput);
+  let songs = await fileFuzzySearch(client.discography, userInput, interaction);
   // This line calls the "fileSearchMatch" function to search for a file that matches the input provided in "interaction" and returns an object called "song".
-  // The "song" object contains information about the matching file.
-
-  if (song != null) {
-    // This line checks if "song" is not null.
-
-    if (currentSong == null || currentSong.path !== song.path) { // TODO: eventually store currentSong in a database per each server
-      function deleteFile(path) {
-        try {
-            fs.unlinkSync(path);
-        } catch (err) {
-            setTimeout(deleteFile, 3000, path);
-        }
-        if (fs.existsSync(path)) {
-            setTimeout(deleteFile, 3000, path);
-        }
-    }
-
-      deleteFile(song.path);
-      // This line deletes the file corresponding to the "currentSong" object if it exists and is not the same as the "song" object.
-    }
-
-
-
-
-
-    interaction.channel.send({embeds: [await songEmbed(interaction, song, `Search result for "${userInput}":`)]});
-    // This line sends an "embed" object to the channel where the "interaction" occurred.
-    // The "embed" object contains information about the "song" object and the input provided in "interaction".
-
-
-
-
-
-
+try {
+    await interaction.editReply({embeds:[createEmb.createEmbed({description: `<a:loading:647604616858566656> Providing Results for "${userInput}"...`, color: scripts.getColor()})]})
+  } catch (error) {
+    console.log(error)
     try {
-      updateSongStats(song);
-    } catch (error) {
-      
+      if(error.message.includes(`Unknown interaction`)){
+        await interaction.user.send({embeds:[createEmb.createEmbed({title: `I'm Sorry a Hiccup Occurred | Please Try Again`, description: `<a:attention:760937915643068430>\n> **The error was**\n\n\`\`\`js\n${error}\n\`\`\``, color: scripts.getErrorColor(), footer: {text: `Contact the Dev if error persists`}})]})
+      } else {
+        return
+      }
+    } catch (err) {
+      console.log(err)
     }
-    // This line calls the "updateSongStats" function to update the statistics for the "song" object.
-  } else {
-    let errorMsg = await interaction.channel.send({embeds:[createEmb.createEmbed({color: color.error,description: 'No results found'})]});
-    // This line sends an error message to the channel where the "interaction" occurred if "song" is null.
+    }
+  // The "song" object contains information about the matching file.
+    let embeds = [];
 
+  if (songs != null && songs.length > 0) {
+    // This line checks if "songs" is not null and has at least one item.
+  
+    
+    for (const song of songs) {
+      if (currentSong == null || currentSong.path !== song.path) {
+        function deleteFile(path) {
+          try {
+              fs.unlinkSync(path);
+          } catch (err) {
+              setTimeout(deleteFile, 3000, path);
+          }
+          if (fs.existsSync(path)) {
+              setTimeout(deleteFile, 3000, path);
+          }
+        }
+  
+        deleteFile(song.path);
+        // This line deletes the file corresponding to the "currentSong" object if it exists and is not the same as the "song" object.
+      }
+  
+      embeds.push(await songEmbed(interaction, song, `Search result for "${userInput}":`));
+      // This line sends an "embed" object to the channel where the "interaction" occurred for each song in the "songs" array.
+      // The "embed" object contains information about the "song" object and the input provided in "interaction".
+  
+      // try {
+      //   updateSongStats(song);
+      // } catch (error) {
+      //   // Handle error
+      // }
+      // This line calls the "updateSongStats" function to update the statistics for the "song" object.
+    }
+
+    // send a single message with all the embed results displayed in a pagination system with buttons, with the embeds index as the current page number
+
+    const interactionId = `${interaction.user.id}-${interaction.channel.id}-${interaction.id}`; // generate unique interaction id
+    const maxPages = embeds.length; // set maximum number of pages to the number of embeds
+    let currentPage = 1; // set initial page to 1
+    
+    const paginatedEmbed = async (interaction, page, interactionId, embeds) => {
+      const embedMessage = embeds[page - 1]; // get embed for the current page
+      let currentPage = page;
+
+    
+      const paginationRow = await createActRow.createActionRow({components: [await createBtn.createButton({customID: `search-back-${interactionId}`, label: 'Back', style: 'SECONDARY', disabled: currentPage === 1}), await createBtn.createButton({customID: `search-next-${interactionId}`, label: 'Next', style: 'SECONDARY', disabled: currentPage === maxPages})]})
+  
+    
+      let message;
+try {
+        message = await interaction.editReply({ embeds: [embedMessage], components: [paginationRow]});
+      } catch (error) {
+        console.log(error)
+        try {
+          if(error.message.includes(`Unknown interaction`)){
+            await interaction.user.send({embeds:[createEmb.createEmbed({title: `I'm Sorry a Hiccup Occurred | Please Try Again`, description: `<a:attention:760937915643068430>\n> **The error was**\n\n\`\`\`js\n${error}\n\`\`\``, color: scripts.getErrorColor(), footer: {text: `Contact the Dev if error persists`}})]})
+          } else {
+            return
+          }
+        } catch (err) {
+          console.log(err)
+        }
+        }
+      const collector = message.createMessageComponentCollector({ time: 60000 });
+    
+      collector.on('collect', async i => {
+        if (i.customId.startsWith('search-back') && i.customId.endsWith(`-${interactionId}`)) {
+          
+          if (embeds[currentPage - 2]) { // check that the embed at the current page index exists
+currentPage--;
+          }
+        } else if (i.customId.startsWith('search-next') && i.customId.endsWith(`-${interactionId}`)) {
+          
+          if (embeds[currentPage]) { // check that the embed at the current page index exists
+currentPage++;  
+          }
+        }
+    
+try {
+          await i.update({ embeds: [embeds[currentPage - 1]], components: [await createActRow.createActionRow({components: [await createBtn.createButton({customID: `search-back-${interactionId}`, label: 'Back', style: 'SECONDARY', disabled: currentPage === 1}), await createBtn.createButton({customID: `search-next-${interactionId}`, label: 'Next', style: 'SECONDARY', disabled: currentPage === maxPages})]})] });
+        } catch (error) {
+          console.log(error)
+          try {
+            if(error.message.includes(`Unknown interaction`)){
+              await interaction.user.send({embeds:[createEmb.createEmbed({title: `I'm Sorry a Hiccup Occurred | Please Try Again`, description: `<a:attention:760937915643068430>\n> **The error was**\n\n\`\`\`js\n${error}\n\`\`\``, color: scripts.getErrorColor(), footer: {text: `Contact the Dev if error persists`}})]})
+            } else {
+              return
+            }
+          } catch (err) {
+            console.log(err)
+          }
+          }
+      });
+    
+      collector.on('end', async () => {
+        paginationRow.components.forEach(c => c.setDisabled(true));
+        try {
+          await interaction.editReply({ components: [paginationRow] });
+        } catch (error) {
+          console.log(error)
+          try {
+            if(error.message.includes(`Unknown interaction`)){
+              await interaction.user.send({embeds:[createEmb.createEmbed({title: `I'm Sorry a Hiccup Occurred | Please Try Again`, description: `<a:attention:760937915643068430>\n> **The error was**\n\n\`\`\`js\n${error}\n\`\`\``, color: scripts.getErrorColor(), footer: {text: `Contact the Dev if error persists`}})]})
+            } else {
+              return
+            }
+          } catch (err) {
+            console.log(err)
+          }
+          }
+      });
+    };
+  
+  await paginatedEmbed(interaction, currentPage, interactionId, embeds);
+
+    
+  } else {
+    let errorMsg = await interaction.editReply({embeds:[createEmb.createEmbed({color: scripts.getErrorColor() ,description: '<:no:1087550298135986266> No results found'})]});
+    // This line sends an error message to the channel where the "interaction" occurred if "songs" is null or empty.
+  
     await scripts.delay(messageDeleteTime * 1000)
     await errorMsg.delete()
   }
+  
+}).catch(async err => {
+  console.log(err)
+  await interaction.editReply({embeds:[createEmb.createEmbed({title: `There was An Error!`, description: `<a:attention:760937915643068430>\n> **The error was**\n\n\`\`\`js\n${err}\n\`\`\``, color: scripts.getErrorColor(), footer: {text: `Contact the Devs`}})]});
+})
 }

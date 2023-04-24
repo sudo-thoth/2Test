@@ -80,29 +80,30 @@ if (client.connectedToMongoose) {
             });
           
             const batchSize = 100;
-            let batchCount = 0;
-          
-            while (msgToDelete.size > 0) {
-              const batch = new Collection(msgToDelete.first(batchSize).map((message) => [message.id, message]));
-              try {
-                await channel.bulkDelete(batch);
-                batchCount++;
-                console.log(`Deleted batch ${batchCount} of ${batch.size} messages`);
-              } catch (error) {
-                console.log(error);
-                break;
-              }
-              msgToDelete = msgToDelete.filter((message) => !batch.has(message));
-            }
-              if(msgToDelete.size === 0){
-    deleted = true;
-  }
-          }
-// push each bulk delete into a promis array and await all of them.then( after all the messages are deleted send them again) TODO
+            const batch = new Collection(msgToDelete.first(batchSize).map((message) => [message.id, message]));
+let batchCount = 0;
+let promises = [];
 
+while (batch.size > 0) {
+  const bulkDeletePromise = channel.bulkDelete(batch).then(() => {
+    batchCount++;
+    console.log(`Deleted batch ${batchCount} of ${batch.size} messages`);
+  }).catch((error) => {
+    console.log(error);
+  });
 
-          if (deleted) {
-            // send all the messages in the group again
+  promises.push(bulkDeletePromise);
+
+  // Update batch for next iteration
+  msgToDelete = msgToDelete.filter((_, key) => !batch.has(key));
+  batch = new Collection(msgToDelete.first(batchSize).map((message) => [message.id, message]));
+}
+
+Promise.all(promises).then(async () => {
+  console.log("done");
+  
+  if(promises.length > 0){
+                // send all the messages in the group again
             const groupMessagesArray = group.messages;
             
             groupMessagesArray.forEach(async (message) => {
@@ -275,9 +276,21 @@ if (client.connectedToMongoose) {
             } catch (error) {
               scripts.logError(error, `error updating group's cycleStartTime`);
             }
+  }
+  
+  
+}).catch((error) => {
+  console.log("Error occurred in Promise.all", error);
+  await DevLT.send({content: `Error Occured deleting All the Messages in ${channel.name} channel in the ${group.serverId} server & ${group.groupName} group **Were Not Deleted**\n\nTimestamp: ${Date.now()}`})
+});
+
+            }
+              
           } else {
-            await DevLT.send({content: `Error Occured deleting All the Messages in ${channel.name} channel in the ${group.serverId} server & ${group.groupName} group **Were Not Deleted**\n\nTimestamp: ${Date.now()}`})
+          await DevLT.send({content: `Error Occured 0 Messages in ${channel.name} channel in the ${group.serverId} server & ${group.groupName} group **Were Not Deleted**\n\nTimestamp: ${Date.now()}`})
           }
+// push each bulk delete into a promis array and await all of them.then( after all the messages are deleted send them again) TODO
+
         } else {
           console.log(`There has not been enough time since the last cycle for the ${group.groupName} group in the ${group.serverId} server & ${group.channelId} channel\n\nTimestamp: ${Date.now()}\n\nWait time: ${(cycleTime - timeElapsed) / 1000} seconds or ${(cycleTime - timeElapsed) / 60000} minutes`)}
       });

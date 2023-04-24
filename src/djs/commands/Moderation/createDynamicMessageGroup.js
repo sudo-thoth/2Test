@@ -1,9 +1,9 @@
-const { SlashCommandBuilder, PermissionFlagsBits } = require("discord.js");
+const { SlashCommandBuilder, PermissionFlagsBits, ChannelType } = require("discord.js");
 require("dotenv").config({ path: "../../my.env" });
 const scripts_djs = require("../../functions/scripts/scripts_djs.js");
 const scripts = require("../../functions/scripts/scripts.js");
 const createEmb = require("../../functions/create/createEmbed.js");
-const groups = require("../../../MongoDB/db/schemas/schema_group.js");
+const groups = require("../../../MongoDB/db/schemas/schema_dynamicMessageGroup.js");
 const mongoose = require("mongoose");
 module.exports = {
   data: new SlashCommandBuilder()

@@ -9,11 +9,11 @@ const scripts = require("../../functions/scripts/scripts.js");
 const createEmb = require("../../functions/create/createEmbed.js");
 const createBtn = require("../../functions/create/createButton.js");
 const createActRow = require("../../functions/create/createActionRow.js");
-const groups = require("../../../MongoDB/db/schemas/schema_list.js");
+const groups = require("../../../MongoDB/db/schemas/schema_dynamicMessageGroup.js");
 const client = require("../../index.js");
 const mongoose = require("mongoose");
 const { Schema, model } = require("mongoose");
-const createList = require("./createList.js");
+
 
 // group choice auto complete listener
 

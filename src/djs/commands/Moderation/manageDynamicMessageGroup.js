@@ -50,7 +50,7 @@ if (client.connectedToMongoose) {
         const cycleStartTime = group.cycleStartedAt;
         let cycleTime = 1800000; // 30 minutes
         // create 1 min cycle time for testing
-        cycleTime = 60000; // 1 minute
+        // cycleTime = 10000; // 10 sec
         const timeElapsed = currentDate - cycleStartTime;
 
         console.log(`the cycleStartTime is ${formatUnixTimestamp(cycleStartTime)}\n\n`);
@@ -71,16 +71,21 @@ if (client.connectedToMongoose) {
               (message) => message.author.id === client.user.id
             ));
           }
-          
+          let deletedMessages = [];
+let reactions = [];
           if (groupMessages.size > 0) {
             let msgToDelete = groupMessages.filter((message) => {
               return group.messages.some((groupMessage) => {
+                if (message.id === groupMessage.currentID){
+                  deletedMessages.push(message);
+                }
                 return message.id === groupMessage.currentID;
               });
+              
             });
           
             const batchSize = 100;
-            const batch = new Collection(msgToDelete.first(batchSize).map((message) => [message.id, message]));
+            let batch = new Collection(msgToDelete.first(batchSize).map((message) => [message.id, message]));
 let batchCount = 0;
 let promises = [];
 
@@ -104,9 +109,10 @@ Promise.all(promises).then(async () => {
   
   if(promises.length > 0){
                 // send all the messages in the group again
-            const groupMessagesArray = group.messages;
+                 const groupMessagesArray = group.messages;
+                // const groupMessagesArray = deletedMessages;
             
-            groupMessagesArray.forEach(async (message) => {
+            for (let message of groupMessagesArray) {
               // let messageObj = {
               //   id: theMessage.id,
               //   currentID: theMessage.id,
@@ -127,6 +133,11 @@ Promise.all(promises).then(async () => {
               //   createdAt: theMessage.createdAt,
           
               // };
+              // find the matching message in the deletedMessages array based on the currentID
+              const theMessage = deletedMessages.find((msg) => {
+                let id = message.currentID || message;
+                return msg.id === id;
+              });
               let messageObj = {
                 content: message.content,
                 embeds: [],
@@ -134,7 +145,7 @@ Promise.all(promises).then(async () => {
                 components: []
               }
               // fror each message embed
-              if (message.embeds.length > 0) {
+              if (message.embeds?.length > 0) {
                 
                 message.embeds.forEach(async (embed) => {
                   // create a discord embed obj`
@@ -145,44 +156,44 @@ Promise.all(promises).then(async () => {
               }
   
   
-              // extract the message's actionRows
-              if (message.actionRows.length > 0) {
-                message.actionRows.forEach(async (actionRow) => {
-                  //extract the button objs and selectMenu objs from the actionRow
-                  const buttonObjs = actionRow.components.filter(
-                    (component) => component.type === "BUTTON"
-                  );
-                  const selectMenuObjs = actionRow.components.filter(
-                    (component) => component.type === "SELECT_MENU"
-                  );
-                  // for each buttonObj create a discord button obj
-                  const buttons = [];
-                  buttonObjs.forEach(async (buttonObj) => {
-                    const button = await createBtn.createButton(buttonObj);
-                    buttons.push(button);
-                  });
-                  // for each selectMenuObj create a discord selectMenu obj
-                  const selectMenus = [];
-                  selectMenuObjs.forEach((selectMenuObj) => {
-                    const selectMenu = new StringSelectMenuBuilder()
-                    .setCustomId(selectMenuObj.customId)
-                    .setPlaceholder(selectMenuObj.placeholder)
-                    .setDisabled(selectMenuObj.disabled)
-                    .setMinValues(selectMenuObj.minValues)
-                    .setMaxValues(selectMenuObj.maxValues)
-                    .addOptions(selectMenuObj.options);
+              // // extract the message's actionRows
+              // if (message.actionRows.length > 0) {
+              //   message.actionRows.forEach(async (actionRow) => {
+              //     //extract the button objs and selectMenu objs from the actionRow
+              //     const buttonObjs = actionRow.components.filter(
+              //       (component) => component.type === "BUTTON"
+              //     );
+              //     const selectMenuObjs = actionRow.components.filter(
+              //       (component) => component.type === "SELECT_MENU"
+              //     );
+              //     // for each buttonObj create a discord button obj
+              //     const buttons = [];
+              //     buttonObjs.forEach(async (buttonObj) => {
+              //       const button = await createBtn.createButton(buttonObj);
+              //       buttons.push(button);
+              //     });
+              //     // for each selectMenuObj create a discord selectMenu obj
+              //     const selectMenus = [];
+              //     selectMenuObjs.forEach((selectMenuObj) => {
+              //       const selectMenu = new StringSelectMenuBuilder()
+              //       .setCustomId(selectMenuObj.customId)
+              //       .setPlaceholder(selectMenuObj.placeholder)
+              //       .setDisabled(selectMenuObj.disabled)
+              //       .setMinValues(selectMenuObj.minValues)
+              //       .setMaxValues(selectMenuObj.maxValues)
+              //       .addOptions(selectMenuObj.options);
     
-                    selectMenus.push(selectMenu);
-                  });
-                  // create the actionRow
-                  const actRow = await createActRow.createActionRow(
-                    {
-                      components: [...buttons, ...selectMenus],
-                    }
-                  );
-                  messageObj.components.push(actRow);
-                });
-              }
+              //       selectMenus.push(selectMenu);
+              //     });
+              //     // create the actionRow
+              //     const actRow = await createActRow.createActionRow(
+              //       {
+              //         components: [...buttons, ...selectMenus],
+              //       }
+              //     );
+              //     messageObj.components.push(actRow);
+              //   });
+              // }
     
               // if (message.reactions.length > 0) {
               //   message.reactions.forEach(async (reaction) => {
@@ -192,17 +203,17 @@ Promise.all(promises).then(async () => {
               // }
               
               // if there are components in the message
-              if (message.actionRows.length > 0) {
-                message.actionRows.forEach(async (actionRow) => {
+              if (message.actionRows?.length > 0) {
+                for (let actionRow of message.actionRows) {
                   //extract the button objs and selectMenu objs from the actionRow
                   const buttonObjs = actionRow.components[0].buttons; 
                   const selectMenuObjs = actionRow.components[0].selectMenus;
                   // for each buttonObj create a discord button obj
                   const buttons = [];
-                  buttonObjs.forEach(async (buttonObj) => {
-                    const button = await createBtn.createButton(buttonObj);
+                  for (const buttonObj of buttonObjs) {
+                    let button = await createBtn.createButton(buttonObj);
                     buttons.push(button);
-                  });
+                  }
                   // for each selectMenuObj create a discord selectMenu obj
                   const selectMenus = [];
                   selectMenuObjs.forEach((selectMenuObj) => {
@@ -223,15 +234,17 @@ Promise.all(promises).then(async () => {
                     }
                   );
                   messageObj.components.push(actRow);
-                });
+                }
               }
               // if there are reactions in the message, save each emoji so it can be later be reused to reaction on the new version of the message
               let emojis = []
-              if (message.reactions.length > 0) {
-                message.reactions.forEach(async (reaction) => {
-                  let emoji = reaction.emoji;
+              if (theMessage?.reactions.cache.size > 0) {
+                // turn theMessage.reactions._cache into an array
+                let reactionObjArray = Array.from(theMessage.reactions.cache);
+                for (let emojiObj of reactionObjArray) {
+                  let emoji = emojiObj[1].emoji;
                   emojis.push(emoji);
-                });
+                };
               }
               
                       
@@ -241,9 +254,48 @@ Promise.all(promises).then(async () => {
 
               try {
                 let newMessage = await channel.send(messageObj);
-                emojis.forEach(async (emoji)=>{
-                  await newMessage.react(emoji)
-                })
+               try {
+                 if (emojis.length > 0){
+                   for (let emoji of emojis){
+                    // const emoji = client.emojis.cache.find(emoji => emoji.id === id);
+
+                 if (emoji) {
+                   try {
+                    await newMessage.react(emoji)
+                   } catch (error) {
+                    if (error.message.includes("Unknown Emoji")){
+                      let guildEmoji;
+for (const guild of client.guilds.cache.values()) {
+  guildEmoji = guild.emojis.cache.get(emoji.id);
+  if (guildEmoji) {
+    // The custom emoji was found in this guild
+    console.log(`Found custom emoji "${guildEmoji.name}" in guild "${guild.name}"`);
+    break;
+  }
+}
+
+if (guildEmoji) {
+  // The custom emoji was found in some guild
+  console.log(`Custom emoji name: ${guildEmoji.name}`);
+  try {
+    await newMessage.react(guildEmoji)
+   } catch (error) {
+    console.log(error)
+   }
+} else {
+  // The custom emoji was not found in any guild
+  console.log(`Custom emoji with ID ${emoji.id} not found in any guild`);
+}
+
+                    } else {
+                    console.log(error)
+                    }
+                   }
+                 }
+                 }}
+               } catch (error) {
+                console.log(error)
+               }
                 console.log(`sent message in ${channel.name} channel in the ${group.serverId} server & ${group.groupName} group\n\nTimestamp: ${Date.now()}`)
                 // update teh messages current ID
                 message.currentID = newMessage.id;
@@ -261,7 +313,7 @@ Promise.all(promises).then(async () => {
                 await DevLT.send({content: `Error Occured trying to send message in ${channel.name} channel in the ${group.serverId} server & ${group.groupName} group\n\nTimestamp: ${Date.now()}`})
               }
 
-            }); 
+            } 
             try {
               await DevLT.send({content: `Successfully sent all messages in ${channel.name} channel in the ${group.serverId} server & ${group.groupName} group\n\nTimestamp: ${Date.now()}`})
             } catch (error) {
@@ -276,19 +328,19 @@ Promise.all(promises).then(async () => {
             } catch (error) {
               scripts.logError(error, `error updating group's cycleStartTime`);
             }
-  }
+          } else {
+            await DevLT.send({content: `Error Occurred 0 Messages in ${channel.name} channel in the ${group.serverId} server & ${group.groupName} group **Were Not Deleted**\n\nTimestamp: ${Date.now()}`})
+            }
   
   
-}).catch((error) => {
+}).catch(async (error) => {
   console.log("Error occurred in Promise.all", error);
   await DevLT.send({content: `Error Occured deleting All the Messages in ${channel.name} channel in the ${group.serverId} server & ${group.groupName} group **Were Not Deleted**\n\nTimestamp: ${Date.now()}`})
 });
 
             }
               
-          } else {
-          await DevLT.send({content: `Error Occured 0 Messages in ${channel.name} channel in the ${group.serverId} server & ${group.groupName} group **Were Not Deleted**\n\nTimestamp: ${Date.now()}`})
-          }
+          
 // push each bulk delete into a promis array and await all of them.then( after all the messages are deleted send them again) TODO
 
         } else {

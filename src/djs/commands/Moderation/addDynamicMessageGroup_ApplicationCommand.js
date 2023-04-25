@@ -149,6 +149,11 @@ let menuRow = await createActRow.createActionRow({
       } catch (error) {
         scripts.logError(error, `error deferring reply`);
       }
+      try{
+        await menuResponse.delete();
+      } catch(error ){
+        console.log(error)
+      }
       
       let groupName = i.values[0];
     let group;
@@ -427,27 +432,49 @@ let menuRow = await createActRow.createActionRow({
           });
         }
     
-        if (reason === "cancel") {
+        else if (reason === "cancel") {
           return await interaction.editReply({
             components: [],
             embeds: [
               createEmb.createEmbed({
                 title: `Cancelled`,
                 description: `You Have Cancelled The Command`,
-                color: scripts.getWarningColor()
+                color: scripts.getErrorColor()
               })
             ],
           });
         }
     
-        if (reason === "selection_made") {
+        else if (reason === "selection_made") {
           return await interaction.editReply({
             components: [],
             embeds: [
               createEmb.createEmbed({
                 title: `Message Added To Group`,
                 description: ``,
-                color: scripts.getWarningColor()
+                color: scripts.getSuccessColor()
+              })
+            ],
+          });
+        } else if (collected) {
+          return await interaction.editReply({
+            components: [],
+            embeds: [
+              createEmb.createEmbed({
+                title: `Message Added To Group`,
+                description: ``,
+                color: scripts.getSuccessColor()
+              })
+            ],
+          });
+        } else {
+          return await interaction.editReply({
+            components: [],
+            embeds: [
+              createEmb.createEmbed({
+                title: `Message Added To Group`,
+                description: ``,
+                color: scripts.getSuccessColor()
               })
             ],
           });

@@ -45,6 +45,7 @@ module.exports = {
     }
     const { options } = interaction;
     let groupName = options?.getString("group-name");
+    let action = options?.getString("action");
     let groupChannel = options?.getChannel("group-channel");
 if (action === "create") {
       try {

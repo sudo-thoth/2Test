@@ -89,7 +89,7 @@ module.exports = {
     const { options } = interaction;
    let groupName = options?.getString("group-name") 
 
-   let messageID = options?.getChannel("message-id");
+   let messageID = options?.getString("message-id");
    // fetch message
    let theMessage;
    try{
@@ -132,163 +132,193 @@ module.exports = {
         ],
       });
     }
-    // create message object
-    let messageObj = {
-      id: theMessage.id,
-      currentID: theMessage.id,
-      channelID: theMessage.channel.id,
-      channelName: theMessage.channel.name,
-      author: {
-        id: theMessage.author.id,
-        username: theMessage.author.username,
-        discriminator: theMessage.author.discriminator,
-        avatar: theMessage.author.avatar,
-      },
-      content: theMessage.content,
-      actionRows: [],
-      embeds: [],
-      attachments: [],
-      reactions: [],
-      pinned: theMessage.pinned,
-      createdAt: theMessage.createdAt,
+ // create message object
+ let messageObj = {
+  id: theMessage.id,
+  currentID: theMessage.id,
+  channelID: theMessage.channel.id,
+  channelName: theMessage.channel.name,
+  author: {
+    id: theMessage.author.id,
+    username: theMessage.author.username,
+    discriminator: theMessage.author.discriminator,
+    avatar: theMessage.author.avatar,
+  },
+  content: theMessage.content,
+  actionRows: [],
+  embeds: [],
+  attachments: [],
+  reactions: [],
+  pinned: theMessage.pinned,
+  createdAt: theMessage.createdAt,
 
+};
+// extract embeds
+if (theMessage.embeds.length > 0) {
+  theMessage.embeds.forEach((embed) => {
+    let embedObj = {
+      title: embed.title,
+      description: embed.description,
+      url: embed.url,
+      color: embed.color,
+      thumbnail: embed.thumbnail,
+      image: embed.image,
+      author: {
+        name: embed.author?.name,
+        iconURL: embed.author?.iconURL,
+        url: embed.author?.url,
+      },
+      footer: {
+        text: embed.footer?.text,
+        iconURL: embed.footer?.iconURL,
+      },
+    }
+    // extract the fields
+    if (embed.fields.length > 0) {
+      embedObj.fields = [];
+      embed.fields.forEach((field) => {
+        embedObj.fields.push({
+          name: field.name,
+          value: field.value,
+          inline: field.inline,
+        });
+      });
+    }
+    messageObj.embeds.push(embedObj);
+  });
+}
+// extract attachments
+if (theMessage.attachments.size > 0) {
+  theMessage.attachments.forEach((attachment) => {
+    messageObj.attachments.push({
+      id: attachment.id,
+      url: attachment.url,
+      name: attachment.name,
+      size: attachment.size,
+      height: attachment.height,
+      width: attachment.width,
+      proxyURL: attachment.proxyURL,  
+    });
+  });
+}
+// extract reactions
+if (theMessage.reactions.cache.size > 0) {
+  theMessage.reactions.cache.forEach((reaction) => {
+    messageObj.reactions.push({
+      id: reaction.emoji.id,
+      name: reaction.emoji.name,
+      count: reaction.count,
+    });
+  });
+}
+// extract components into actionrow objects
+if (theMessage.components.length > 0) {
+  let actionRowObj = {
+      components: [],
     };
-    // extract embeds
-    if (theMessage.embeds.length > 0) {
-      theMessage.embeds.forEach((embed) => {
-        let embedObj = {
-          title: embed.title,
-          description: embed.description,
-          url: embed.url,
-          color: embed.color,
-          thumbnail: embed.thumbnail,
-          image: embed.image,
-          author: {
-            name: embed.author.name,
-            iconURL: embed.author.iconURL,
-            url: embed.author.url,
-          },
-          footer: {
-            text: embed.footer.text,
-            iconURL: embed.footer.iconURL,
-          },
-        }
-        // extract the fields
-        if (embed.fields.length > 0) {
-          embedObj.fields = [];
-          embed.fields.forEach((field) => {
-            embedObj.fields.push({
-              name: field.name,
-              value: field.value,
-              inline: field.inline,
-            });
-          });
-        }
-        messageObj.embeds.push(embedObj);
-      });
-    }
-    // extract attachments
-    if (theMessage.attachments.size > 0) {
-      theMessage.attachments.forEach((attachment) => {
-        messageObj.attachments.push({
-          id: attachment.id,
-          url: attachment.url,
-          name: attachment.name,
-          size: attachment.size,
-          height: attachment.height,
-          width: attachment.width,
-          proxyURL: attachment.proxyURL,  
-        });
-      });
-    }
-    // extract reactions
-    if (theMessage.reactions.cache.size > 0) {
-      theMessage.reactions.cache.forEach((reaction) => {
-        messageObj.reactions.push({
-          id: reaction.emoji.id,
-          name: reaction.emoji.name,
-          count: reaction.count,
-        });
-      });
-    }
-    // extract components into actionrow objects
-    if (theMessage.components.length > 0) {
-      theMessage.components.forEach((component) => {
-        let actionRowObj = {
+  theMessage.components.forEach((actRow) => {
+    
+            let buttons = [];
+      let selectMenus = [];
+    actRow.components.forEach((component) => {
+    
+
+
+      // let componentObj = {
+      //   type: component.type,
+      //   style: component.style,
+      //   label: component.label,
+      //   emoji: component.emoji,
+      //   url: component.url,
+      //   customID: component.customID,
+      //   disabled: component.disabled,
+      // };
+      
+      if (component.type === 2) { // button
+        let buttonObj = {
           type: component.type,
-          components: [],
+          style: component.style,
+          label: component.label,
+          emoji: component.emoji,
+          url: component.url,
+          customID: component.customId,
+          disabled: component.disabled,
         };
-        component.components.forEach((component) => {
-          // let componentObj = {
-          //   type: component.type,
-          //   style: component.style,
-          //   label: component.label,
-          //   emoji: component.emoji,
-          //   url: component.url,
-          //   customID: component.customID,
-          //   disabled: component.disabled,
-          // };
-          let buttons = [];
-          let selectMenus = [];
-          if (component.type === "BUTTON") {
-            let buttonObj = {
-              type: component.type,
-              style: component.style,
-              label: component.label,
-              emoji: component.emoji,
-              url: component.url,
-              customID: component.customID,
-              disabled: component.disabled,
-            };
-            buttons.push(buttonObj);
-            }
-          if (component.type === "SELECT_MENU") {
-            let selectMenuObj = {
-              type: component.type,
-              customID: component.customID,
-              options: [],
-              placeholder: component.placeholder,
-              minValues: component.minValues,
-              maxValues: component.maxValues,
-              disabled: component.disabled,
-            };
-            component.options.forEach((option) => {
-              selectMenuObj.options.push({
-                label: option.label,
-                value: option.value,
-                description: option.description,
-                emoji: option.emoji,
-                default: option.default,
-              });
-            });
-            selectMenus.push(selectMenuObj);
-          }
-          actionRowObj.components.push({
-            buttons: buttons,
-            selectMenus: selectMenus,
-            numOfButtons: buttons.length,
-            numOfSelectMenus: selectMenus.length,
+        buttons.push(buttonObj);
+        }
+      if (component.type === 3) { // Select Menu
+        let selectMenuObj = {
+          type: component.type,
+          customID: component.customId,
+          options: [],
+          placeholder: component.placeholder,
+          minValues: component.minValues,
+          maxValues: component.maxValues,
+          disabled: component.disabled,
+        };
+        component.options.forEach((option) => {
+          selectMenuObj.options.push({
+            label: option.label,
+            value: option.value,
+            description: option.description,
+            emoji: option.emoji,
+            default: option.default,
           });
         });
-        messageObj.actionRows.push(actionRowObj);
-      });
-    }
+        selectMenus.push(selectMenuObj);
+      }
+      
+
+    
+    
+  });
+  actionRowObj.components.push({
+      buttons: buttons,
+      selectMenus: selectMenus,
+      numOfButtons: buttons.length,
+      numOfSelectMenus: selectMenus.length,
+    });
+  
+});
+messageObj.actionRows.push(actionRowObj);
+}
 
 
 
     // add message to group
     try {
-      await groups.findOneAndUpdate(
-        {
-          channelId: interaction.channel.id,
-          groupName: groupName,
-        },
-        {
-          $push: {
-            messages: messageObj,
+      if (!group.messages || group.messages.length === 0) {
+        await groups.findOneAndUpdate(
+          {
+            channelId: interaction.channel.id,
+            groupName: groupName,
+            $or: [
+              { messages: { $exists: false } },
+              { messages: { $size: 0 } }
+            ]
           },
-        }
-      );
+          {
+            $set: {
+              onlinestatus: true,
+            },
+            $push: {
+              messages: messageObj
+            }
+          }
+        );
+      } else {
+        await groups.findOneAndUpdate(
+          {
+            channelId: interaction.channel.id,
+            groupName: groupName,
+          },
+          {
+            $push: {
+              messages: messageObj,
+            },
+          }
+        );
+      }
     } catch (error) {
       return await interaction.editReply({
         embeds: [

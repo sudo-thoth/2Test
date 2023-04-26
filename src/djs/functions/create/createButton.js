@@ -108,7 +108,7 @@ async function createButton(buttonObj, randID) {
       }
     }
 
-    if (style !== "link") {
+    if (style !== "link" || style !== "LINK" || style !== 5 || style !== "5") {
       try {
         button.setCustomId(customID);
       } catch (error) {
@@ -147,6 +147,11 @@ async function createButton(buttonObj, randID) {
       style !== "success" &&
       style !== "danger" &&
       style !== "link" && style !== "PRIMARY" && style!== "SECONDARY" && style!== "SUCCESS" && style!== "DANGER" && style!== "LINK"
+      && style !== 1 &&
+      style !== 2 &&
+      style !== 3 &&
+      style !== 4 &&
+      style !== 5
     ) {
       try {
         scripts.cLog(
@@ -186,6 +191,36 @@ async function createButton(buttonObj, randID) {
         button.setStyle(ButtonStyle.Danger);
         break;
         case "LINK":
+        button.setStyle(ButtonStyle.Link);
+        break;
+        case "1":
+        button.setStyle(ButtonStyle.Primary);
+        break;
+      case "2":
+        button.setStyle(ButtonStyle.Secondary);
+        break;
+      case "3":
+        button.setStyle(ButtonStyle.Success);
+        break;
+      case "4":
+        button.setStyle(ButtonStyle.Danger);
+        break;
+      case "5":
+        button.setStyle(ButtonStyle.Link);
+        break;
+        case 1:
+        button.setStyle(ButtonStyle.Primary);
+        break;
+      case 2:
+        button.setStyle(ButtonStyle.Secondary);
+        break;
+      case 3:
+        button.setStyle(ButtonStyle.Success);
+        break;
+      case 4:
+        button.setStyle(ButtonStyle.Danger);
+        break;
+      case 5:
         button.setStyle(ButtonStyle.Link);
         break;
       default:

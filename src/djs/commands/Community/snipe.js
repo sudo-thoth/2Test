@@ -257,8 +257,9 @@ async function saveSnipe(userId, snipe) {
       // do the same to get the channel url
       let channel = guild?.channels.cache.get(snipe.message?.channelID);
       let channelInviteURL = await channel?.fetchInvites()?.then(invites => invites.find(invite => invite?.channel?.type === "GUILD_TEXT"))?.then(invite => invite?.url);
+      let embedObj;
       if(snipe.content < 1024) {
-        let embedObj = {
+        embedObj = {
             title: `Sniped Message${target ? ` from ${target.username}` : ""}`,
             thumbnail: snipe?.author.displayAvatarURL(),
             description: `***Deleted*** <t:${snipe?.message?.deletedAt}:R>\n**\`Author:\`** \n\`${snipe.author.username}/\`||\`<@${snipe.author.id}>\`||\n**\`Originally Sent:\`** \`${new Date(snipe?.message?.createdTimestamp)}\`\n\n\`Server\` \`${snipe.serverName}\`||[${snipe.serverName}](${serverInviteURL})||\n\`Channel\` \`${snipe.channelName}\`||[${snipe.channelName}](${channelInviteURL})||`,
@@ -274,7 +275,7 @@ async function saveSnipe(userId, snipe) {
             },
             }
         } else {
-            let embedObj = {
+            embedObj = {
                 title: `Sniped Message${target ? ` from ${target.username}` : ""}`,
                 thumbnail: snipe.author.displayAvatarURL(),
                 description: `***Deleted*** <t:${snipe.deletedAt}:R>\n**\`Author:\`** \n\`${snipe.author.username}/\`||\`<@${snipe.author.id}>\`||\n**\`Originally Sent:\`** \`${new Date(snipe?.message?.createdTimestamp)}\`\n\n\`Server\` \`${snipe.serverName}\`||[${snipe.serverName}](${serverInviteURL})||\n\`Channel\` \`${snipe.channelName}\`||[${snipe.channelName}](${channelInviteURL})||\n\n> **Message Content:**\n> ${snipe.content}`,

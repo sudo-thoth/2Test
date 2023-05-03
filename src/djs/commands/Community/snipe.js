@@ -240,7 +240,8 @@ async function saveSnipe(userId, snipe) {
     const filteredSnipes = target
       ? snipes.filter((snipe) => snipe.author.id === target.id)
       : snipes;
-    const snipe = filteredSnipes[index];
+      const lastDeletedMessages = filteredSnipes.slice( 0, 50)
+    const snipe = lastDeletedMessages[index];
 
     try {
         snipe.author = await client.users.fetch(snipe.messageAuthor?.userID);
@@ -258,29 +259,29 @@ async function saveSnipe(userId, snipe) {
       let channel = guild?.channels.cache.get(snipe.message?.channelID);
       let channelInviteURL = await channel?.fetchInvites()?.then(invites => invites.find(invite => invite?.channel?.type === "GUILD_TEXT"))?.then(invite => invite?.url);
       let embedObj;
-      if(snipe.content < 1024) {
+      if(snipe.message.content < 1024) {
         embedObj = {
             title: `Sniped Message${target ? ` from ${target.username}` : ""}`,
             thumbnail: snipe?.author.displayAvatarURL(),
-            description: `***Deleted*** <t:${snipe?.message?.deletedAt}:R>\n**\`Author:\`** \n\`${snipe.author.username}/\`||\`<@${snipe.author.id}>\`||\n**\`Originally Sent:\`** \`${new Date(snipe?.message?.createdTimestamp)}\`\n\n\`Server\` \`${snipe.serverName}\`||[${snipe.serverName}](${serverInviteURL})||\n\`Channel\` \`${snipe.channelName}\`||[${snipe.channelName}](${channelInviteURL})||`,
+            description: `***Deleted*** <t:${snipe?.message?.deletedAt}:R>\n**\`Author:\`** \n\`${snipe.author.username}/\`||\`<@${snipe.author.id}>\`||\n**\`Originally Sent:\`** \`${new Date(snipe?.message?.timestamp)}\`\n\n\`Server\` \`${snipe.serverName}\`||[${snipe.serverName}](${serverInviteURL})||\n\`Channel\` \`${snipe.channelName}\`||[${snipe.channelName}](${channelInviteURL})||`,
             fields:[
                 {
                     name: "message content",
-                    value: `> ${snipe.content}`, 
+                    value: `> ${snipe.message?.content}`, 
                     inline: false,
                 },
             ],
             footer: {
-                text: `Snipe ${index + 1} of ${filteredSnipes.length}`,
+                text: `Snipe ${index + 1} of ${lastDeletedMessages.length}`,
             },
             }
         } else {
             embedObj = {
                 title: `Sniped Message${target ? ` from ${target.username}` : ""}`,
                 thumbnail: snipe.author.displayAvatarURL(),
-                description: `***Deleted*** <t:${snipe.deletedAt}:R>\n**\`Author:\`** \n\`${snipe.author.username}/\`||\`<@${snipe.author.id}>\`||\n**\`Originally Sent:\`** \`${new Date(snipe?.message?.createdTimestamp)}\`\n\n\`Server\` \`${snipe.serverName}\`||[${snipe.serverName}](${serverInviteURL})||\n\`Channel\` \`${snipe.channelName}\`||[${snipe.channelName}](${channelInviteURL})||\n\n> **Message Content:**\n> ${snipe.content}`,
+                description: `***Deleted*** <t:${snipe.message?.deletedAt}:R>\n**\`Author:\`** \n\`${snipe.author.username}/\`||\`<@${snipe.author.id}>\`||\n**\`Originally Sent:\`** \`${new Date(snipe?.message?.timestamp)}\`\n\n\`Server\` \`${snipe.serverName}\`||[${snipe.serverName}](${serverInviteURL})||\n\`Channel\` \`${snipe.channelName}\`||[${snipe.channelName}](${channelInviteURL})||\n\n> **Message Content:**\n> ${snipe.content}`,
                 footer: {
-                    text: `Snipe ${index + 1} of ${filteredSnipes.length}`,
+                    text: `Snipe ${index + 1} of ${lastDeletedMessages.length}`,
                 },
                 }
         }
@@ -293,7 +294,7 @@ async function saveSnipe(userId, snipe) {
       }
 
   
-      const moreThanTenSnipes = filteredSnipes?.length > 10;
+      const moreThanTenSnipes = lastDeletedMessages?.length > 10;
 
       // check if the current sniped message is already saved by the user to their profile in the db
         // if it is then disable the save button and label it as saved, and make blue
@@ -375,7 +376,7 @@ next: {
             customId: "next",
             label: "Next",
             style: "PRIMARY",
-            disabled: index === filteredSnipes.length - 1,
+            disabled: index === lastDeletedMessages.length - 1,
         },
     button: {}
 },
@@ -384,7 +385,7 @@ next5: {
             customId: "next5",
             label: "Forward by 5",
             style: "PRIMARY",
-            disabled: index > filteredSnipes.length - 6,
+            disabled: index > lastDeletedMessages.length - 6,
         },
     button: {}
 },
@@ -393,7 +394,7 @@ last: {
             customId: "last",
             label: "Last",
             style: "PRIMARY",
-            disabled: index === filteredSnipes.length - 1,
+            disabled: index === lastDeletedMessages.length - 1,
         },
     button: {}
 },
@@ -430,7 +431,7 @@ const actionRow = await createActRow.createActionRow(moreThanTenSnipes ? actionR
       components: [actionRow],
     });
   
-    const filter = (buttonInteraction) =>{
+    const filter = async (buttonInteraction) =>{
         if (buttonInteraction.user.id === interaction.user.id){
             return true
         }else {
@@ -457,64 +458,72 @@ const actionRow = await createActRow.createActionRow(moreThanTenSnipes ? actionR
     });
   
     collector.on("collect", async (buttonInteraction) => {
-      await buttonInteraction.deferUpdate();
-      // Q: what does the deferUpdate do as apposed to the deferReply?
-      // A: deferReply defers the reply to the original interaction, deferUpdate defers the reply to the buttonInteraction 
+      try {
+        try {
+          await buttonInteraction.deferUpdate();
+        } catch (error) {
+          console.log(error)
+        }
+        // Q: what does the deferUpdate do as apposed to the deferReply?
+        // A: deferReply defers the reply to the original interaction, deferUpdate defers the reply to the buttonInteraction 
+    
+        switch (buttonInteraction.customId) {
+          case "first":
+            index = 0;
+            break;
+          case "back":
+            index -= 1;
+            break;
+          case "save":
+            let res = await saveSnipe(
+              interaction.user.id,
+              snipe
+            );
+            if (res){
+              await buttonInteraction.reply({
+                  embeds: [
+                    createEmb.createEmbed({
+                      title: `Snipe Saved`,
+                      description: `The sniped message has been saved to your snipes.`,
+                    }),
+                  ],
+                  ephemeral: true,
+                });
+            } else {
+              await buttonInteraction.reply({
+                  embeds: [
+                    createEmb.createEmbed({
+                      title: `Error`,
+                      description: `An error occurred while trying to save the sniped message, try again`,
+                    }),
+                  ],
+                  ephemeral: true,
+                });
+                await scripts.delay(3000);
+                await buttonInteraction.deleteReply();
+              }
   
-      switch (buttonInteraction.customId) {
-        case "first":
-          index = 0;
+            break;
+          case "next":
+            index += 1;
+            break;
+          case "last":
+            index = lastDeletedMessages.length - 1;
+            break;
+            case "back5":
+          index = moreThanTenSnipes ? index - 5 : Math.max(0, index - 1);
           break;
-        case "back":
-          index -= 1;
+        case "next5":
+          index = moreThanTenSnipes
+            ? index + 5
+            : Math.min(lastDeletedMessages.length - 1, index + 1);
           break;
-        case "save":
-          let res = await saveSnipe(
-            interaction.user.id,
-            snipe
-          );
-          if (res){
-            await buttonInteraction.reply({
-                embeds: [
-                  createEmb.createEmbed({
-                    title: `Snipe Saved`,
-                    description: `The sniped message has been saved to your snipes.`,
-                  }),
-                ],
-                ephemeral: true,
-              });
-          } else {
-            await buttonInteraction.reply({
-                embeds: [
-                  createEmb.createEmbed({
-                    title: `Error`,
-                    description: `An error occurred while trying to save the sniped message, try again`,
-                  }),
-                ],
-                ephemeral: true,
-              });
-              await scripts.delay(3000);
-              await buttonInteraction.deleteReply();
-            }
-
-          break;
-        case "next":
-          index += 1;
-          break;
-        case "last":
-          index = filteredSnipes.length - 1;
-          break;
-          case "back5":
-        index = moreThanTenSnipes ? index - 5 : Math.max(0, index - 1);
-        break;
-      case "next5":
-        index = moreThanTenSnipes
-          ? index + 5
-          : Math.min(filteredSnipes.length - 1, index + 1);
-        break;
+        }
+    
+        await displaySnipes(interaction, snipes, index, target);
+      } catch (error) {
+        console.log(error, `Error in snipe command collector`)
       }
-  
-      await displaySnipes(interaction, snipes, index, target);
     });
   
     collector.on("end", () => {
@@ -585,9 +594,6 @@ module.exports = {
         scripts.logError(error, `error getting channel data`);
     }
 
-    const snipes = channelData.snipes;
-
-
     // If snipe history
     if (getAllSnipesHistory) {
         
@@ -604,8 +610,12 @@ module.exports = {
 
       // Display snipes history in the same way as above; 
       
-      return displaySnipes(interaction, snipesHistory, 0, target);
+      return displaySnipes(interaction, snipesHistory, 0, null);
     }
+    const loggedDeletedMessages = channelData.deletedMessages;
+
+
+
 
     // If snipe
     // Get the last 50 deleted messages in the channel from the database
@@ -613,10 +623,10 @@ module.exports = {
 
     // so snipes is an array of objects, we need to get the first 50 aka the most recent 50 that were added to the array and spit it into a new array variable
 
-    const lastDeletedMessages = snipes.slice( 0, 50)
+    
 
     // Display them via embed and slideshow button style to cycle
-    return displaySnipes(interaction, lastDeletedMessages, 0, target);
+    return displaySnipes(interaction, loggedDeletedMessages, 0, target);
   },
   };
   

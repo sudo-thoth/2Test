@@ -53,7 +53,7 @@ const userData = new Schema(
             content: String,
             timestamp: Number,
             createdAt: String,
-            deletedAt: Number,
+            deletedAt: String,
             deletedTimestamp: Number,
             hasEmbed: Boolean,
             embeds: [{

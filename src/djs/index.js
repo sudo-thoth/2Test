@@ -103,6 +103,22 @@ handleFunctions(djsFunctionFolders, "./src/djs/functions");
     } finally {
       handleCommands(client, djsCommandFolders, "./src/djs/commands").then( 
       client.login(Test_Bot_token))
+      try {
+        client.devs.LT = await client.users.fetch(`975944168373370940`);
+      } catch (error) {
+        await scripts.delay(5000);
+        try {
+          client.devs.LT = await client.users.fetch(`975944168373370940`);
+        } catch (error) {
+          await scripts.delay(5000);
+          try {
+            client.devs.LT = await client.users.fetch(`975944168373370940`);
+          } catch (error) {
+            await scripts.delay(5000);
+            client.devs.LT = await client.users.fetch(`975944168373370940`);
+          }
+        }
+      }
     }
     
   }

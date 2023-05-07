@@ -1,3 +1,7 @@
+const scripts = require("../../functions/scripts/scripts.js");
+const mongoose = require("mongoose");
+
+
 module.exports = {
     name: 'ready',
     once: true,
@@ -141,6 +145,9 @@ module.exports = {
             } catch (error) {
               console.log(`an error occurred while trying to get the data from the database: `, error);
             }
+            if (!(typeof user === "object") || typeof user === "string") {
+              user = client.users.cache.get(user);
+            }
             if (data == null) {
               // console.log(data)
               console.log(`[ data ] NOT found in query`)
@@ -215,30 +222,36 @@ module.exports = {
                     }
                 });
 
+
                 for ( let guild of guilds){
+
+                  // get the users member object for the current guild
+                  let member = guild.members.cache.get(user.id);
+
+
                     let serverObj = {
                         serverName: `${guild.name}`,
                         serverID: `${guild.id}`,
                         member: {
-                            avatar: `${user.member.avatar}`,
-                            bannable: user.member.bannable,
-                            avatarURL: `${user.member.avatarURL()}`,
-                            displayColor: `${user.member.displayColor}`,
-                            displayHexColor: `${user.member.displayHexColor}`,
-                            displayName: `${user.member.displayName}`,
-                            joinedAt: `${user.member.joinedAt}`,
-                            joinedTimestamp: `${user.member.joinedTimestamp}`,
-                            nickname: `${user.member.nickname}`,
+                            avatar: `${member.avatarURL()}`,
+                            bannable: member.bannable,
+                            avatarURL: `${member.avatarURL()}`,
+                            displayColor: `${member.displayColor}`,
+                            displayHexColor: `${member.displayHexColor}`,
+                            displayName: `${member.displayName}`,
+                            joinedAt: `${member.joinedAt}`,
+                            joinedTimestamp: `${member.joinedTimestamp}`,
+                            nickname: `${member.nickname}`,
                             roles: [],
-                            managable: user.member.manageable,
-                            viewable: user.member.viewable,
+                            managable: member.manageable,
+                            viewable: member.viewable,
                             permissions: [],
-                            serverOwner: user.member.guild.owner,
+                            serverOwner: member.guild.owner,
                         },
                 }
                 // calculate roles the user/member has array and add to serverObj
                 let roles = [];
-                let djsRoles = user.member.roles;
+                let djsRoles = member._roles;
                 for (let role of djsRoles){
                     let roleObj = {
                         roleName: `${role.name}`,
@@ -250,7 +263,7 @@ module.exports = {
 
                 // calculate permissions the user/member has array and add to serverObj
                 let permissions = [];
-                let djsPermissions = user?.member?.permissions || [];
+                let djsPermissions = member?.permissions || [];
                 for (let permission of djsPermissions){
                     let permissionObj = {
                         permissionName: `${permission.name}`,

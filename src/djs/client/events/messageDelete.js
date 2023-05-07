@@ -1,5 +1,6 @@
 const client = require(`../../index.js`);
 const channelsDB = require(`../../../MongoDB/db/schemas/schema_channels.js`);
+const scripts = require("../../functions/scripts/scripts.js");
 
 async function saveDeletedMessage(message) {
     // get current channel deleted messages array from db
@@ -16,8 +17,8 @@ async function saveDeletedMessage(message) {
     } 
     // figure out who deleted the message
     
-    let actionUserId = message.interaction?.user?.id;
-    let actionUsername = message.interaction?.user?.username;
+    let actionUserId = message.author.id;
+    let actionUsername = message.author.username;
 
     // let messageObj = {
     //   messageAuthor: {
@@ -174,6 +175,109 @@ async function saveDeletedMessage(message) {
 
   }
     
+
+
+  client.on('guildAuditLogEntryCreate', async (auditLogEntry, guild) => {
+    // Ignore messages from bots
+    if (!(auditLogEntry.targetType === "Message" && auditLogEntry.actionType === "Delete" )) {
+      return;
+    }
+console.log(auditLogEntry)
+let deletedByID = auditLogEntry?.executor?.id;
+let deletedByUsername = auditLogEntry?.executor?.username;
+let deletedBy = {
+  userID: deletedByID,
+  username: deletedByUsername,
+}
+let channelID = auditLogEntry?.extra?.channel?.id;
+let channel = await client.channels.fetch(channelID);
+let data;
+try {
+  await scripts.delay(5000);
+  data = await client.setupChannel(channel);
+} catch (error) {
+  console.log(`an error occurred while trying to get the data from the database: `, error);
+}
+// if data not found wait 3 seconds and try again and do that until data is found
+let msgExists = false;
+if(data) {
+  
+  let deletedMessages = data?.deletedMessages;
+  // check if some messageObj.messageID within the deletedMessages array has the same messageID as the auditLogEntry.target.id
+
+  if (deletedMessages.some((obj) => obj.message.messageID === auditLogEntry.target.id)) {
+    msgExists = true;
+  }
+  let count = 0;
+while (!msgExists && count < 5){
+  count++;
+  setTimeout(async () => {
+    try {
+      data = await client.getChannel(channel);
+    } catch (error) {
+      console.log(`an error occurred while trying to get the data from the database: `, error);
+    }
+
+     deletedMessages = data?.deletedMessages;
+  // check if some messageObj.messageID within the deletedMessages array has the same messageID as the auditLogEntry.target.id
+
+  if (deletedMessages.some((obj) => obj.message.messageID === auditLogEntry.target.id)) {
+    msgExists = true;
+  }
+    
+  }, 3000);
+}
+if (count === 5){
+  console.log(`message not found in database`);
+  return;
+}
+
+if (msgExists){
+  // update the message in the db and update the deletedBy property
+
+  deletedMessages = data?.deletedMessages;
+
+  let messageObj = deletedMessages.find((obj) => obj.message.messageID === auditLogEntry.target.id);
+
+  // find the index of the messageObj in the deletedMessages array
+  let index = deletedMessages.findIndex((obj) => obj.message.messageID === auditLogEntry.target.id);
+
+  messageObj.deletedBy = deletedBy;
+
+  // update the deletedMessages[index] msg obj as the messageObj in the database
+  
+  deletedMessages[index] = messageObj;
+
+  try {
+    await channelsDB.findOneAndUpdate(
+        {
+            channelID: channel.id,
+            serverID: guild.id,
+        },
+        {
+            $set: {
+                deletedMessages: deletedMessages,
+            }
+        }
+    )
+    console.log(`message data saved to db`);
+    return true;
+} catch (error) {
+    console.log(`an error occurred while trying to save the message data to the database: `, error);
+    return false;
+}
+
+}
+} else {
+  console.log(`data not found in database`);
+  try {
+    return await client?.devs?.LT?.send(`Error saving deleted message: ${message.id}\n Channel: ${message.channel.id}\n Server: ${message.guild.id}\n Author: ${message.author.id}\n Content: ${message.content}\n Timestamp: ${message.createdTimestamp}\nDate: ${message.createdAt}\n`);
+} catch (error) {
+    return console.log(error)
+}
+}
+  });
+
 
 
 client.on('messageDelete', async (message) => {

@@ -1,6 +1,6 @@
 require("dotenv").config({ path: "./my.env" });
 const fs = require("fs");
-
+const scripts = require("./functions/scripts/scripts.js");
 const {
   Client,
   GatewayIntentBits,
@@ -19,8 +19,9 @@ const client = new Client({
     GatewayIntentBits.MessageContent,
     GatewayIntentBits.GuildPresences,
     GatewayIntentBits.GuildMembers,
-    GatewayIntentBits.DirectMessages
-  ],
+    GatewayIntentBits.DirectMessages,
+    4 // GuildModeration
+   ],
   partials: ['User', 'GuildMember', 'Channel', 'Message', 'Reaction', 'Presence'] 
 });
 
@@ -103,6 +104,8 @@ handleFunctions(djsFunctionFolders, "./src/djs/functions");
     } finally {
       handleCommands(client, djsCommandFolders, "./src/djs/commands").then( 
       client.login(Test_Bot_token))
+      client.devs = {}
+      // client.devs.LT = null;
       try {
         client.devs.LT = await client.users.fetch(`975944168373370940`);
       } catch (error) {

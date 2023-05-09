@@ -1663,8 +1663,34 @@ function getDomain(url) {
   console.log(`the new URL`, new URL(url));
   return domainName;
 }
+/**
+ * Schedule a function to run after a specified delay.
+ * @param {Function} func - The function to be scheduled.
+ * @param {number} delay - The delay, in milliseconds, before the function is called.
+ * @param {...any} args - Optional additional arguments to pass to the function.
+ * @returns {Promise} A promise that resolves after the specified delay and executes the function.
+ * @example 
+ * // Define the function to be scheduled
+ * const greetUser = (name) => {
+ *   console.log(`Hello, ${name}!`);
+ * };
+ *
+ * // Schedule the function to run after a delay of 3 seconds
+ * scheduleFunction(greetUser, 3000, "John");
+ *
+ * // Output: After 3 seconds: Hello, John!
+ */
+const scheduleFunction = async (func, delay, ...args) => {
+  // Wait for the specified delay using a promise and setTimeout.
+  await new Promise(resolve => setTimeout(resolve, delay));
+  
+  // Call the function with any additional arguments passed in.
+  func(...args);
+};
+
 
 module.exports = {
+  scheduleFunction,
   getDomain,
   getJuice,
   logError,

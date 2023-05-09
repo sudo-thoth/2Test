@@ -247,6 +247,7 @@ index = index > length - 1 ? length - 1 : index < 0 ? 0 : index;
       : snipes;
       const lastDeletedMessages = filteredSnipes.slice( 0, 50)
     const snipe = lastDeletedMessages[index];
+    let interactionUserID = interaction?.user?.id ? interaction?.user?.id : msg?.author?.id;
 
     // if there are 0 snipes in the snipes array, send a message on the embed saying there arent any messages recently deleted in the channel
 
@@ -518,15 +519,31 @@ const actionRowB = [buttonObjects.first.button, buttonObjects.back.button, butto
         let msgObj = await msg.channel.messages.fetch(msg.id)
         message = await msgObj.edit({
           embeds: [embed],
-          components: [actionRowBuilders],
+          components: actionRowBuilders,
+          
         });
       } catch (error) {
+        if(error.message === `Cannot edit a message authored by another user`){
+          let msgObj = await msg.channel.messages.fetch(msg.id)
+          try {
+            message = await msgObj.reply({
+              embeds: [embed],
+              components: actionRowBuilders,
+              
+            });
+          } catch (error) {
+            console.log(`an error occurred while trying to reply to the message: `, error)
+          }
+        } else {
         console.log(`an error occurred while trying to edit the message: `, error)
+        }
       }
     } 
   
     const filter = async (buttonInteraction) =>{
-        if (buttonInteraction.user.id === interaction.user.id){
+
+        if (buttonInteraction.user.id === interactionUserID){
+
             return true
         }else {
             // send message telling user they dont have permission to operate another users snipe dashboard, and run it themselves if they wanna see it
@@ -545,7 +562,7 @@ const actionRowB = [buttonObjects.first.button, buttonObjects.back.button, butto
         }
     }
       
-  
+  let x,y;
     const collector = message.createMessageComponentCollector({
       filter,
       time: 60000,
@@ -686,9 +703,36 @@ const actionRowB = [buttonObjects.first.button, buttonObjects.back.button, butto
   
     collector.on("end", async () => {
       if (!collector.complete) {
-        await interaction.editReply({
-          components: [],
-        });
+        try {
+          await interaction.editReply({
+            components: [],
+          });
+        } catch (error) {
+          try {
+            // fetch the message via msg.id
+            let msgObj = await msg.channel.messages.fetch(msg.id)
+            message = await msgObj.edit({
+              
+              components: [],
+              
+            });
+          } catch (error) {
+            if(error.message === `Cannot edit a message authored by another user`){
+              let msgObj = await msg.channel.messages.fetch(msg.id)
+              try {
+                message = await msgObj.reply({
+                  
+                  components: [],
+                  
+                });
+              } catch (error) {
+                console.log(`an error occurred while trying to reply to the message: `, error)
+              }
+            } else {
+            console.log(`an error occurred while trying to edit the message: `, error)
+            }
+          }
+        }
       }
     });
   }
@@ -714,7 +758,7 @@ module.exports = {
 
   async execute(interaction) {
     try {
-      await interaction.deferReply({ ephemeral: true });
+      await interaction.deferReply({ ephemeral: false });
     } catch (error) {
       scripts.logError(error, `error deferring reply`);
     }
@@ -790,6 +834,6 @@ module.exports = {
 
     // Display them via embed and slideshow button style to cycle
     return displaySnipes(interaction, msg, loggedDeletedMessages, 0, target);
-  },
+  },displaySnipes
   };
   

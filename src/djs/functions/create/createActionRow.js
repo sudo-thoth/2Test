@@ -40,7 +40,7 @@ const {
     console.log(components)
 
     // make sure there are not more than 5  components in the actionRowObj
-    if (components.length > 5) {
+    if (components?.length > 5) {
         scripts.logError(
             new Error("Components property length is greater than 5"),
             `Error Creating Action Row`

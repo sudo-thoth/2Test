@@ -30,6 +30,7 @@ module.exports = {
         }
         client.channelsDB =  require(`../../../MongoDB/db/schemas/schema_channels.js`);
         client.usersDB = require(`../../../MongoDB/db/schemas/schema_users.js`);
+        client.localLog = [];
         client.getChannel = async (channel) => {
   
             let data;

@@ -238,12 +238,12 @@ async function saveSnipe(userId, snipe) {
         
   }
   
-  async function displaySnipes(interaction, snipes, index, target) {
+  async function displaySnipes(interaction, msg, snipes, index, target) {
 let embed;
 let length = snipes.length;
 index = index > length - 1 ? length - 1 : index < 0 ? 0 : index;
     const filteredSnipes = target
-      ? snipes.filter((snipe) => snipe.author.id === target.id)
+      ? snipes.filter((snipe) => snipe.message.user.userID === target.id)
       : snipes;
       const lastDeletedMessages = filteredSnipes.slice( 0, 50)
     const snipe = lastDeletedMessages[index];
@@ -258,13 +258,19 @@ index = index > length - 1 ? length - 1 : index < 0 ? 0 : index;
           }
       );
 
-       await interaction.editReply({ embeds: [embed] });
-       await scripts.delay(5000);
-       return await interaction.deleteReply();
+      if (msg === null && interaction){
+        await interaction.editReply({ embeds: [embed] });
+        await scripts.delay(5000);
+        return await interaction.deleteReply();
+      } else {
+        await msg.edit({ embeds: [embed] });
+        await scripts.delay(5000);
+        return await msg.delete();
+      }
     }
 
-    try {
-        snipe.author = await client.users.fetch(snipe.messageAuthor?.userID);
+    try { // if no messageAuthor then use the snipe.snipedTarget.userID and if that fails then use the snipe.snipedBy.userID
+        snipe.author = await client.users.fetch( snipe?.messageAuthor?.userID || snipe?.snipedTarget?.userID || snipe?.snipedBy?.userID || snipe?.user?.userID);
     } catch (error) {
         console.log(error)
     }
@@ -288,10 +294,12 @@ let channelInviteURL = await guild.invites.create( snipe.message?.channelID, {
       if(snipe.message.content < 1024) {
         embedObj = {
             title: `Sniped Message${target ? ` from ${target.username}` : ""}`,
-            thumbnail: snipe?.author.displayAvatarURL(),
-            description: `***Deleted*** <t:${ Math.floor(
-              (snipe?.loggedTimestamp) / 1000
-            )}:R>\n:writing_hand: **__ Sent By:__** \n\`${snipe.author.username}/\`||\`<@${snipe.author.id}>\`||\n\n**\`Timestamp:\`** \`${new Date(snipe?.message?.timestamp)}\`\n\n\`Server\` \`${snipe.serverName}\`||[${snipe.serverName}](${serverInviteURL})||\n\`Channel\` \`${snipe.channelName}\`||[${snipe.channelName}](${channelInviteURL})||`,
+            thumbnail: snipe.author.displayAvatarURL(),
+            description: `\`Server\` \`${snipe.serverName}\`||[${snipe.serverName}](${serverInviteURL})||\n\`Channel\` \`${snipe.channelName}\`||[${snipe.channelName}](${channelInviteURL})||\n\n**__Message Info__**:\n|| ‎  ‎  ‎  ‎  ‎ ||╰:wastebasket: *__Deleted:__*\n|| ‎  ‎  ‎  ‎  ‎ |||| ‎  ‎  ‎  ‎  ‎ ||╰:bust_in_silhouette:  By: ${snipe?.snipedBy ? `<@${snipe.snipedBy?.userID}> \`/\` \`${snipe.snipedBy.username}\`` : snipe?.deletedBy ? `<@${snipe.deletedBy?.userID}> \`/\` \`${snipe.deletedBy.username}\`` : `:ghost: Unknown`  }\n|| ‎  ‎  ‎  ‎  ‎ |||| ‎  ‎  ‎  ‎  ‎ ||╰:clock: Time: <t:${ Math.floor(
+              (snipe?.loggedTimestamp || snipe?.savedTimestamp) / 1000
+            )}:R>\n|| ‎  ‎  ‎  ‎  ‎ ||╰:writing_hand: *__Sent:__*\n|| ‎  ‎  ‎  ‎  ‎ |||| ‎  ‎  ‎  ‎  ‎ ||╰:bust_in_silhouette:  By:<@${snipe.author.id}> \`/\` \`${snipe.author.username}\`\n|| ‎  ‎  ‎  ‎  ‎ |||| ‎  ‎  ‎  ‎  ‎ ||╰:clock: Time: <t:${ Math.floor(
+              snipe?.message?.timestamp ? snipe?.message?.timestamp / 1000 : Date.parse(snipe?.message?.createdAt) / 1000
+            )}:R>`,
             fields:[
                 {
                     name: "message content",
@@ -302,17 +310,27 @@ let channelInviteURL = await guild.invites.create( snipe.message?.channelID, {
             footer: {
                 text: `Snipe ${index + 1} of ${lastDeletedMessages.length}`,
             },
+            color: scripts.getColor(),
             }
         } else {
             embedObj = {
+                // title: `Sniped Message${target ? ` from ${target.username}` : ""}`,
+                // thumbnail: snipe.author.displayAvatarURL(),
+                // description: `\`Server\` \`${snipe.serverName}\`||[${snipe.serverName}](${serverInviteURL})||\n\`Channel\` \`${snipe.channelName}\`||[${snipe.channelName}](${channelInviteURL})||\n\n:clock: **\`Timestamp:\`** \`${snipe?.message?.timestamp ? new Date(snipe?.message?.timestamp) : snipe?.message?.createdAt}\`\n:wastebasket: **__Deleted:__** \n╰ *By:* ${snipe?.snipedBy ? `<@${snipe.snipedBy?.userID}> \`/\` \`${snipe.snipedBy.username}\`` : snipe?.deletedBy ? `<@${snipe.deletedBy?.userID}> \`/\` \`${snipe.deletedBy.username}\`` : `:ghost: Unknown`  }\n╰ *Time:* <t:${ Math.floor(
+                //   (snipe?.loggedTimestamp || snipe?.savedTimestamp) / 1000
+                // )}:R>\n\n:writing_hand: **__ Sent By:__** \n<@${snipe.author.id}> \`/\` ||\`${snipe.author.username} | ${snipe.author.id}\`||\n\n> **Message Content:**\n> ${snipe.message?.content}`,
                 title: `Sniped Message${target ? ` from ${target.username}` : ""}`,
-                thumbnail: snipe.author.displayAvatarURL(),
-                description: `***Deleted*** <t:${ Math.floor(
-                  (snipe?.loggedTimestamp) / 1000
-                )}:R>\n:writing_hand: **__ Sent By:__** \n\`${snipe.author.username}/\`||\`<@${snipe.author.id}>\`||\n\n**\`Timestamp:\`** \`${new Date(snipe?.message?.timestamp)}\`\n\n\`Server\` \`${snipe.serverName}\`||[${snipe.serverName}](${serverInviteURL})||\n\`Channel\` \`${snipe.channelName}\`||[${snipe.channelName}](${channelInviteURL})||\n\n> **Message Content:**\n> ${snipe.message?.content}`,
+            thumbnail: snipe.author.displayAvatarURL(),
+            description: `\`Server\` \`${snipe.serverName}\`||[${snipe.serverName}](${serverInviteURL})||\n\`Channel\` \`${snipe.channelName}\`||[${snipe.channelName}](${channelInviteURL})||\n\n**__Message Info__**:\n|| ‎  ‎  ‎  ‎  ‎ ||╰:wastebasket: *__Deleted:__*\n|| ‎  ‎  ‎  ‎  ‎ || || ‎  ‎  ‎  ‎  ‎ ||╰:bust_in_silhouette:  By: ${snipe?.snipedBy ? `<@${snipe.snipedBy?.userID}> \`/\` \`${snipe.snipedBy.username}\`` : snipe?.deletedBy ? `<@${snipe.deletedBy?.userID}> \`/\` \`${snipe.deletedBy.username}\`` : `:ghost: Unknown`  }\n|| ‎  ‎  ‎  ‎  ‎ |||| ‎  ‎  ‎  ‎  ‎ ||╰:clock: Time: <t:${ Math.floor(
+              (snipe?.loggedTimestamp || snipe?.savedTimestamp) / 1000
+            )}:R>\n|| ‎  ‎  ‎  ‎  ‎ ||╰:writing_hand: *__Sent:__*\n|| ‎  ‎  ‎  ‎  ‎ |||| ‎  ‎  ‎  ‎  ‎ ||╰:bust_in_silhouette:  By:<@${snipe.author.id}> \`/\` \`${snipe.author.username}\`\n|| ‎  ‎  ‎  ‎  ‎ |||| ‎  ‎  ‎  ‎  ‎ ||╰:clock: Time: <t:${ Math.floor(
+                  snipe?.message?.timestamp ? snipe?.message?.timestamp / 1000 : Date.parse(snipe?.message?.createdAt) / 1000
+                )}:R>\n\n> **Message Content:**\n> ${snipe.message?.content}`,
+                
                 footer: {
                     text: `Snipe ${index + 1} of ${lastDeletedMessages.length}`,
                 },
+                color: scripts.getColor(),
                 }
         }
 
@@ -337,7 +355,7 @@ let channelInviteURL = await guild.invites.create( snipe.message?.channelID, {
         }
         let saved = false;
         try {
-            const userData = await client?.setupUser(interaction.user.id);
+            const userData = await client?.setupUser(interaction?.user?.id || msg?.user?.id);
             let userSnipes = userData?.saved?.snipes;
             for (let Usnipe of userSnipes){
               console.log(Usnipe.messageID, snipe.messageID, `USNIPE=`, Usnipe)
@@ -450,18 +468,62 @@ last: {
 // action B : IF there are 10 or less results The button row should have 5 buttons a 1st results button, back button, a save button in the middle that is disabled when clicked, next button, last results button.
 
 
-const actionRowA = [buttonObjects.first.button, buttonObjects.back5.button, buttonObjects.back.button, buttonObjects.save.button, buttonObjects.next.button, buttonObjects.next5.button, buttonObjects.last.button]
+const actionRowA = [buttonObjects.first.button, buttonObjects.back.button, buttonObjects.save.button, buttonObjects.next.button,  buttonObjects.last.button]
+const actionRowC = [buttonObjects.back5.button, buttonObjects.next5.button,]
 
 const actionRowB = [buttonObjects.first.button, buttonObjects.back.button, buttonObjects.save.button, buttonObjects.next.button, buttonObjects.last.button]
 
 
-const actionRow = await createActRow.createActionRow({components: moreThanTenSnipes ? actionRowA : actionRowB})
+// const actionRow = await createActRow.createActionRow({components: moreThanTenSnipes ? actionRowA : actionRowB})
 
-  
-    const message = await interaction.editReply({
-      embeds: [embed],
-      components: [actionRow],
-    });
+  let actionRowArray = moreThanTenSnipes ? [actionRowA, actionRowC] : [actionRowB]
+
+  // for each actionRow in the array creeate an actionRoa builder
+  let actionRowBuilders = []
+  for (const actionRow of actionRowArray) {
+    try {
+      actionRowBuilders.push(await createActRow.createActionRow({components: actionRow}))
+    } catch (error) {
+      console.log(`an error occurred while trying to create the action row: `, error, actionRow)
+    }
+  }
+
+    let message;
+    // if (msg === null && interaction){
+    //   message = await interaction.editReply({
+    //     embeds: [embed],
+    //     components: [actionRow],
+    //   });
+    // } else {
+    //   try {
+    //     // fetch the message via msg.id
+    //     let msgObj = await msg.channel.messages.fetch(msg.id)
+    //     message = await msgObj.edit({
+    //       embeds: [embed],
+    //       components: [actionRow],
+    //     });
+    //   } catch (error) {
+    //     console.log(`an error occurred while trying to edit the message: `, error)
+    //   }
+    // } 
+
+    try {
+      message = await interaction.editReply({
+        embeds: [embed],
+        components: actionRowBuilders,
+      });
+    } catch (error) {
+      try {
+        // fetch the message via msg.id
+        let msgObj = await msg.channel.messages.fetch(msg.id)
+        message = await msgObj.edit({
+          embeds: [embed],
+          components: [actionRowBuilders],
+        });
+      } catch (error) {
+        console.log(`an error occurred while trying to edit the message: `, error)
+      }
+    } 
   
     const filter = async (buttonInteraction) =>{
         if (buttonInteraction.user.id === interaction.user.id){
@@ -490,9 +552,11 @@ const actionRow = await createActRow.createActionRow({components: moreThanTenSni
     });
   
     collector.on("collect", async (buttonInteraction) => {
+      let newInt;
       try {
+        
         try {
-          await buttonInteraction.deferUpdate();
+          newInt = await buttonInteraction.deferUpdate();
         } catch (error) {
           console.log(error)
         }
@@ -552,17 +616,80 @@ const actionRow = await createActRow.createActionRow({components: moreThanTenSni
             : Math.min(lastDeletedMessages.length - 1, index + 1);
           break;
         }
+    console.log(`interaction is --------------------------------<<>>`, interaction)
+    console.log(`newInt is --------------------------------<<>>`, newInt)
+    console.log(`buttonInteraction is --------------------------------<<>>`, buttonInteraction)
+
+    // update the message to look the exact same with same embedObj and buttons, except  button that was clicked just clicked, update the label to the text "clicked"
     
-        await displaySnipes(interaction, snipes, index, target);
+    let clickedButton = buttonObjects[buttonInteraction.customId].button
+    // clickedButton.data.label = `<a:verify:1100873948041855017>`
+    //clickedButton.data.emoji = `<a:verify:1100873948041855017>`
+    clickedButton.setEmoji(`<a:verify:1100873948041855017>`)
+    let newActionRows = [];
+    if ( moreThanTenSnipes && (buttonInteraction.customId === "back5" || buttonInteraction.customId === "next5")){
+      // there will be 2 action rows, both actionRowA and actionRowC and need to update the relevant button within actionRowC
+       newActionRows.push( await createActRow.createActionRow({components: actionRowA}))
+       newActionRows.push( await createActRow.createActionRow({components: actionRowC, clickedButton: clickedButton}))
+
+      
+      
+
+    } else {
+      // there will be 1 action row, actionRowB and need to update the relevant button within actionRowB
+       newActionRows.push(await createActRow.createActionRow({components: actionRowB, clickedButton: clickedButton}))
+    }
+    
+    
+    // console.log(`newActionRow is --------------------------------<<>>`, newActionRow)
+    // console.log(`actionRow is --------------------------------<<>>`, actionRow)
+
+    // console.log(`buttonObjects[buttonInteraction.customId].button is --------------------------------<<>>`, buttonObjects[buttonInteraction.customId].button)
+
+    try {
+      message = await interaction.editReply({
+        embeds: [embed],
+        components: newActionRows,
+      });
+      } catch (error) {
+        console.log(error, `error editing reply`)
+
+        try {
+          // fetch the message via msg.id
+          let msgObj = await buttonInteraction.channel.messages.fetch(msg.id)
+          message = await msgObj.edit({
+            embeds: [embed],
+            components: newActionRows,
+          });
+        } catch (error) {
+          console.log(`an error occurred while trying to edit the message: `, error)
+        }
+      }
+    
+
+    // end the collector
+
+     try{
+      collector.complete = true;
+      collector.stop();
+      } catch (error) {
+        console.log(error, `error stopping collector`)
+      }
+
+        await displaySnipes(buttonInteraction, message, snipes, index, target);
       } catch (error) {
         console.log(error, `Error in snipe command collector`)
       }
+
+
     });
   
-    collector.on("end", () => {
-      interaction.editReply({
-        components: [],
-      });
+    collector.on("end", async () => {
+      if (!collector.complete) {
+        await interaction.editReply({
+          components: [],
+        });
+      }
     });
   }
   
@@ -580,8 +707,8 @@ module.exports = {
     )
     .addBooleanOption((option) =>
       option
-        .setName("saved")
-        .setDescription("View snipes you have saved.")
+        .setName("view-saved")
+        .setDescription("View snipes you have saved.a")
         .setRequired(false)
     ),
 
@@ -605,9 +732,9 @@ module.exports = {
     }
     const { options } = interaction;
     const target = options?.getUser("target-user");
-    const getAllSnipesHistory = options?.getBoolean("saved");
+    const getAllSnipesHistory = options?.getBoolean("view-saved");
     const user = interaction?.user;
-
+    let msg = null;
     // get the channel data from db in order to get the snipe data
     let channelData;
     try {
@@ -639,12 +766,13 @@ module.exports = {
       const userSnipes = userData?.saved?.snipes;
 
       // filter the snipes to only being snipes from within the current server
-      const s = userSnipes.filter((snipe) => snipe.guildId === interaction.guild.id);
+      const s = userSnipes.filter((snipe) => snipe.serverID === interaction.guild.id);
       const snipesHistory = s;
+      
 
       // Display snipes history in the same way as above; 
       
-      return displaySnipes(interaction, snipesHistory, 0, null);
+      return displaySnipes(interaction, msg, snipesHistory, 0, null);
     }
     
     const loggedDeletedMessages = channelData?.deletedMessages;
@@ -661,7 +789,7 @@ module.exports = {
     
 
     // Display them via embed and slideshow button style to cycle
-    return displaySnipes(interaction, loggedDeletedMessages, 0, target);
+    return displaySnipes(interaction, msg, loggedDeletedMessages, 0, target);
   },
   };
   

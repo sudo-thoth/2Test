@@ -1,12 +1,17 @@
 const client = require(`../../index.js`);
-const channelsDB = require(`../../../MongoDB/db/schemas/schema_channels.js`);
 const scripts = require("../../functions/scripts/scripts.js");
 
 async function saveDeletedMessage(message) {
+  
+  let deletedMessageData = await findSynchronizedFunction(new Date(), client.localLog)
     // get current channel deleted messages array from db
     let currentChannelData = await client.setupChannel(message.channel.id); 
 
     
+    let deletedBy = {
+      userID: deletedMessageData.deletedBy.userID || message.author.id,
+      username: deletedMessageData.deletedBy.username || message.author.username,
+    }
     // get current user deleted messages array from db
     let channelsDelMessages = currentChannelData?.deletedMessages || [];
     
@@ -17,8 +22,8 @@ async function saveDeletedMessage(message) {
     } 
     // figure out who deleted the message
     
-    let actionUserId = message.author.id;
-    let actionUsername = message.author.username;
+    // let actionUserId = message.author.id;
+    // let actionUsername = message.author.username;
 
     // let messageObj = {
     //   messageAuthor: {
@@ -67,10 +72,7 @@ async function saveDeletedMessage(message) {
           embeds: [],
           attachments: [],
       }, 
-      deletedBy: {
-        userID: actionUserId,
-        username: actionUsername
-      },
+      deletedBy,
       messageAuthor: {
         userID: message.author.id,
         username: message.author.username
@@ -155,7 +157,7 @@ async function saveDeletedMessage(message) {
 
 
     try {
-        await channelsDB.findOneAndUpdate(
+        await client.channelsDB.findOneAndUpdate(
             {
                 channelID: message.channel.id,
                 serverID: message.guild.id,
@@ -175,7 +177,30 @@ async function saveDeletedMessage(message) {
 
   }
     
+  const findSynchronizedFunction = async (timestamp, funcRunArray) => {
+  const halfSecondInterval = 500; // Half second interval in milliseconds
+await scripts.delay(1000)
+  funcRunArray = client.localLog;
+  const timestampObject = new Date(timestamp);
 
+  // Sort the funcRunArray in descending order by timestamp
+  const sortedFuncRunArray = funcRunArray.length > 1 ? funcRunArray.sort((a, b) => {
+    const dateA = new Date(a.timestamp);
+    const dateB = new Date(b.timestamp);
+    return dateB - dateA;
+  }) : funcRunArray;
+
+  // Find the most recent object with a timestamp within the same half second
+  const recentObject = sortedFuncRunArray.length === 1 ? sortedFuncRunArray[0] : sortedFuncRunArray.find((obj) => {
+    const objTimestamp = new Date(obj.timestamp);
+    const timeDifference = Math.abs(objTimestamp - timestampObject);
+    return timeDifference <= halfSecondInterval;
+  });
+
+  return recentObject || funcRunArray[funcRunArray.length-1];
+};
+
+  
 
   client.on('guildAuditLogEntryCreate', async (auditLogEntry, guild) => {
     // Ignore messages from bots
@@ -183,8 +208,21 @@ async function saveDeletedMessage(message) {
       return;
     }
 console.log(auditLogEntry)
-let deletedByID = auditLogEntry?.executor?.id;
+client.localLog.push({
+  action: 'audit_messageDelete',
+  timestamp: new Date(),
+  deletedBy: {userID: auditLogEntry.executor.id, username: auditLogEntry.executor.username},
+  channelID: auditLogEntry.extra.channel.id,
+  targetID: auditLogEntry.target.id,
+  })
+
+  // disregard the rest
+
+
+const logDeletionUser = async (auditLogEntry, guild) => {
+  let deletedByID = auditLogEntry?.executor?.id;
 let deletedByUsername = auditLogEntry?.executor?.username;
+let deletedMessageID = auditLogEntry?.extra?.channel?.lastMessageId;
 let deletedBy = {
   userID: deletedByID,
   username: deletedByUsername,
@@ -193,7 +231,6 @@ let channelID = auditLogEntry?.extra?.channel?.id;
 let channel = await client.channels.fetch(channelID);
 let data;
 try {
-  await scripts.delay(5000);
   data = await client.setupChannel(channel);
 } catch (error) {
   console.log(`an error occurred while trying to get the data from the database: `, error);
@@ -205,42 +242,42 @@ if(data) {
   let deletedMessages = data?.deletedMessages;
   // check if some messageObj.messageID within the deletedMessages array has the same messageID as the auditLogEntry.target.id
 
-  if (deletedMessages.some((obj) => obj.message.messageID === auditLogEntry.target.id)) {
+    if (deletedMessages.some((obj) => obj.message.messageID === deletedMessageID)) {
     msgExists = true;
   }
-  let count = 0;
-while (!msgExists && count < 5){
-  count++;
-  setTimeout(async () => {
+  const checkDeletedMessages = async (callback, count = 0) => {
+    if (count >= 5) {
+      console.log(`message not found in database`);
+      return;
+    }
+  
     try {
-      data = await client.getChannel(channel);
+      const data = await client.getChannel(channel);
+      const deletedMessages = data?.deletedMessages;
+      
+      if (deletedMessages.some((obj) => obj.message.messageID === deletedMessageID)) {
+        callback(true);
+        return;
+      }
+  
+      // Wait for 3 seconds before trying again
+      await scripts.delay(3000);
+      await checkDeletedMessages(callback, count + 1);
     } catch (error) {
       console.log(`an error occurred while trying to get the data from the database: `, error);
     }
+  };
 
-     deletedMessages = data?.deletedMessages;
-  // check if some messageObj.messageID within the deletedMessages array has the same messageID as the auditLogEntry.target.id
-
-  if (deletedMessages.some((obj) => obj.message.messageID === auditLogEntry.target.id)) {
-    msgExists = true;
-  }
-    
-  }, 3000);
-}
-if (count === 5){
-  console.log(`message not found in database`);
-  return;
-}
-
-if (msgExists){
-  // update the message in the db and update the deletedBy property
+  checkDeletedMessages(async (msgExists) => {
+    if (msgExists) {
+       // update the message in the db and update the deletedBy property
 
   deletedMessages = data?.deletedMessages;
 
-  let messageObj = deletedMessages.find((obj) => obj.message.messageID === auditLogEntry.target.id);
+  let messageObj = deletedMessages.find((obj) => obj.message.messageID === deletedMessageID);
 
   // find the index of the messageObj in the deletedMessages array
-  let index = deletedMessages.findIndex((obj) => obj.message.messageID === auditLogEntry.target.id);
+  let index = deletedMessages.findIndex((obj) => obj.message.messageID === deletedMessageID);
 
   messageObj.deletedBy = deletedBy;
 
@@ -249,7 +286,7 @@ if (msgExists){
   deletedMessages[index] = messageObj;
 
   try {
-    await channelsDB.findOneAndUpdate(
+    await client.channelsDB.findOneAndUpdate(
         {
             channelID: channel.id,
             serverID: guild.id,
@@ -267,7 +304,13 @@ if (msgExists){
     return false;
 }
 
-}
+    } else {
+      // handle error case
+      //...
+      console.log(`message not found in database`)
+    }
+  });
+
 } else {
   console.log(`data not found in database`);
   try {
@@ -276,6 +319,8 @@ if (msgExists){
     return console.log(error)
 }
 }
+}
+// await logDeletionUser(auditLogEntry, guild)
   });
 
 

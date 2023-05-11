@@ -6,3 +6,4 @@ package-lock.json
 node_modules
 Juice_WRLD_credentials.json
 Juice_WRLD_token.json
+.DS_Store

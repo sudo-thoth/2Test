@@ -9,126 +9,126 @@ async function saveDeletedMessage(message) {
 
     
     let deletedBy = {
-      userID: deletedMessageData.deletedBy.userID || message.author.id,
-      username: deletedMessageData.deletedBy.username || message.author.username,
+      userID: deletedMessageData?.deletedBy?.userID || message?.author?.id,
+      username: deletedMessageData?.deletedBy?.username || message?.author?.username,
     }
     // get current user deleted messages array from db
     let channelsDelMessages = currentChannelData?.deletedMessages || [];
     
 
     // if there is already a message within the channelsDelMessages array with the same message id as the deleted message, return
-    if (channelsDelMessages.some((obj) => obj.message.messageID === message.id)) {
+    if (channelsDelMessages?.some((obj) => obj?.message?.messageID === message?.id)) {
         return;
     } 
     // figure out who deleted the message
     
-    // let actionUserId = message.author.id;
-    // let actionUsername = message.author.username;
+    // let actionUserId = message?.author?.id;
+    // let actionUsername = message?.author?.username;
 
     // let messageObj = {
     //   messageAuthor: {
-    //             userID: message.author.id,
-    //             username: message.author.username,
+    //             userID: message?.author?.id,
+    //             username: message?.author?.username,
     //         },
-    //         messageID: message.id,
-    //         channelID: message.channel.id,
-    //         serverID: message.guild.id,
-    //         content: message.content,
-    //         timestamp: message.createdTimestamp,
-    //         createdAt: message.createdAt,
-    //         deletedAt: message.deletedAt,
-    //         deletedTimestamp: message.deletedTimestamp,
-    //         hasEmbed: message.embeds.length > 0,
+    //         messageID: message?.id,
+    //         channelID: message?.channel?.id,
+    //         serverID: message?.guild?.id,
+    //         content: message?.content,
+    //         timestamp: message?.createdTimestamp,
+    //         createdAt: message?.createdAt,
+    //         deletedAt: message?.deletedAt,
+    //         deletedTimestamp: message?.deletedTimestamp,
+    //         hasEmbed: message?.embeds?.length > 0,
     //         embeds: [],
     //         attachments: [],
     //     deletedBy: {
     //         userID: actionUserId,
     //         username: actionUsername,
     //     },
-    //     loggedAt: `${new Date(Date.now())}`,
-    //     loggedTimestamp: Date.now(),
+    //     loggedAt: `${new Date(Date?.now())}`,
+    //     loggedTimestamp: Date?.now(),
     // }
 
     let messageObj = {
-      messageID: message.id,
-        serverID: message.guild.id,
-        channelID: message.channel.id,
-        serverName: message.guild.name,
-        channelName: message.channel.name,
+      messageID: message?.id,
+        serverID: message?.guild?.id,
+        channelID: message?.channel?.id,
+        serverName: message?.guild?.name,
+        channelName: message?.channel?.name,
       message: {
           user: {
-              userID: message.author.id,
-              username: message.author.username,
+              userID: message?.author?.id,
+              username: message?.author?.username,
           },
-          messageID: message.id,
-          channelID: message.channel.id,
-          serverID: message.guild.id,
-          content: message.content,
-          timestamp: message.createdTimestamp,
-          createdAt: `${message.createdAt}`,
-          deletedAt: `${message.deletedAt}`,
-          deletedTimestamp: message.deletedTimestamp,
-          hasEmbed: message.embeds.length > 0,
+          messageID: message?.id,
+          channelID: message?.channel?.id,
+          serverID: message?.guild?.id,
+          content: message?.content,
+          timestamp: message?.createdTimestamp,
+          createdAt: `${message?.createdAt}`,
+          deletedAt: `${message?.deletedAt}`,
+          deletedTimestamp: message?.deletedTimestamp,
+          hasEmbed: message?.embeds?.length > 0,
           embeds: [],
           attachments: [],
       }, 
       deletedBy,
       messageAuthor: {
-        userID: message.author.id,
-        username: message.author.username
+        userID: message?.author?.id,
+        username: message?.author?.username
       },
-      loggedAt: `${new Date(Date.now())}`,
-        loggedTimestamp: Date.now(),
+      loggedAt: `${new Date(Date?.now())}`,
+        loggedTimestamp: Date?.now(),
   }
     // construct the embeds and attachments objs and push to arrays
 
     //embeds
     if(message?.embeds?.length > 0){
       let index = 0;
-        for (let embed of message.embeds){
+        for (let embed of message?.embeds){
           let dbEmbed = {
-            title: embed.title,
-            description: embed.description,
-            url: embed.url,
-            timestamp: embed.timestamp,
-            color: embed.color,
+            title: embed?.title,
+            description: embed?.description,
+            url: embed?.url,
+            timestamp: embed?.timestamp,
+            color: embed?.color,
             footer: {
-                text: embed.footer?.text,
-                iconURL: embed.footer?.iconURL,
-                proxyIconURL: embed.footer?.proxyIconURL,
+                text: embed?.footer?.text,
+                iconURL: embed?.footer?.iconURL,
+                proxyIconURL: embed?.footer?.proxyIconURL,
             },
             image: {
-                url: embed.image?.url,
-                proxyURL: embed.image?.proxyURL,
-                height: embed.image?.height,
-                width: embed.image?.width,
+                url: embed?.image?.url,
+                proxyURL: embed?.image?.proxyURL,
+                height: embed?.image?.height,
+                width: embed?.image?.width,
             },
             thumbnail: {
-                url: embed.thumbnail?.url,
-                proxyURL: embed.thumbnail?.proxyURL,
-                height: embed.thumbnail?.height,
-                width: embed.thumbnail?.width,
+                url: embed?.thumbnail?.url,
+                proxyURL: embed?.thumbnail?.proxyURL,
+                height: embed?.thumbnail?.height,
+                width: embed?.thumbnail?.width,
             },
             author: {
-                name: embed.author?.name,
-                url: embed.author?.url,
-                iconURL: embed.author?.iconURL,
+                name: embed?.author?.name,
+                url: embed?.author?.url,
+                iconURL: embed?.author?.iconURL,
             },
             fields: [],
         }  
         
-        messageObj.embeds.push(dbEmbed)
+        messageObj?.embeds?.push(dbEmbed)
 
         // extract the fields from the embed
         if(embed?.fields?.length > 0){
           
-            for (let field of embed.fields){
+            for (let field of embed?.fields){
                 let dbField = {
-                    name: field.name,
-                    value: field.value,
-                    inline: field.inline,
+                    name: field?.name,
+                    value: field?.value,
+                    inline: field?.inline,
                 }
-                messageObj.embeds[index].fields.push(dbField)
+                messageObj?.embeds[index]?.fields?.push(dbField)
                 index++;
             }
         }
@@ -139,28 +139,28 @@ async function saveDeletedMessage(message) {
 
     // attachments
     if(message?.attachments?.length > 0){
-        for (let attachment of message.attachments){
+        for (let attachment of message?.attachments){
             let dbAttachment = {
-                name: attachment.name,
-                url: attachment.url,
-                size: attachment.size,
-                contentType: attachment.contentType,
+                name: attachment?.name,
+                url: attachment?.url,
+                size: attachment?.size,
+                contentType: attachment?.contentType,
             }
-            messageObj.attachments.push(dbAttachment)
+            messageObj?.attachments?.push(dbAttachment)
         }
     }
 
 
     // push the snipe to the front of the userSnipes array 
 
-    channelsDelMessages.unshift(messageObj);
+    channelsDelMessages?.unshift(messageObj);
 
-
+// add newest deleted message to the beginning of the array in the database
     try {
-        await client.channelsDB.findOneAndUpdate(
+        await client?.channelsDB?.findOneAndUpdate(
             {
-                channelID: message.channel.id,
-                serverID: message.guild.id,
+                channelID: message?.channel?.id,
+                serverID: message?.guild?.id,
             },
             {
                 $set: {
@@ -169,6 +169,29 @@ async function saveDeletedMessage(message) {
             }
         )
         console.log(`message data saved to db`);
+        // check the dynamic message group database and see if the message that was deleted was part of any dynamic message group 
+        // if it was, remove it from the group
+        const dynamicMessageGroups = await client?.dynamicMessageGroupsDB?.find({serverID: message?.guild?.id});
+        if(dynamicMessageGroups?.length > 0){
+          for(let group of dynamicMessageGroups){
+            if(group?.messages?.some((msg) => msg?.messageID === message?.id)){
+              // remove the message from the group
+              let updatedMessages = group?.messages?.filter((msg) => msg?.messageID !== message?.id);
+              await client?.dynamicMessageGroupsDB?.findOneAndUpdate(
+                {
+                  serverID: message?.guild?.id,
+                  groupID: group?.groupID,
+                },
+                {
+                  $set: {
+                    messages: updatedMessages,
+                  }
+                }
+              )
+            }
+          }
+        }
+        
         return true;
     } catch (error) {
         console.log(`an error occurred while trying to save the message data to the database: `, error);

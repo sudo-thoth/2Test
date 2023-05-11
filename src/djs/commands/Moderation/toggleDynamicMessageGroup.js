@@ -9,6 +9,16 @@ const groups = require("../../../MongoDB/db/schemas/schema_dynamicMessageGroup.j
 const mongoose = require("mongoose");
 const client = require(`../../index.js`);
 
+
+client.on("ready", () => {
+
+
+  // Run the function immediately after the bot login
+  cycleDynamicMessageGroups();
+  console.log("Completed cycleDynamicMessageGroups Check");
+  // Run the function every 3 minutes (180000 milliseconds) after the bot login
+  setInterval(cycleDynamicMessageGroups, 30000);  // per 30 sec = 30000
+});
             
 async function cycleDynamicMessageGroups() {
     // fetch a user by id
@@ -50,39 +60,56 @@ if (client.connectedToMongoose) {
         const cycleStartTime = group.cycleStartedAt;
         let cycleTime = 1800000; // 30 minutes
         // create 1 min cycle time for testing
-        // cycleTime = 10000; // 10 sec
-        const timeElapsed = currentDate - cycleStartTime;
+         cycleTime = 10000; // 10 sec
+         const timeElapsed = currentDate - cycleStartTime;
 
-        console.log(`the cycleStartTime is ${formatUnixTimestamp(cycleStartTime)}\n\n`);
-        console.log(`the currentDate is ${formatUnixTimestamp(currentDate)}\n\n`);
-        console.log(`the timeElapsed is ${timeElapsed}\n\n`);
-        if (timeElapsed >= cycleTime || !cycleStartTime) {
-          // delete all the messages in the group
-          const channel = client.channels.cache.get(group.channelId);
-          let messages = await channel.messages.fetch({ limit: 100 });
-          let groupMessages = messages.filter(
-            (message) => message.author.id === client.user.id
-          );
-          
-          while (messages.size === 100) {
-            const lastMessageId = messages.last().id;
-            messages = await channel.messages.fetch({ limit: 100, before: lastMessageId });
-            groupMessages = groupMessages.concat(messages.filter(
-              (message) => message.author.id === client.user.id
-            ));
-          }
-          let deletedMessages = [];
-let reactions = [];
-          if (groupMessages.size > 0) {
-            let msgToDelete = groupMessages.filter((message) => {
-              return group.messages.some((groupMessage) => {
-                if (message.id === groupMessage.currentID){
-                  deletedMessages.push(message);
-                }
-                return message.id === groupMessage.currentID;
-              });
-              
-            });
+         console.log(`the cycleStartTime is ${formatUnixTimestamp(cycleStartTime)}\n\n`);
+         console.log(`the currentDate is ${formatUnixTimestamp(currentDate)}\n\n`);
+         console.log(`the timeElapsed is ${new Date(timeElapsed / 1000)}\n\n`);
+         if (timeElapsed >= cycleTime || !cycleStartTime) {
+           // delete all the messages in the group
+           const channel = client.channels.cache.get(group.channelId);
+           let messages = await channel.messages.fetch({ limit: 100 });
+           let groupMessages = messages.filter(
+             (message) => message.author.id === client.user.id
+           ) || [];
+           
+           while (messages.size === 100) {
+             const lastMessageId = messages.last().id;
+             messages = await channel.messages.fetch({ limit: 100, before: lastMessageId });
+             let validMessages = messages.filter(
+               (message) => message?.author?.id === client?.user?.id
+             );
+             if (validMessages.size > 0) {
+               groupMessages.concat(validMessages);
+               
+ 
+             }
+           }
+           let deletedMessages = [];
+ let reactions = [];
+           if (groupMessages.size > 0) {
+             let msgToDelete = groupMessages.filter((message) => {
+ 
+ let toBeDeleted;  
+               toBeDeleted= group.messages.some((groupMessage) => {
+ 
+                 if (message.id === groupMessage.currentID){
+                   deletedMessages.push(message);
+                 }
+                 let pushed = message.id === groupMessage.currentID || message.id === groupMessage.id;
+ 
+                 return pushed;
+               });
+ 
+               return toBeDeleted;
+               
+             });
+ 
+             if(msgToDelete.size <= 0){
+               console.log(`no messages to delete`);
+              return  await client.devs.LT.send(`no messages to delete in group ${group.name} for channel ${channel.name} at ${formatUnixTimestamp(Date.now())}`);
+             }
           
             const batchSize = 100;
             let batch = new Collection(msgToDelete.first(batchSize).map((message) => [message.id, message]));
@@ -205,36 +232,41 @@ Promise.all(promises).then(async () => {
               // if there are components in the message
               if (message.actionRows?.length > 0) {
                 for (let actionRow of message.actionRows) {
-                  //extract the button objs and selectMenu objs from the actionRow
-                  const buttonObjs = actionRow.components[0].buttons; 
-                  const selectMenuObjs = actionRow.components[0].selectMenus;
-                  // for each buttonObj create a discord button obj
-                  const buttons = [];
-                  for (const buttonObj of buttonObjs) {
-                    let button = await createBtn.createButton(buttonObj);
-                    buttons.push(button);
-                  }
-                  // for each selectMenuObj create a discord selectMenu obj
-                  const selectMenus = [];
-                  selectMenuObjs.forEach((selectMenuObj) => {
-                    const selectMenu = new StringSelectMenuBuilder()
-                    .setCustomId(selectMenuObj.customId)
-                    .setPlaceholder(selectMenuObj.placeholder)
-                    .setDisabled(selectMenuObj.disabled)
-                    .setMinValues(selectMenuObj.minValues)
-                    .setMaxValues(selectMenuObj.maxValues)
-                    .addOptions(selectMenuObj.options);
-  
-                    selectMenus.push(selectMenu);
-                  }); 
-                  // create the actionRow
-                  const actRow = await createActRow.createActionRow(
-                    {
-                      components: [...buttons, ...selectMenus],
+                  // Iterate over each component in the action row
+                  for (let component of actionRow.components) {
+                    // Extract the button objs and selectMenu objs from the component
+                    const buttonObjs = component.buttons; 
+                    const selectMenuObjs = component.selectMenus;
+                
+                    // For each buttonObj create a discord button obj
+                    const buttons = [];
+                    for (const buttonObj of buttonObjs) {
+                      let button = await createBtn.createButton(buttonObj);
+                      buttons.push(button);
                     }
-                  );
-                  messageObj.components.push(actRow);
+                
+                    // For each selectMenuObj create a discord selectMenu obj
+                    const selectMenus = [];
+                    for (const selectMenuObj of selectMenuObjs) {
+                      const selectMenu = new StringSelectMenuBuilder()
+                        .setCustomId(selectMenuObj.customId)
+                        .setPlaceholder(selectMenuObj.placeholder)
+                        .setDisabled(selectMenuObj.disabled)
+                        .setMinValues(selectMenuObj.minValues)
+                        .setMaxValues(selectMenuObj.maxValues)
+                        .addOptions(selectMenuObj.options);
+                
+                      selectMenus.push(selectMenu);
+                    }
+                
+                    // Create the actionRow
+                    const actRow = await createActRow.createActionRow({
+                      components: [...buttons, ...selectMenus],
+                    });
+                    messageObj.components.push(actRow);
+                  }
                 }
+                
               }
               // if there are reactions in the message, save each emoji so it can be later be reused to reaction on the new version of the message
               let emojis = []
@@ -398,15 +430,7 @@ client.on("interactionCreate", async (interaction) => {
   }
 });
 
-client.on("ready", () => {
 
-
-  // Run the function immediately after the bot login
-  cycleDynamicMessageGroups();
-  console.log("Completed cycleDynamicMessageGroups Check");
-  // Run the function every 3 minutes (180000 milliseconds) after the bot login
-  setInterval(cycleDynamicMessageGroups, 180000); 
-});
 
 module.exports = {
   data: new SlashCommandBuilder()

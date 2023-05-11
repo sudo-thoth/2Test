@@ -5,460 +5,307 @@ const {
   Message,
 } = require("discord.js");
 
+const createEmb = require("../../functions/create/createEmbed.js");
+
+const scripts = require("../../functions/scripts/scripts.js");
+
+const client = require(`../../index.js`);
+
+const fetchMessages = async (channel, num, messageType, interaction) => {
+  const fetchedMessages = [];
+  let continueFetching = true;
+  let currentLoop = 0;
+  let startTime, endTime, avgTimePerLoop;
+  let lastMessageId;
+
+  const validMessageTypes = ["bot", "non-bot", "all", "link", "file", "audio", "video", "image"];
+
+  if (!messageType || !validMessageTypes.includes(messageType)) {
+    try {
+      await interaction.editReply("Invalid or no message type provided. Please specify a valid message type: bot, non-bot, all, link, file, audio, video, image.");
+    } catch (error) {
+      console.error("Failed to send reply", error);
+    }
+    throw new Error("Invalid or no message type provided.");
+  }
+
+  try {
+    while (continueFetching && (num ? fetchedMessages.length < num : true)) {
+      currentLoop++;
+      startTime = startTime || Date.now();
+
+      const limit = num ? Math.min(100, num - fetchedMessages.length) : 100;
+      const messages = await channel.messages.fetch({ limit, before: lastMessageId });
+
+      if (messages.size === 0) {
+        continueFetching = false;
+      } else {
+        let filteredMessages = messages.filter(message => {
+          switch (messageType) {
+            case "bot":
+              return message.author.bot;
+            case "non-bot":
+              return !message.author.bot;
+            case "all":
+              return true;
+            case "link":
+              return message.content.includes("http");
+            case "file":
+              return message.attachments && message.attachments.size > 0;
+            case "audio":
+            case "video":
+            case "image":
+
+              return (message.author.id !== interaction.client.user.id) && message.attachments.some(attachment => attachment.contentType.startsWith(messageType));
+            default:
+              return false;
+          }
+        });
+
+        fetchedMessages.push(...filteredMessages.values());
+
+        if (num && fetchedMessages.length >= num) {
+          continueFetching = false;
+        }
+      }
+
+      lastMessageId = messages.last()?.id;
+
+      if (currentLoop % 3 === 0) {
+        endTime = Date.now();
+        avgTimePerLoop = (endTime - startTime) / currentLoop;
+        const loopsLeft = num ? Math.ceil((num - fetchedMessages.length) / 100) : "unknown";
+        // variable for seconds per 100 batch fetch
+        const loopsRate = avgTimePerLoop / 1000;
+        const estimatedSecondsLeft = loopsLeft * avgTimePerLoop / 1000;
+
+        console.log(`Estimated time left: ${estimatedSecondsLeft.toFixed(2)} seconds`);
+
+        // You can use the interaction to edit the reply and inform the user about the estimated time left:
+        // await interaction.editReply(`Estimated time left: ${estimatedSecondsLeft.toFixed(2)} seconds`);
+      }
+    }
+
+    console.log("Fetching completed. Total messages fetched:", fetchedMessages.length);
+    const result = fetchedMessages.slice(0, num || fetchedMessages.length);
+
+    if (result.length === 0) {
+      try {
+        await interaction.editReply("No messages found in the channel that match the specified criteria.");
+      } catch (error) {
+        if(error.message.toLowerCase().includes("unknown interaction")) {
+          console.log("No interaction to edit");
+          return [];
+        }
+      }
+    }
+
+    return result;
+  } catch (error) {
+    console.error("Failed Fetch Attempt", error);
+  }
+};
+
+const deleteMessages = async (channel, messages, interaction) => {
+  // Check if the bot has necessary permissions
+  let me = await interaction?.guild?.members?.fetchMe();
+  const botPermissions = me?.permissions?.has("ManageMessages")
+
+  if (!botPermissions) {
+    try {
+      await interaction.editReply("The bot lacks the required permissions to delete messages. Please grant the 'Manage Messages' permission.");
+    } catch (error) {
+      console.error("Failed to send reply", error);
+    }
+    return false;
+  }
+
+  // Split messages into two arrays: under 14 days old and over 14 days old
+  const now = Date.now();
+  const bulkDeleteMessages = messages.filter(message => now - message.createdTimestamp < 14 * 24 * 60 * 60 * 1000);
+  const singleDeleteMessages = messages.filter(message => now - message.createdTimestamp >= 14 * 24 * 60 * 60 * 1000);
+
+  const bulkDeleteIds = bulkDeleteMessages.map(message => message.id);
+  const singleDeleteIds = singleDeleteMessages.map(message => message.id);
+
+  let currentLoop = 0;
+  let startTime, endTime, avgTimePerLoop;
+  startTime = Date.now();
+
+  try {
+    // Bulk delete messages under 14 days old
+    while (bulkDeleteIds.length > 0) {
+      currentLoop++;
+      const batch = bulkDeleteIds.splice(0, 100);
+      try {
+        await channel.bulkDelete(batch);
+      } catch (error) {
+        console.error("Failed to bulk delete messages", error);
+        return false;
+      }
+
+      if (currentLoop % 3 === 0) {
+        endTime = Date.now();
+        avgTimePerLoop = (endTime - startTime) / currentLoop;
+        const batchesLeft = Math.ceil(bulkDeleteIds.length / 100);
+        const estimatedSecondsLeft = batchesLeft * avgTimePerLoop / 1000;
+
+        console.log(`Estimated time left for bulk deletion: ${estimatedSecondsLeft.toFixed(2)} seconds`);
+
+        // You can use the interaction to edit the reply and inform the user about the estimated time left:
+         try {
+          await interaction.editReply(`Estimated time left for bulk deletion: ${estimatedSecondsLeft.toFixed(2)} seconds`);
+         } catch (error) {
+          console.error("Failed to send reply", error);
+
+         }
+      }
+    }
+
+    // Delete messages over 14 days old one by one
+    for (const id of singleDeleteIds) {
+      currentLoop++;
+      try {
+        const message = await channel.messages.fetch(id);
+        if (message) {
+          await message.delete();
+        }
+      } catch (error) {
+        console.error("Failed to delete single message", error);
+      }
+
+      if (currentLoop % 3 === 0) {
+        endTime = Date.now();
+        avgTimePerLoop = (endTime - startTime) / currentLoop;
+        const messagesLeft = singleDeleteIds.length;
+        const estimatedSecondsLeft = messagesLeft * avgTimePerLoop / 1000;
+
+        console.log(`Estimated time left for single deletion: ${estimatedSecondsLeft.toFixed(2)} seconds`);
+
+        // You can use the interaction to edit the reply and inform the user about the estimated time left:
+         try {
+          await interaction.editReply(`Estimated time left for single deletion: ${estimatedSecondsLeft.toFixed(2)} seconds`);
+         } catch (error) {
+          console.error("Failed to send reply", error);
+         }
+      }
+    }
+
+    console.log("Deletion completed. All messages deleted successfully.");
+    return true;
+  } catch (error) {
+    console.error("Failed Deletion Attempt", error);
+    return false;
+  }
+};
+
+
 module.exports = {
   data: new SlashCommandBuilder()
     .setName("wipe")
     .setDescription(
-      "wipes messages from a channel."
+      "Wipe Messages from a channel"
     )
     .setDefaultMemberPermissions(PermissionFlagsBits.ManageMessages)
-    .addSubcommand((subcommand) =>
-      subcommand
-        .setName("bot-messages")
-        .setDescription("wipe a specific number bot of messages from channel")
-        
-    )
-    .addSubcommand((subcommand) =>
-    subcommand
-      .setName("non-bot-messages")
-      .setDescription("wipe a specific number non-bot of messages from channel")
-      
+    .addStringOption((option) =>
+    option
+      .setName("choice")
+      .setDescription("Wipe Based on a Specific Criteria")
+      .setRequired(true)
+      .addChoices(
+        {name: "Bot Messages", value: "bot"},
+        {name: "Non-Bot Messages", value: "non-bot"},
+        {name: "All Messages", value: "all"},
+        {name: "Messages with Links", value: "link"},
+        {name: "Messages with Any Files", value: "file"},
+        {name: "Messages with Audio", value: "audio"},
+        {name: "Messages with Video(s)", value: "video"},
+        {name: "Messages with Image(s)", value: "image"},
+        )
   )
-  .addSubcommand((subcommand) =>
-      subcommand
-        .setName("all-messages")
-        .setDescription("wipe all messages from channel")
-    )
-    .addSubcommand((subcommand) =>
-      subcommand
-        .setName("files")
-        .setDescription("wipe all files from channel")
-        
-    )
-    .addSubcommand((subcommand) =>
-      subcommand
-        .setName("links")
-        .setDescription("wipe all links from channel")
-    )
-    .addSubcommand((subcommand) =>
-      subcommand
-        .setName("a-users-messages")
-        .setDescription("wipe messages from a specific user.")
-        .addUserOption((option) =>
-          option
-            .setName("target")
-            .setDescription("Select a user to wipe their messages from channel")
-            .setRequired(true)
-        )
-        .addIntegerOption((option) =>
-          option
-            .setName("num")
-            .setDescription("Amount of messages to wipe.")
-            .setRequired(false)
-        )
-    ),
+  .addIntegerOption((option) =>
+        option
+          .setName("num")
+          .setDescription("The number of messages to wipe")
+          .setRequired(false)
+
+      )
+          
+    ,
+    fetchMessages,
 
   async execute(interaction) {
     const { channel, options } = interaction;
-    const type = options.getSubcommand();
-    const amount = options.getInteger("num");
-    const target = options.getUser("target");
-try{await interaction.deferReply({ephemeral:true})
+    const type = options.getString("choice");
+    const amount = options?.getInteger("num");
+
+try{
+  await interaction.deferReply({ephemeral:true})
 } catch(error){
 console.log(`Failed to defer reply:`, error);
+// try{
+// await interaction.reply({content: `Failed to defer reply: ${error}`, ephemeral: true})
+// } catch(error){
+// console.log(`Failed to send error reply:`, error);
+// }
 return;
 }
-    if (amount > 100) {
+    // if (amount > 100) {
+    //   const errEmbed = new EmbedBuilder()
+    //     .setDescription(`You can only wipe up to 100 messages at a time.`)
+    //     .setColor(0xc72c3b);
+    //   console.log(`wipe Command Failed to Execute: ❌`);
+    //   return interaction.editReply({ embeds: [errEmbed] });
+    // }
+
+    // let messages;
+
+    // try {
+    //   messages = await channel.messages.fetch({
+    //     limit: amount + 1,
+    //   });
+    // } catch (error) {
+    //   console.error(`Failed Fetch Attempt`, error);
+    // }
+
+    // fetch the messages
+
+    let msgsToWipe = await fetchMessages(channel, amount, type, interaction);
+
+    if (!msgsToWipe) {
       const errEmbed = new EmbedBuilder()
-        .setDescription(`You can only wipe up to 100 messages at a time.`)
+
+        .setDescription(`Failed to fetch messages.`)
         .setColor(0xc72c3b);
       console.log(`wipe Command Failed to Execute: ❌`);
       return interaction.editReply({ embeds: [errEmbed] });
     }
 
-    let messages;
+    // delete the messages
+
+    const success = await deleteMessages(channel, msgsToWipe, interaction);
+
+    if (!success) {
+      const errEmbed = new EmbedBuilder()
+        .setDescription(`Failed to delete messages.`)
+        .setColor(0xc72c3b);
+      console.log(`wipe Command Failed to Execute: ❌`);
+      return interaction.editReply({ embeds: [errEmbed] });
+    }
+
+    const successEmbed = new EmbedBuilder()
+      .setDescription(`Successfully deleted ${msgsToWipe.length} ${type} messages.`)
+      .setColor(0x00ff00);
+
+      // send success message
 
     try {
-      messages = await channel.messages.fetch({
-        limit: amount + 1,
-      });
+      await interaction.editReply({ content: `<@${interaction.user.id}>`,embeds: [successEmbed] });
     } catch (error) {
-      console.error(`Failed Fetch Attempt`, error);
+      console.error(`Failed to send reply`, error);
     }
 
-    const res = new EmbedBuilder().setColor(0x5fb041);
-let startTime = new Date();
-    if (type === "a-users-messages") {
-      let i = 0;
-      
 
-if (amount) {
-        try {
-          (await messages).filter((msg) => {
-            // make sure message is not from a bot
-            if ((msg.author.id === target.id && amount > i) && !msg.pinned && !msg.author.bot) {
-              filtered.push(msg);
-              i++;
-            }
-          });
-        } catch (error) {
-          console.error(`Failed Filter Attempt`, error);
-        }
-  
-        try {
-          await channel.bulkDelete(filtered).then((messages) => {
-            res.setDescription(
-              `:white_check_mark: Successfully deleted ${
-                amount != 1 ? `${amount} messages` : `${amount} message`
-              } from  <#${interaction.channel.id}>.`
-            );
-            interaction.editReply({  embeds: [res] });
-            console.log(`wipe Command Executed Successfully: ✅`);
-          });
-        } catch (error) {
-          console.error(`Failed Bulk Delete Attempt`, error);
-        }
-} else {
-  try {
-    
-    let i = 0;
-    let messages = [];
-    let lastId;
-    try {
-      await interaction.editReply({embeds: [ new EmbedBuilder().setColor(0x5fb041).setDescription(`<a:verify:1075235392258850867>`)]})
-    } catch (err) {console.log(err)}
-
-    // Fetch all messages in the channel
-    while (true) {
-      const fetchedMessages = await channel.messages.fetch({ limit: 100, before: lastId });
-  
-      if (fetchedMessages?.size === 0) break;
-  
-      messages.push(...fetchedMessages);
-      lastId = fetchedMessages.last().id;
-    }
-  
-    console.log(`Fetched ${messages.length} messages`);
-  
-    // Filter messages and delete them in batches of 100
-            for (let msg of messages) {
-          // make sure message is not from a bot
-          msg = msg[1] 
-      // make sure message is not from a bot
-      if (msg.author.id === target.id && !msg.pinned && !msg.author.bot) {
-        filtered.push(msg);
-        i++;
-      }
-    }
-  
-    for (let j = 0; j < filtered.length; j += 100) {
-      const batch = filtered.slice(j, j + 100);
-      await channel.bulkDelete(batch);
-    }
-  
-    res.setDescription(
-      `:white_check_mark: Successfully deleted ${
-        i != 1 ? `${i} messages` : `${i} message`
-      } from  <#${interaction.channel.id}>.`
-    );
-    await interaction.editReply({  embeds: [res] });
-    console.log(`wipe Command Executed Successfully: ✅`);
-  } catch (error) {
-    console.error(`Failed Bulk Delete Attempt`, error);
-await interaction.editReply({content:`Failed to wipe messages\n\`\`\`${error}\n\`\`\``})
-  }
-  
-  
-}
-    } else if (type === "bot-messages") {
-      try {
-        
-        let i = 0;
-        let messages = [];
-        let lastId;
-        try {
-          await interaction.editReply({embeds: [ new EmbedBuilder().setColor(0x5fb041).setDescription(`<a:verify:1075235392258850867>`)]})
-        } catch (err) {console.log(err)}
-        // Fetch all messages in the channel
-        while (true) {
-          const fetchedMessages = await channel.messages.fetch({ limit: 100, before: lastId });
-      
-          if (fetchedMessages?.size === 0) break;
-      
-          messages.push(...fetchedMessages);
-          i++;
-          try {
-          await interaction.editReply({embeds: [ new EmbedBuilder().setColor(0x5fb041).setDescription(`<a:verify:1075235392258850867> \`${i * 100}\` messages found | Elapsed Time : <t:${Math.floor(startTime / 1000)}:R>`)]})
-        } catch (err) {console.log(err)}
-          }
-        i = 0; 
-      
-        console.log(`Fetched ${messages.length} messages`);
-      
-        // Filter messages and delete them in batches of 100
-                for (let msg of messages) {
-          // make sure message is not from a bot
-          msg = msg[1] 
-          // make sure message is not from a bot
-          if (!msg.pinned && msg.author.bot) {
-           await msg.delete();
-              i++;
-              try {
-              await interaction.editReply({embeds: [ new EmbedBuilder().setColor(0x5fb041).setDescription(`<a:verify:1075235392258850867> \`${i}\` messages deleted  | Elapsed Time : <t:${Math.floor(startTime / 1000)}:R>`)]})
-            } catch (err) {console.log(err)}
-}
-        }
-        res.setDescription(
-          `:white_check_mark: Successfully deleted ${
-            i != 1 ? `${i} messages` : `${i} message`
-          } from  <#${interaction.channel.id}>.`
-        );
-        await interaction.editReply({  embeds: [res] });
-        console.log(`wipe Command Executed Successfully: ✅`);
-      } catch (error) {
-        console.error(`Failed Bulk Delete Attempt`, error);
-    await interaction.editReply({content:`Failed to wipe messages\n\`\`\`${error}\n\`\`\``})
-      }
-    } else if (type === "non-bot-messages") {
-      try {
-        
-        let i = 0;
-        let messages = [];
-        let lastId;
-        try {
-          await interaction.editReply({embeds: [ new EmbedBuilder().setColor(0x5fb041).setDescription(`<a:verify:1075235392258850867>`)]})
-        } catch (err) {console.log(err)}
-    
-        // Fetch all messages in the channel
-        while (true) {
-          const fetchedMessages = await channel.messages.fetch({ limit: 100, before: lastId });
-      
-          if (fetchedMessages?.size === 0) break;
-          console.log(`Fetched ${fetchedMessages.size} messages`, fetchedMessages);
-          messages.push(...fetchedMessages);
-          i++;
-            try {
-            await interaction.editReply({embeds: [ new EmbedBuilder().setColor(0x5fb041).setDescription(`<a:verify:1075235392258850867> \`${i * 100}\` messages found | Elapsed Time : <t:${Math.floor(startTime / 1000)}:R>`)]})
-          } catch (err) {console.log(err)}
-          }
-        i = 0; 
-      
-        console.log(`Fetched ${messages.length} messages`);
-      
-        // Filter messages and delete them in batches of 100
-        for (let msg of messages) {
-          // make sure message is not from a bot
-          msg = msg[1] 
-          if (!msg.pinned && !msg.author.bot) {
-            await msg.delete();
-              i++;
-              try {
-              await interaction.editReply({embeds: [ new EmbedBuilder().setColor(0x5fb041).setDescription(`<a:verify:1075235392258850867> \`${i}\` messages deleted  | Elapsed Time : <t:${Math.floor(startTime / 1000)}:R>`)]})
-            } catch (err) {console.log(err)}
-}
-        }
-      
-        
-      
-        res.setDescription(
-          `:white_check_mark: Successfully deleted ${
-            i != 1 ? `${i} messages` : `${i} message`
-          } from  <#${interaction.channel.id}>.`
-        );
-        await interaction.editReply({  embeds: [res] });
-        console.log(`wipe Command Executed Successfully: ✅`);
-      } catch (error) {
-        console.error(`Failed Bulk Delete Attempt`, error);
-    await interaction.editReply({content:`Failed to wipe messages\n\`\`\`${error}\n\`\`\``})
-      }
-    } else if (type === "all-messages") {
-      try {
-        
-        let i = 0;
-        let messages = [];
-        let lastId;
-        try {
-          await interaction.editReply({embeds: [ new EmbedBuilder().setColor(0x5fb041).setDescription(`<a:verify:1075235392258850867>`)]})
-        } catch (err) {console.log(err)}
-    
-        
-          // Fetch all messages in the channel
-          let fetchedMessages = await channel.messages.fetch({ limit: 100, before: lastId });
-          messages.push(...Array.from(fetchedMessages.values()));
-          lastId = fetchedMessages.last()?.id;
-          
-          i++;
-          while (fetchedMessages?.size > 0) {
-            fetchedMessages = await channel.messages.fetch({ limit: 100, before: lastId });
-            lastId = fetchedMessages?.last()?.id
-
-          if (fetchedMessages?.size === 0) break;
-      
-          messages.push(...fetchedMessages);
-          i++;
-          try {
-          await interaction.editReply({embeds: [ new EmbedBuilder().setColor(0x5fb041).setDescription(`<a:verify:1075235392258850867> \`${messages?.length}\` messages found | Elapsed Time : <t:${Math.floor(startTime / 1000)}:R>`)]})
-        } catch (err) {console.log(err)}
-          }
-        i = 0; 
-      
-        console.log(`Fetched ${messages.length} messages`);
-      
-        // Filter messages and delete them in batches of 100
-                for (let msg of messages) {
-          // make sure message is not from a bot
-          if (msg instanceof Message) {
-            if (!msg.pinned) {
-              try {
-                await msg.delete();
-                i++;
-                try {
-                  await interaction.editReply({embeds: [ new EmbedBuilder().setColor(0x5fb041).setDescription(`<a:verify:1075235392258850867> \`${i}\` messages deleted  | Elapsed Time : <t:${Math.floor(startTime / 1000)}:R>`)]})
-                } catch (err) {console.log(err)}
-              } catch (error) {
-                console.log(error);
-              }
-            }
-          } else {
-            try {
-              const message = await channel.messages.fetch(msg.id);
-              if (!message.pinned) {
-                try {
-                  await message.delete();
-                  i++;
-                  try {
-                    await interaction.editReply({embeds: [ new EmbedBuilder().setColor(0x5fb041).setDescription(`<a:verify:1075235392258850867> \`${i}\` messages deleted  | Elapsed Time : <t:${Math.floor(startTime / 1000)}:R>`)]})
-                  } catch (err) {console.log(err)}
-                } catch (error) {
-                  console.log(error);
-                }
-              }
-            } catch (error) {
-              console.log(error);
-            }
-          }
-        }
-        res.setDescription(
-          `:white_check_mark: Successfully deleted ${
-            i != 1 ? `${i} messages` : `${i} message`
-          } from  <#${interaction.channel.id}>.`
-        );
-        await interaction.editReply({  embeds: [res] });
-        console.log(`wipe Command Executed Successfully: ✅`);
-      } catch (error) {
-        console.error(`Failed Delete Attempt`, error);
-    await interaction.editReply({content:`Failed to wipe messages\n\`\`\`${error}\n\`\`\``})
-      }
-      } else if (type === "files") {
-        try {
-          
-          let i = 0;
-          let messages = [];
-          let lastId;
-          try {
-            await interaction.editReply({embeds: [ new EmbedBuilder().setColor(0x5fb041).setDescription(`<a:verify:1075235392258850867>`)]})
-          } catch (err) {console.log(err)}
-      
-          // Fetch all messages in the channel
-          while (true) {
-            const fetchedMessages = await channel.messages.fetch({ limit: 100, before: lastId });
-        
-            if (fetchedMessages?.size === 0) break;
-        
-            messages.push(...fetchedMessages);
-            lastId = fetchedMessages.last().id;
-            i++;
-            try {
-            await interaction.editReply({embeds: [ new EmbedBuilder().setColor(0x5fb041).setDescription(`<a:verify:1075235392258850867> \`${i * 100}\` messages found | Elapsed Time : <t:${Math.floor(startTime / 1000)}:R>`)]})
-          } catch (err) {console.log(err)}
-          }
-        i = 0; 
-          console.log(`Fetched ${messages.length} messages`);
-        
-          // Filter messages and delete them in batches of 100
-                  for (let msg of messages) {
-          // make sure message is not from a bot
-          msg = msg[1] 
-            // make sure message is not from a bot
-            if (msg.attachments?.size > 0) {
-              await msg.delete();
-              i++;
-              try {
-              await interaction.editReply({embeds: [ new EmbedBuilder().setColor(0x5fb041).setDescription(`<a:verify:1075235392258850867> \`${i}\` messages deleted  | Elapsed Time : <t:${Math.floor(startTime / 1000)}:R>`)]})
-            } catch (err) {console.log(err)}
-            }
-        }
-        
-          res.setDescription(
-            `:white_check_mark: Successfully deleted ${
-              i != 1 ? `${i} messages` : `${i} message`
-            } from  <#${interaction.channel.id}>.`
-          );
-          await interaction.editReply({  embeds: [res] });
-          console.log(`wipe Command Executed Successfully: ✅`);
-        } catch (error) {
-          console.error(`Failed Bulk Delete Attempt`, error);
-      await interaction.editReply({content:`Failed to wipe messages\n\`\`\`${error}\n\`\`\``})
-        }
-      } else if (type === "links") {
-        try {
-          
-          let i = 0;
-          let messages = [];
-          let lastId;
-          try {
-            await interaction.editReply({embeds: [ new EmbedBuilder().setColor(0x5fb041).setDescription(`<a:verify:1075235392258850867>`)]})
-          } catch (err) {console.log(err)}
-      
-          // Fetch all messages in the channel
-         let fetchedMessages = await channel.messages.fetch({ limit: 100, before: lastId });
-
-      
-          messages.push(...fetchedMessages);
-          lastId = fetchedMessages?.last().id;
-          i++;
-          while (fetchedMessages?.size > 0) {
-            fetchedMessages = await channel.messages.fetch({ limit: 100, before: lastId });
-        
-            if (fetchedMessages?.size === 0) break;
-        
-            messages.push(...fetchedMessages);
-            lastId = fetchedMessages.last().id;
-            i++;
-            try {
-            await interaction.editReply({embeds: [ new EmbedBuilder().setColor(0x5fb041).setDescription(`<a:verify:1075235392258850867> \`${i * 100}\` messages found | Elapsed Time : <t:${Math.floor(startTime / 1000)}:R>`)]})
-          } catch (err) {console.log(err)}
-          }
-        i = 0; 
-          console.log(`Fetched ${messages.length} messages`);
-        
-          // Filter messages and delete them in batches of 100
-                  for (let msg of messages) {
-          // make sure message is not from a bot
-          msg = msg[1] 
-            // make sure message is not from a bot
-            if (msg.content.match(/https?:\/\/\S+/)) {
-              
-              await msg.delete();
-            i++;
-            try {
-            await interaction.editReply({embeds: [ new EmbedBuilder().setColor(0x5fb041).setDescription(`<a:verify:1075235392258850867> \`${i}\` messages deleted  | Elapsed Time : <t:${Math.floor(startTime / 1000)}:R>`)]})
-          } catch (err) {console.log(err)}
-          }
-        }
-        
-          res.setDescription(
-            `:white_check_mark: Successfully deleted ${
-              i != 1 ? `${i} messages` : `${i} message`
-            } from  <#${interaction.channel.id}>.`
-          );
-          await interaction.editReply({  embeds: [res] });
-          console.log(`wipe Command Executed Successfully: ✅`);
-        } catch (error) {
-          console.error(`Failed Bulk Delete Attempt`, error);
-      await interaction.editReply({content:`Failed to wipe messages\n\`\`\`${error}\n\`\`\``})
-        }
-      }
     console.log(`wipe Command Complete: ✅`);
   }
 };

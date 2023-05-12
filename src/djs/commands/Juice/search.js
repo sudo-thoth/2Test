@@ -801,6 +801,7 @@ try {
         paginationRow.components.forEach(c => c.setDisabled(true));
         try {
           await interaction.editReply({ components: [paginationRow] });
+          await interaction.deleteReply();
         } catch (error) {
           console.log(error)
           try {

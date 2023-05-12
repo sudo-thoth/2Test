@@ -608,20 +608,29 @@ async function execute(interaction) {
                     let timer3 = new Promise((resolve) => {
                         setTimeout(async () => {
                           // Delete the interaction reply
-                          await interaction.deleteReply();
+                          try {
+                            await interaction.deleteReply()
+                          } catch (error) {
+                            console.log(error)
+                          };
                     
                           // Edit the requestMessage
-                          await requestMessage.edit({
-                            content: content(player1),
-                            embeds: [
-                              createEmb.createEmbed({
-                                title: "❗️ Potential Opponents took too long to decide",
-                                description: "If you still wish to play, run `/tictactoe` again",
-                                color: scripts.getErrorColor(),
-                              }),
-                            ],
-                            components: [],
-                          });
+                          try {
+                            await requestMessage.edit({
+                              content: content(player1),
+                              embeds: [
+                                createEmb.createEmbed({
+                                  title: "❗️ Potential Opponents took too long to decide",
+                                  description: "If you still wish to play, run `/tictactoe` again",
+                                  color: scripts.getErrorColor(),
+                                }),
+                              ],
+                              components: [],
+                            });
+                          } catch (error) {
+                            console.log(error)
+                            
+                          }
                           resolve();
                         }, 34000);
                       });

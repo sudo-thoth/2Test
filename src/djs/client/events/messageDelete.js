@@ -234,9 +234,9 @@ console.log(auditLogEntry)
 client.localLog.push({
   action: 'audit_messageDelete',
   timestamp: new Date(),
-  deletedBy: {userID: auditLogEntry.executor.id, username: auditLogEntry.executor.username},
-  channelID: auditLogEntry.extra.channel.id,
-  targetID: auditLogEntry.target.id,
+  deletedBy: {userID: auditLogEntry?.executor?.id, username: auditLogEntry?.executor?.username},
+  channelID: auditLogEntry?.extra?.channel?.id,
+  targetID: auditLogEntry?.target?.id,
   })
 
   // disregard the rest

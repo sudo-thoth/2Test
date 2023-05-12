@@ -86,7 +86,7 @@ module.exports = {
         const idleMembers = fetchedMembers.filter(member => member.presence?.status === 'idle').size;
         const dndMembers = fetchedMembers.filter(member => member.presence?.status === 'dnd').size;
         const offlineMembers = fetchedMembers.filter(member => {
-          console.log(member.presence, `${member.user.username}'s Presence is that`)
+          // console.log(member.presence, `${member.user.username}'s Presence is that`)
 
           return member.presence === null || member.presence?.status === 'offline'
         }).size;

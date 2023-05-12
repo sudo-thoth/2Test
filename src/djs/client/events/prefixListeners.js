@@ -1,5 +1,6 @@
 const client = require(`../../index.js`);
 const snipe = require("../../commands/Community/snipe.js")
+const scripts = require(`../../functions/scripts/scripts.js`);
 
 
 if (client) {

@@ -194,7 +194,7 @@ async function saveSnipe(userId, snipe) {
 
     // push the snipe to the front of the userSnipes array 
 
-    userSnipes.unshift(newSnipe);
+    userSnipes?.unshift(newSnipe);
 
     // update the user.saved.snipes array property with the new userSnipes array in the mongodb 
     /**
@@ -240,18 +240,18 @@ async function saveSnipe(userId, snipe) {
   
   async function displaySnipes(interaction, msg, snipes, index, target) {
 let embed;
-let length = snipes.length;
+let length = snipes?.length || 0;
 index = index > length - 1 ? length - 1 : index < 0 ? 0 : index;
     const filteredSnipes = target
-      ? snipes.filter((snipe) => snipe.message.user.userID === target.id)
+      ? snipes?.filter((snipe) => snipe.message.user.userID === target.id)
       : snipes;
-      const lastDeletedMessages = filteredSnipes.slice( 0, 50)
+      const lastDeletedMessages = filteredSnipes?.slice( 0, 50) || [];
     const snipe = lastDeletedMessages[index];
     let interactionUserID = interaction?.user?.id ? interaction?.user?.id : msg?.author?.id;
 
     // if there are 0 snipes in the snipes array, send a message on the embed saying there arent any messages recently deleted in the channel
 
-    if (snipes.length === 0) {
+    if (length === 0) {
       embed = createEmb.createEmbed(
           {
             title: ` No messages have been deleted in this channel recently`,
@@ -264,11 +264,23 @@ index = index > length - 1 ? length - 1 : index < 0 ? 0 : index;
         await scripts.delay(5000);
         return await interaction.deleteReply();
       } else {
-        await msg.edit({ embeds: [embed] });
-        await scripts.delay(5000);
+        try {
+          await msg.edit({ embeds: [embed] });
+          await scripts.delay(5000);
         return await msg.delete();
+        } catch (error) {
+          try {
+            await msg.reply({ embeds: [embed] });
+            await scripts.delay(5000);
+            return await msg.delete();
+          } catch (error) {
+           return  console.log(error)
+
+        }
+        
       }
     }
+  }
 
     try { // if no messageAuthor then use the snipe.snipedTarget.userID and if that fails then use the snipe.snipedBy.userID
         snipe.author = await client.users.fetch( snipe?.messageAuthor?.userID || snipe?.snipedTarget?.userID || snipe?.snipedBy?.userID || snipe?.user?.userID);
@@ -720,11 +732,7 @@ const actionRowB = [buttonObjects.first.button, buttonObjects.back.button, butto
             if(error.message === `Cannot edit a message authored by another user`){
               let msgObj = await msg.channel.messages.fetch(msg.id)
               try {
-                message = await msgObj.reply({
-                  
-                  components: [],
-                  
-                });
+                await msgObj.delete();
               } catch (error) {
                 console.log(`an error occurred while trying to reply to the message: `, error)
               }
@@ -810,7 +818,7 @@ module.exports = {
       const userSnipes = userData?.saved?.snipes;
 
       // filter the snipes to only being snipes from within the current server
-      const s = userSnipes.filter((snipe) => snipe.serverID === interaction.guild.id);
+      const s = userSnipes?.filter((snipe) => snipe.serverID === interaction.guild.id);
       const snipesHistory = s;
       
 

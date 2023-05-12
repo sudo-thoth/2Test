@@ -2805,7 +2805,7 @@ if (!customID.includes("post_new_")) {
           ? interaction.fields.getTextInputValue("date")
           : null;
         const kraken = interaction.fields.getTextInputValue("kraken")
-          ? interaction.fields.getTextInputValue("kraken")
+             && interaction.fields.getTextInputValue("kraken") !== '' ? interaction.fields.getTextInputValue("kraken")
           : null;
 
         // const user = await client.users.fetch(userId);
@@ -2886,7 +2886,7 @@ if (!customID.includes("post_new_")) {
 
         if (file_type === "kraken-link") {
           let krakLink = interaction.fields.getTextInputValue("kraken")
-            ? interaction.fields.getTextInputValue("kraken")
+             && interaction.fields.getTextInputValue("kraken") !== '' ? interaction.fields.getTextInputValue("kraken")
             : null;
           let theName = interaction.fields.getTextInputValue("name")
             ? interaction.fields.getTextInputValue("name")
@@ -3186,7 +3186,7 @@ if (!customID.includes("post_new_")) {
           ? interaction.fields.getTextInputValue("date")
           : null;
         const kraken = interaction.fields.getTextInputValue("kraken")
-          ? interaction.fields.getTextInputValue("kraken")
+             && interaction.fields.getTextInputValue("kraken") !== '' ? interaction.fields.getTextInputValue("kraken")
           : null;
 
         // const user = await client.users.fetch(userId);
@@ -3551,7 +3551,7 @@ if (!customID.includes("post_new_")) {
           ? interaction.fields.getTextInputValue("date")
           : null;
         const kraken = interaction.fields.getTextInputValue("kraken")
-          ? interaction.fields.getTextInputValue("kraken")
+             && interaction.fields.getTextInputValue("kraken") !== '' ? interaction.fields.getTextInputValue("kraken")
           : null;
 
         // const user = await client.users.fetch(userId);
@@ -3916,7 +3916,7 @@ if (!customID.includes("post_new_")) {
           ? interaction.fields.getTextInputValue("producer")
           : null;
         const kraken = interaction.fields.getTextInputValue("kraken")
-          ? interaction.fields.getTextInputValue("kraken")
+             && interaction.fields.getTextInputValue("kraken") !== '' ? interaction.fields.getTextInputValue("kraken")
           : null;
 
         // const user = await client.users.fetch(userId);
@@ -4233,7 +4233,7 @@ if (!customID.includes("post_new_")) {
           ? interaction.fields.getTextInputValue("producer")
           : null;
         const kraken = interaction.fields.getTextInputValue("kraken")
-          ? interaction.fields.getTextInputValue("kraken")
+             && interaction.fields.getTextInputValue("kraken") !== '' ? interaction.fields.getTextInputValue("kraken")
           : null;
         const role = roleString(roles);
         let embedObj = {
@@ -4553,7 +4553,7 @@ if (!customID.includes("post_new_")) {
           ? interaction.fields.getTextInputValue("producer")
           : null;
         const kraken = interaction.fields.getTextInputValue("kraken")
-          ? interaction.fields.getTextInputValue("kraken")
+             && interaction.fields.getTextInputValue("kraken") !== '' ? interaction.fields.getTextInputValue("kraken")
           : null;
 
         // const user = await client.users.fetch(userId);
@@ -4919,7 +4919,7 @@ if (!customID.includes("post_new_")) {
           ? interaction.fields.getTextInputValue("date")
           : null;
         const kraken = interaction.fields.getTextInputValue("kraken")
-          ? interaction.fields.getTextInputValue("kraken")
+             && interaction.fields.getTextInputValue("kraken") !== '' ? interaction.fields.getTextInputValue("kraken")
           : null;
 
         // const user = await client.users.fetch(userId);
@@ -5283,7 +5283,7 @@ if (!customID.includes("post_new_")) {
           ? interaction.fields.getTextInputValue("producer")
           : null;
         const kraken = interaction.fields.getTextInputValue("kraken")
-          ? interaction.fields.getTextInputValue("kraken")
+             && interaction.fields.getTextInputValue("kraken") !== '' ? interaction.fields.getTextInputValue("kraken")
           : null;
 
         // const user = await client.users.fetch(userId);
@@ -5641,7 +5641,7 @@ if (!customID.includes("post_new_")) {
           ? interaction.fields.getTextInputValue("producer")
           : null;
         const kraken = interaction.fields.getTextInputValue("kraken")
-          ? interaction.fields.getTextInputValue("kraken")
+             && interaction.fields.getTextInputValue("kraken") !== '' ? interaction.fields.getTextInputValue("kraken")
           : null;
 
         // const user = await client.users.fetch(userId);
@@ -5960,7 +5960,7 @@ if (!customID.includes("post_new_")) {
           ? interaction.fields.getTextInputValue("producer")
           : null;
         const kraken = interaction.fields.getTextInputValue("kraken")
-          ? interaction.fields.getTextInputValue("kraken")
+             && interaction.fields.getTextInputValue("kraken") !== '' ? interaction.fields.getTextInputValue("kraken")
           : null;
 
         // const user = await client.users.fetch(userId);
@@ -6281,7 +6281,7 @@ if (!customID.includes("post_new_")) {
           ? interaction.fields.getTextInputValue("producer")
           : null;
         const kraken = interaction.fields.getTextInputValue("kraken")
-          ? interaction.fields.getTextInputValue("kraken")
+             && interaction.fields.getTextInputValue("kraken") !== '' ? interaction.fields.getTextInputValue("kraken")
           : null;
 
         // const user = await client.users.fetch(userId);
@@ -6626,7 +6626,7 @@ if (!customID.includes("post_new_")) {
           ? interaction.fields.getTextInputValue("producer")
           : null;
         const kraken = interaction.fields.getTextInputValue("kraken")
-          ? interaction.fields.getTextInputValue("kraken")
+             && interaction.fields.getTextInputValue("kraken") !== '' ? interaction.fields.getTextInputValue("kraken")
           : null;
 
         // const user = await client.users.fetch(userId);
@@ -6970,7 +6970,7 @@ if (!customID.includes("post_new_")) {
           ? interaction.fields.getTextInputValue("producer")
           : null;
         const kraken = interaction.fields.getTextInputValue("kraken")
-          ? interaction.fields.getTextInputValue("kraken")
+             && interaction.fields.getTextInputValue("kraken") !== '' ? interaction.fields.getTextInputValue("kraken")
           : null;
 
         // const user = await client.users.fetch(userId);
@@ -7326,7 +7326,7 @@ if (!customID.includes("post_new_")) {
           ? interaction.fields.getTextInputValue("text")
           : null;
         const kraken = interaction.fields.getTextInputValue("kraken")
-          ? interaction.fields.getTextInputValue("kraken")
+             && interaction.fields.getTextInputValue("kraken") !== '' ? interaction.fields.getTextInputValue("kraken")
           : null;
 
         // const user = await client.users.fetch(userId);

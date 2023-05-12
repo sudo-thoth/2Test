@@ -137,7 +137,7 @@ function calculateTotalPlays(dom) {
 
  
         let usersArtist = args[1]
-        if (['jw','juice', 'jarad', 'jarad a higgins', 'j', 'legend', 'goat', '999', 'juicewrld','juice world'].includes(usersArtist.toLowerCase())) {
+        if (['jw','juice', 'jarad', 'jarad a higgins', 'j', 'legend', 'goat', '999', 'juicewrld','juice world'].includes(usersArtist?.toLowerCase())) {
             usersArtist = 'Juice WRLD'
         }
       

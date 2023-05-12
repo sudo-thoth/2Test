@@ -8,6 +8,7 @@ const scripts_djs = require("../../functions/scripts/scripts_djs.js");
 const groups = require("../../../MongoDB/db/schemas/schema_dynamicMessageGroup.js");
 const mongoose = require("mongoose");
 const client = require(`../../index.js`);
+const { findOneAndUpdate } = require("../../../MongoDB/db/schemas/schema_announcement.js");
 
 
 client.on("ready", () => {
@@ -87,6 +88,7 @@ if (client.connectedToMongoose) {
              }
            }
            let deletedMessages = [];
+           let unavailableMessages = [];
  let reactions = [];
            if (groupMessages.size > 0) {
              let msgToDelete = groupMessages.filter((message) => {
@@ -96,11 +98,15 @@ if (client.connectedToMongoose) {
  
                  if (message.id === groupMessage.currentID){
                    deletedMessages.push(message);
-                 }
+
+                 } 
                  let pushed = message.id === groupMessage.currentID || message.id === groupMessage.id;
- 
+ if (!toBeDeleted) {
+                  unavailableMessages.push(groupMessage);
+                }
                  return pushed;
                });
+               
  
                return toBeDeleted;
                
@@ -108,7 +114,8 @@ if (client.connectedToMongoose) {
  
              if(msgToDelete.size <= 0){
                console.log(`no messages to delete`);
-              return  await client.devs.LT.send(`no messages to delete in group ${group.name} for channel ${channel.name} at ${formatUnixTimestamp(Date.now())}`);
+                await client.devs.LT.send(`no messages to delete in group ${group.groupName} for channel ${channel.name} at ${formatUnixTimestamp(Date.now())}\n\nRESTORING GROUP`);
+                
              }
           
             const batchSize = 100;
@@ -122,6 +129,8 @@ while (batch.size > 0) {
     console.log(`Deleted batch ${batchCount} of ${batch.size} messages`);
   }).catch((error) => {
     console.log(error);
+    // if error is due to a message not being found then skip over the message and only delete found messages
+    //if( error.message)
   });
 
   promises.push(bulkDeletePromise);
@@ -133,8 +142,156 @@ while (batch.size > 0) {
 
 Promise.all(promises).then(async () => {
   console.log("done");
-  
-  if(promises.length > 0){
+  // if (promises.length === 0) {
+  //   console.log(`no messages to delete, restoring group`);
+  //    await DevLT.send({content: `Error Occurred 0 Messages in ${channel.name} channel in the ${group.serverId} server & ${group.groupName} group **Were Not Deleted**\n\nTimestamp: ${Date.now()}`})
+  // }
+    // for each unavailable message, send it again in the same channel and order as it was before and update the currentID to the new message id 
+    if (unavailableMessages.length > 0) {
+      let groupMessagesArray = group.messages;
+
+      for (let message of unavailableMessages) {
+        // let messageObj = {
+              //   id: theMessage.id,
+              //   currentID: theMessage.id,
+              //   channelID: theMessage.channel.id,
+              //   channelName: theMessage.channel.name,
+              //   author: {
+              //     id: theMessage.author.id,
+              //     username: theMessage.author.username,
+              //     discriminator: theMessage.author.discriminator,
+              //     avatar: theMessage.author.avatar,
+              //   },
+              //   content: theMessage.content,
+              //   actionRows: [],
+              //   embeds: [],
+              //   attachments: [],
+              //   reactions: [],
+              //   pinned: theMessage.pinned,
+              //   createdAt: theMessage.createdAt,
+              // };
+
+              let messageObj = {
+                content: message.content,
+                embeds: [],
+                files: message.attachments,
+                components: []
+              }
+              // for each message embed
+              if (message.embeds?.length > 0) {
+                
+                message.embeds.forEach(async (embed) => {
+                  // create a discord embed obj`
+                  let embedObj = {
+                    title: embed?.title,
+                    description: embed?.description,
+                    url: embed?.url,
+                    author: {
+                      name: embed?.author?.name,
+                      url: embed?.author?.url,
+                      iconURL: embed?.author?.iconURL,
+                    },
+                    color: embed?.color,
+                    fields: [],
+                    thumbnail: embed?.thumbnail?.url,
+                    image: embed?.image?.url,
+                    footer: {
+                      text: embed?.footer?.text,
+                      iconURL: embed?.footer?.iconURL,
+                    },
+                    
+                  }
+                  if(embed.fields.length > 0){
+                    embed.fields.forEach(field => {
+                      embedObj.fields.push({
+                        name: field.name,
+                        value: field.value,
+                        inline: field.inline
+                      })
+                    })
+                  }
+
+
+                  const discordEmbed = createEmb.createEmbed(embedObj);
+                  // add the discord embed obj to the messageObj
+                  messageObj.embeds.push(discordEmbed);
+                });
+              }
+
+              // if there are components in the message
+              if (message.actionRows?.length > 0) {
+                for (let actionRow of message.actionRows) {
+                  // Iterate over each component in the action row
+                  for (let component of actionRow.components) {
+                    // Extract the button objs and selectMenu objs from the component
+                    const buttonObjs = component.buttons; 
+                    const selectMenuObjs = component.selectMenus;
+                
+                    // For each buttonObj create a discord button obj
+                    const buttons = [];
+                    for (const buttonObj of buttonObjs) {
+                      let button = await createBtn.createButton(buttonObj);
+                      buttons.push(button);
+                    }
+                
+                    // For each selectMenuObj create a discord selectMenu obj
+                    const selectMenus = [];
+                    for (const selectMenuObj of selectMenuObjs) {
+                      const selectMenu = new StringSelectMenuBuilder()
+                        .setCustomId(selectMenuObj.customId)
+                        .setPlaceholder(selectMenuObj.placeholder)
+                        .setDisabled(selectMenuObj.disabled)
+                        .setMinValues(selectMenuObj.minValues)
+                        .setMaxValues(selectMenuObj.maxValues)
+                        .addOptions(selectMenuObj.options);
+                
+                      selectMenus.push(selectMenu);
+                    }
+                
+                    // Create the actionRow
+                    const actRow = await createActRow.createActionRow({
+                      components: [...buttons, ...selectMenus],
+                    });
+                    messageObj.components.push(actRow);
+                  }
+                }
+                
+              }
+
+              // send the message
+              const sentMessage = await channel.send(messageObj);
+
+              // update the message id in the group database
+
+              // find the message in the group.messages array and replace it with the new message id
+              
+               
+              const index = groupMessagesArray.findIndex((msg) => msg.id === message.id);
+              groupMessagesArray[index].currentID = sentMessage.id;
+              
+
+
+
+            }
+            group.messages = groupMessagesArray;
+          //   // save group.messages to db
+          //   let newGroup;
+          //   try{
+          // newGroup = await findOneAndUpdate({ id: group.id }, { messages: group.messages });
+          //   } catch(err){
+          //     console.log(err);
+          //   }
+
+              
+
+
+
+              
+
+        
+
+  } 
+    if(promises.length > 0){
                 // send all the messages in the group again
                  const groupMessagesArray = group.messages;
                 // const groupMessagesArray = deletedMessages;
@@ -351,6 +508,9 @@ if (guildEmoji) {
             } catch (error) {
               console.log(error)
             }
+            // 
+          } 
+
             // update the group's cycleStartTime to the current date
             try {
               await groups.findOneAndUpdate(
@@ -359,9 +519,6 @@ if (guildEmoji) {
               );
             } catch (error) {
               scripts.logError(error, `error updating group's cycleStartTime`);
-            }
-          } else {
-            await DevLT.send({content: `Error Occurred 0 Messages in ${channel.name} channel in the ${group.serverId} server & ${group.groupName} group **Were Not Deleted**\n\nTimestamp: ${Date.now()}`})
             }
   
   

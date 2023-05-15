@@ -49,7 +49,7 @@ module.exports = {
       console.log(`Alr connected to DB`)
       return await interaction.editReply({embeds: [new EmbedBuilder()
         .setDescription(
-          '<a:Giveaways:1052611718519459850> The bot is already connected to the database, no need to reconnect\n> \`status\` <:7688moderationvlow:1086718114802176172>'
+          '<a:Giveaways:1052611718519459850> The bot is already connected to the database, no need to reconnect\n> \`status\` 🟢'
         )
         .setColor(0xf1c40f)]}).then(async () => {
           await scripts.delay(5000);
@@ -85,12 +85,12 @@ module.exports = {
           //send success message/embed
           console.log(`connected once again`)
           let embed = new EmbedBuilder()
-          .setDescription('__<a:success:1022450272586444912> **Success**__\n> \`status\` <:7688moderationvlow:1086718114802176172>')
+          .setDescription('__<a:success:1022450272586444912> **Success**__\n> \`status\` 🟢')
           .setColor(scripts.getSuccessColor());
           await interaction.editReply({embeds: [embed]}).then(async () => {
             await scripts.delay(1000);
             embed = new EmbedBuilder()
-          .setDescription('<:success:776752856501583872> **Database Connected**\n> \`status\` <:7688moderationvlow:1086718114802176172>')
+          .setDescription('<:success:776752856501583872> **Database Connected**\n> \`status\` 🟢')
           .setColor(scripts.getSuccessColor());
             await interaction.editReply({embeds: [embed]}).then(async () => {
               await scripts.delay(1000);
@@ -105,7 +105,7 @@ module.exports = {
           // send failed to connect, try again message/embed
           console.log(`failed to connect to db`);
           let embed = new EmbedBuilder()
-          .setDescription('__<a:attention:760937915643068430> **Fail**__\n> \`status\` <:1486moderationvhighest:1086718105042034880>\nFailed to connect to the database, please try again.\n\nThis is likely due to slow internet connection. If problem is consistent, wait some time and try again.')
+          .setDescription('__<a:attention:760937915643068430> **Fail**__\n> \`status\` 🔴\nFailed to connect to the database, please try again.\n\nThis is likely due to slow internet connection. If problem is consistent, wait some time and try again.')
           .setFooter('Contact Steve Jobs if problem persists.')
           .setColor(scripts.getErrorColor());
           await interaction.editReply({embeds: [embed]}).then(async () => {

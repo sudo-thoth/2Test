@@ -228,18 +228,18 @@ module.exports = {
 
     let filters = {
       attachments: {
-        on: `<:Online:1068901648296063047> <:10671434201602907700128:1086967254773678172> \`Attachments filter\``,
-        off: `<:Offline:1068901698388623360> <:10671434201602907700128:1086967254773678172> \`Attachments filter\``,
+        on: `<:24_online:1093185822087458816> <:10671434201602907700128:1086967254773678172> \`Attachments filter\``,
+        off: `<:22_offline:1107537293335597057> <:10671434201602907700128:1086967254773678172> \`Attachments filter\``,
         string: `<:10671434201602907700128:1086967254773678172> Attachments`
       },
       links: {
-        on: `<:Online:1068901648296063047> <:IconStatusWebOnline:884924726814867457>\`Links filter\``,
-        off: `<:Offline:1068901698388623360> <:IconStatusWebOnline:884924726814867457>\`Links filter\``,
-        string: `<:IconStatusWebOnline:884924726814867457> Links`
+        on: `<:24_online:1093185822087458816> <:IconStatusWebOnline:1107543315991248928>\`Links filter\``,
+        off: `<:22_offline:1107537293335597057> <:IconStatusWebOnline:1107543315991248928>\`Links filter\``,
+        string: `<:IconStatusWebOnline:1107543315991248928> Links`
       },
       copyrightControl: {
         on: `<:Dot3:1075069088969265152> <:No_Copyright_Icon:1086833404227616788> \`Copyright filter\``,
-    off: `<:1486moderationvhighest:1086718105042034880> <:No_Copyright_Icon:1086833404227616788> \`Copyright filter\``,
+    off: `🔴 <:No_Copyright_Icon:1086833404227616788> \`Copyright filter\``,
         string: `<:No_Copyright_Icon:1086833404227616788> Copyright`
       }
       }

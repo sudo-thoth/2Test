@@ -124,7 +124,7 @@ module.exports = {
               inline: true,
             },
             {
-              name: '<:22_offline:1093185817071079464> Offline Members',
+              name: '<:22_offline:1107537293335597057> Offline Members',
               value: `\`\`\`${offlineMembers}\`\`\``,
               inline: true,
             },

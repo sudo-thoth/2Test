@@ -304,15 +304,17 @@ let channelInviteURL = await guild.invites.create( snipe.message?.channelID, {
         reason: `invite from a recovered sniped message`,
         }).then(invite => invite?.url);
       let embedObj;
+      let embedDescription = `\`Server\` \`${snipe.serverName}\`||[${snipe.serverName}](${serverInviteURL})||\n\`Channel\` \`${snipe.channelName}\`||[${snipe.channelName}](${channelInviteURL})||\n\n**__Message Info__**:\n|| ‎  ‎  ‎  ‎  ‎ ||╰:wastebasket: *__Deleted:__*\n|| ‎  ‎  ‎  ‎  ‎ || || ‎  ‎  ‎  ‎  ‎ ||╰:bust_in_silhouette:  By: ${snipe?.snipedBy ? `<@${snipe.snipedBy?.userID}> \`/\` \`${snipe.snipedBy.username}\`` : snipe?.deletedBy ? `<@${snipe.deletedBy?.userID}> \`/\` \`${snipe.deletedBy.username}\`` : `:ghost: Unknown`  }\n|| ‎  ‎  ‎  ‎  ‎ |||| ‎  ‎  ‎  ‎  ‎ ||╰:clock: Time: <t:${ Math.floor(
+        (snipe?.loggedTimestamp || snipe?.savedTimestamp) / 1000
+      )}:R>\n|| ‎  ‎  ‎  ‎  ‎ ||╰:writing_hand: *__Sent:__*\n|| ‎  ‎  ‎  ‎  ‎ |||| ‎  ‎  ‎  ‎  ‎ ||╰:bust_in_silhouette:  By:<@${snipe.author.id}> \`/\` \`${snipe.author.username}\`\n|| ‎  ‎  ‎  ‎  ‎ |||| ‎  ‎  ‎  ‎  ‎ ||╰:clock: Time: <t:${ Math.floor(
+            snipe?.message?.timestamp ? snipe?.message?.timestamp / 1000 : Date.parse(snipe?.message?.createdAt) / 1000
+          )}:R>\n\n`;
+          let embedDescriptionLength = embedDescription.length;
       if(snipe.message.content < 1024) {
         embedObj = {
             title: `Sniped Message${target ? ` from ${target.username}` : ""}`,
             thumbnail: snipe.author.displayAvatarURL(),
-            description: `\`Server\` \`${snipe.serverName}\`||[${snipe.serverName}](${serverInviteURL})||\n\`Channel\` \`${snipe.channelName}\`||[${snipe.channelName}](${channelInviteURL})||\n\n**__Message Info__**:\n|| ‎  ‎  ‎  ‎  ‎ ||╰:wastebasket: *__Deleted:__*\n|| ‎  ‎  ‎  ‎  ‎ |||| ‎  ‎  ‎  ‎  ‎ ||╰:bust_in_silhouette:  By: ${snipe?.snipedBy ? `<@${snipe.snipedBy?.userID}> \`/\` \`${snipe.snipedBy.username}\`` : snipe?.deletedBy ? `<@${snipe.deletedBy?.userID}> \`/\` \`${snipe.deletedBy.username}\`` : `:ghost: Unknown`  }\n|| ‎  ‎  ‎  ‎  ‎ |||| ‎  ‎  ‎  ‎  ‎ ||╰:clock: Time: <t:${ Math.floor(
-              (snipe?.loggedTimestamp || snipe?.savedTimestamp) / 1000
-            )}:R>\n|| ‎  ‎  ‎  ‎  ‎ ||╰:writing_hand: *__Sent:__*\n|| ‎  ‎  ‎  ‎  ‎ |||| ‎  ‎  ‎  ‎  ‎ ||╰:bust_in_silhouette:  By:<@${snipe.author.id}> \`/\` \`${snipe.author.username}\`\n|| ‎  ‎  ‎  ‎  ‎ |||| ‎  ‎  ‎  ‎  ‎ ||╰:clock: Time: <t:${ Math.floor(
-              snipe?.message?.timestamp ? snipe?.message?.timestamp / 1000 : Date.parse(snipe?.message?.createdAt) / 1000
-            )}:R>`,
+            description: embedDescription,
             fields:[
                 {
                     name: "message content",
@@ -326,6 +328,12 @@ let channelInviteURL = await guild.invites.create( snipe.message?.channelID, {
             color: scripts.getColor(),
             }
         } else {
+          let content = embedDescription + `> **Message Content:**\n> ${snipe?.message?.content || ``}`;
+          if((embedDescriptionLength+snipe?.message?.content?.length) > 4096) {
+            // if descriotion plus content is over 4096 chars then trim the content to approriate size and end it with ...
+
+           content = (embedDescription + `> **Message Content:**\n> ${snipe?.message?.content || ``}`)?.slice(0, 4096-embedDescriptionLength-3) + "...";
+          }
             embedObj = {
                 // title: `Sniped Message${target ? ` from ${target.username}` : ""}`,
                 // thumbnail: snipe.author.displayAvatarURL(),
@@ -334,11 +342,7 @@ let channelInviteURL = await guild.invites.create( snipe.message?.channelID, {
                 // )}:R>\n\n:writing_hand: **__ Sent By:__** \n<@${snipe.author.id}> \`/\` ||\`${snipe.author.username} | ${snipe.author.id}\`||\n\n> **Message Content:**\n> ${snipe.message?.content}`,
                 title: `Sniped Message${target ? ` from ${target.username}` : ""}`,
             thumbnail: snipe.author.displayAvatarURL(),
-            description: `\`Server\` \`${snipe.serverName}\`||[${snipe.serverName}](${serverInviteURL})||\n\`Channel\` \`${snipe.channelName}\`||[${snipe.channelName}](${channelInviteURL})||\n\n**__Message Info__**:\n|| ‎  ‎  ‎  ‎  ‎ ||╰:wastebasket: *__Deleted:__*\n|| ‎  ‎  ‎  ‎  ‎ || || ‎  ‎  ‎  ‎  ‎ ||╰:bust_in_silhouette:  By: ${snipe?.snipedBy ? `<@${snipe.snipedBy?.userID}> \`/\` \`${snipe.snipedBy.username}\`` : snipe?.deletedBy ? `<@${snipe.deletedBy?.userID}> \`/\` \`${snipe.deletedBy.username}\`` : `:ghost: Unknown`  }\n|| ‎  ‎  ‎  ‎  ‎ |||| ‎  ‎  ‎  ‎  ‎ ||╰:clock: Time: <t:${ Math.floor(
-              (snipe?.loggedTimestamp || snipe?.savedTimestamp) / 1000
-            )}:R>\n|| ‎  ‎  ‎  ‎  ‎ ||╰:writing_hand: *__Sent:__*\n|| ‎  ‎  ‎  ‎  ‎ |||| ‎  ‎  ‎  ‎  ‎ ||╰:bust_in_silhouette:  By:<@${snipe.author.id}> \`/\` \`${snipe.author.username}\`\n|| ‎  ‎  ‎  ‎  ‎ |||| ‎  ‎  ‎  ‎  ‎ ||╰:clock: Time: <t:${ Math.floor(
-                  snipe?.message?.timestamp ? snipe?.message?.timestamp / 1000 : Date.parse(snipe?.message?.createdAt) / 1000
-                )}:R>\n\n> **Message Content:**\n> ${snipe.message?.content}`,
+            description: content, // 4096 char limit
                 
                 footer: {
                     text: `Snipe ${index + 1} of ${lastDeletedMessages.length}`,

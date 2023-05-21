@@ -13,7 +13,6 @@
     "start": "nodemon index.js",
     "check-deps": "for dep in axios axios-observable chalk cli-box discord.js dotenv moment mongoose rxjs; do if [ ! -d \"node_modules/$dep\" ]; then npm install $dep; fi; done",
     "kill-node": "pkill -f 'node'"
-
   },
   "author": "LT",
   "license": "ISC",
@@ -32,6 +31,7 @@
     "moment": "^2.29.4",
     "mongoose": "^6.9.0",
     "nodemon": "^2.0.21",
+    "openai": "^3.2.1",
     "rxjs": "^7.8.0"
   },
   "devDependencies": {

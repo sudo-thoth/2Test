@@ -17,7 +17,8 @@ module.exports = {
       .setRequired(true)
       .addChoices(
         {name: "Create", value: "create"},
-        {name: "Delete", value: "delete"}
+        {name: "Delete", value: "delete"},
+        {name: "Groups List", value: "list"},
         )
       // .addChoice("Add Message", "add")
       // .addChoice("Remove Message", "remove")
@@ -288,6 +289,97 @@ if (action === "create") {
     return await interaction.deleteReply()
   }
 
+} else if (action === 'list'){
+  try {
+    try {
+      await interaction.editReply({
+        embeds: [
+          createEmb.createEmbed({
+            title: `Request to list all dynamic message groups was received`,
+            description: `<a:LoadingRed:1006206951602008104> \`loading\``,
+            color: scripts.getColor(),
+          }),
+        ],
+      });
+    } catch (error) {
+      console.log(error);
+      try {
+        await interaction.user.send({
+          embeds: [
+            createEmb.createEmbed({
+              title: `Error: Request to list all dynamic message groups was received`,
+              description: `**If Error Persists Contact the Developers**\n\nError Log: \n\`\`\`js\n${error}\n\`\`\``,
+              color: scripts.getErrorColor(),
+            }),
+          ],
+        });
+      } catch (err) {
+        console.log(err);
+      }
+    }
+
+    let allGroups = await groups.find({channelId: groupChannel.id})
+    let groupList = []; // array of objects {groupName: '', groupID: '', status: '', messageCount: '', lastUpdated: ''}
+    let embedDescription = ``;
+    for ( let i = 0; i < allGroups.length; i++){
+      let group = allGroups[i]
+      let groupObj = {
+        groupName: group.groupName,
+        groupID: group.groupID,
+        status: group.onlineStatus,
+        messageCount: group.messages?.length(),
+        lastUpdated: group.cycleStartedAt, // <:22_offline:1107537293335597057>
+        listString: `${group.onlineStatus ? `<:24_online:1093185822087458816>` : `<:22_offline:1107537293335597057>`} **__${group.groupName}__** - \`${group.messages?.length()}\` \`${group.messages?.length() !== 1 ? 'Groups' : 'Group'}\` **-** \`last update: ${group.cycleStartedAt}\` **-** \`id:${group.groupID}\` \n`
+      }
+      groupList.push(groupObj)
+    }
+
+     embedDescription += `${groupObj.listString}\n`;
+
+     let embed = createEmb.createEmbed({title: `List of Dynamic Message Groups`, description: embedDescription, color: scripts.getColor()})
+      try {
+        await interaction.editReply({embeds: [embed]})
+        await scripts.delay(15000)
+        try {
+          return await interaction.deleteReply()
+         } catch (error) {
+          return console.log(error);
+         }
+      } catch (error) {
+        console.log(error);
+        try {
+           return await interaction.user.send({
+            embeds: [
+              createEmb.createEmbed({
+                title: `Error: Request to list all dynamic message groups was received`,
+                description: `**If Error Persists Contact the Developers**\n\nError Log: \n\`\`\`js\n${error}\n\`\`\``,
+                color: scripts.getErrorColor(),
+              }),
+            ],
+          });
+        } catch (err) {
+          return console.log(err);
+        }
+        
+      }
+       
+  } catch (error) {
+    console.log(error);
+    try {
+      await interaction.editReply({
+        embeds: [
+          createEmb.createEmbed({
+            title: `Error: Request to list all dynamic message groups was received`,
+            description: `**If Error Persists Contact the Developers**\n\nError Log: \n\`\`\`js\n${error}\n\`\`\``,
+            color: scripts.getErrorColor(),
+          }),
+        ],
+      });
+    } catch (err) {
+      console.log(err);
+
+  }
+}
 }
   },
 };

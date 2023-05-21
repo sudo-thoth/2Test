@@ -109,11 +109,13 @@ const fetchMessages = async (channel, num, messageType, interaction) => {
 const deleteMessages = async (channel, messages, interaction) => {
   // Check if the bot has necessary permissions
   let me = await interaction?.guild?.members?.fetchMe();
-  const botPermissions = me?.permissions?.has("ManageMessages")
+  const botPermissions = me?.permissions?.has("ManageMessages");
 
   if (!botPermissions) {
     try {
-      await interaction.editReply("The bot lacks the required permissions to delete messages. Please grant the 'Manage Messages' permission.");
+      await interaction.editReply(
+        "The bot lacks the required permissions to delete messages. Please grant the 'Manage Messages' permission."
+      );
     } catch (error) {
       console.error("Failed to send reply", error);
     }
@@ -122,17 +124,26 @@ const deleteMessages = async (channel, messages, interaction) => {
 
   // Split messages into two arrays: under 14 days old and over 14 days old
   const now = Date.now();
-  const bulkDeleteMessages = messages.filter(message => now - message.createdTimestamp < 14 * 24 * 60 * 60 * 1000);
-  const singleDeleteMessages = messages.filter(message => now - message.createdTimestamp >= 14 * 24 * 60 * 60 * 1000);
+  const bulkDeleteMessages = messages.filter(
+    (message) => now - message.createdTimestamp < 14 * 24 * 60 * 60 * 1000
+  );
+  const singleDeleteMessages = messages.filter(
+    (message) => now - message.createdTimestamp >= 14 * 24 * 60 * 60 * 1000
+  );
 
-  const bulkDeleteIds = bulkDeleteMessages.map(message => message.id);
-  const singleDeleteIds = singleDeleteMessages.map(message => message.id);
+  const bulkDeleteIds = bulkDeleteMessages.map((message) => message.id);
+  const singleDeleteIds = singleDeleteMessages.map((message) => message.id);
 
   let currentLoop = 0;
   let startTime, endTime, avgTimePerLoop;
   startTime = Date.now();
 
   try {
+    // Inform user about the start of the deletion process
+    await interaction.editReply(
+      `Starting deletion process. Bulk deletion first, then single deletion.`
+    );
+
     // Bulk delete messages under 14 days old
     while (bulkDeleteIds.length > 0) {
       currentLoop++;
@@ -144,23 +155,27 @@ const deleteMessages = async (channel, messages, interaction) => {
         return false;
       }
 
-      if (currentLoop % 3 === 0) {
-        endTime = Date.now();
-        avgTimePerLoop = (endTime - startTime) / currentLoop;
-        const batchesLeft = Math.ceil(bulkDeleteIds.length / 100);
-        const estimatedSecondsLeft = batchesLeft * avgTimePerLoop / 1000;
+      endTime = Date.now();
+      avgTimePerLoop = (endTime - startTime) / currentLoop;
+      const batchesLeft = Math.ceil(bulkDeleteIds.length / 100);
+      const estimatedSecondsLeft = batchesLeft * avgTimePerLoop / 1000;
 
-        console.log(`Estimated time left for bulk deletion: ${estimatedSecondsLeft.toFixed(2)} seconds`);
-
-        // You can use the interaction to edit the reply and inform the user about the estimated time left:
-         try {
-          await interaction.editReply(`Estimated time left for bulk deletion: ${estimatedSecondsLeft.toFixed(2)} seconds`);
-         } catch (error) {
-          console.error("Failed to send reply", error);
-
-         }
-      }
+      // Inform the user about the progress of the bulk deletion
+      await interaction.editReply(
+        `Bulk deletion in progress. Deleted ${currentLoop * 100} messages so far. Estimated time left: ${estimatedSecondsLeft.toFixed(
+          2
+        )} seconds.`
+      );
     }
+
+    // Inform user that bulk deletion is complete and single deletion will start
+    await interaction.editReply(
+      `Bulk deletion complete. Starting single message deletion.`
+    );
+
+    // Reset currentLoop and startTime for single deletion
+    currentLoop = 0;
+    startTime = Date.now();
 
     // Delete messages over 14 days old one by one
     for (const id of singleDeleteIds) {
@@ -174,22 +189,23 @@ const deleteMessages = async (channel, messages, interaction) => {
         console.error("Failed to delete single message", error);
       }
 
-      if (currentLoop % 3 === 0) {
-        endTime = Date.now();
-        avgTimePerLoop = (endTime - startTime) / currentLoop;
-        const messagesLeft = singleDeleteIds.length;
-        const estimatedSecondsLeft = messagesLeft * avgTimePerLoop / 1000;
+      endTime = Date.now();
+      avgTimePerLoop = (endTime - startTime) / currentLoop;
+      const messagesLeft = singleDeleteIds.length;
+      const estimatedSecondsLeft = messagesLeft * avgTimePerLoop / 1000;
 
-        console.log(`Estimated time left for single deletion: ${estimatedSecondsLeft.toFixed(2)} seconds`);
+      // Inform the user about the progress of the single deletion
+      await interaction.editReply(
+        `Single deletion in progress. Deleted ${currentLoop} messages so far. Estimated time left: ${estimatedSecondsLeft.toFixed(
+          2
+        )} seconds.`
+      );
+        }
 
-        // You can use the interaction to edit the reply and inform the user about the estimated time left:
-         try {
-          await interaction.editReply(`Estimated time left for single deletion: ${estimatedSecondsLeft.toFixed(2)} seconds`);
-         } catch (error) {
-          console.error("Failed to send reply", error);
-         }
-      }
-    }
+    // Inform user that the deletion process is complete
+    await interaction.editReply(
+      `Deletion process complete. Deleted a total of ${bulkDeleteIds.length * 100 + currentLoop} messages.`
+    );
 
     console.log("Deletion completed. All messages deleted successfully.");
     return true;
@@ -198,6 +214,8 @@ const deleteMessages = async (channel, messages, interaction) => {
     return false;
   }
 };
+
+      
 
 
 module.exports = {

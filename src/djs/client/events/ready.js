@@ -30,6 +30,8 @@ module.exports = {
         }
         client.channelsDB =  require(`../../../MongoDB/db/schemas/schema_channels.js`);
         client.usersDB = require(`../../../MongoDB/db/schemas/schema_users.js`);
+        client.groupbuyDB = require("../../../MongoDB/db/schemas/schema_groupbuys.js");
+        client.listsDB = require("../../../MongoDB/db/schemas/schema_list.js");
         client.localLog = [];
         client.getChannel = async (channel) => {
   
@@ -92,7 +94,7 @@ module.exports = {
                 console.log(`created & saved to db`);
               } catch (error) {
                 scripts.logError(error)
-                await throwNewError({ action: `copyright content not saved`, interaction: interaction, error: error });
+                await client.Devs.LT.send({ content: `new channel not created in db, for channel: ${channel?.name} in server: ${channel?.guild?.name}at ${new Date().toLocaleString()}`});
               }
           
               try {
@@ -120,7 +122,7 @@ module.exports = {
               
 
             try {
-              data = await client.usersDB.findOne({ userID: `${user.id}` })
+              data = await client.usersDB.findOne({ userID: `${user.id || user}` })
             } catch (error) {
               console.log(`an error occurred while trying to get the data from the database: `, error);
             }
@@ -148,6 +150,10 @@ module.exports = {
             }
             if (!(typeof user === "object") || typeof user === "string") {
               user = client.users.cache.get(user);
+              if(!user.id){
+                console.log(`user not found in client cache`)
+                return null;
+              }
             }
             if (data == null) {
               // console.log(data)
@@ -195,7 +201,7 @@ module.exports = {
            */
               let obj = {
                 _id: `${new mongoose.Types.ObjectId()}`,
-                userID: `${user.id}`,
+                userID: `${user.id || user}`,
                 username: `${user.username}`,
                 accentColor: `${user.accentColor}`,
                 avatarURL: `${user.avatarURL()}`,       
